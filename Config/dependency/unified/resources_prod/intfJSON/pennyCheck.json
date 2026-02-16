@@ -1,0 +1,27 @@
+{
+  "apiURL": "${URL}",
+  "servicetype": "HTTP",
+  "methodType": "POST",
+  "contentType": "application/json",
+  "headers": {
+    "Content-Type": "application/json",
+    "Accept": "*/*",
+    "x-karza-key": "mMAfIhcGwxuZtPxi"
+  },
+  "requestDef": {
+    "useCombinedSolution": "${REQUEST~apiRequest.useCombinedSolution}",
+    "nameMatchType": "${REQUEST~apiRequest.nameMatchType}",
+    "allowPartialMatch": "${REQUEST~apiRequest.allowPartialMatch}",
+    "accountNumber": "${REQUEST~apiRequest.accountNumber}",
+    "ifsc": "${REQUEST~apiRequest.ifsc}",
+    "consent": "${REQUEST~apiRequest.consent}",
+    "accountHolderName": "${REQUEST~apiRequest.accountHolderName}"
+  },
+  "responseDef": "",
+  "logging": {
+    "logRequired": "Y",
+    "logType": "BOTH",
+	  "externalAPILogRequired":"N",
+	  "externalAPILogType":"NONE"
+  }
+}

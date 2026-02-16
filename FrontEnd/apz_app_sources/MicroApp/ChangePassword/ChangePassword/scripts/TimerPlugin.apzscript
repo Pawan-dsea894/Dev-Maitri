@@ -1,0 +1,82 @@
+function timerCounter() {
+    var self = this;
+    this.seconds = 0;
+    this.count = 0;
+    this.degrees = 0;
+    this.interval = null;
+    this.timerContainer = null;
+    this.number = null;
+    this.slice = null;
+    this.pie = null;
+    this.pieRight = null;
+    this.pieLeft = null;
+    this.quarter = null;
+    this.timerHTML = "<div class='num' style='display: inline-flex;'></div>" //+
+        //  this.timerHTML = "<div class='greybg'><div class='num'></div><div class='slice'><div class='quater'></div>" //+
+        // "<div class='pie right'></div><div class='pie left'></div></div><div class='lmin'></div></div>";
+    this.init = function(e, s) {
+        self.timerContainer = $("#" + e);
+        self.timerContainer.html(self.timerHTML);
+        self.number = self.timerContainer.find(".num");
+        self.slice = self.timerContainer.find(".slice");
+        self.pie = self.timerContainer.find(".pie");
+        self.pieRight = self.timerContainer.find(".pie.right");
+        self.pieLeft = self.timerContainer.find(".pie.left");
+        self.quarter = self.timerContainer.find(".quater");
+        self.start(s);
+    };
+    this.start = function(val) {
+        self.seconds = parseInt(val);
+        self.interval = window.setInterval(function() {
+            var mins = Math.floor((self.seconds - self.count) / 60),
+                secs = self.seconds - ((self.count) % 60);
+            if (self.count >= 60) {
+                secs = secs - 60;
+                if ((self.count) % 60 === 0) {
+                    secs = 0;
+                }
+            }
+            if (self.seconds >= 60) { //&& mins !== 0) {
+                secs = (self.seconds - self.count) % 60;
+            }
+            if (secs.toString().length === 1) {
+                secs = "0" + secs.toString();
+            }
+            var time = mins + ":" + secs;
+            self.number.html(time);
+            self.count++;
+            if (self.count > (self.seconds)) {
+                clearInterval(self.interval);
+                //  $("#" + CustVerfScrId + "Regenerateotp").removeClass("sno");
+                //  $("#" + CustVerfScrId + "Regenerateotp_ul").removeClass("sno");
+                $("#" + ForgotScrId + "OTP").val(''); //Clear OTP input filed once the timer expires
+                //$("#" + CustVerfScrId + "otpconfirm").addClass("sno");
+                $("#" + ForgotScrId + "Resendotp").removeClass("sno");
+                $("#" + ForgotScrId + "otpExpireDiv").addClass("sno");
+                if (apz.deviceType !== "WEB") {
+                    $("#Authen__OTPAuthentication__sc_row_89").addClass("sno");
+                }
+            }
+            self.degrees = self.degrees + (360 / self.seconds);
+            if (self.count >= (self.seconds / 2)) {
+                self.slice.addClass("nc");
+                if (!self.slice.hasClass("calculated")) {
+                    self.pieRight.css({
+                        "transform": "rotate(180deg)"
+                    });
+                    self.pieLeft.css({
+                        "transform": "rotate(" + self.degrees + "deg)"
+                    });
+                    self.slice.addClass("calculated");
+                }
+                if (self.count >= (self.seconds * 0.75)) {
+                    self.quarter.remove();
+                }
+            } else {
+                self.pie.css({
+                    "transform": "rotate(" + self.degrees + "deg)"
+                });
+            }
+        }, 1000);
+    };
+}

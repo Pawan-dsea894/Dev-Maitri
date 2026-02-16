@@ -1,0 +1,34 @@
+{
+    "apiURL": "${URL}",
+    "servicetype": "HTTP",
+    "methodType": "POST",
+    "contentType": "application/json",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "*/*",
+      "Apikey": "Z3JhbWVlbmtvb3RhcHJvZA",
+      "Authorization": "Basic dXNlcm5hbWU6MjAyMUBHS2FwIQ=="
+    },
+    "requestDef": {
+        "id": "${REQUEST~apiRequest.requestObj.id}",
+        "gkv": "${REQUEST~apiRequest.requestObj.gkv}",
+        "method": "${REQUEST~apiRequest.requestObj.method}",
+        "customerId": "${REQUEST~apiRequest.requestObj.customerId}",
+	"name": "${REQUEST~apiRequest.requestObj.name}",
+        "dob": "${REQUEST~apiRequest.requestObj.dob}",
+        "memrelation": "${REQUEST~apiRequest.requestObj.memrelation}",
+        "legaldocname": "${REQUEST~apiRequest.requestObj.legaldocname}",
+        "legalid": "${REQUEST~apiRequest.requestObj.legalid}",
+        "incomeflag": "${REQUEST~apiRequest.requestObj.incomeflag}",
+        "recordstatus": "${REQUEST~apiRequest.requestObj.recordstatus}",
+        "branchId": "${REQUEST~apiRequest.requestObj.branchId}"
+    },
+    "responseDef": "",
+    "logging": {
+      "logRequired": "Y",
+      "logType": "BOTH",
+	  "externalAPILogRequired":"N",
+	  "externalAPILogType":"NONE"
+    }
+  }
+  

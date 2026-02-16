@@ -1,0 +1,711 @@
+var Transpayload = "";
+var otpauth = "OTP",
+    AuthenScreenID = "Authen__DualAuth__";
+var TIME_LIMIT = "";
+var VALIDATION_LIMIT = "";
+window.ShowError = false;
+var FULL_DASH_ARRAY = 283;
+var WARNING_THRESHOLD = 30;
+var ALERT_THRESHOLD = 10;
+window.pinMaximumLength = 4;//Changes for CNSMRBANKI-3106 JIRA
+window.timePassed = 0;
+window.otpRegenCount = 0;
+var RegenCount = 0;
+window.timeLeft = "";
+window.timerInterval = null;
+var authtype;
+var pinFieldNumber = 0;
+var currID;
+var remainingPathColor = "green";
+apz.afterOtp = false;
+window.otpflag = false;
+var otpFieldNumber = 0;
+var pwdMaximumLength;
+var validatedOTP = "";
+var basetimeremaining = "base-timer-path-remaining";
+var COLOR_CODES = {
+    info: {
+        color: "green"
+    },
+    warning: {
+        color: "orange",
+        threshold: WARNING_THRESHOLD
+    },
+    alert: {
+        color: "red",
+        threshold: ALERT_THRESHOLD
+    }
+};
+var incorrectotptext = ApzRMB.getDescfromLitCode("LIT_INC_OTP");
+var AttemptsLeftNode = "Attempts Left";
+var Attemptslefttext = ApzRMB.getDescfromLitCode("LIT_ATT_LFT");
+var assciiCode = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 127, 8, 13];
+var dualAuthOTP = '#' + AuthenScreenID + 'otp_';
+var dualAuthPin = '#' + AuthenScreenID + 'pin_';
+apz.app.onLoad_DualAuth = function(params) {
+    Transpayload = params;
+    apz.currAppId = 'Authen';
+    apz.childScr = 'DualAuth';
+    if (!ApzRMB.chkprevscrPageBC(apz.childScr)) {
+        ApzRMB.addscrPageBC(apz.childScr);
+    }
+    TimerHTMLInjection();
+    $("#" + gAppId + "__PostLogin_BaseScreen__logoutCol").addClass("sno");
+    $("#" + gAppId + "__PostLogin_BaseScreen__mailCol").addClass("sno");
+    $("#" + gAppId + "__PostLogin_BaseScreen__mailCol").addClass("sno");
+    ApzRMB.GetPasswordSecParams("GetTxnPinPolicy", gApzRMB.LoggedInUserDetails.loginResponse.userDet.id);
+    //    pwdMaximumLength = 6;
+    ApzRMB.toggleModal(AuthenScreenID + 'Dualauthmodel');
+    // $('input').change(function() {
+    //     if ($(this).val().length === $(this).attr("maxlength") && apz.childScr === 'DualAuth') {
+    //         var i = $('input').index(this);
+    //         $('input').eq(i + 1).focus();
+    //     }
+    // });
+};
+apz.app.onShown_DualAuth = function() {
+    // pinMaximumLength = gApzRMB.PinPolicy.pwdMaximumLength; Changes for CNSMRBANKI-3106 JIRA
+    // var wrapper = $('#' + AuthenScreenID +"pin_1_ul").parent(); //Fields wrapper
+    document.getElementById(AuthenScreenID + "pin_1").setAttribute('maxlength', window.pinMaximumLength);
+    var placeHolderVal = '*';
+    for (let i = 1; i < window.pinMaximumLength; i++) {
+        placeHolderVal = placeHolderVal + '*';
+    }
+    $("#" + AuthenScreenID + "pin_1").attr('placeholder', placeHolderVal);
+    if (apz.deviceType !== "WEB") {
+        // for (let i = 1; i < window.pinMaximumLength; i++) {
+        //     $(wrapper).append('<ul id="Authen__DualAuth__pin_' + (i + 1) + 
+        //         '_ul" class="eoc srb  "><li class="etw-0"><label id="Authen__DualAuth__pin_' + (i + 1) +
+        //         '_grp_lbl" for="Authen__DualAuth__pin_' + (i + 1) +
+        //         '" class="flb" style="" title="Input">Input</label></li><li id="Authen__DualAuth__pin_' + (i + 1) +
+        //         '_li" class="eic etw-100"><span class="ecn etw-100" style=""><input id="Authen__DualAuth__pin_' + (i + 1) +
+        //         '" class="etw-100 ett-inpt pri cen " type="Tel" maxlength="1" placeholder="*" enabled="enabled" value=""></span></li></ul>'
+        //         ); //add input box
+        // }
+        $("#" + AuthenScreenID + "pin_1").attr('type', "Tel");
+        $("#" + AuthenScreenID + "pin_1_ul").addClass("custompassword");
+    } else {
+        // for (let i = 1; i < pinMaximumLength; i++) {
+        //     $(wrapper).append('<ul id="Authen__DualAuth__pin_' + (i + 1) +
+        //         '_ul" class="eoc srb  "><li class="etw-0"><label id="Authen__DualAuth__pin_' + (i + 1) +
+        //         '_grp_lbl" for="Authen__DualAuth__pin_' + (i + 1) +
+        //         '" class="flb" style="" title="Input">Input</label></li><li id="Authen__DualAuth__pin_' + (i + 1) +
+        //         '_li" class="eic etw-100"><span class="ecn etw-100" style=""><input id="Authen__DualAuth__pin_' + (i + 1) +
+        //         '" class="etw-100 ett-inpt pri cen " type="password" maxlength="1" placeholder="*" enabled="enabled" value=""></span></li></ul>'
+        //         ); //add input box
+        // }
+        // document.getElementById(AuthenScreenID + "pin_1").readOnly = false;
+        $("#" + AuthenScreenID + "pin_1").attr('type', "password");
+    }
+    if (apz.isNull(gApzRMB.AltAuthenticationtype) || gApzRMB.AltAuthenticationtype === '' || gApzRMB.AltAuthenticationtype === "NoAuth") {
+        $("#" + AuthenScreenID + "frm_altAuthDiv").addClass('sno');
+    } else {
+        $("#" + AuthenScreenID + "frm_altAuthDiv").removeClass('sno');
+    }
+    // if (apz.deviceOs === "iOS") {
+    //     $('.key').bind('touchstart', function(e) {
+    //         apz.app.DualAuth.keyPadPress(this);
+    //     });
+    // } else if (apz.deviceOs === "ANDROID" || apz.deviceType === "WEB") {
+    //     $('.key').click(function(e) {
+    //         if (apz.childScr === 'DualAuth') {
+    //             apz.app.DualAuth.keyPadPress(this);
+    //         }
+    //     });
+    // }
+    apz.currAppId = 'Authen';//Changes for CNSMRBANKI-3119 JIRA
+    apz.childScr = 'DualAuth';//Changes for CNSMRBANKI-3119 JIRA
+    ApzRMB.showSubHeader("LIT_AUTH_TRANS");
+    $("#" + gAppId + "__PostLogin_BaseScreen__backIconCol").addClass("sno");
+    apz.app.DualAuth.GenerateOTP("");
+    if (!apz.isNull(Transpayload.cancelCB)) {
+        $("#" + AuthenScreenID + "Dualauthmodel_close").attr("onclick", "apz.app.DualAuth.CancelOTP();");
+        if (Transpayload.cancelCB.split("()")[1] === undefined) {
+            $("#" + gAppId + "__PostLogin_BaseScreen__backIconCol").attr("onclick", Transpayload.cancelCB + "();");
+        } else {
+            $("#" + gAppId + "__PostLogin_BaseScreen__backIconCol").attr("onclick", Transpayload.cancelCB);
+        }
+    }
+    $("#" + AuthenScreenID + 'otp_1').attr("onblur", "").unbind("click");
+    $("#" + AuthenScreenID + 'pin_1').attr("onblur", "").unbind("click");
+    setTimeout(function() {
+        if (gApzRMB.LoggedInUserDetails.hasOwnProperty("userCred") && (gApzRMB.LoggedInUserDetails.userCred.includes("SetTPIN"))) {
+            ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_SET_TPIN_ERR"), "E", apz.app.DualAuth.launchSetTPINModule);
+        }
+    }, 300);
+};
+apz.app.DualAuth.GenrateInpOtp = function() {
+    var currentInputCountLength = $("#" + AuthenScreenID + "Otp_row").find("input").length
+    if (currentInputCountLength === pwdMaximumLength) {
+        return;
+    }
+    // var wrapper = $('#' + AuthenScreenID + "otp_1_ul").parent(); //Fields wrapper
+    document.getElementById(AuthenScreenID + "otp_1").setAttribute('maxlength', pwdMaximumLength);
+    var placeHolderVal = '0';
+    for (let i = 1; i < pwdMaximumLength; i++) {
+        placeHolderVal = placeHolderVal + '0';
+    }
+    $("#" + AuthenScreenID + "otp_1").attr('placeholder', placeHolderVal);
+    if (apz.deviceType !== "WEB" || ApzRMB.isMobileBrowser()) {
+        // for (let i = 1; i < pwdMaximumLength; i++) {
+        //     $(wrapper).append('<ul id="Authen__DualAuth__otp_' + (i + 1) +
+        //         '_ul" class="eoc srb  "><li class="etw-0"><label id="Authen__DualAuth__otp_' + (i + 1) +
+        //         '_grp_lbl" for="Authen__DualAuth__otp_' + (i + 1) +
+        //         '" class="flb" style="" title="Input"></label></li><li id="Authen__DualAuth__otp_' + (i + 1) +
+        //         '_li" class="eic etw-100"><span class="ecn etw-100" style=""><input id="Authen__DualAuth__otp_' + (i + 1) +
+        //         '" class="etw-100 ett-inpt pri cen " type="Tel" maxlength="1" placeholder="0" enabled="enabled" value=""></span></li></ul>'
+        //         ); //add input box
+        // }
+        $("#" + AuthenScreenID + "otp_1").attr('type', "Tel");
+        $("#" + AuthenScreenID + "otp_1_ul").addClass("custompassword");
+    } else {
+        // for (let i = 1; i < pwdMaximumLength; i++) {
+        //     $(wrapper).append('<ul id="Authen__DualAuth__otp_' + (i + 1) +
+        //         '_ul" class="eoc srb  "><li class="etw-0"><label id="Authen__DualAuth__otp_' + (i + 1) +
+        //         '_grp_lbl" for="Authen__DualAuth__otp_' + (i + 1) +
+        //         '" class="flb" style="" title="Input">enabled</label></li><li id="Authen__DualAuth__otp_' + (i + 1) +
+        //         '_li" class="eic etw-100"><span class="ecn etw-100" style=""><input id="Authen__DualAuth__otp_' + (i + 1) +
+        //         '" class="etw-100 ett-inpt pri cen " type="password" maxlength="1" placeholder="0" enabled="enabled" value=""></span></li></ul>'
+        //         ); //add input box
+        // }
+        $("#" + AuthenScreenID + "otp_1").attr('type', "password");
+        // document.getElementById(AuthenScreenID + "otp_1").readOnly = false;
+    }
+    for (var k = 1; k <= pwdMaximumLength; k++) {
+        $(dualAuthOTP + k).attr("autocomplete", "off");
+        $(dualAuthOTP + k).change(function() {
+            if ($(this).val().length === $(this).attr("maxlength") && apz.childScr === 'DualAuth') {
+                var i = $('input').index(this);
+                $('input').eq(i + 1).focus();
+            }
+        });
+        // $(dualAuthOTP + k).keyup(function(e) {
+        //     if (apz.childScr === 'DualAuth') {
+        //         apz.app.DualAuth.keyboardPress(this, e, "OTP");
+        //     }
+        // });
+        // if (k <= pinMaximumLength) {
+        //     // if (apz.deviceType !== "WEB") {
+        //     //     document.getElementById(AuthenScreenID + "pin_" + k).readOnly = true;
+        //     // }
+        //     $(dualAuthPin + k).keyup(function(e) {
+        //         if (apz.childScr === 'DualAuth') {
+        //             apz.app.DualAuth.keyboardPress(this, e, "Pin");
+        //         }
+        //     });
+        // }
+        // if (apz.deviceType !== "WEB") {
+        //     document.getElementById(AuthenScreenID + "otp_" + k).readOnly = true;
+        // }
+        $(dualAuthOTP + k).focus(function(e) {
+            if (apz.childScr === 'DualAuth') {
+                apz.app.DualAuth.OnFocus(this, e, "OTP");
+            }
+        });
+        if (k <= window.pinMaximumLength) {
+            $(dualAuthPin + k).focus(function(e) {
+                if (apz.childScr === 'DualAuth') {
+                    apz.app.DualAuth.OnFocus(this, e, "Pin");
+                }
+            });
+        }
+    }
+};
+apz.app.DualAuth.OnFocus = function(val, e, type) {
+    authtype = type;
+    currID = parseInt(e.currentTarget.id.split('_')[5]);
+};
+apz.app.DualAuth.backPressEvent = function(e) {
+    if (otpFieldNumber > 0 && authtype === 'OTP') {
+        $("#" + AuthenScreenID + "otp_" + otpFieldNumber).val('');
+        otpFieldNumber = otpFieldNumber - 1;
+    } else if (pinFieldNumber > 0 && authtype === 'Pin') {
+        $("#" + AuthenScreenID + "pin_" + pinFieldNumber).val('');
+        pinFieldNumber = pinFieldNumber - 1;
+    }
+};
+apz.app.DualAuth.keyboardPress = function(val, e, type) {
+    var idx = $('input').index(val);
+    var inpId = parseInt(val.id.split('_').pop());
+    let count;
+    let selectedNumber;
+    let k;
+    if (assciiCode.includes(e.which)) {
+        if (e.currentTarget.id === AuthenScreenID + "Tpin_Filed") {
+            return;
+        } else {
+            if (e.which === 8) {
+                apz.app.DualAuth.backspacePress(idx, inpId, type)
+            } else if (type === "Pin") {
+                count = 0;
+                selectedNumber = $(val).val();
+                for (let i = inpId; i > 0; i--) {
+                    if ($("#" + AuthenScreenID + "pin_" + (i - 1)).val() === "") {
+                        count = count + 1
+                        inpId--;
+                        $("#" + AuthenScreenID + "pin_" + i).val("")
+                    }
+                }
+                if (count > 0) {
+                    $('input').eq(idx - count + 1).focus();
+                    $('input').eq(idx - count + 1).attr('type', 'password');
+                    $("#" + AuthenScreenID + "pin_" + inpId).val(selectedNumber);
+                    pinFieldNumber++;
+                } else {
+                    if ($(val).val().length.toString() === $(val).attr("maxlength") && parseInt(val.id.split('_')[5]) < window.pinMaximumLength) {
+                        $('input').eq(idx + 1).focus();
+                        $('input').eq(idx).attr('type', 'password');
+                    }
+                    if (pinFieldNumber < window.pinMaximumLength && !apz.isNull(selectedNumber)) {
+                        k = pinFieldNumber + 1;
+                        $("#" + AuthenScreenID + "pin_" + k).val(selectedNumber);
+                        pinFieldNumber++;
+                    }
+                    if (pinFieldNumber === window.pinMaximumLength) {
+                        //     apz.app.DualAuth.ValidateOTP();
+                        //     $('input').eq((idx + 1) - pwdMaximumLength).focus();
+                        $("#" + AuthenScreenID + "pin_" + pinFieldNumber).attr('type', 'password');
+                        // $("#" + AuthenScreenID + "otp_1").focus();
+                    }
+                }
+            } else {
+                count = 0;
+                selectedNumber = $(val).val();
+                for (let i = inpId; i > 0; i--) {
+                    if ($("#" + AuthenScreenID + "otp_" + (i - 1)).val() === "") {
+                        count = count + 1
+                        inpId--;
+                        $("#" + AuthenScreenID + "otp_" + i).val("")
+                    }
+                }
+                if (count > 0) {
+                    $('input').eq(idx - count + 1).focus();
+                    $('input').eq(idx - count + 1).attr('type', 'password');
+                    $("#" + AuthenScreenID + "otp_" + inpId).val(selectedNumber);
+                    otpFieldNumber++;
+                } else {
+                    if ($(val).val().length.toString() === $(val).attr("maxlength") && parseInt(val.id.split('_')[5]) < pwdMaximumLength) {
+                        $('input').eq(idx + 1).focus();
+                        $('input').eq(idx).attr('type', 'password');
+                    }
+                    if (otpFieldNumber < pwdMaximumLength && !apz.isNull(selectedNumber)) {
+                        k = otpFieldNumber + 1;
+                        $("#" + AuthenScreenID + "otp_" + k).val(selectedNumber);
+                        otpFieldNumber++;
+                        $("#" + AuthenScreenID + "OTP_ERROR").addClass("sno")
+                        if (otpFieldNumber === pwdMaximumLength) {
+                            //     apz.app.DualAuth.ValidateOTP();
+                            //     $('input').eq((idx + 1) - pwdMaximumLength).focus();
+                            $("#" + AuthenScreenID + "otp_" + otpFieldNumber).attr('type', 'password');
+                            // $("#" + AuthenScreenID + "otp_1").focus();
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+apz.app.DualAuth.keyPadPress = function(e) {
+    let k;
+    if (authtype === "Pin" && pinFieldNumber < window.pinMaximumLength) {
+        k = pinFieldNumber + 1;
+        $("#" + AuthenScreenID + "pin_" + k).val(e.innerText);
+        pinFieldNumber++;
+        return;
+    }
+    if (authtype === "OTP" && otpFieldNumber < pwdMaximumLength) {
+        k = otpFieldNumber + 1;
+        $("#" + AuthenScreenID + "otp_" + k).val(e.innerText);
+        otpFieldNumber++;
+        $("#" + AuthenScreenID + "OTP_ERROR").addClass("sno")
+    }
+    if (otpFieldNumber === pwdMaximumLength) {
+        //     apz.app.DualAuth.ValidateOTP();
+        $("#" + AuthenScreenID + "pin_" + otpFieldNumber).attr('type', 'password');
+        $("#" + AuthenScreenID + "otp_1").focus();
+    }
+};
+apz.app.DualAuth.ONcontinue = function(e) {
+    pinFieldNumber = $('#' + AuthenScreenID + 'pin_1').val().length;//Changes for CNSMRBANKI-3119 JIRA
+    otpFieldNumber = $('#' + AuthenScreenID + 'otp_1').val().length;//Changes for CNSMRBANKI-3119 JIRA
+    if (pinFieldNumber !== window.pinMaximumLength) {
+        ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_PINENTER"));
+        return;
+    }
+    if (otpFieldNumber !== pwdMaximumLength) {
+        ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_OTPENTER"));
+    }
+    if (otpFieldNumber === pwdMaximumLength) {
+        apz.app.DualAuth.ValidateOTP();
+    }
+};
+apz.app.DualAuth.GenerateOTP = function(params, Count) {
+    if (Count) {
+        window.otpRegenCount = otpRegenCount + 1;
+    }
+    var OTPuserID = "";
+    otpFieldNumber = 0;
+    apz.app.DualAuth.clearvalue();
+    if (!apz.isNull(params)) {
+        OTPuserID = params.customerId;
+    } else {
+        if (Transpayload.Module === "REGISTRATION" || Transpayload.Module === "FORGOTUSERNAME" || Transpayload.Module === "FORGOTPASSWORD" ||
+            Transpayload.Module === "FORGOTTXNPIN" || Transpayload.Module === "FORGOTMPIN") {
+            OTPuserID = Transpayload.req.apiRequest.userId;
+        } else {
+            OTPuserID = gApzRMB.LoggedInUserDetails.loginResponse.userDet.id;
+        }
+    }
+    var req = {
+        "apiRequest": {
+            "interfaceName": "GenerateOtp",
+            "appId": apz.appId,
+            "userId": OTPuserID,
+            "requestObj": {
+                "payload": {}
+            }
+        }
+    }
+    apz.startLoader();
+    ApzRMB.serverBuildParam(apz.appId, "AuthenticationService", "N", "N", req, true, apz.app.DualAuth.GenerateOTPCB);
+};
+apz.app.DualAuth.GenerateOTPCB = function(params) {
+    try {
+        var ifaceName = ApzRMB.GetInterfaceResMap(params);
+        if (ApzRMB.handleServiceCallBacks(params)) {
+            // if (apz.deviceType !== "WEB" && ApzRMB.GetCommonCodes("AUTOREADOTP") === "Y") {
+            //     //AutoReadOTP for Mobile
+            //     apz.app.DualAuth.AutoReadOTP();
+            // }
+            var tempOtpObj = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+            $("#" + AuthenScreenID + "OTPRefno").text(tempOtpObj.RefNo);
+            $("#" + AuthenScreenID + "dummyotptxt").text(tempOtpObj.otp);
+            apz.app.DualAuth.startTimer(tempOtpObj.otpExpiry);
+            pwdMaximumLength = tempOtpObj.otpLength;
+            RegenCount = tempOtpObj.otpRegenCount;
+            $("#" + AuthenScreenID + "otp").attr("maxlength", tempOtpObj.otpLength);
+            $("#" + AuthenScreenID + "Regenerateotp_ul").addClass("sno");
+            $("#" + AuthenScreenID + "expiryDIV").removeClass("sno");
+            $("#" + AuthenScreenID + "otpconfirm").removeClass("sno");
+            $("#" + AuthenScreenID + "pin_1").focus();
+            if (Transpayload.Module === "REGISTRATION" || Transpayload.Module === "FORGOTUSERNAME" || Transpayload.Module === "FORGOTPASSWORD" ||
+                Transpayload.Module === "FORGOTTXNPIN" || Transpayload.Module === "FORGOTMPIN") {
+                $("#" + AuthenScreenID + "txt_authn_mobileNo").text(Transpayload.req.apiRequest.requestObj.mobileNumber.substring(0, 3) +
+                    'xx xx' + Transpayload.req.apiRequest.requestObj.mobileNumber.substring(6 + 1));
+            } else {
+                var mobileNumber;
+                if (window.setUpdatePhoneNo) {
+                    mobileNumber = window.updatedPhoneNumber
+                } else {
+                    mobileNumber = gApzRMB.LoggedInUserDetails.loginResponse.phone1;
+                }
+                $("#" + AuthenScreenID + "txt_authn_mobileNo").text(mobileNumber.substring(0, 3) + 'xx xx' + mobileNumber.substring(6 + 1));
+            }
+            apz.app.DualAuth.GenrateInpOtp();
+            apz.stopLoader();
+        } else {
+            ApzRMB.messageDisplayFunction('APZRMB-OTP-FAILED', $("#" + AuthenScreenID + "Dualauthmodel_close").trigger("onclick"));
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzRMB.checkAuthenticationServiceErrorCallback(params);
+    }
+};
+apz.app.DualAuth.clearvalue = function() {
+    // for (let i = 1; i <= pwdMaximumLength; i++) {
+    //     $(dualAuthOTP + i).val("");
+    // }
+    // for (let i = 1; i <= pinMaximumLength; i++) {
+    //     $(dualAuthPin + i).val("");
+    // }
+    $(dualAuthOTP + 1).val("");
+    $(dualAuthPin + 1).val("");
+    otpFieldNumber = 0;
+    pinFieldNumber = 0;
+};
+apz.app.DualAuth.CancelOTP = function() {
+    // ApzRMB.toggleModal(AuthenScreenID + "CancelMod");
+    ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_CANCEL_CONFIRM"), "C", apz.app.DualAuth.CancelOTPCB);
+};
+apz.app.DualAuth.CancelOTPCB = function(params) {
+    // ApzRMB.toggleModal(AuthenScreenID + "CancelMod");
+    // var clickedText = params.val.button.hasOwnProperty('text')
+    if (params === 'true' || params.choice === true) {
+        ApzRMB.launchDashboard("backNav");
+    } else if (!$('#' + AuthenScreenID + 'Dualauthmodel').is(":visible")) {
+        ApzRMB.toggleModal(AuthenScreenID + 'Dualauthmodel');
+    }
+};
+apz.app.DualAuth.startTimer = function(timerval) {
+    var counter;
+    counter = new timerCounter();
+    counter.init("" + AuthenScreenID + "otptimertext", timerval);
+};
+apz.app.DualAuth.backspacePress = function(idx, inpId, type) {
+    let x;
+    if (inpId !== 1) {
+        $('input').eq(idx).attr('type', 'Tel');
+        $('input').eq(idx - 1).focus();
+    }
+    if (type === "Pin") {
+        x = pinFieldNumber;
+        pinFieldNumber--;
+        if (x === inpId) {
+            $("#" + AuthenScreenID + "pin_" + x).val("");
+        } else {
+            for (var i = inpId; i <= window.pinMaximumLength; i++) {
+                $("#" + AuthenScreenID + "pin_" + i).val("");
+            }
+        }
+        if (pinFieldNumber < 1) {
+            pinFieldNumber = 0;
+        } else {
+            pinFieldNumber = inpId - 1;
+        }
+    } else {
+        x = otpFieldNumber;
+        otpFieldNumber--;
+        if (x === inpId) {
+            $("#" + AuthenScreenID + "otp_" + x).val("");
+        } else {
+            for (let i = inpId; i <= pwdMaximumLength; i++) {
+                $("#" + AuthenScreenID + "otp_" + i).val("");
+            }
+        }
+        if (otpFieldNumber < 1) {
+            otpFieldNumber = 0;
+        } else {
+            otpFieldNumber = inpId - 1;
+        }
+        if (pinFieldNumber === 0 && otpFieldNumber === 0) {
+            $("#" + AuthenScreenID + "pin_1").focus();
+        }
+    }
+}
+apz.app.DualAuth.ValidateOTP = function(params) {
+    apz.startLoader();
+    var OTPuserID = "";
+    if (!apz.isNull(params)) {
+        OTPuserID = params.customerId;
+    } else {
+        OTPuserID = gApzRMB.LoggedInUserDetails.loginResponse.userDet.id;
+    }
+    var AuthPin = "";
+    var AuthTPin = '';
+    // for (let i = 1; i <= pwdMaximumLength; i++) {
+    //     //var inputOTP = $("#" + AuthenScreenID + "otp_" + i).val();
+    //     AuthPin = AuthPin.concat($("#" + AuthenScreenID + "otp_" + i).val());
+    // }
+    AuthPin = $("#" + AuthenScreenID + "otp_1").val();
+    // for (let i = 1; i <= pinMaximumLength; i++) {
+    //     AuthTPin = AuthTPin.concat($("#" + AuthenScreenID + "pin_" + i).val());
+    // }
+    AuthTPin = $("#" + AuthenScreenID + "pin_1").val();
+    var req = {
+        "apiRequest": {
+            "appId": apz.appId,
+            "userId": OTPuserID,
+            "requestObj": {
+                "RefNo": $("#" + AuthenScreenID + "OTPRefno").text(),
+                "otp": AuthPin,
+                "pin": AuthTPin,
+                "sysDate": apz.getCurrTimeStamp(),
+                "payload": {}
+            }
+        }
+    }
+    req.apiRequest.interfaceName = Transpayload.apiRequest.interfaceName;
+    req.apiRequest.workflowId = Transpayload.apiRequest.workflowId;
+    req.apiRequest.requestObj.payload = Transpayload.apiRequest.requestObj;
+    let SetUserPassIndex = ["SetPassword", "SetMPIN", "SetTPIN", "ChangePassword", "ChangeTPIN", "ChangeMPIN"].indexOf(Transpayload.Module);
+    if (((SetUserPassIndex > -1) && (window.dualAuthForSetUserPass))) {
+        ApzRMB.serverBuildParam(apz.appId, "WorkFlowService", "N", "N", req, true, apz.app.DualAuth.ValidateOTPCB);
+    } else {
+        ApzRMB.serverBuildParam(gAppId, "WorkFlowService", "N", "N", req, true, apz.app.DualAuth.ValidateOTPWorkFlowCB);
+    }
+};
+apz.app.DualAuth.ValidateOTPCB = function(params) {
+    try {
+        otpFieldNumber = 0;
+        apz.app.DualAuth.clearvalue();
+        var ifaceName = ApzRMB.GetInterfaceResMap(params);
+        if (ApzRMB.handleServiceCallBacks(params)) {
+            var tempOtpObj = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+            if (tempOtpObj.Status === "success" && tempOtpObj.OTPValServiceResponse.status === "Y") {
+                if (!apz.isNull(Transpayload.successCB)) {
+                    gApzRMB.OTPRefno = $("#" + AuthenScreenID + "OTPRefno").text();
+                    if (tempOtpObj.hasOwnProperty("refNo")) {
+                        regparams.refNo = tempOtpObj.refNo;
+                    }
+                    ApzRMB.executeFunByName(Transpayload.successCB, params);
+                }
+                $('input').off('keyup');
+            } else {
+                apz.stopLoader();
+                $("#" + AuthenScreenID + "otp").val("");
+                $("#" + AuthenScreenID + "Tpin_Filed").val("");
+                $("#" + AuthenScreenID + "pin_1").focus();
+                apz.app.DualAuth.clearvalue();
+                if (!apz.isNull(tempOtpObj.OTPValServiceResponse)) {
+                    if (tempOtpObj.OTPValServiceResponse[AttemptsLeftNode] === 0) {
+                        ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_MAXATTEMPTS"), 'E', apz.app.DualAuth.Cancel);
+                    } else {
+                        ApzRMB.fnDisplayMsg(incorrectotptext + ' ' + tempOtpObj.OTPValServiceResponse[AttemptsLeftNode] + Attemptslefttext);
+                    }
+                } else if (!apz.isNull(tempOtpObj.loginResponse)) {
+                    if (JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).loginResponse.attemptsLeft > 0) {
+                        let attemptsLeftVal = (JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).loginResponse.attemptsLeft +
+                            1).toString();
+                        ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_INCORRECT_PIN") + " " + attemptsLeftVal + ' Attempts left');
+                    } else if (JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).loginResponse.attemptsLeft === 0) {
+                        ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_MAXPIN"), 'E');
+                    } else {
+                        ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_PINMAXLOCK"), 'E', ApzRMB.ReloadApp);
+                    }
+                } else if (params.res[ifaceName].apiResponse.ResponseHeader.ErrorCode === "OTP_FAIL") {
+                    if (window.otpRegenCount !== RegenCount) {
+                        $("#" + AuthenScreenID + "Regenerateotp_ul").removeClass("sno");
+                        $("#" + AuthenScreenID + "expiryDIV").addClass("sno");
+                        $("#" + AuthenScreenID + "otpconfirm").addClass("sno");
+                        ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_OTPEXPIRED"));
+                    } else {
+                        ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_OTP_REGEN_ERROR"), 'E', ApzRMB.launchDashboard);
+                    }
+                } else if (params.res[ifaceName].apiResponse.ResponseHeader.ErrorCode === "TPIN_FAIL") {
+                    ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_PINMAXLOCK"), 'E', ApzRMB.ReloadApp);
+                }
+            }
+        } else {
+            apz.stopLoader();
+            $("#" + AuthenScreenID + "otp").val("");
+            $("#" + AuthenScreenID + "Tpin_Filed").val("");
+            $("#" + AuthenScreenID + "pin_1").focus();
+            apz.app.DualAuth.clearvalue();
+            ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_WRONGOTP"));
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzRMB.checkAuthenticationServiceErrorCallback(params);
+    }
+};
+apz.app.DualAuth.ValidateOTPWorkFlowCB = function(params) {
+    try {
+        otpFieldNumber = 0;
+        apz.app.DualAuth.clearvalue();
+        var tempOtpObj = "";
+        var ifaceName = ApzRMB.GetInterfaceResMap(params);
+        if (ApzRMB.handleServiceCallBacks(params)) {
+            try {
+                tempOtpObj = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+                if (tempOtpObj.Status === "success" && tempOtpObj.OTPValServiceResponse.status === "Y") {
+                    if (!apz.isNull(Transpayload.successCB)) {
+                        gApzRMB.OTPRefno = $("#" + AuthenScreenID + "OTPRefno").text();
+                        if (apz.isNull(Transpayload.SecondaryAuth)) {
+                            $("#" + AuthenScreenID + 'Dualauthmodel').removeClass('small-box show')
+                            ApzRMB.executeFunByName(Transpayload.successCB, params);
+                        } else {
+                            ApzRMB.LaunchSecondaryAuthentication(Transpayload);
+                        }
+                    }
+                } else {
+                    apz.stopLoader();
+                    $("#" + AuthenScreenID + "otp").val("");
+                    $("#" + AuthenScreenID + "Tpin_Filed").val("");
+                    $("#" + AuthenScreenID + "pin_1").focus();
+                    apz.app.DualAuth.clearvalue();
+                    if (!apz.isNull(tempOtpObj.OTPValServiceResponse)) {
+                        if (tempOtpObj.OTPValServiceResponse[AttemptsLeftNode] === 0) {
+                            ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_MAXATTEMPTS"), 'E', apz.app.DualAuth.Cancel);
+                        } else {
+                            ApzRMB.fnDisplayMsg(incorrectotptext + ' ' + tempOtpObj.OTPValServiceResponse[AttemptsLeftNode] + Attemptslefttext);
+                        }
+                    } else {
+                        if (window.otpRegenCount !== RegenCount) {
+                            $("#" + AuthenScreenID + "Regenerateotp_ul").removeClass("sno");
+                            $("#" + AuthenScreenID + "expiryDIV").addClass("sno");
+                            $("#" + AuthenScreenID + "otpconfirm").addClass("sno");
+                            ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_OTPEXPIRED"));
+                        } else {
+                            ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_OTP_REGEN_ERROR"), 'E', ApzRMB.launchDashboard);
+                        }
+                    }
+                }
+            } catch (e) {
+                ApzRMB.fnDisplayMsg(params.res[ifaceName].apiResponse.ResponseHeader.ResponseMessage, 'E', apz.app.DualAuth.Cancel);
+            }
+        } else {
+            $("#" + AuthenScreenID + "otp").val("");
+            $("#" + AuthenScreenID + "Tpin_Filed").val("");
+            $("#" + AuthenScreenID + "pin_1").focus();
+            apz.app.DualAuth.clearvalue();
+            apz.stopLoader();
+            try {
+                tempOtpObj = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+                if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "1") {
+                    if (tempOtpObj.Status === "failure") {
+                        if (!apz.isNull(tempOtpObj.OTPValServiceResponse)) {
+                            if (tempOtpObj.OTPValServiceResponse[AttemptsLeftNode] === 0) {
+                                ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_MAXATTEMPTS"), 'E', apz.app.DualAuth.Cancel);
+                            } else {
+                                ApzRMB.fnDisplayMsg(incorrectotptext + ' ' + tempOtpObj.OTPValServiceResponse[AttemptsLeftNode] +
+                                    Attemptslefttext);
+                            }
+                        } else if (!apz.isNull(tempOtpObj.loginResponse)) {
+                            if (JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).loginResponse.attemptsLeft > 0) {
+                                let attemptsLeftVal = (JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).loginResponse
+                                    .attemptsLeft + 1).toString();
+                                ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_INCORRECT_PIN") + " " + attemptsLeftVal + ' Attempts left');
+                            } else if (JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).loginResponse.attemptsLeft === 0) {
+                                ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_MAXPIN"), 'E');
+                            } else {
+                                ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_PINMAXLOCK"), 'E', ApzRMB.ReloadApp);
+                            }
+                        } else if (params.res[ifaceName].apiResponse.ResponseHeader.ErrorCode === "OTP_FAIL") {
+                            $("#" + AuthenScreenID + "Regenerateotp_ul").removeClass("sno");
+                            $("#" + AuthenScreenID + "expiryDIV").addClass("sno");
+                            $("#" + AuthenScreenID + "otpconfirm").addClass("sno");
+                            ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_OTPEXPIRED"));
+                        } else if (params.res[ifaceName].apiResponse.ResponseHeader.ErrorCode === "TPIN_FAIL") {
+                            ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_PINMAXLOCK"), 'E', ApzRMB.ReloadApp);
+                        }
+                    } else if (params.res[ifaceName].apiResponse.ResponseHeader.ErrorCode === 'INTF_FAIL') {
+                        ApzRMB.executeFunByName(Transpayload.failureCB, params);
+                        //ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_OOPSERROR"), "E", ApzRMB.launchDashboard);
+                    } else {
+                        ApzRMB.executeFunByName(Transpayload.failureCB, params);
+                        //ApzRMB.fnDisplayMsg(params.res[ifaceName].apiResponse.ResponseHeader.ResponseMessage, 'E', apz.app.DualAuth.Cancel);
+                    }
+                } else {
+                    ApzRMB.executeFunByName(Transpayload.failureCB, params);
+                    //ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_OOPSERROR"), "E", ApzRMB.launchDashboard);
+                }
+            } catch (e) {
+                ApzRMB.fnDisplayMsg(params.res[ifaceName].apiResponse.ResponseHeader.ResponseMessage, 'E', apz.app.DualAuth.Cancel);
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzRMB.checkAuthenticationServiceErrorCallback(params);
+    }
+};
+apz.app.DualAuth.launchAltAuthScr = function() {
+    var launchDiv = AuthenScreenID + 'row_AltAuthMainRow';
+    // ApzRMB.toggleModal(AuthenScreenID + 'Dualauthmodel');
+    $("#" + AuthenScreenID + 'Dualauthmodel').removeClass("show");
+    $("#" + AuthenScreenID + "row_dualAuthMainRow").addClass('sno');
+    var launchRes = [];
+    launchRes = Transpayload;
+    var totpInterface = launchRes.apiRequest.interfaceName.replace('ValidateOTPTPIN', 'ValidateTOTP');
+    launchRes.apiRequest.interfaceName = totpInterface;
+    launchRes.fromScr = 'DualAuth';
+    var launchScr = ApzRMB.returnAltAuthScreen();
+    ApzRMB.launchMicroAppWithoutAnimation("Authen", launchScr, launchDiv, launchRes);
+}
+apz.app.DualAuth.launchSetTPINModule = function(params) {
+    if (params.choice) {
+        ApzRMB.launchMicroApp("Settin", "SetTransactionPin", gPostLoginBaseDiv, "");
+    } else {
+        ApzRMB.launchDashboard("backNav");
+    }
+}
+

@@ -1,0 +1,26 @@
+{
+  "apiURL": "${URL}",
+  "servicetype": "HTTP",
+  "methodType": "PUT",
+  "contentType": "application/json",
+  "headers": {
+    "Content-Type": "application/json",
+    "Accept": "*/*",
+    "Apikey": "Z3JhbWVlbmtvb3RhcHJvZA"
+  },
+  "requestDef": {
+    "header": {
+      "companyId": "${CONST~IN0010044}"
+    },
+    "body": {
+      "nextMeetingDate": "${REQUEST~apiRequest.nextMeetingDate}"
+    }
+  },
+  "responseDef": "",
+  "logging": {
+    "logRequired": "Y",
+    "logType": "BOTH",
+	  "externalAPILogRequired":"N",
+	  "externalAPILogType":"NONE"
+  }
+}

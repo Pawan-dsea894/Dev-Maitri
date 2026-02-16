@@ -1,0 +1,492 @@
+var Transpinpayload = "",
+    pinMaximumLength,
+    pinFieldNumber = 0,
+    PinAuthenScreenID = "Authen__PinAuthentication__",
+    pinAuth = "#Authen__PinAuthentication__pin",
+    PASSWORDDIV = PinAuthenScreenID + "formPIN";
+apz.app.onLoad_PinAuthentication = function(params) {
+    Transpinpayload = params;
+    apz.currAppId = 'Authen';
+    apz.childScr = 'PinAuthentication';
+    apz.startLoader();
+    if (Transpinpayload.Module === "FORGOTUSERNAME" || Transpinpayload.Module === "FORGOTPASSWORD" || Transpinpayload.Module === "FORGOTMPIN") {
+        ApzRMB.GetPasswordSecParams("GetTxnPinPolicy", Transpinpayload.customerId);
+    } else {
+        ApzRMB.GetPasswordSecParams("GetTxnPinPolicy", gApzRMB.LoggedInUserDetails.loginResponse.userDet.id);
+    }
+    if (!ApzRMB.chkprevscrPageBC(apz.childScr)) {
+        ApzRMB.addscrPageBC(apz.childScr);
+    }
+    ApzRMB.toggleModal(PinAuthenScreenID + 'mdl_pinAuthMain');
+    if (Transpinpayload.Module !== "FORGOTUSERNAME" && Transpinpayload.Module !== "FORGOTPASSWORD" && Transpinpayload.Module !== "FORGOTMPIN" && (
+            Transpinpayload.apiRequest.hasOwnProperty("requestObj"))) {
+        ApzRMB.StoreAndForwardTxnPayload(Transpinpayload);
+    }
+    apz.stopLoader();
+};
+apz.app.onShown_PinAuthentication = function() {
+    // $('input').keyup(function(e) {
+    //     if (apz.childScr === 'PinAuthentication') {
+    //         // ApzRMB.fnValidatenumbers(this);
+    //         // if(!apz.isNull(this.value)){
+    //         apz.app.PinAuthentication.keyboardPress(this, e);
+    //         // }
+    //     }
+    // });
+    // if (apz.deviceOs === "iOS") {
+    //     $('.key').bind('touchstart', function(e) {
+    //         apz.app.PinAuthentication.MBkeyPadPress(this);
+    //     });
+    //     // $('.nextKey').bind('touchstart', function() {
+    //     //     apz.app.PinAuthentication.validate_pin();
+    //     // });
+    // } else if (apz.deviceOs === "ANDROID" || apz.deviceType === "WEB") {
+    //     $('.key').click(function(e) {
+    //         if (apz.childScr === 'PinAuthentication') {
+    //             apz.app.PinAuthentication.MBkeyPadPress(this);
+    //         }
+    //     });
+    //     // $('.nextKey').click(function(e) {
+    //     //     apz.app.PinAuthentication.validate_pin();
+    //     // });
+    // }
+    // $("#" + PinAuthenScreenID + "btn_PinConfirm").prop('disabled', true);
+    if (apz.isNull(gApzRMB.AltAuthenticationtype) || gApzRMB.AltAuthenticationtype === '' || gApzRMB.AltAuthenticationtype === "NoAuth") {
+        $("#" + PinAuthenScreenID + "frm_altAuthDiv").addClass('sno');
+    } else {
+        $("#" + PinAuthenScreenID + "frm_altAuthDiv").removeClass('sno');
+    }
+    $("#" + PinAuthenScreenID + "pin_1").focus();
+    if (Transpinpayload.Module === "FORGOTUSERNAME" || Transpinpayload.Module === "FORGOTPASSWORD") {
+        $("#header").removeClass("sno");
+        $("#sidebar").removeClass("sno");
+        $("#sidebar").removeClass("apz-nav-open");
+        $(".rolepage ").addClass("landingpage");
+        $(".rolepage ").removeClass("apz-nav-push");
+        ApzRMB.moreScrsetHeader("LIT_AUTH_TRANS");
+        $("#" + gAppId + "__PreLogin_BaseScreen__web_preLoginHeaderbackCol").removeClass("sno");
+        $("#" + PinAuthenScreenID + "pincancel").attr("onclick", Transpinpayload.cancelCB);
+        // ApzRMB.GetPasswordSecParams("GetTxnPinPolicy", Transpinpayload.customerId);
+    } else {
+        if (!apz.isNull(Transpinpayload.cancelCB)) {
+            apz.currAppId = "Authen";
+            ApzRMB.showSubHeader("LIT_AUTH_TRANS");
+            $("#" + PinAuthenScreenID + "pincancel").attr("onclick", "apz.app.PinAuthentication.CancelPIN();");
+            $("#" + gAppId + "__PostLogin_BaseScreen__backIconCol").addClass('sno');
+        }
+        // ApzRMB.GetPasswordSecParams("GetTxnPinPolicy", gApzRMB.LoggedInUserDetails.loginResponse.userDet.id);
+    }
+    $("#" + PinAuthenScreenID + 'pin_1').attr("onblur", "").unbind("click");
+    setTimeout(function() {
+        if (gApzRMB.LoggedInUserDetails.hasOwnProperty("userCred") && (gApzRMB.LoggedInUserDetails.userCred.includes("SetTPIN"))) {
+            ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_SET_TPIN_ERR"), "C", apz.app.PinAuthentication.launchSetTPINModule);
+        }
+    }, 300);
+};
+apz.app.PinAuthentication.generateInputField = function() {
+    pinMaximumLength = gApzRMB.PinPolicy.pwdMaximumLength;
+    // var wrapper = $("#" + PinAuthenScreenID + "pin_1_ul").parent(); //Fields wrapper
+    document.getElementById(PinAuthenScreenID + "pin_1").setAttribute('maxlength', pinMaximumLength);
+    var placeHolderVal = '*';
+    for (let i = 1; i < pinMaximumLength; i++) {
+        placeHolderVal = placeHolderVal + '*';
+    }
+    $("#" + PinAuthenScreenID + "pin_1").attr('placeholder', placeHolderVal);
+    if (apz.deviceType !== "WEB" || ApzRMB.isMobileBrowser()) {
+        // for (let i = 1; i < pinMaximumLength; i++) {
+        //     $(wrapper).append('<ul id="Authen__PinAuthentication__pin_' + (i + 1) +
+        //         '_ul" class="eoc srb  "><li class="etw-0"><label id="Authen__PinAuthentication__pin_' + (i + 1) +
+        //         '_grp_lbl" for="Authen__PinAuthentication__pin_' + (i + 1) +
+        //         '" class="flb" style="" title="Input">Input</label></li><li id="Authen__PinAuthentication__pin_' + (i + 1) +
+        //         '_li" class="eic etw-100"><span class="ecn etw-100" style=""><input id="Authen__PinAuthentication__pin_' + (i + 1) +
+        //         '" class="etw-100 ett-inpt pri cen " type="Tel" maxlength="1" placeholder="*" enabled="enabled" value=""></span></li></ul>'
+        //         ); //add input box
+        // }
+        $("#" + PinAuthenScreenID + "pin_1").attr('type', 'Tel');
+        $("#" + PinAuthenScreenID + "pin_1_ul").addClass("custompassword");
+    } else {
+        // for (let i = 1; i < pinMaximumLength; i++) {
+        //     $(wrapper).append('<ul id="Authen__PinAuthentication__pin_' + (i + 1) +
+        //         '_ul" class="eoc srb  "><li class="etw-0"><label id="Authen__PinAuthentication__pin_' + (i + 1) +
+        //         '_grp_lbl" for="Authen__PinAuthentication__pin_' + (i + 1) +
+        //         '" class="flb" style="" title="Input">Input</label></li><li id="Authen__PinAuthentication__pin_' + (i + 1) +
+        //         '_li" class="eic etw-100"><span class="ecn etw-100" style=""><input id="Authen__PinAuthentication__pin_' + (i + 1) +
+        //         '" class="etw-100 ett-inpt pri cen " type="password" maxlength="1" placeholder="*" enabled="enabled" value=""></span></li></ul>'
+        //         ); //add input box
+        // }
+        // document.getElementById(PinAuthenScreenID +"pin_1").readOnly = false;
+        $("#" + PinAuthenScreenID + "pin_1").attr('type', 'password');
+    }
+    // $('input').keyup(function(e) {
+    //     if (apz.childScr === 'PinAuthentication') {
+    //         // ApzRMB.fnValidatenumbers(this);
+    //         // if(!apz.isNull(this.value)){
+    //         apz.app.PinAuthentication.keyboardPress(this, e);
+    //         // }
+    //     }
+    // });
+    // if (apz.deviceOs === "iOS") {
+    //     $('.key').bind('touchstart', function(e) {
+    //         apz.app.PinAuthentication.MBkeyPadPress(this);
+    //     });
+    //     // $('.nextKey').bind('touchstart', function() {
+    //     //     apz.app.PinAuthentication.validate_pin();
+    //     // });
+    // } else if (apz.deviceOs === "ANDROID" || apz.deviceType === "WEB") {
+    //     $('.key').click(function(e) {
+    //         if (apz.childScr === 'PinAuthentication') {
+    //             apz.app.PinAuthentication.MBkeyPadPress(this);
+    //         }
+    //     });
+    //     // $('.nextKey').click(function(e) {
+    //     //     apz.app.PinAuthentication.validate_pin();
+    //     // });
+    // }
+};
+apz.app.PinAuthentication.CancelPIN = function() {
+    /*var x = pinFieldNumber;
+    $("#" + PinAuthenScreenID + "pin_" + x).val("");
+    $("#" + PinAuthenScreenID + "pin_1").focus();
+    pinFieldNumber--;
+    if (pinFieldNumber < 1) {
+        pinFieldNumber = 0;
+        ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_CANCEL_CONFIRM"), "C", apz.app.PinAuthentication.CancelPINCB);
+    }*/
+    ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_CANCEL_CONFIRM"), "C", apz.app.PinAuthentication.CancelPINCB);
+};
+apz.app.PinAuthentication.CancelPINCB = function(params) {
+    if (params.choice === true) {
+        /*if (apz.deviceType !== "WEB") {
+            $("body").removeClass("otp-image");
+            $("#" + gAppId + "__PostLogin_BaseScreen__backicon").attr("onclick", Transpinpayload.cancelCB);
+            ApzRMB.executeFunByName(Transpinpayload.cancelCB);
+        } */
+        //added condition check for launching PIN screen in Pre login screens
+        //so while click on cancel need to launch pre login screen
+        if (apz.currScr === 'PreLogin_BaseScreen') {
+            apz.app.PreLogin_BaseScreen.launchpreloginbasescreen();
+        } else {
+            ApzRMB.launchDashboard();
+        }
+        //ApzRMB.launchMicroApp("Dashbo", "dashboard", gPostLoginBaseDiv, "");
+    } else if (params.choice === false && !$('#' + PinAuthenScreenID + 'mdl_pinAuthMain').is(':visible')) {
+        ApzRMB.toggleModal(PinAuthenScreenID + 'mdl_pinAuthMain');
+    }
+};
+$(pinAuth).keypress(function(e) {
+    if (e.which === 13 && apz.deviceType === "WEB") {
+        apz.app.PinAuthentication.validate_pin();
+    }
+});
+apz.app.PinAuthentication.backspacePress = function(idx, inpId) {
+    // $('input').eq(idx - 1).focus();
+    $('#' + PinAuthenScreenID + "pin_" + (inpId)).attr('type', 'Tel');
+    $('#' + PinAuthenScreenID + "pin_" + (inpId - 1)).focus();
+    var x = pinFieldNumber;
+    pinFieldNumber--;
+    if (x === inpId) {
+        $("#" + PinAuthenScreenID + "pin_" + x).val("");
+        // pinFieldNumber--;
+    } else {
+        for (var i = inpId - 1; i <= pinMaximumLength; i++) {
+            // pinFieldNumber--;
+            $("#" + PinAuthenScreenID + "pin_" + i).val("");
+        }
+    }
+    if (pinFieldNumber < 1) {
+        pinFieldNumber = 0;
+    }
+    // $("#" + PinAuthenScreenID + "btn_PinConfirm").prop('disabled', true);
+}
+apz.app.PinAuthentication.keyboardPress = function(val, e) {
+    // if (apz.deviceType === "WEB") {
+    var idx = $('input').index(val);
+    var inpId = parseInt(val.id.split('_').pop());
+    if (e.which === 8) {
+        apz.app.PinAuthentication.backspacePress(idx, inpId)
+    } else {
+        var count = 0;
+        var selectedNumber = $(val).val();
+        for (var i = inpId; i > 0; i--) {
+            if ($("#" + PinAuthenScreenID + "pin_" + (i - 1)).val() === "") {
+                count = count + 1
+                inpId--;
+                $("#" + PinAuthenScreenID + "pin_" + i).val("")
+            }
+        }
+        if (count > 0) {
+            // $('input').eq(idx - count).focus();
+            $("#" + PinAuthenScreenID + "pin_" + (inpId - count)).attr('type', 'password');
+            $("#" + PinAuthenScreenID + "pin_" + (inpId - count + 1)).focus();
+            $("#" + PinAuthenScreenID + "pin_" + inpId).val(selectedNumber);
+            pinFieldNumber++;
+        } else {
+            if ($(val).val().length.toString() === $(val).attr("maxlength") && parseInt(val.id.split('_')[5]) < pinMaximumLength) {
+                // $('input').eq(idx + 1).focus();
+                $("#" + PinAuthenScreenID + "pin_" + (inpId)).attr('type', 'password');
+                $("#" + PinAuthenScreenID + "pin_" + (inpId + 1)).focus();
+            }
+            if (pinFieldNumber < pinMaximumLength) {
+                var k = pinFieldNumber + 1;
+                $("#" + PinAuthenScreenID + "pin_" + k).val(selectedNumber);
+                pinFieldNumber++;
+                // $("#" + PinAuthenScreenID + "OTP_ERROR").addClass("sno")
+            }
+            if (pinFieldNumber === pinMaximumLength) {
+                // apz.app.PinAuthentication.validate_pin();
+                // $("#" + PinAuthenScreenID + "btn_PinConfirm").prop('disabled', false);
+                // $('input').eq((idx + 1) - pinMaximumLength).focus();
+                $("#" + PinAuthenScreenID + "pin_" + (inpId)).attr('type', 'password');
+                $("#" + PinAuthenScreenID + "pin_" + (inpId)).focus();
+            }
+            /*else {
+                               // $("#" + PinAuthenScreenID + "btn_PinConfirm").prop('disabled', true);
+                           }*/
+        }
+    }
+    // }
+}
+apz.app.PinAuthentication.MBkeyPadPress = function(e) {
+    if (pinFieldNumber < pinMaximumLength) {
+        var k = pinFieldNumber + 1;
+        $("#" + PinAuthenScreenID + "pin_" + k).val(e.innerText);
+        pinFieldNumber++;
+        $("#" + PinAuthenScreenID + "OTP_ERROR").addClass("sno")
+    }
+    if (pinFieldNumber === pinMaximumLength) {
+        pinFieldNumber = 0;
+        // apz.app.PinAuthentication.validate_pin();
+    }
+};
+apz.app.PinAuthentication.validate_pin = function() {
+    var enteredTPIN = $("#" + PinAuthenScreenID + "pin_1").val();
+    pinFieldNumber = enteredTPIN.length;
+    if (pinFieldNumber !== pinMaximumLength) {
+        apz.app.PinAuthentication.clearvalue();
+        ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_PINENTER"));
+        return;
+    } else {
+        var form = $("#" + PASSWORDDIV).find("input"),
+            form_validator_check = {
+                Authen__PinAuthentication__pin: {
+                    verify: nullcheck,
+                    message: "LIT_PINAUTH"
+                }
+            };
+        if (ApzRMB.validateInputFields(form, form_validator_check)) {
+            if (Transpinpayload.Module === "FORGOTUSERNAME") {
+                apz.app.ForgotUserName.ValidateTPINAndFetchUserName(Transpinpayload);
+                if (apz.deviceType !== "WEB") {
+                    $("body").removeClass("otp-image");
+                }
+            } else if (Transpinpayload.Module === "FORGOTPASSWORD") {
+                ApzRMB.GetPasswordSecParams("GetPasswordPolicy", Transpinpayload.customerId);
+                apz.app.ForgotPassword.ValidateTPINAndSetPassword(Transpinpayload);
+                if (apz.deviceType !== "WEB") {
+                    $("body").removeClass("otp-image");
+                }
+            } else {
+                apz.app.PinAuthentication.ValidatePin("");
+            }
+        } else {
+            //ApzRMB.fnDisplayMsg("Please enter a valid Password", "E", "");
+        }
+    }
+};
+apz.app.PinAuthentication.ValidatePin = function(params) {
+    var OTPuserID = "";
+    if (Transpinpayload.Module === 'FORGOTMPIN') {
+        OTPuserID = Transpinpayload.customerId;
+    } else if (!apz.isNull(params)) {
+        OTPuserID = params.customerId;
+    } else {
+        OTPuserID = gApzRMB.LoggedInUserDetails.loginResponse.userDet.id;
+    }
+    var AuthPin = "";
+    // for (var i = 1; i <= pinMaximumLength; i++) {
+    //     var inputPin = $("#" + PinAuthenScreenID + "pin_" + i).val();
+    //     AuthPin = AuthPin.concat(inputPin);
+    // }
+    AuthPin = $("#" + PinAuthenScreenID + "pin_1").val();
+    var req = {
+        "apiRequest": {
+            "appId": apz.appId,
+            "userId": OTPuserID,
+            "requestObj": {
+                "sysDate": apz.getCurrTimeStamp(),
+                "pin": AuthPin,
+                "payload": {}
+            }
+        }
+    }
+    if (!apz.isNull(Transpinpayload.refNo)) {
+        req.apiRequest.requestObj.refNo = Transpinpayload.refNo;
+    }
+    apz.startLoader();
+    var Passwordindex = ["REGISTRATION", "FORGOTUSERNAME", "FORGOTPASSWORD", "ChangeLoginpassword"].indexOf(Transpinpayload.Module);
+    let SetUserPassIndex = ["SetPassword", "SetMPIN", "SetTPIN", "ChangePassword", "ChangeTPIN", "ChangeMPIN"].indexOf(Transpinpayload.Module);
+    if (Passwordindex > -1 || Transpinpayload.AuthType === 'DUAL' || ((SetUserPassIndex > -1) && (window.dualAuthForSetUserPass))) {
+        req.apiRequest.interfaceName = "ValidateTPIN";
+        ApzRMB.serverBuildParam(apz.appId, "AuthenticationService", "N", "N", req, true, apz.app.PinAuthentication.ValidatePinCB);
+    } else {
+        req.apiRequest.interfaceName = Transpinpayload.apiRequest.interfaceName;
+        req.apiRequest.workflowId = Transpinpayload.apiRequest.workflowId;
+        req.apiRequest.requestObj.payload = Transpinpayload.apiRequest.requestObj;
+        ApzRMB.serverBuildParam(gAppId, "WorkFlowService", "N", "N", req, true, apz.app.PinAuthentication.ValidatePinWorkFlowCB);
+    }
+};
+apz.app.PinAuthentication.ValidatePinCB = function(params) {
+    try {
+        var ifaceName = ApzRMB.GetInterfaceResMap(params);
+        if (JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).Status === "success") {
+            if (JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).loginResponse.status === true) {
+                $('#' + PinAuthenScreenID + 'mdl_pinAuthMain').removeClass('show');
+                if (!apz.isNull(Transpinpayload.successCB)) {
+                    if (apz.deviceType !== "WEB") {
+                        $("body").removeClass("otp-image");
+                    }
+                    ApzRMB.executeFunByName(Transpinpayload.successCB);
+                }
+            } else if (JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).loginResponse.status === false) {
+                apz.stopLoader();
+                if (JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).loginResponse.attemptsLeft > 0) {
+                    let attemptsLeftVal = (JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).loginResponse.attemptsLeft + 1)
+                        .toString();
+                    ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_INCORRECT_PIN") + " " + attemptsLeftVal + ' Attempts left');
+                } else if (JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).loginResponse.attemptsLeft === 0) {
+                    ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_MAXPIN"), 'E');
+                } else {
+                    ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_PINMAXLOCK"), 'E', ApzRMB.ReloadApp);
+                }
+                apz.app.PinAuthentication.clearvalue();
+            } else {
+                apz.app.PinAuthentication.clearvalue();
+                ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_PINMAXLOCK"), 'E', ApzRMB.ReloadApp);
+            }
+        } else {
+            apz.app.PinAuthentication.clearvalue();
+            ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_PINMAXLOCK"), 'E', ApzRMB.ReloadApp);
+        }
+    } catch (e) {
+        apz.app.PinAuthentication.clearvalue();
+        // ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_WRONGPIN"));
+        ApzRMB.checkAuthenticationServiceErrorCallback(params);
+    }
+};
+apz.app.PinAuthentication.ValidatePinWorkFlowCB = function(params) {
+    try {
+        var ifaceName = ApzRMB.GetInterfaceResMap(params);
+        if (ApzRMB.handleServiceCallBacks(params)) {
+            if (JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).Status === "success") {
+                if (JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).loginResponse.status === true) {
+                    if (!apz.isNull(Transpinpayload.successCB)) {
+                        if (apz.deviceType !== "WEB") {
+                            $("body").removeClass("otp-image");
+                        }
+                        $("#" + PinAuthenScreenID + "mdl_pinAuthMain").removeClass('small-box show');
+                        ApzRMB.executeFunByName(Transpinpayload.successCB, params);
+                    }
+                } else {
+                    apz.app.PinAuthentication.clearvalue();
+                    ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_WRONGPIN"));
+                }
+            }
+        } else {
+            apz.app.PinAuthentication.clearvalue();
+            if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "1") {
+                if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseMessage === "Transaction PIN Validation failed") {
+                    if (JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).Status === "failure" && JSON.parse(params.res[
+                            ifaceName].apiResponse.ResponseBody.responseObj).hasOwnProperty("loginResponse")) {
+                        if (JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).loginResponse.attemptsLeft > 0) {
+                            let attemptsLeftVal = (JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).loginResponse
+                                .attemptsLeft).toString();
+                            ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_INCORRECT_PIN") + " " + attemptsLeftVal + ' Attempts left');
+                        } else if (JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).loginResponse.attemptsLeft === 0) {
+                            ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_MAXPIN"), 'E');
+                        } else {
+                            ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_PINMAXLOCK"), 'E', ApzRMB.ReloadApp);
+                        }
+                    } else {
+                        ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_PINMAXLOCK"), 'E', ApzRMB.ReloadApp);
+                    }
+                } else if (params.res[ifaceName].apiResponse.ResponseHeader.ErrorCode === 'INTF_FAIL') {
+                    //ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_OOPSERROR"), "E", ApzRMB.launchDashboard);
+                    ApzRMB.executeFunByName(Transpinpayload.failureCB, params);
+                } else {
+                    //ApzRMB.fnDisplayMsg(params.res[ifaceName].apiResponse.ResponseHeader.ResponseMessage, "E", ApzRMB.launchDashboard);
+                    ApzRMB.executeFunByName(Transpinpayload.failureCB, params);
+                }
+            } else {
+                ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_PINMAXLOCK"), 'E', ApzRMB.ReloadApp);
+            }
+        }
+    } catch (e) {
+        apz.app.PinAuthentication.clearvalue();
+        // ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_WRONGPIN"));
+        ApzRMB.checkAuthenticationServiceErrorCallback(params);
+    }
+};
+apz.app.PinAuthentication.clearvalue = function() {
+    apz.stopLoader();
+    // for (var i = 1; i <= pinMaximumLength; i++) {
+    //     $("#" + PinAuthenScreenID + "pin_" + i).val("");
+    // }
+    $("#" + PinAuthenScreenID + "pin_1").val("");
+    $("#" + PinAuthenScreenID + "pin_1").focus();
+    pinFieldNumber = 0;
+};
+apz.app.PinAuthentication.HideKeypad = function() { // to hide keypad after entering 4 digit pin
+    if ($(pinAuth).val().length > 3) {
+        $(pinAuth).blur();
+    }
+};
+apz.app.PinAuthentication.BackNavigationMB = function() {
+    if ($("#Manage__AddPayee__Success_DIV").is(":visible") === true) {
+        ApzRMB.launchDashboard("backNav");
+        // ApzRMB.launchMicroApp("Dashbo", "dashboard", gPostLoginBaseDiv, "");
+    }
+};
+apz.app.PinAuthentication.CancelPinAuth = function() {
+    var BackNavMBCancel = [];
+    BackNavMBCancel.id = "backnavigationMBLogin";
+    ApzRMB.launchMicroApp("Login", "Login", gPreLoginBaseDiv, BackNavMBCancel);
+};
+apz.app.PinAuthentication.MBCancel = function() {
+    ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_CANCEL_MSG"), 'C', apz.app.PinAuthentication.MBCancelCallBack);
+}
+apz.app.PinAuthentication.MBCancelCallBack = function(params) {
+    if (params.choice === true) {
+        ApzRMB.launchDashboard("backNav");
+        // ApzRMB.launchMicroApp('Dashbo', 'dashboard', gPostLoginBaseDiv, '');
+        return;
+    } else {
+        return;
+    }
+};
+apz.app.PinAuthentication.backPressEvent = function(e) {
+    if (pinFieldNumber > 0) {
+        $("#" + PinAuthenScreenID + "pin_" + pinFieldNumber).val('');
+        pinFieldNumber = pinFieldNumber - 1;
+    }
+};
+apz.app.PinAuthentication.launchAlternateAuth = function() {
+    var AuthBaseDivId = PinAuthenScreenID + 'row_altAuthBaseDiv';
+    // $("#" + PinAuthenScreenID + 'formPIN').addClass('sno');
+    $("#" + PinAuthenScreenID + 'mdl_pinAuthMain').removeClass('show');
+    $("#" + PinAuthenScreenID + 'row_pinKeypadRow').addClass('sno');
+    var launchRes = [];
+    launchRes = Transpinpayload;
+    var totpIfName = launchRes.apiRequest.interfaceName.replace('ValidateTPIN', 'ValidateTOTP');
+    launchRes.apiRequest.interfaceName = totpIfName;
+    launchRes.fromScr = 'PinAuthentication';
+    var launchScr = ApzRMB.returnAltAuthScreen();
+    ApzRMB.launchMicroAppWithoutAnimation("Authen", launchScr, AuthBaseDivId, launchRes);
+};
+apz.app.PinAuthentication.launchSetTPINModule = function(params) {
+    if (params.choice) {
+        ApzRMB.launchMicroApp("Settin", "SetTransactionPin", gPostLoginBaseDiv, "");
+    } else {
+        ApzRMB.launchDashboard("backNav");
+    }
+}
+

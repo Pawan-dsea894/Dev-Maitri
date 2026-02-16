@@ -1,0 +1,32 @@
+{
+  "apiURL": "${URL}",
+  "servicetype": "HTTP",
+  "methodType": "POST",
+  "contentType": "application/json",
+  "headers": {
+    "Content-Type": "application/json",
+    "Accept": "*/*",
+    "trnTimestamp": "{CUSTOMJAVACODE~generateTrnTimestamp}",
+    "deviceIMEI": "{REQUEST~apiRequest.requestObj.customerId}",
+    "superMerchantId": "759",
+    "Apikey": "Z3JhbWVlbmtvb3RhcHJvZA"
+  },
+  "requestDef": {
+    "amount": "${REQUEST~apiRequest.requestObj.amount}",
+    "billNumber": "${REQUEST~apiRequest.requestObj.billNumber}",
+    "merchantUserId": "${CONST~cagltest}",
+    "languageCode": "${CONST~en}",
+    "merchantId": "${CONST~402904}",
+    "requestedRemarks": "${REQUEST~apiRequest.requestObj.remarks}",
+    "mobileNumber": "${REQUEST~apiRequest.requestObj.mobileNumber}",
+    "merchantPin": "${CONST~81dc9bdb52d04dc20036dbd8313ed055}",
+    "customerTransactionId": "${REQUEST~apiRequest.requestObj.customerTxnId}"
+  },
+  "responseDef": "",
+  "logging": {
+    "logRequired": "Y",
+    "logType": "BOTH",
+    "externalAPILogRequired": "Y",
+    "externalAPILogType": "BOTH"
+  }
+}

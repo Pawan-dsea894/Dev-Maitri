@@ -1,0 +1,28 @@
+{
+    "apiURL": "${URL}",
+    "servicetype": "HTTP",
+    "methodType": "GET",
+    "contentType": "application/json",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "*/*",
+      "Apikey": "Z3JhbWVlbmtvb3RhcHJvZA"
+    },
+    "requestDef": {
+        "loanFrequency": "${REQUEST~apiRequest.requestObj.loanFrequency}",
+        "interestRate": "${REQUEST~apiRequest.requestObj.interestRate}",
+        "loanAmount": "${REQUEST~apiRequest.requestObj.loanAmount}",
+        "tenure": "${REQUEST~apiRequest.requestObj.tenure}",
+        "customerId": "${REQUEST~apiRequest.requestObj.customerId}",
+        "productID": "${REQUEST~apiRequest.requestObj.productID}"
+
+    },
+    "responseDef": "",
+    "logging": {
+      "logRequired": "N",
+      "logType": "BOTH",
+	  "externalAPILogRequired":"N",
+	  "externalAPILogType":"NONE"
+    }
+  }
+  

@@ -1,0 +1,25 @@
+{
+    "apiURL": "${URL}",
+    "servicetype": "HTTP",
+    "methodType": "POST",
+    "contentType": "application/json",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "*/*",
+      "Apikey": "Y2FsZ2xpbnRlcmZhY2Vlc2I=",
+      "companyId": "{REQUEST~apiRequest.branchId}"
+    },
+    "requestDef": {
+      "body": {
+        "phone": "${REQUEST~apiRequest.requestObj.phone}"
+      }
+    },
+    "responseDef": "",
+    "logging": {
+      "logRequired": "Y",
+      "logType": "BOTH",
+	  "externalAPILogRequired":"N",
+	  "externalAPILogType":"NONE"
+    }
+  }
+  

@@ -1,0 +1,32 @@
+var screenId = 'Income__KycSuccess__';
+var kycDetailsList = [{
+    key: "Aadhaar Card"
+}, {
+    key: "Pan Card"
+}, {
+    key: "Driver's License"
+}]
+var kycName = "";
+var rowNo = "";
+apz.app.onLoad_KycSuccess = function(params) {
+    // Initialization logic if needed
+    rowNo = params.rowNo;
+};
+apz.app.onShown_KycSuccess = function(params) {
+    let kycType = params.kycType
+    kycName = params.kycName;
+    rowNo = params.rowNo;
+    $('#' + screenId + 'kycNameTxt').text(`${kycType} number verified successfully`)
+    $('#' + screenId + 'SuccessScreenKyc').removeClass('sno');
+    setTimeout(function() {
+        ApzCOB.launchMicroApp('Income', 'UploadKyc', 'APZCBO__BaseScreens__BaseDIV', params);
+    }, 3000);
+};
+apz.app.KycSuccess.Continue = function(){
+    var data ={
+        kycName,
+        kycType,
+        rowNo:rowNo
+    };
+    ApzCOB.launchMicroApp('Income', 'UploadKyc', 'APZCBO__BaseScreens__BaseDIV', data);
+}

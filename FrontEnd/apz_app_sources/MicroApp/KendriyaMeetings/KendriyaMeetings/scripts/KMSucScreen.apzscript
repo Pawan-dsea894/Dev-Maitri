@@ -1,0 +1,83 @@
+var collSubScrId = "KenMet__KMSucScreen__";
+var sucDet = '';
+apz.app.onLoad_KMSucScreen = function(params) {
+    // Initialization logic if needed
+};
+apz.app.onShown_KMSucScreen = function(params) {
+    sucDet = params;
+    /* if (kendraColl || singleMemCol || viewMoreDetCol) {
+         document.getElementById(collSubScrId + 'successMessage').innerText = 'Repeat Collection';
+         document.getElementById(collSubScrId + 'sentToCashierText').innerText = 'Successful';
+         document.getElementById(collSubScrId + 'selectedKendra').innerText = params.kendraName + ' ( #' + params.kendraId + ') | ' + params
+             .customerCount + ' members';
+         document.getElementById(collSubScrId + 'txt_TotCollAmt').innerText = params.totalCollected;
+         document.getElementById(collSubScrId + 'txt_cashCollAmt').innerText = params.cash;
+         document.getElementById(collSubScrId + 'txt_UPICollAmt').innerText = params.upi;
+     } else {*/
+    document.getElementById(collSubScrId + 'txt_meetDayCollAmt').innerText = '₹' + ApzCOB.fn_FormatAmount(params.meetDayColl);
+    document.getElementById(collSubScrId + 'txt_TotCollAmt').innerText = '₹' + ApzCOB.fn_FormatAmount(params.totalColl);
+    document.getElementById(collSubScrId + 'txt_cashCollAmt').innerText = '₹' + ApzCOB.fn_FormatAmount(params.cashColl);
+    document.getElementById(collSubScrId + 'txt_UPICollAmt').innerText = '₹' + ApzCOB.fn_FormatAmount(params.UPIColl);
+    document.getElementById(collSubScrId + 'txt_RepeatDayCollAmt').innerText = '₹' + ApzCOB.fn_FormatAmount(params.meetDayColl);
+    document.getElementById(collSubScrId + 'txt_totalDueAmtId').innerText = '₹' + ApzCOB.fn_FormatAmount(params.totalDue);
+    document.getElementById(collSubScrId + 'txt_statusId').innerText = ApzCOB.getDescfromLitCode("LIT_COL_LBL_APPR_PEND_CASHIER");
+    $("#" + collSubScrId + "selectedKendra").text(noOfKedrasSubRec + ' ' + ApzCOB.getDescfromLitCode("LIT_COL_LBL_SUCKENDRAMEETING") + ' (' +
+        ApzCOB.fn_FormatAmount(params.meetDayColl) + ')');
+    // }
+    if (WidgetType === "REPEAT") {
+        $("#" + collSubScrId + "selectedKendra").text(noOfKedrasSubRec + ' ' + ApzCOB.getDescfromLitCode("LIT_COL_LBL_SUCKENDRAMEETING") + ' (' +
+            ApzCOB.fn_FormatAmount(params.meetDayColl) + ')');
+    }
+    if (WidgetType === "NONMEETING") {
+        let kendraCount = 0;
+        if(nonMetCashierPushBack || (nonMetKendraCollCount && nonMetKendraCollCount>0)){
+            kendraCount = nonMetKendraCollCount;
+        }else{
+            kendraCount = nonMeeColSubData.length;
+        }
+        $("#" + collSubScrId + "selectedKendra").text(noOfKedrasSubRec + ' ' + ApzCOB.getDescfromLitCode("LIT_COL_LBL_SUCKENDRAMEETING") +
+            ' (' + ApzCOB.fn_FormatAmount(params.meetDayColl) + ')');
+        document.getElementById(collSubScrId + "txt_MeetDayCollLabel_txtcnt").innerText = ApzCOB.getDescfromLitCode("LIT_COL_LBL_NON_MEET_COLL");
+    }
+}
+apz.app.KMSucScreen.onClickDone = function() {
+    kendraColl = false;
+    ApzCOB.dashboardAppListAPI();
+}
+apz.app.KMSucScreen.onClickMoreDetails = function() {
+    var moreDetailsDiv = document.getElementById(collSubScrId + 'txt_succMoreDetails')
+    if (moreDetailsDiv.classList.contains('active')) {
+        moreDetailsDiv.classList.remove('active');
+        document.getElementById(collSubScrId + 'lst_moreDetailsList').classList.add('sno');
+    } else {
+        // if (kendraColl || singleMemCol || viewMoreDetCol) {
+        //     moreDetailsDiv.classList.add('active');
+        //     document.getElementById(collSubScrId + 'meetingRow_row').classList.add('sno');
+        //     document.getElementById(collSubScrId + 'repeatRow_row').classList.add('sno');
+        //     document.getElementById(collSubScrId + 'nonMeetingRow_row').classList.add('sno');
+        //     document.getElementById(collSubScrId + 'statusRow_row').classList.add('sno');
+        //     document.getElementById(collSubScrId + 'depRow_row').classList.add('sno');
+        // } else {
+        moreDetailsDiv.classList.add('active');
+        if (CashDepFlow.length > 0) {
+            apz.data.scrdata.KenMet__IPaintDepositDetails_Res.SuccDetails = sucDet.DepositDet;
+            apz.data.loadData('IPaintDepositDetails', 'KenMet');
+            $(".depPoint").html('');
+            $("#" + collSubScrId + "depositDetText").append($("#" + collSubScrId + "depositDetailsList").html());
+            $("#" + collSubScrId + "totalRow_row").addClass('sno');
+            let totaldepcash = sucDet.DepositDet.reduce((acc, obj) => acc + parseInt(obj.depAmt.replace(/[₹,]/g, ''), 10), 0);
+            let cashinhand = parseInt(sucDet.cashColl.replace(/[₹,]/g, ''), 10);
+            document.getElementById(collSubScrId + 'txt_cashCollAmt').innerText = '₹' + ApzCOB.fn_FormatAmount(cashinhand - totaldepcash);
+            $("#" + collSubScrId + "txt_cashCollLabel").text('Cash in hand');
+            $("#" + collSubScrId + "depRow_row").removeClass('sno');
+            $("#" + collSubScrId + 'meetingRow_row').addClass('brd-btm pb20');
+        }
+        //document.getElementById(collSubScrId + 'lst_moreDetailsList').classList.remove('sno');
+        //}
+        document.getElementById(collSubScrId + 'lst_moreDetailsList').classList.remove('sno');
+        if (WidgetType === "REPEAT") {
+            document.getElementById(collSubScrId + 'meetingRow_row').classList.add('sno');
+            document.getElementById(collSubScrId + 'repeatRow_row').classList.remove('sno');
+        }
+    }
+}

@@ -1,0 +1,1417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.23" id="1">
+    <property name="createdBy">Eclipse BIRT Designer Version 4.16.0.v202406131946</property>
+    <property name="units">in</property>
+    <property name="iconFile">/templates/blank_report.gif</property>
+    <property name="bidiLayoutOrientation">ltr</property>
+    <property name="imageDPI">96</property>
+    <parameters>
+        <scalar-parameter name="memberName" id="311">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="loanAmt" id="316">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="pdtName" id="315">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="purpose" id="314">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="tenure" id="312">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="frequency" id="323">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="spouseInsurance" id="322">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="installmentAmt" id="321">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="memberId" id="320">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="kendraId" id="319">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="bmName" id="357">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="pfGstAmt" id="359">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="sanctionedDate" id="360">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="interestRate" id="363">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="amountApproved" id="366">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="bmId" id="394">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="memInsurance" id="396">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+    </parameters>
+    <page-setup>
+        <simple-master-page name="Simple MasterPage" id="2">
+            <property name="type">a4</property>
+            <property name="headerHeight">0.7cm</property>
+            <page-header>
+                <label id="91185">
+                    <property name="textAlign">right</property>
+                    <text-property name="text">Customer Copy</text-property>
+                </label>
+            </page-header>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <text id="4">
+            <property name="fontFamily">"tunga"</property>
+            <property name="fontSize">9pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="marginBottom">2pt</property>
+            <property name="textAlign">center</property>
+            <property name="contentType">auto</property>
+            <text-property name="content"><![CDATA[ಮಂಜೂರಾತಿ ಪತ್ರ ]]></text-property>
+        </text>
+        <grid id="185">
+            <column id="186"/>
+            <column id="195"/>
+            <row id="196">
+                <property name="borderBottomStyle">none</property>
+                <property name="borderLeftStyle">none</property>
+                <property name="borderRightStyle">none</property>
+                <property name="borderTopStyle">none</property>
+                <property name="textAlign">center</property>
+                <cell id="197">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="198">
+                        <property name="fontFamily">"tunga"</property>
+                        <property name="fontSize">9pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[ಸದಸ್ಯರ ಹೆಸರು:  <VALUE-OF>params["memberName"]</VALUE-OF>]]></text-property>
+                    </text>
+                </cell>
+                <cell id="215">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="216">
+                        <property name="fontFamily">"tunga"</property>
+                        <property name="fontSize">9pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[ಸದಸ್ಯರ ಸಂಖ್ಯೆ:  <VALUE-OF>params["memberId"]</VALUE-OF>]]></text-property>
+                    </text>
+                </cell>
+            </row>
+        </grid>
+        <grid id="66">
+            <property name="marginTop">2pt</property>
+            <property name="height">0.9583333333333334in</property>
+            <property name="width">7.725in</property>
+            <column id="67">
+                <property name="width">1.0666666666666667in</property>
+            </column>
+            <column id="68">
+                <property name="width">0.8916666666666667in</property>
+            </column>
+            <column id="69">
+                <property name="width">0.6416666666666667in</property>
+            </column>
+            <column id="70">
+                <property name="width">0.5166666666666667in</property>
+            </column>
+            <column id="71">
+                <property name="width">0.4583333333333333in</property>
+            </column>
+            <column id="72">
+                <property name="width">0.7083333333333334in</property>
+            </column>
+            <column id="73">
+                <property name="width">0.775in</property>
+            </column>
+            <column id="74">
+                <property name="width">0.6833333333333333in</property>
+            </column>
+            <column id="75">
+                <property name="width">1.075in</property>
+            </column>
+            <column id="76">
+                <property name="width">0.9in</property>
+            </column>
+            <row id="77">
+                <property name="fontWeight">bold</property>
+                <property name="borderBottomStyle">none</property>
+                <property name="borderLeftStyle">none</property>
+                <property name="borderRightStyle">none</property>
+                <property name="borderTopStyle">none</property>
+                <property name="textAlign">center</property>
+                <cell id="78">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="105">
+                        <property name="fontFamily">"tunga"</property>
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಉತ್ಪನ್ನದ ಹೆಸರು ]]></text-property>
+                    </text>
+                </cell>
+                <cell id="79">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="106">
+                        <property name="fontFamily">"tunga"</property>
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಉದ್ದೇಶ ]]></text-property>
+                    </text>
+                </cell>
+                <cell id="80">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="107">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಸಾಲದ ಮೊತ್ತ ]]></text-property>
+                    </text>
+                </cell>
+                <cell id="81">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="108">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಬಡ್ಡಿಯ ದರ# ]]></text-property>
+                    </text>
+                </cell>
+                <cell id="82">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="110">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[PF+GST]]></text-property>
+                    </text>
+                </cell>
+                <cell id="83">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="111">
+                        <property name="fontFamily">"tunga"</property>
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಅವಧಿ
+(ವಾರಗಳಲ್ಲಿ)]]></text-property>
+                    </text>
+                </cell>
+                <cell id="84">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="112">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಮರುಪಾವತಿ ಆವರ್ತನೆ ]]></text-property>
+                    </text>
+                </cell>
+                <cell id="85">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="113">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಕಂತಿನ ಮೊತ್ತ ]]></text-property>
+                    </text>
+                </cell>
+                <cell id="86">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="114">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಆಯ್ಕೆ ಮಾಡಲಾದ ವಿಮೆ  ]]></text-property>
+                    </text>
+                </cell>
+                <cell id="87">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="115">
+                        <property name="fontFamily">"tunga"</property>
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ವಿಮಾ ಮೊತ್ತ (ಪ್ರತಿ ಜೀವಕ್ಕೆ) ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="88">
+                <property name="height">0.53125in</property>
+                <cell id="89">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="355">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<div style="word-wrap: break-word; white-space: pre-wrap;">
+    <VALUE-OF>params["pdtName"]</VALUE-OF>
+</div>]]></text-property>
+                    </text>
+                </cell>
+                <cell id="90">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="356">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<div style="word-wrap: break-word; white-space: pre-wrap;">
+    <VALUE-OF>params["purpose"]</VALUE-OF>
+</div>]]></text-property>
+                    </text>
+                </cell>
+                <cell id="91">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="368">
+                        <property name="fontSize">9pt</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">loanAmt</property>
+                                <expression name="expression" type="javascript">params["loanAmt"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">loanAmt</property>
+                    </data>
+                </cell>
+                <cell id="92">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="364">
+                        <property name="fontSize">9pt</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">interestRate</property>
+                                <expression name="expression" type="javascript">params["interestRate"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">interestRate</property>
+                    </data>
+                </cell>
+                <cell id="93">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="361">
+                        <property name="fontSize">9pt</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">pfGstAmt</property>
+                                <expression name="expression" type="javascript">params["pfGstAmt"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">pfGstAmt</property>
+                    </data>
+                </cell>
+                <cell id="94">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="328">
+                        <property name="fontSize">9pt</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">tenure</property>
+                                <expression name="expression" type="javascript">params["tenure"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">tenure</property>
+                    </data>
+                </cell>
+                <cell id="95">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="369">
+                        <property name="fontSize">9pt</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">frequency</property>
+                                <expression name="expression" type="javascript">params["frequency"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">frequency</property>
+                    </data>
+                </cell>
+                <cell id="96">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="332">
+                        <property name="fontSize">9pt</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">installmentAmt</property>
+                                <expression name="expression" type="javascript">params["installmentAmt"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">installmentAmt</property>
+                    </data>
+                </cell>
+                <cell id="97">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="334">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[member:<VALUE-OF>params["memInsurance"]</VALUE-OF>]]></text-property>
+                    </text>
+                    <text id="397">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[Spouse <VALUE-OF>params["spouseInsurance"]</VALUE-OF>]]></text-property>
+                    </text>
+                </cell>
+                <cell id="98">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="371">
+                        <property name="fontSize">9pt</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">loanAmt</property>
+                                <expression name="expression" type="javascript">params["loanAmt"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">loanAmt</property>
+                    </data>
+                </cell>
+            </row>
+        </grid>
+        <text id="116">
+            <property name="fontFamily">serif</property>
+            <property name="fontSize">9pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="marginTop">2pt</property>
+            <property name="paddingTop">0pt</property>
+            <property name="paddingLeft">0pt</property>
+            <property name="paddingBottom">0pt</property>
+            <property name="paddingRight">0pt</property>
+            <property name="textAlign">justify</property>
+            <property name="contentType">auto</property>
+            <text-property name="content"><![CDATA[* wkly = ವಾರಕ್ಕೊಮ್ಮೆ, #ಬಡ್ಡಿಯ ದರವನ್ನು ರೆಡ್ಯೂಸಿಂಗ್ ಬ್ಯಾಲೆನ್ಸ್ ಮೇಲೆ ಲೆಕ್ಕ ಹಾಕಲಾಗುತ್ತದೆ (ಗ್ರಾಹಕರು ಆಯ್ಕೆಮಾಡಿದ ಮರುಪಾವತಿ ಅವಧಿಯ ಪ್ರಕಾರ ವಾರಕ್ಕೊಮ್ಮೆ/2 ವಾರಕ್ಕೊಮ್ಮೆ 4 ವಾರಕ್ಕೊಮ್ಮೆ) ]]></text-property>
+        </text>
+        <text id="117">
+            <property name="fontSize">9pt</property>
+            <property name="paddingTop">0pt</property>
+            <property name="paddingLeft">0pt</property>
+            <property name="paddingBottom">0pt</property>
+            <property name="paddingRight">0pt</property>
+            <property name="textAlign">justify</property>
+            <property name="contentType">auto</property>
+            <text-property name="content"><![CDATA[ಸಾಲಗಾರನ CAGL ಕ್ರೆಡಿಟ್ ಅರ್ಹತೆ ಮತ್ತು ಸಾಲದ ಮೊತ್ತವನ್ನು ಮರುಪಾವತಿ ಮಾಡುವ ಸಾಮರ್ಥ್ಯದ ಆಧಾರದ ಮೇಲೆ ಬಡ್ಡಿದರವು ಬದಲಾಗುತ್ತದೆ.
+ನಿಮ್ಮ ಸಾಲದ ಅರ್ಜಿಯು ಕೆಳಕಂಡ ನಿಯಮ ಮತ್ತು ನಿಬಂಧನೆಗಳೊಂದಿಗೆ ಮಂಜೂರಾಗಿರುವ ಬಗ್ಗೆ ತಿಳಿಸಲು ನಾವು ಸಂತೋಷವ್ಯಕ್ತಪಡಿಸುತ್ತೇವೆ.ಮಂಜೂರಾತಿಯು, ಮಂಜೂರಾತಿ ದಿನಾಂಕದಿಂದ 4 ವಾರಗಳವರೆಗೆ ಮಾನ್ಯವಾಗಿರುತ್ತದೆ. ]]></text-property>
+        </text>
+        <label id="118">
+            <property name="fontSize">9pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="marginTop">5pt</property>
+            <property name="marginBottom">5pt</property>
+            <text-property name="text">ಮಂಜೂರಾತಿ ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳು </text-property>
+        </label>
+        <grid id="217">
+            <property name="fontSize">8pt</property>
+            <property name="width">7.775in</property>
+            <column id="218">
+                <property name="width">0.46875in</property>
+            </column>
+            <column id="219">
+                <property name="width">7.308333333333334in</property>
+            </column>
+            <row id="220">
+                <cell id="221">
+                    <text id="271">
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[1.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="222">
+                    <text id="288">
+                        <property name="fontSize">9pt</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">justify</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಸಾಲದ ಮೊತ್ತವನ್ನು ಮರುಪಾವತಿಯ ಅವಧಿ ಮತ್ತು ಆವರ್ತನದ ಪ್ರಕಾರ, ಬಡ್ಡಿ ಸಹಿತ, ಕಂತುಗಳಲ್ಲಿ ಮರುಪಾವತಿ ಮಾಡಬೇಕು.  ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="223">
+                <cell id="224">
+                    <text id="272">
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[2.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="225">
+                    <text id="289">
+                        <property name="fontSize">9pt</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">justify</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಸಾಲಗಾರರಿಗೆ ತಿಳಿಸುವುದರ ಮೂಲಕ, CAGL ತನ್ನ ವಿವೇಚನೆಗೆ ಅನುಸಾರವಾಗಿ ಕಾಲಕಾಲಕ್ಕೆ ಬಡ್ಡಿದರವನ್ನು ಮರುನಿಗದಿಪಡಿಸುತ್ತದೆ, ಮತ್ತು ಸಾಲಗಾರರು ಅಂತಹ ಪರಿಷ್ಕೃತ ಬಡ್ಡಿದರವನ್ನು ಅಂದಿನಿಂದ ಮುಂದಕ್ಕೆ ಪಾವತಿಸಲು ಒಪ್ಪಿಕೊಳ್ಳುತ್ತಾರೆ .]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="226">
+                <cell id="227">
+                    <text id="273">
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[3.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="228">
+                    <text id="290">
+                        <property name="fontSize">9pt</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">justify</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಕ್ರೆಡಿಟ್ ಆಕ್ಸೆಸ್‌ ಗ್ರಾಮೀಣ್ ಲಿಮಿಟೆಡ್‌ನ (ಇನ್ನು ಮುಂದೆ (ಸಿಎಜಿಎಲ್) ಎಂದು ಕರೆಯಲ್ಪಡುತ್ತದೆ) ಜಂಟಿ ಹೊಣೆಗಾರಿಕೆ ಗುಂಪಿನ ಸದಸ್ಯರಾಗಿ ಸಾಲದ ಮೊತ್ತವನ್ನು ನೀಡಲಾಗುತ್ತದೆ.]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="229">
+                <cell id="230">
+                    <text id="274">
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[4.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="231">
+                    <text id="291">
+                        <property name="fontSize">9pt</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">justify</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಗ್ರಾಹಕರು ಕೇಂದ್ರದ ಎಲ್ಲಾ ಸಭೆಗಳಿಗೆ ಹಾಜರಾಗಬೇಕು, ಸಾಲವನ್ನು ಒಪ್ಪಿಕೊಂಡಿರುವ ಉದ್ದೇಶಕ್ಕಾಗಿ ಮಾತ್ರ ಬಳಸಿಕೊಳ್ಳಬೇಕು, ಸಾಲದ ಕಂತುಗಳನ್ನು ಪ್ರಾಮಾಣಿಕವಾಗಿ ಮರುಪಾವತಿ ಮಾಡಬೇಕು, ಕೇಂದ್ರದ ಸದಸ್ಯರು ಯಾವುದೇ ಸಮಸ್ಯೆಯನ್ನು ಎದುರಿಸಿದರೆ ಅವರಿಗೆ ಸಹಾಯ ಮಾಡಬೇಕು, ಮತ್ತು ಮರುಪಾವತಿ ಸಾಮರ್ಥ್ಯಕ್ಕಿಂತ ಹೆಚ್ಚಿನ ಸಾಲವನ್ನು ತೆಗೆದುಕೊಳ್ಳಬಾರದು. ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="91186">
+                <cell id="91187">
+                    <text id="91189">
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[5.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="91188">
+                    <text id="91190">
+                        <property name="fontSize">9pt</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">justify</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ವಿಶೇಷ್ ಸಾಲದ ಗ್ರಾಹಕರು ಜಂಟಿ ಜವಾಬ್ದಾರಿ ಗುಂಪಿನ ಭಾಗವಾಗಿರುವುದಿಲ್ಲ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="232">
+                <cell id="233">
+                    <text id="275">
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[6.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="234">
+                    <text id="292">
+                        <property name="fontSize">9pt</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">justify</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಒಪ್ಪಿಕೊಂಡಿರುವ ಮರುಪಾವತಿ ವೇಳಾಪಟ್ಟಿಯ ಪ್ರಕಾರ ಸಾಲದ ಮೊತ್ತ ಮತ್ತು / ಅಥವಾ ಬಡ್ಡಿಯನ್ನು ಪಾವತಿಸಲು, ಗುಂಪಿನ ಇತರ ಸದಸ್ಯರೊಂದಿಗೆ ಗ್ರಾಹಕರು ಪ್ರತ್ಯೇಕವಾಗಿ ಮತ್ತು ಜಂಟಿಯಾಗಿ ಹೊಣೆಗಾರರಾಗಿರುತ್ತಾರೆ. ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="235">
+                <cell id="236">
+                    <text id="276">
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[7.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="237">
+                    <text id="293">
+                        <property name="fontSize">9pt</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">justify</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಸಾಲದ ದುರುಪಯೋಗ ಅಥವಾ ಯಾವುದೇ ಸಾಲದ ಷರತ್ತುಗಳ ಉಲ್ಲಂಘನೆಯ ಸಂದರ್ಭದಲ್ಲಿ, ಸಿಎಜಿಎಲ್ ಸಾಲವನ್ನು ಹಿಂಪಡೆಯುವ ಹಕ್ಕನ್ನು ಹೊಂದಿದೆ.  ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="238">
+                <cell id="239">
+                    <text id="277">
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[8.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="240">
+                    <text id="294">
+                        <property name="fontFamily">serif</property>
+                        <property name="fontSize">9pt</property>
+                        <property name="fontWeight">normal</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">justify</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಸಾಲಗಾರರ ಮಾಹಿತಿಯ ಗೌಪ್ಯತೆಯನ್ನು ಗೌರವಿಸಲಾಗುವುದು ಎಂದು ಸಿಎಜಿಎಲ್ ಭರವಸೆ ನೀಡುತ್ತದೆ. ಎಲ್ಲಾ ಸಾಲಗಳು ಕ್ರೆಡಿಟ್ ಬ್ಯೂರೋ ಪರಿಶೀಲನೆಗೆ ಒಳಪಟ್ಟಿರುತ್ತವೆ, ಆದ್ದರಿಂದ ಮಾಹಿತಿಯನ್ನು ಕ್ರೆಡಿಟ್ ಬ್ಯೂರೋ ಏಜೆನ್ಸಿಗಳೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತದೆ.  ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="241">
+                <cell id="242">
+                    <text id="278">
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[9.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="243">
+                    <text id="295">
+                        <property name="fontSize">9pt</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">justify</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಸಾಲವನ್ನು ಅವಧಿಪೂರ್ವ ತೀರಿಸಲು ಅಥವಾ ಸಾಲ ಅಥವಾ ಕಂತನ್ನು ಭಾಗಶಃ ಪಾವತಿ ಮಾಡಲು ಯಾವುದೇ ಶುಲ್ಕಗಳನ್ನು ವಿಧಿಸಲಾಗುವುದಿಲ್ಲ. ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="244">
+                <cell id="245">
+                    <text id="279">
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[10.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="246">
+                    <text id="296">
+                        <property name="fontSize">9pt</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">justify</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಪ್ರತಿ ಸಾಲದ ಮೇಲೆ ಒಂದು ಕಂತಿನ ಮರುಪಾವತಿ ಕಾಲಾವಕಾಶ (ಮೊದಲ ಕಂತಿನ ಅಸಲಿನ ಹಣಕ್ಕೆ ಮಾತ್ರ) ನೀಡಲಾಗುವುದು.  ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="247">
+                <cell id="248">
+                    <text id="280">
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[11.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="249">
+                    <text id="297">
+                        <property name="fontSize">9pt</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">justify</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಸಿಎಜಿಎಲ್ ಅಥವಾ ಮೂರನೇ ವ್ಯಕ್ತಿ ನೀಡುವ ಯಾವುದೇ ಇತರ ಉತ್ಪನ್ನ/ಸೇವೆಗಳಿಗೆ, ಸಾಲದ ಅನುದಾನವನ್ನು ಲಿಂಕ್ ಮಾಡಲಾಗಿಲ್ಲ. ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="250">
+                <cell id="251">
+                    <text id="281">
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[12.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="252">
+                    <text id="298">
+                        <property name="fontSize">9pt</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">justify</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಯಾವುದೇ ಸಿಬ್ಬಂದಿ ಅನುಚಿತ ವರ್ತನೆಯನ್ನು ತಡೆಗಟ್ಟಲು ಮತ್ತು ಸಕಾಲದಲ್ಲಿ ಕುಂದುಕೊರತೆ ಪರಿಹಾರವನ್ನು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಲು ಸಿಎಜಿಎಲ್ ಜವಾಬ್ದಾರಿ ಹೊಂದಿರುತ್ತದೆ. ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="253">
+                <cell id="254">
+                    <text id="282">
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[13.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="255">
+                    <text id="299">
+                        <property name="fontSize">9pt</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">justify</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಸಾಲದ ವಿರುದ್ಧ ಭದ್ರತಾ ಠೇವಣಿ ಅಥವಾ ಮಾರ್ಜಿನ್ ಹಣವನ್ನು ಸಿಎಜಿಎಲ್ ಸಂಗ್ರಹಿಸುವುದಿಲ್ಲ.  ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="256">
+                <cell id="257">
+                    <text id="283">
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[14.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="258">
+                    <text id="300">
+                        <property name="fontSize">9pt</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">justify</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಅರ್ಜಿಯ ದಿನಾಂಕದಿಂದ 15 ದಿನಗಳ ಒಳಗಾಗಿ ಸಾಲವನ್ನು ವಿತರಿಸದಿದ್ದರೆ, ಸಿಎಜಿಎಲ್ ಗ್ರಾಹಕರ ಸಿಬಿ ಸ್ಥಿತಿಯನ್ನು ಮರುಪರಿಶೀಲಿಸಬಹುದು .]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="259">
+                <cell id="260">
+                    <text id="284">
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[15.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="261">
+                    <text id="301">
+                        <property name="fontSize">9pt</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">justify</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಗ್ರಾಹಕರು ಆಯ್ಕೆಮಾಡಿದ ಮರುಪಾವತಿಯ ಅವಧಿಗೆ ಅನುಗುಣವಾಗಿ, ವಾರಕ್ಕೊಮ್ಮೆ ಎರಡು ವಾರಕ್ಕೊಮ್ಮೆ/ನಾಲ್ಕು ವಾರಕ್ಕೊಮ್ಮೆ, ಇಳಿಕೆ ಮೊತ್ತದ ಮೇಲೆ, ಬಡ್ಡಿಯನ್ನು ಲೆಕ್ಕಹಾಕಲಾಗುತ್ತದೆ.  ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="262">
+                <cell id="263">
+                    <text id="285">
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[16.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="264">
+                    <text id="302">
+                        <property name="fontSize">9pt</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">justify</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಸಾಲದ ಕಂತುಗಳ ಆವರ್ತನವನ್ನು ಮರುಪಾವತಿಸುವ ದಿನಾಂಕ ಮತ್ತು ಅಸಲು ಮತ್ತು ಬಡ್ಡಿಯ ವಿವರವನ್ನು, ನೀಡಲಾಗುವ ಸಾಲದ ಪಾಸ್‌ಬುಕ್‌ನಲ್ಲಿ ಒದಗಿಸಲಾಗುತ್ತದೆ, ಸಾಲದ ಮರುಪಾವತಿ ವೇಳಾಪಟ್ಟಿಗಾಗಿ ಸಾಲದ ಪಾಸ್‌ಬುಕ್ ಅನ್ನು ನೋಡಿ.]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="265">
+                <cell id="266">
+                    <text id="286">
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[17.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="267">
+                    <text id="303">
+                        <property name="fontSize">9pt</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">justify</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಸಾಲದ ಮೌಲೀಕರಣ ವಿವರಗಳಿರುವ ಫ್ಯಾಕ್ಸ್ ಶೀಟ್ ಅನ್ನು ಒದಗಿಸಲಾಗುವುದು.  ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="268">
+                <cell id="269">
+                    <text id="287">
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[18.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="270">
+                    <text id="304">
+                        <property name="fontSize">9pt</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">justify</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಸಾಲದ ಖಾತೆಯು 90 ದಿನಗಳಿಗಿಂತ ಹೆಚ್ಚು ಕಾಲ ಡೀಫಾಲ್ಟ್ ಆದರೆ, ಅಂತಹ ಖಾತೆಗಳನ್ನು ಎನ್‌ಪಿಎ ಎಂದು ಪರಿಗಣಿಸಲಾಗುತ್ತದೆ ಮತ್ತು ಕ್ರೆಡಿಟ್ ಬ್ಯೂರೋಗೆ ವರದಿ ಮಾಡಲಾಗುತ್ತದೆ.]]></text-property>
+                    </text>
+                </cell>
+            </row>
+        </grid>
+        <text id="91191">
+            <property name="fontFamily">"tunga"</property>
+            <property name="fontSize">9pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="marginTop">1pt</property>
+            <property name="marginBottom">1pt</property>
+            <property name="textAlign">justify</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[ಮಂಜೂರಾತಿ ದಿನಾಂಕ: <VALUE-OF>params["sanctionedDate"]</VALUE-OF>
+]]></text-property>
+        </text>
+        <grid id="335">
+            <property name="width">7.758333333333334in</property>
+            <column id="336">
+                <property name="width">0.8916666666666667in</property>
+            </column>
+            <column id="337">
+                <property name="width">2.308333333333333in</property>
+            </column>
+            <column id="338">
+                <property name="width">0.7in</property>
+            </column>
+            <column id="339">
+                <property name="width">1.4083333333333334in</property>
+            </column>
+            <column id="340">
+                <property name="width">0.6979166666666666in</property>
+            </column>
+            <column id="341">
+                <property name="width">1.7583333333333333in</property>
+            </column>
+            <row id="342">
+                <cell id="343">
+                    <text id="349">
+                        <property name="fontFamily">"tunga"</property>
+                        <property name="fontSize">9pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">right</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಬಿಎಮ್‌ ಹೆಸರು:]]></text-property>
+                    </text>
+                </cell>
+                <cell id="344">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <data id="358">
+                        <property name="fontSize">9pt</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">bmName</property>
+                                <expression name="expression" type="javascript">params["bmName"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">bmName</property>
+                    </data>
+                </cell>
+                <cell id="345">
+                    <text id="350">
+                        <property name="fontSize">9pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">right</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಜಿಕೆ ಐಡಿ:]]></text-property>
+                    </text>
+                </cell>
+                <cell id="346">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <data id="395">
+                        <property name="fontSize">9pt</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">bmId</property>
+                                <expression name="expression" type="javascript">params["bmId"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">bmId</property>
+                    </data>
+                </cell>
+                <cell id="347">
+                    <text id="351">
+                        <property name="fontSize">9pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">right</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಸಹಿ:]]></text-property>
+                    </text>
+                </cell>
+                <cell id="348">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                </cell>
+            </row>
+        </grid>
+    </body>
+</report>

@@ -1,0 +1,27 @@
+{
+  "apiURL": "${URL}",
+  "servicetype": "HTTP",
+  "methodType": "POST",
+  "contentType": "application/json",
+  "headers": {
+    "Content-Type": "application/json",
+    "Accept": "*/*"
+  },
+  "requestDef": {
+    "apiRequest": {
+      "interfaceName": "${CONST~FetchKendraInfo}",
+      "requestObj": {
+        "branchId": "${REQUEST~apiRequest.requestObj.branchId}",
+        "nextMeetingDt": "${REQUEST~apiRequest.requestObj.meetingDate}"
+      }
+    }
+  },
+  "responseDef": "",
+  "logging": {
+    "logRequired": "Y",
+    "logType": "BOTH",
+    "externalAPILogRequired": "N",
+    "externalAPILogType": "NONE"
+  }
+}
+  

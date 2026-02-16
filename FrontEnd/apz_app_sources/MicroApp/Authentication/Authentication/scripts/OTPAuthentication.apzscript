@@ -1,0 +1,979 @@
+var Transpayload = "";
+var otpauth = "OTP",
+    AuthenScreenID = "Authen__OTPAuthentication__",
+    OTPDIV = AuthenScreenID + "Authentication_formOTP";
+var TIME_LIMIT = "";
+var VALIDATION_LIMIT = "";
+var FULL_DASH_ARRAY = 283;
+var WARNING_THRESHOLD = 30;
+var ALERT_THRESHOLD = 10;
+window.timePassed = 0;
+window.timeLeft = "";
+window.timerInterval = null;
+var remainingPathColor = "green";
+apz.afterOtp = false;
+window.otpflag = false;
+//window.otpRegenCount = 0;
+var RegenCount = 0;
+var otpFieldNumber = 0;
+window.ShowError = false;
+var pwdMaximumLength;
+var validatedOTP = "";
+var basetimeremaining = "base-timer-path-remaining";
+var COLOR_CODES = {
+    info: {
+        color: "green"
+    },
+    warning: {
+        color: "orange",
+        threshold: WARNING_THRESHOLD
+    },
+    alert: {
+        color: "red",
+        threshold: ALERT_THRESHOLD
+    }
+};
+var incorrectotptext = ApzCOB.getDescfromLitCode("LIT_INC_OTP");
+var AttemptsLeftNode = "Attempts Left";
+var Attemptslefttext = ApzCOB.getDescfromLitCode("LIT_ATT_LFT");
+var assciiCode = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 127, 8, 13, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105];
+apz.app.onLoad_OTPAuthentication = function(params) {
+    Transpayload = params;
+    if (!ApzCOB.chkprevscrPageBC(apz.childScr)) {
+        ApzCOB.addscrPageBC(apz.childScr);
+    }
+    TimerHTMLInjection();
+    $("#" + gAppId + "__PostLogin_BaseScreen__logoutCol").addClass("sno");
+    $("#" + gAppId + "__PostLogin_BaseScreen__mailCol").addClass("sno");
+    $("#" + gAppId + "__PostLogin_BaseScreen__mailCol").addClass("sno");
+    // ApzCOB.GetPasswordSecParams("GetTxnPinPolicy", gApzCOB.LoggedInUserDetails.loginResponse.userDet.id);
+    // pwdMaximumLength = gApzCOB.PinPolicy.pwdMaximumLength; //maximum input boxes allowed
+    pwdMaximumLength = 6;
+    apz.startLoader();
+    apz.stopLoader();
+    ApzCOB.toggleModal(AuthenScreenID + 'mdl_OTPAuthModal');
+};
+apz.app.onShown_OTPAuthentication = function() {
+    if (Transpayload.Module === "REGISTRATION") {
+        $("#" + AuthenScreenID + "otpcancel").text(ApzCOB.getDescfromLitCode("LIT_CANCEL_REGISTRATION"));
+    }
+    if (apz.isNull(gApzCOB.AltAuthenticationtype) || gApzCOB.AltAuthenticationtype === '' || gApzCOB.AltAuthenticationtype === "NoAuth") {
+        $("#" + AuthenScreenID + "frm_altAuthDiv").addClass('sno');
+    } else {
+        $("#" + AuthenScreenID + "frm_altAuthDiv").removeClass('sno');
+    }
+    if (Transpayload.Module === "REGISTRATION" || Transpayload.Module === "FORGOTUSERNAME" || Transpayload.Module === "FORGOTPASSWORD" ||
+        Transpayload.Module === "FORGOTTXNPIN" || Transpayload.Module === "FORGOTMPIN" || window.KendraApp.Transpayload.Module === "LOAN" ||
+        window.KendraApp.Transpayload.Module === "INSTANT LOAN" || window.KendraApp.Transpayload.Module === 'UPDATEMOBILENUM') {
+        $("#" + OTPDIV).removeClass("sno");
+        $("#" + gAppId + "__PreLogin_BaseScreen__hearderTxt").text(ApzCOB.getDescfromLitCode("LIT_AUTH_TRANS"));
+        // $("#" + AuthenScreenID + "txt_at_headerText").text(apz.lits[apz.currAppId][apz.language]["LIT_AUTH_TRANS"]);
+        $("#" + gAppId + "__PreLogin_BaseScreen__web_preLoginHeaderbackCol").removeClass("sno");
+        // $("#" + gAppId + "__PreLogin_BaseScreen__basediv").addClass("prelogin-otp");
+        //$("#header").removeClass("sno");
+        $("#sidebar").removeClass("sno");
+        $("#sidebar").removeClass("apz-nav-open");
+        $(".rolepage ").addClass("landingpage");
+        $(".rolepage ").removeClass("apz-nav-push");
+        if (Transpayload.Module !== "REGISTRATION") {
+            $("#" + AuthenScreenID + "otpcancel").text(ApzCOB.getDescfromLitCode("LIT_CANCELONOTP"));
+        }
+        // $('#Login__Login__preloginfeatrow').addClass('sno');
+        ApzCOB.moreScrsetHeader("LIT_AUTH_TRANS");
+        if (!apz.isNull(Transpayload.cancelCB) && Transpayload.Module !== "REGISTRATION") {
+            $("#" + AuthenScreenID + "otpcancel").attr("onclick", Transpayload.cancelCB);
+        } else if (Transpayload.Module === "REGISTRATION") {
+            $("#" + AuthenScreenID + "otpcancel").attr("onclick", "apz.app.OTPAuthentication.CancelOTP();")
+        }
+        $("#" + AuthenScreenID + "mdl_OTPAuthModal_close").attr('onclick', "apz.app.OTPAuthentication.CancelOTPForlogin();");
+        /**
+         *@author gaurav
+         *@date 11-04-2022
+         * Sim and device binding code
+         **/
+        //var tempOtpObj = JSON.parse(Transpayload.res[gAppId + "__WorkFlowService_Res"].apiResponse.ResponseBody.responseObj);
+        var tempOtpObj = window.KendraApp.Transpayload.otpResObj;
+        $("#" + AuthenScreenID + "OTPRefno").text(tempOtpObj.RefNo);
+        $("#" + AuthenScreenID + "dummyotptxt").text(tempOtpObj.otp);
+        apz.app.OTPAuthentication.startTimer(tempOtpObj.otpExpiry);
+        // RegenCount = RegenCount === 0 ? tempOtpObj.otpRegenCount : RegenCount + 1;
+        RegenCount = RegenCount + 1;
+        $("#" + AuthenScreenID + "otp").attr("maxlength", tempOtpObj.otpLength);
+        // $("#" + AuthenScreenID + "txt_authn_mobileNo").text(window.KendraApp.Transpayload.req.apiRequest.requestObj.mobileNo.substring(0, 3) +
+        //     'xx xx' + window.KendraApp.Transpayload.req.apiRequest.requestObj.mobileNo.substring(6 + 1));
+        $("#" + AuthenScreenID + "txt_authn_mobileNo").text(window.KendraApp.Transpayload.req.apiRequest.requestObj.mobileNo);
+        //$("#" + AuthenScreenID + "txt_authn_mobileNo").text(window.customerMobNum);
+        $("#" + AuthenScreenID + "otp_1").focus();
+        pwdMaximumLength = tempOtpObj.otpLength;
+        apz.app.OTPAuthentication.GenerateInputField();
+    } else {
+        apz.app.OTPAuthentication.GenerateOTP("");
+        if (!apz.isNull(Transpayload.cancelCB)) {
+            $("#" + AuthenScreenID + "otpcancel").attr("onclick", "apz.app.OTPAuthentication.CancelOTP(this);");
+            $("#" + AuthenScreenID + "mdl_OTPAuthModal_close").attr('onclick', "apz.app.OTPAuthentication.CancelOTP(this);");
+            if (Transpayload.cancelCB.split("()")[1] === undefined) {
+                $("#" + gAppId + "__PostLogin_BaseScreen__backIconCol").attr("onclick", Transpayload.cancelCB + "();");
+            } else {
+                $("#" + gAppId + "__PostLogin_BaseScreen__backIconCol").attr("onclick", Transpayload.cancelCB);
+            }
+        }
+    }
+    ApzCOB.showSubHeader("LIT_AUTH_TRANS");
+    $("#" + gAppId + "__PostLogin_BaseScreen__backIconCol").addClass("sno");
+    $("#" + AuthenScreenID + 'otp_1').attr("onblur", "").unbind("click");
+};
+apz.app.OTPAuthentication.GenerateInputField = function() {
+    var currentInputCountLength = $("#" + AuthenScreenID + "Authentication_formOTP").find("input").length
+    if (currentInputCountLength === pwdMaximumLength) {
+        return;
+    }
+    document.getElementById(AuthenScreenID + "otp_1").setAttribute('maxlength', 6);
+    //var wrapper = $("#Authen__OTPAuthentication__otp_1_ul").parent(); //Fields wrapper
+    var placeHolderVal = '0';
+    for (let i = 1; i < pwdMaximumLength; i++) {
+        placeHolderVal = placeHolderVal + '0';
+    }
+    $("#" + AuthenScreenID + "otp_1").attr('placeholder', '');
+    //$("#" + AuthenScreenID + "otp_1").attr('type', 'number');
+    $("#" + AuthenScreenID + "otp_1").attr('type', 'tel');
+    $("#" + AuthenScreenID + "otp_1").addClass('cen');
+    //if (apz.deviceType !== "WEB" || ApzCOB.isMobileBrowser()) {
+    if (apz.deviceType !== "WEB") {
+        /*for (let i = 1; i < pwdMaximumLength; i++) {
+            $(wrapper).append('<ul id="Authen__OTPAuthentication__otp_' + (i + 1) +
+                '_ul" class="eoc srb  "><li class="etw-0"><label id="Authen__OTPAuthentication__otp_' + (i + 1) +
+                '_grp_lbl" for="Authen__OTPAuthentication__otp_' + (i + 1) +
+                '" class="flb" style="" title="Input">enabled</label></li><li id="Authen__OTPAuthentication__otp_' + (i + 1) +
+                '_li" class="eic etw-100"><span class="ecn etw-100" style=""><input id="Authen__OTPAuthentication__otp_' + (i + 1) +
+                '" class="etw-100 ett-inpt pri cen " type="Password" maxlength="1" placeholder="0" enabled="enabled" value=""></span></li></ul>'
+                ); //add input box
+        }*/
+        //$("#" + AuthenScreenID + "otp_1").attr('type', "number");
+        $("#" + AuthenScreenID + "otp_1").attr('type', "tel");
+        $("#" + AuthenScreenID + "otp_1_ul").addClass("custompassword");
+    } else {
+        /*for (let i = 1; i < pwdMaximumLength; i++) {
+            $(wrapper).append('<ul id="Authen__OTPAuthentication__otp_' + (i + 1) +
+                '_ul" class="eoc srb  "><li class="etw-0"><label id="Authen__OTPAuthentication__otp_' + (i + 1) +
+                '_grp_lbl" for="Authen__OTPAuthentication__otp_' + (i + 1) +
+                '" class="flb" style="" title="Input">enabled</label></li><li id="Authen__OTPAuthentication__otp_' + (i + 1) +
+                '_li" class="eic etw-100"><span class="ecn etw-100" style=""><input id="Authen__OTPAuthentication__otp_' + (i + 1) +
+                '" class="etw-100 ett-inpt pri cen " type="password" maxlength="1" placeholder="0" enabled="enabled" value=""></span></li></ul>'
+                ); //add input box
+        }*/
+        document.getElementById("Authen__OTPAuthentication__otp_1").readOnly = false;
+        //$("#" + AuthenScreenID + "otp_1").attr('type', "number");
+        $("#" + AuthenScreenID + "otp_1").attr('type', "tel");
+    }
+    /* $('#' + AuthenScreenID + "otp_1").focus();
+     $('input').change(function() {
+         if ($(this).val().length === $(this).attr("maxlength") && apz.childScr === 'OTPAuthentication') {
+             var i = $('input').index(this);
+             $('input').eq(i + 1).focus();
+         }
+     });
+     $('input').keyup(function(e) {
+         if (apz.childScr === 'OTPAuthentication') {
+             apz.app.OTPAuthentication.keyboardPress(this, e);
+         }
+     });
+     if (apz.deviceOs === "iOS") {
+         $('.key').bind('touchstart', function(e) {
+             apz.app.OTPAuthentication.keyPadPress(this);
+         });
+     } else if (apz.deviceOs === "ANDROID" || apz.deviceType === "WEB") {
+         $('.key').click(function(e) {
+             if (apz.childScr === 'OTPAuthentication') {
+                 apz.app.OTPAuthentication.keyPadPress(this);
+             }
+         });
+     }*/
+};
+apz.app.OTPAuthentication.keyPadPress = function(e) {
+    if (otpFieldNumber < pwdMaximumLength) {
+        var k = otpFieldNumber + 1;
+        $("#" + AuthenScreenID + "otp_" + k).val(e.innerText);
+        otpFieldNumber++;
+        $("#" + AuthenScreenID + "OTP_ERROR").addClass("sno")
+    }
+    if (otpFieldNumber === pwdMaximumLength) {
+        apz.app.OTPAuthentication.MBValidateOTP();
+    }
+};
+apz.app.OTPAuthentication.backspacePress = function(idx, inpId) {
+    // $('input').eq(idx-1).attr('type', 'number');
+    // $('input').eq(idx - 1).focus();
+    $('#' + AuthenScreenID + "otp_" + (inpId - 1)).attr('type', 'number');
+    $('#' + AuthenScreenID + "otp_" + (inpId - 1)).focus();
+    var x = otpFieldNumber;
+    otpFieldNumber--;
+    if (x === inpId) {
+        $("#" + AuthenScreenID + "otp_" + x).val("");
+    } else {
+        for (var i = inpId - 1; i <= pwdMaximumLength; i++) {
+            $("#" + AuthenScreenID + "otp_" + i).val("");
+        }
+    }
+    if (otpFieldNumber < 1) {
+        otpFieldNumber = 0;
+    }
+}
+apz.app.OTPAuthentication.keyboardPress = function(val, e) {
+    var idx = $('input').index(val);
+    var inpId = parseInt(val.id.split('_').pop());
+    if (assciiCode.includes(e.which)) {
+        if (e.which === 8) {
+            apz.app.OTPAuthentication.backspacePress(idx, inpId)
+        } else {
+            var count = 0;
+            var selectedNumber = $(val).val();
+            for (var i = inpId; i > 0; i--) {
+                if ($("#" + AuthenScreenID + "otp_" + (i - 1)).val() === "") {
+                    count = count + 1
+                    inpId--;
+                    $("#" + AuthenScreenID + "otp_" + i).val("")
+                }
+            }
+            if (count > 0) {
+                // $('input').eq(idx - count).attr('type', 'password');
+                // $('input').eq(idx - count + 1).focus();
+                $("#" + AuthenScreenID + "otp_" + (inpId - count)).attr('type', 'number');
+                $("#" + AuthenScreenID + "otp_" + (inpId - count + 1)).focus();
+                $("#" + AuthenScreenID + "otp_" + inpId).val(selectedNumber);
+                otpFieldNumber++;
+            } else {
+                if ($(val).val().length.toString() === $(val).attr("maxlength") && parseInt(val.id.split('_')[5]) < pwdMaximumLength) {
+                    // $('input').eq(idx).attr('type', 'password');
+                    $("#" + AuthenScreenID + "otp_" + (inpId)).attr('type', 'number');
+                    // $('input').eq(idx + 1).focus();
+                    $("#" + AuthenScreenID + "otp_" + (inpId + 1)).focus();
+                }
+                if (otpFieldNumber < pwdMaximumLength && !apz.isNull(selectedNumber)) {
+                    var k = otpFieldNumber + 1;
+                    $("#" + AuthenScreenID + "otp_" + k).val(selectedNumber);
+                    otpFieldNumber++;
+                    $("#" + AuthenScreenID + "OTP_ERROR").addClass("sno")
+                    if (otpFieldNumber === pwdMaximumLength) {
+                        apz.app.OTPAuthentication.validate_otp();
+                        // $('input').eq(idx).attr('type', 'password');
+                        // $('input').eq((idx + 1) - pwdMaximumLength).focus();
+                        // $('input').eq(idx).focus();
+                        $("#" + AuthenScreenID + "otp_" + (inpId)).attr('type', 'number');
+                        $("#" + AuthenScreenID + "otp_" + (inpId)).focus();
+                    }
+                }
+            }
+        }
+    }
+    if (ApzCOB.checkCalendarOpen()) {
+        document.getElementById("ui-datepicker-div").style.display = "none";
+    }
+}
+apz.app.OTPAuthentication.CancelOTP = function() {
+    /*var x = otpFieldNumber;
+    $("#" + AuthenScreenID + "otp_" + x).val("");
+    otpFieldNumber--;
+    if (otpFieldNumber < 1) {
+        otpFieldNumber = 0;
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_CANCEL_CONFIRM"), "C", apz.app.OTPAuthentication.CancelOTPCB);
+    }*/
+    if (Transpayload.Module === "REGISTRATION") {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_CANCEL_REGISTRATION_CONFIRM"), "C", apz.app.OTPAuthentication.CancelOTPCB);
+    } else {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_CANCEL_CONFIRM"), "C", apz.app.OTPAuthentication.CancelOTPCB);
+    }
+};
+apz.app.OTPAuthentication.CancelOTPCB = function(params) {
+    if (params.choice) {
+        if (Transpayload.Module === "REGISTRATION") {
+            apz.app.PreLogin_BaseScreen.launchpreloginbasescreen();
+        } else {
+            ApzCOB.toggleModal(AuthenScreenID + 'mdl_OTPAuthModal');
+            // ApzCOB.launchDashboard();
+            //ApzCOB.launchMicroApp("Dashbo", "dashboard", gPostLoginBaseDiv, "");
+        }
+    } else if (params.choice === false && !$('#' + AuthenScreenID + 'mdl_OTPAuthModal').is(':visible')) {
+        ApzCOB.toggleModal(AuthenScreenID + 'mdl_OTPAuthModal');
+    }
+};
+apz.app.OTPAuthentication.CancelOTPForlogin = function() {
+    ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_CANCEL_CONFIRM"), "C", apz.app.OTPAuthentication.CancelOTPForloginCB);
+};
+apz.app.OTPAuthentication.CancelOTPForloginCB = function(params) {
+    if (params.choice === true) {
+        if (window.KendraApp.Transpayload.Module === 'LOAN') {
+            $("#NEWLOA__AddLoanDetails__AuthenticateBaseDiv").remove();
+            $('#scr__NEWLOA__AddLoanDetails__main').append(`
+          <div id="NEWLOA__AddLoanDetails__AuthenticateBaseDiv" class="grb sno">
+            <div id="NEWLOA__AddLoanDetails__gr_col_117" class="gcb-col12" style="">
+              <div id="NEWLOA__AddLoanDetails__pl_pnl_112_div" style="" class="plt-simp">
+                <div id="NEWLOA__AddLoanDetails__ps_pls_120" class="pst-simp pri" style="">
+                  <p>Placeholder Content for ps_pls_120</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `);
+        }
+        //ApzCOB.toggleModal(AuthenScreenID + 'mdl_OTPAuthModal');
+        //ApzCOB.launchMicroApp("Login", "Login", gPreLoginBaseDiv, "");
+    } else if (params.choice === false && !$('#' + AuthenScreenID + 'mdl_OTPAuthModal').is(':visible')) {
+        ApzCOB.toggleModal(AuthenScreenID + 'mdl_OTPAuthModal');
+    }
+};
+// $("#" + AuthenScreenID + "otp").keypress(function(e) {
+//     if (e.which === 13 && apz.deviceType === "WEB") {
+//         apz.app.OTPAuthentication.validate_otp();
+//     }
+// });
+apz.app.OTPAuthentication.validate_otp = function() {
+    var params = {};
+    var form = $("#" + OTPDIV).find("input"),
+        form_validator_check = {
+            Authen__OTPAuthentication__otp: {
+                verify: nullcheck,
+                message: "LIT_OTPAUTH"
+            }
+        };
+    if (ApzCOB.validateInputFields(form, form_validator_check)) {
+        if (Transpayload.Module === "REGISTRATION") {
+            params.customerId = Transpayload.req.apiRequest.requestObj.customerId;
+            if (apz.isNull(params.customerId) && !apz.isNull(Transpayload.res[gAppId + "__WorkFlowService_Res"].apiResponse.ResponseBody
+                    .responseObj)) {
+                params.customerId = JSON.parse(Transpayload.res[gAppId + "__WorkFlowService_Res"].apiResponse.ResponseBody.responseObj).UserInfo
+                    .customerId;
+                var mobileNumber = JSON.parse(Transpayload.res[gAppId + "__WorkFlowService_Res"].apiResponse.ResponseBody.responseObj).UserInfo
+                    .mobileNumber;
+                Transpayload.req.apiRequest.requestObj.customerId = params.customerId;
+                Transpayload.req.apiRequest.requestObj.mobileNumber = mobileNumber;
+            }
+            apz.app.OTPAuthentication.ValidateOTP(params);
+        } else if (Transpayload.Module === "FORGOTUSERNAME") {
+            var SecQuestionenabled;
+            SecQuestionenabled = apz.app.OTPAuthentication.authCommon();
+            params.customerId = Transpayload.req.apiRequest.requestObj.customerId;
+            if (SecQuestionenabled === "SecQuestion") {
+                if (JSON.parse(Transpayload.res[gAppId + "__WorkFlowService_Res"].apiResponse.ResponseBody.responseObj).SecretQuestions === "N") {
+                    apz.app.ForgotUserName.ValidateOTPUsername(params);
+                } else {
+                    apz.app.OTPAuthentication.ValidateOTP(params);
+                }
+            } else if (SecQuestionenabled === "Password" || SecQuestionenabled === "Pin") {
+                apz.app.OTPAuthentication.ValidateOTP(params);
+            } else {
+                apz.app.ForgotUserName.ValidateOTPUsername(params);
+            }
+        } else if (Transpayload.Module === "FORGOTPASSWORD") {
+            apz.app.OTPAuthentication.CommonFunction(params);
+        } else if (Transpayload.Module === "FORGOTTXNPIN") {
+            apz.app.OTPAuthentication.CommonFunctionTPIN(params);
+            // params.customerId = Transpayload.req.apiRequest.requestObj.customerId;
+            // ApzCOB.GetPasswordSecParams("GetTxnPinPolicy", params.customerId);
+            // apz.app.OTPAuthentication.ValidateOTP(params);
+        } else if (Transpayload.Module === "FORGOTMPIN") {
+            apz.app.OTPAuthentication.CommonFunctionTPIN(params);
+            // params.customerId = Transpayload.req.apiRequest.requestObj.customerId;
+            // ApzCOB.GetPasswordSecParams("GetTxnPinPolicy", params.customerId);
+            // apz.app.OTPAuthentication.ValidateOTP(params);
+        } else {
+            apz.app.OTPAuthentication.ValidateOTP("");
+        }
+    } else {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_PLEASE_ENTER_OTP"));
+    }
+};
+apz.app.OTPAuthentication.GenerateOTP = function(params, Count) {
+    /* if (Count) {
+         window.otpRegenCount = otpRegenCount + 1;
+     }*/
+    var OTPuserID = "";
+    otpFieldNumber = 0;
+    apz.app.OTPAuthentication.clearvalue();
+    if (!apz.isNull(params)) {
+        OTPuserID = params.customerId;
+    } else {
+        if (Transpayload.Module === "REGISTRATION" || Transpayload.Module === "FORGOTUSERNAME" || Transpayload.Module === "FORGOTPASSWORD" ||
+            Transpayload.Module === "FORGOTTXNPIN" || Transpayload.Module === "FORGOTMPIN") {
+            OTPuserID = Transpayload.req.apiRequest.userId;
+        } else {
+            OTPuserID = gApzCOB.LoggedInUserDetails.loginResponse.userDet.id;
+        }
+    }
+    var req = {
+        "apiRequest": {
+            "interfaceName": "GenerateOtp",
+            "appId": apz.appId,
+            "userId": OTPuserID,
+            "requestObj": {
+                "payload": {}
+            }
+        }
+    }
+    if (Transpayload.apiRequest.hasOwnProperty("requestObj")) {
+        req.apiRequest.requestObj = Transpayload.apiRequest.requestObj;
+    }
+    if (Count) {
+        req.apiRequest.requestObj.actionType = "OTP_SEND";
+        //req.apiRequest.requestObj.mobileNo = "9538145309";
+        req.apiRequest.requestObj.mobileNo =window.KendraApp.Transpayload.req.apiRequest.requestObj.mobileNo;
+        req.apiRequest.requestObj.workflowId = "GenerateOTPAndSendSMS";
+        req.apiRequest.requestObj.interfaceName = "GenerateOTPAndSendSMS";
+        req.apiRequest.workflowId = "GenerateOTPAndSendSMS";
+        req.apiRequest.interfaceName = "GenerateOTPAndSendSMS"
+    }
+    if (Transpayload.apiRequest.hasOwnProperty("authType") && Transpayload.apiRequest.hasOwnProperty("keyword")) {
+        req.apiRequest.keyword = Transpayload.apiRequest.keyword;
+        req.apiRequest.authType = Transpayload.apiRequest.authType;
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(apz.appId, "WorkFlowService", "N", "N", req, true, apz.app.OTPAuthentication.GenerateOTPCB);
+};
+apz.app.OTPAuthentication.GenerateOTPCB = function(params) {
+    try {
+        var ifaceName = ApzCOB.GetInterfaceResMap(params);
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            // if (apz.deviceType !== "WEB" && ApzCOB.GetCommonCodes("AUTOREADOTP") === "Y") {
+            //     //AutoReadOTP for Mobile
+            //     apz.app.OTPAuthentication.AutoReadOTP();
+            // }
+            if (apz.deviceType !== "WEB") {
+                //AutoReadOTP for Mobile
+                // apz.app.OTPAuthentication.AutoReadOTP();
+            }
+            var tempOtpObj = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+            // RegenCount = tempOtpObj.otpRegenCount;
+            // RegenCount = RegenCount === 0 ? tempOtpObj.otpRegenCount : RegenCount + 1;
+            RegenCount = RegenCount + 1;
+            $("#" + AuthenScreenID + "OTPRefno").text(tempOtpObj.RefNo);
+            // var tempRefNo = params.res[ifaceName].apiResponse.ResponseBody.responseObj.split('\n').filter(data=>data.indexOf("RefNo")!==-1);
+            // tempRefNo = (tempRefNo[0].split(":")[1]).replace(' ',"");
+            // var refNo = tempRefNo.replace(",", "");
+            // $("#" + AuthenScreenID + "OTPRefno").text(refNo);
+            $("#" + AuthenScreenID + "dummyotptxt").text(tempOtpObj.otp);
+            apz.app.OTPAuthentication.startTimer(tempOtpObj.otpExpiry);
+            pwdMaximumLength = tempOtpObj.otpLength;
+            $("#" + AuthenScreenID + "otp").attr("maxlength", tempOtpObj.otpLength);
+            //$("#" + AuthenScreenID + "Regenerateotp_ul").addClass("sno");
+            $("#" + AuthenScreenID + "expiryDIV").removeClass("sno");
+            $("#" + AuthenScreenID + "otpconfirm").removeClass("sno");
+            $("#" + OTPDIV).removeClass("sno");
+            $("#" + AuthenScreenID + "otp_1").focus();
+            if (Transpayload.Module === "REGISTRATION" || Transpayload.Module === "FORGOTUSERNAME" || Transpayload.Module === "FORGOTPASSWORD" ||
+                Transpayload.Module === "FORGOTTXNPIN" || Transpayload.Module === "FORGOTMPIN") {
+                // $("#" + AuthenScreenID + "txt_authn_mobileNo").text(ApzCOB.getDescfromLitCode("LIT_ENTER") + " " + tempOtpObj.otpLength + " " + ApzCOB
+                //     .getDescfromLitCode("LIT_DIGIT_OTP") + Transpayload.req.apiRequest.requestObj.mobileNumber.substring(0, 3) + 'xx xx' +
+                //     Transpayload.req.apiRequest.requestObj.mobileNumber.substring(6 + 1));
+                $("#" + AuthenScreenID + "txt_authn_mobileNo").text(Transpayload.req.apiRequest.requestObj.mobileNumber.substring(0, 3) +
+                    'xx xx' + Transpayload.req.apiRequest.requestObj.mobileNumber.substring(6 + 1));
+            } else {
+                var mobileNumber;
+                if (window.setUpdatePhoneNo) {
+                    mobileNumber = window.updatedPhoneNumber
+                } else {
+                    mobileNumber = gApzCOB.LoggedInUserDetails.loginResponse.phone1;
+                }
+                // $("#" + AuthenScreenID + "txt_authn_mobileNo").text(ApzCOB.getDescfromLitCode("LIT_ENTER") + " " + tempOtpObj.otpLength + " " + ApzCOB
+                //     .getDescfromLitCode("LIT_DIGIT_OTP") + mobileNumber.substring(0, 3) + 'xx xx' + mobileNumber.substring(6 + 1));
+                $("#" + AuthenScreenID + "txt_authn_mobileNo").text(mobileNumber.substring(0, 3) + 'xx xx' + mobileNumber.substring(6 + 1));
+            }
+            apz.app.OTPAuthentication.GenerateInputField()
+            apz.stopLoader();
+        } else {
+            ApzCOB.messageDisplayFunction('APZRMB-OTP-FAILED', $("#" + AuthenScreenID + "otpcancel").trigger("onclick"));
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.checkAuthenticationServiceErrorCallback(params);
+    }
+    if (ApzCOB.checkCalendarOpen()) {
+        document.getElementById("ui-datepicker-div").style.display = "none";
+    }
+};
+$('#input').focus(function() {
+    this.blur();
+});
+apz.app.OTPAuthentication.ValidateOTP = function(params) {
+    var AuthPin = $("#" + AuthenScreenID + "otp_1").val();
+    // $('#' + AuthenScreenID + 'otpExpiredErrDiv').addClass('sno');
+    if (AuthPin.length === pwdMaximumLength) {
+        $('#' + AuthenScreenID + 'errDiv').addClass('sno');
+        apz.startLoader();
+        var OTPuserID = "";
+        var req = {};
+        if (Transpayload.fromScreenId === 'AddLoanDetails' || Transpayload.fromScreenId === 'ELApplication' || Transpayload.fromScreenId ===
+            'LoanDisbursementList' || Transpayload.fromScreenId === 'OTPAuthentication' || window.KendraApp.Transpayload.Module === 'UPDATEMOBILENUM' ||
+            Transpayload.fromScreenId === 'UpdateMobNumber' || window.KendraApp.Transpayload.Module == 'LOAN') {
+            req = KendraApp.WorkflowRequest;
+        }
+        req.apiRequest.requestObj.RefNo = window.KendraApp.Transpayload.otpResObj.RefNo;
+        req.apiRequest.requestObj.otp = AuthPin;
+        if(apz.deviceType !== 'WEB'){
+         apz.app.BaseScreens.UEstartTimer("Validate OTP",req);  
+         apz.app.BaseScreens.UElogevent("Validate OTP",req);
+        }
+        ApzCOB.serverBuildParam(gAppId, "WorkFlowService", "N", "N", req, true, apz.app.OTPAuthentication.ValidateOTPWorkFlowCB);
+    } else {
+        $('#' + AuthenScreenID + 'errDiv').removeClass('sno');
+    }
+};
+var workflowRes='';
+apz.app.OTPAuthentication.ValidateOTPWorkFlowCB = function(params) {
+    workflowRes=params;
+    if (apz.deviceType !== 'WEB') {
+      apz.app.BaseScreens.UEstopTimer("Validate OTP ", params);
+    }
+    try {
+        otpFieldNumber = 0;
+        apz.app.OTPAuthentication.clearvalue();
+        var tempOtpObj = "";
+        var ifaceName = ApzCOB.GetInterfaceResMap(params);
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            try {
+                apz.stopLoader();
+                if (params.res[ifaceName].hasOwnProperty("APZCBO__CreateLoanApplication")) {
+                    var instLoanResp = JSON.parse(params.res[ifaceName].APZCBO__CreateLoanApplication.apiResponse.ResponseBody.responseObj);
+                    if (!apz.isNull(Transpayload.successCB)) {
+                        gApzCOB.OTPRefno = $("#" + AuthenScreenID + "OTPRefno").text();
+                        if (apz.isNull(Transpayload.SecondaryAuth)) {
+                            ApzCOB.toggleModal(AuthenScreenID + 'mdl_OTPAuthModal');
+                            ApzCOB.executeFunByName(Transpayload.successCB, params);
+                        }
+                    }
+                } else if (params.res[ifaceName].hasOwnProperty("APZCBO__MobileNumberUpdate")) {
+                    var mobileNumResp = JSON.parse(params.res[ifaceName].APZCBO__MobileNumberUpdate.apiResponse.ResponseBody.responseObj);
+                    if (!apz.isNull(Transpayload.successCB)) {
+                        gApzCOB.OTPRefno = $("#" + AuthenScreenID + "OTPRefno").text();
+                        if (apz.isNull(Transpayload.SecondaryAuth)) {
+                            ApzCOB.toggleModal(AuthenScreenID + 'mdl_OTPAuthModal');
+                            ApzCOB.executeFunByName(Transpayload.successCB, params);
+                        }
+                    }
+                } else if (params.res[ifaceName].hasOwnProperty("APZCBO__PreClosureLoan")) {
+                    if (!apz.isNull(params.res[ifaceName].APZCBO__PreClosureLoan.apiResponse.ResponseBody.responseObj)) {
+                        var disburseLoanResp = JSON.parse(params.res[ifaceName].APZCBO__PreClosureLoan.apiResponse.ResponseBody.responseObj);
+                        if (!apz.isNull(Transpayload.successCB)) {
+                            gApzCOB.OTPRefno = $("#" + AuthenScreenID + "OTPRefno").text();
+                            if (disburseLoanResp.hasOwnProperty('error')) {
+                                if (disburseLoanResp.error.type == 'BUSINESS' && !apz.isNull(disburseLoanResp.error.errorDetails)) {
+                                    var msg = '';
+                                    if (disburseLoanResp.error.errorDetails.length !== 0) {
+                                        if (!apz.isNull(disburseLoanResp.error.errorDetails[0].message)) {
+                                            msg = disburseLoanResp.error.errorDetails[0].message
+                                        }
+                                    }
+                                    if (apz.isNull(msg)) {
+                                        ApzCOB.fnDisplayMsg('T24 service is down.', "E");
+                                        ApzCOB.toggleModal("Authen__OTPAuthentication__mdl_OTPAuthModal");
+                                    } else {
+                                         ApzCOB.executeFunByName(Transpayload.successCB, disburseLoanResp);
+                                    }
+                                } else {
+                                    ApzCOB.executeFunByName(Transpayload.successCB, disburseLoanResp);
+                                }
+                            } else {
+                                ApzCOB.executeFunByName(Transpayload.successCB, disburseLoanResp);
+                            }
+                            //gApzCOB.OTPRefno = $("#" + AuthenScreenID + "OTPRefno").text();
+                        }
+                    } else {
+                        var disburseLoanResp = JSON.parse(params.res[ifaceName].APZCBO__PreClosureLoan.apiResponse.ResponseBody.responseObj);
+                        if (!apz.isNull(Transpayload.successCB)) {
+                            gApzCOB.OTPRefno = $("#" + AuthenScreenID + "OTPRefno").text();
+                            if (apz.isNull(Transpayload.SecondaryAuth)) {
+                                ApzCOB.toggleModal(AuthenScreenID + 'mdl_OTPAuthModal');
+                                ApzCOB.executeFunByName(Transpayload.successCB, disburseLoanResp);
+                            }
+                        } 
+                    }
+                    
+                } else {
+                    tempOtpObj = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+                    if (tempOtpObj.Status === "success" && tempOtpObj.OTPValServiceResponse.status === "Y") {
+                        if (!apz.isNull(Transpayload.successCB)) {
+                            gApzCOB.OTPRefno = $("#" + AuthenScreenID + "OTPRefno").text();
+                            if (apz.isNull(Transpayload.SecondaryAuth)) {
+                                //  $('#' + AuthenScreenID + 'mdl_OTPAuthModal').removeClass('small-box show');
+                                ApzCOB.toggleModal(AuthenScreenID + 'mdl_OTPAuthModal');
+                                ApzCOB.executeFunByName(Transpayload.successCB, params);
+                            } else {
+                                ApzCOB.LaunchSecondaryAuthentication(Transpayload);
+                            }
+                        }
+                    } else {
+                        $("#" + AuthenScreenID + "otp").val("");
+                        $("#" + AuthenScreenID + "otp_1").focus();
+                        apz.app.OTPAuthentication.clearvalue();
+                        if (!apz.isNull(tempOtpObj.OTPValServiceResponse)) {
+                            if (tempOtpObj.OTPValServiceResponse[AttemptsLeftNode] === 0) {
+                                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_MAXATTEMPTS"), 'E', apz.app.OTPAuthentication.Cancel);
+                            } else {
+                                ApzCOB.fnDisplayMsg(incorrectotptext + ' ' + tempOtpObj.OTPValServiceResponse[AttemptsLeftNode] +
+                                    Attemptslefttext);
+                            }
+                        } else {
+                            if (window.otpRegenCount !== RegenCount) {
+                                $("#" + AuthenScreenID + "Regenerateotp_ul").removeClass("sno");
+                                $("#" + AuthenScreenID + "expiryDIV").addClass("sno");
+                                $("#" + AuthenScreenID + "otpconfirm").addClass("sno");
+                                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_OTPEXPIRED"));
+                            } else {
+                                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_OTP_REGEN_ERROR"), 'E', ApzCOB.launchDashboard);
+                            }
+                        }
+                    }
+                }
+            } catch (e) {
+                if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode != 0) {
+                    ApzCOB.fnDisplayMsg(params.res[ifaceName].apiResponse.ResponseHeader.ResponseMessage, 'E', apz.app.OTPAuthentication.Cancel);
+                }
+            }
+        } else {
+            $("#" + AuthenScreenID + "otp").val("");
+            $("#" + AuthenScreenID + "otp_1").focus();
+            apz.app.OTPAuthentication.clearvalue();
+            apz.stopLoader();
+            try {
+                if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "1") {
+                    tempOtpObj = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+                    if (tempOtpObj.Status === "failure") {
+                        if (!apz.isNull(tempOtpObj.OTPValServiceResponse)) {
+                            if (tempOtpObj.OTPValServiceResponse[AttemptsLeftNode] === 0) {
+                                //ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_MAXATTEMPTS"), 'E', apz.app.OTPAuthentication.Cancel);
+                                $("#" + AuthenScreenID + "otpExpiredErrDiv").removeClass('sno');
+                                $("#" + AuthenScreenID + "Regenerateotp_ul").addClass("sno");
+                            } else {
+                                // ApzCOB.fnDisplayMsg(incorrectotptext + ' ' + tempOtpObj.OTPValServiceResponse[AttemptsLeftNode] +
+                                //     Attemptslefttext);
+                                $("#" + AuthenScreenID + "wrongOtpErrDiv").removeClass('sno');
+                            }
+                        } else {
+                            if (window.otpRegenCount !== RegenCount) {
+                                $("#" + AuthenScreenID + "Regenerateotp_ul").removeClass("sno");
+                                $("#" + AuthenScreenID + "expiryDIV").addClass("sno");
+                                $("#" + AuthenScreenID + "otpconfirm").addClass("sno");
+                                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_OTPEXPIRED"));
+                            } else {
+                                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_OTP_REGEN_ERROR"), 'E', ApzCOB.launchDashboard);
+                            }
+                        }
+                    } else if (params.req.apiRequest.requestObj.payload.transactionType === "ScheduleAppointments" && tempOtpObj.Status ===
+                        "success") {
+                        if (params.res[ifaceName].apiResponse.ResponseHeader.ErrorCode === "SCH_APP_ERR001") {
+                            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_SCHDL_ERR_POPUP"), "E", ApzCOB.launchDashboard);
+                        } else if (params.res[ifaceName].apiResponse.ResponseHeader.ErrorCode === "INTF_FAIL") {
+                            // ApzCOB.fnDisplayMsg(params.res[ifaceName].apiResponse.ResponseHeader.ResponseMessage, "E", ApzCOB.launchDashboard);
+                            ApzCOB.executeFunByName(Transpayload.failureCB, params);
+                        }
+                    } else if (params.res[ifaceName].apiResponse.ResponseHeader.ErrorCode === 'INTF_FAIL' && !params.req.apiRequest.interfaceName
+                        .includes('FundTransfer')) {
+                        ApzCOB.executeFunByName(Transpayload.failureCB, params);
+                        //ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_OOPSERROR"), "E", ApzCOB.launchDashboard);
+                    } else {
+                        ApzCOB.executeFunByName(Transpayload.failureCB, params);
+                        //ApzCOB.fnDisplayMsg(params.res[ifaceName].apiResponse.ResponseHeader.ResponseMessage, 'E', apz.app.OTPAuthentication
+                        //.Cancel);
+                    }
+                } else {
+                    ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_OTPVALFAIL"));
+                }
+            }catch (e) {
+                 // ApzCOB.fnDisplayMsg(params.res[ifaceName].apiResponse.ResponseHeader.ResponseMessage, 'E', apz.app.OTPAuthentication.Cancel);
+                 if (KendraApp.WorkflowRequest.successCB == 'apz.app.LoanDisbursementList.validateOtpCB') {
+                     ApzCOB.fnDisplayMsg('T24 service is down.', "E");
+                     ApzCOB.toggleModal("Authen__OTPAuthentication__mdl_OTPAuthModal");
+                 }else if(KendraApp.WorkflowRequest.successCB == 'apz.app.AddLoanDetails.validateCBCheckWorkflowCB'){
+                     var otpres = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj.apiResponse.ResponseBody.responseObj);
+                     if (otpres.Status == 'success') {
+                         ApzCOB.fnDisplayMsg('CB service is down.', "E");
+                         ApzCOB.toggleModal("Authen__OTPAuthentication__mdl_OTPAuthModal");
+                         $('#Authen__OTPAuthentication__otpExpiredErrDiv').addClass('sno');
+                     } else {
+                         ApzCOB.executeFunByName(Transpayload.failureCB, params);
+                     }
+                 } else {
+                     ApzCOB.executeFunByName(Transpayload.failureCB, params);
+                 }
+             }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.checkAuthenticationServiceErrorCallback(params);
+    }
+};
+apz.app.OTPAuthentication.Cancel = function() {
+    ApzCOB.launchDashboard("backNav");
+    // ApzCOB.launchMicroApp("Dashbo", "dashboard", gPostLoginBaseDiv, "");
+};
+apz.app.OTPAuthentication.startTimer = function(timerval) {
+    var counter;
+    counter = new timerCounter();
+    if(timerval >= 60){
+      $("#" + AuthenScreenID + "otpSecText").text("mins");  
+    }else{
+      $("#" + AuthenScreenID + "otpSecText").removeClass("s");  
+    }
+    counter.init("" + AuthenScreenID + "otptimertext", timerval);
+    //counter.init("" + AuthenScreenID + "otptimertext", 30);
+    //$("#" + AuthenScreenID + "otpSecText").removeClass("sno");
+};
+apz.app.OTPAuthentication.MBValidateOTP = function() {
+    validatedOTP = "";
+    // for (var i = 1; i <= pwdMaximumLength; i++) {
+    //     var inputOTP = $("#" + AuthenScreenID + "otp_" + i).val();
+    //     validatedOTP = validatedOTP.concat(inputOTP);
+    // }
+    validatedOTP = $("#" + AuthenScreenID + "otp_1").val();
+    if (validatedOTP.length === pwdMaximumLength) {
+        var params = {};
+        if (Transpayload.Module === "REGISTRATION") {
+            apz.app.OTPAuthentication.CommonFunction(params);
+        } else if (Transpayload.Module === "FORGOTUSERNAME") {
+            var SecQuestionenabled;
+            SecQuestionenabled = apz.app.OTPAuthentication.authCommon();
+            params.customerId = Transpayload.req.apiRequest.requestObj.customerId;
+            if (SecQuestionenabled === "SecQuestion") {
+                if (JSON.parse(Transpayload.res[gAppId + "__WorkFlowService_Res"].apiResponse.ResponseBody.responseObj).SecretQuestions === "N") {
+                    apz.app.ForgotUserName.ValidateOTPUsername(params);
+                } else {
+                    apz.app.OTPAuthentication.ValidateOTP(params);
+                }
+            } else if (SecQuestionenabled === "Password" || SecQuestionenabled === "Pin") {
+                apz.app.OTPAuthentication.ValidateOTP(params);
+            } else {
+                apz.app.ForgotUserName.ValidateOTPUsername(params);
+            }
+        } else if (Transpayload.Module === "FORGOTPASSWORD") {
+            params.customerId = Transpayload.req.apiRequest.requestObj.customerId; //
+            ApzCOB.GetPasswordSecParams("GetPasswordPolicy", params.customerId); //
+            apz.app.OTPAuthentication.ValidateOTP(params); //
+        } else if (Transpayload.Module === "FORGOTTXNPIN") {
+            params.customerId = Transpayload.req.apiRequest.requestObj.customerId; //
+            ApzCOB.GetPasswordSecParams("GetTxnPinPolicy", params.customerId); //
+            apz.app.OTPAuthentication.ValidateOTP(params); //
+        } else if (Transpayload.Module === "FORGOTMPIN") {
+            params.customerId = Transpayload.req.apiRequest.requestObj.customerId; //
+            ApzCOB.GetPasswordSecParams("GetMPinPolicy", params.customerId); //
+            apz.app.OTPAuthentication.ValidateOTP(params); //
+        } else {
+            apz.app.OTPAuthentication.ValidateOTP("");
+        }
+    } else {
+        otpFieldNumber = 0;
+        // $("#" + AuthenScreenID + "OTP_ERROR").removeClass("sno")
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_PLEASE_ENTER_OTP"));
+        apz.app.OTPAuthentication.clearvalue();
+    }
+};
+apz.app.OTPAuthentication.clearvalue = function() {
+    // for (var i = 1; i <= pwdMaximumLength; i++) {
+    //     $("#Authen__OTPAuthentication__otp_" + i).val("");
+    // }
+    $("#" + AuthenScreenID + "otp_1").val("");
+    otpFieldNumber = 0;
+};
+apz.app.OTPAuthentication.CommonFunction = function(params) {
+    params.customerId = Transpayload.req.apiRequest.requestObj.customerId;
+    ApzCOB.GetPasswordSecParams("GetPasswordPolicy", params.customerId);
+    apz.app.OTPAuthentication.ValidateOTP(params);
+    return;
+};
+apz.app.OTPAuthentication.CommonFunctionTPIN = function(params) {
+    params.customerId = Transpayload.req.apiRequest.requestObj.customerId;
+    ApzCOB.GetPasswordSecParams("GetTxnPinPolicy", params.customerId);
+    apz.app.OTPAuthentication.ValidateOTP(params);
+};
+apz.app.OTPAuthentication.authCommon = function() {
+    var SecQuestionenabled = "";
+    $.each(ApzCOB.GetCommonCodes("FORGOTUSERPASS").ForgotUserPass[0].UserName[0].Security, function(i, obj) {
+        if (obj.value === "Y") {
+            SecQuestionenabled = obj.key;
+        }
+    });
+    return SecQuestionenabled;
+};
+apz.app.OTPAuthentication.backPressEvent = function(e) {
+    if (otpFieldNumber > 0) {
+        $("#" + AuthenScreenID + "otp_" + otpFieldNumber).val('');
+        otpFieldNumber = otpFieldNumber - 1;
+    }
+};
+//AutoReadOTP for Mobile - Code added by Krishna Chandhu B
+apz.app.OTPAuthentication.AutoReadOTP = function() {
+    if (apz.deviceType !== "WEB") {
+        ApzCOB.readmessage = '';
+        var json = {};
+        json.id = "SMSLIST_ID";
+        json.callBack = apz.app.OTPAuthentication.AutoReadOTPCallback;
+        apz.ns.startSMSListener(json);
+    }
+};
+apz.app.OTPAuthentication.AutoReadOTPCallback = function(json) {
+    if (json.event === "started") {
+        //do nothing
+    } else if (json.event === "messageReceived") {
+        JSON.stringify(json.message);
+        ApzCOB.readmessage = json.message;
+        var myArr = ApzCOB.readmessage.split(" ");
+        var otp = myArr[0];
+        var otpArr = otp.match(/.{1}/g);
+        for (var k = 0; k < otpArr.length; k++) {
+            var l = k + 1;
+            $("#" + AuthenScreenID + "otp_" + l).val(otpArr[k]);
+        }
+        apz.app.OTPAuthentication.MBValidateOTP();
+    }
+};
+apz.app.OTPAuthentication.launchAlternateAuth = function() {
+    var AuthBaseDivId = AuthenScreenID + 'row_altAuthBaseDiv';
+    $("#" + AuthenScreenID + 'row_OTPAuthMainRow').addClass("sno");
+    // ApzCOB.toggleModal(AuthenScreenID + 'mdl_OTPAuthModal');
+    $("#" + AuthenScreenID + 'mdl_OTPAuthModal').removeClass("show");
+    var launchRes = [];
+    launchRes = Transpayload;
+    var totpIfName = launchRes.apiRequest.interfaceName.replace('ValidateOTP', 'ValidateTOTP');
+    launchRes.apiRequest.interfaceName = totpIfName;
+    launchRes.fromScr = 'OTPAuthentication';
+    var launchScr = ApzCOB.returnAltAuthScreen();
+    ApzCOB.launchMicroAppWithoutAnimation("Authen", launchScr, AuthBaseDivId, launchRes);
+}
+apz.app.OTPAuthentication.keyPadPressEv = function(e) {};
+apz.app.OTPAuthentication.limit = function(element, max_chars) {
+    $('#' + AuthenScreenID + 'errDiv').addClass('sno');
+    $("#" + AuthenScreenID + "wrongOtpErrDiv").addClass('sno');
+    $("#" + AuthenScreenID + "otpExpiredErrDiv").addClass('sno');
+    if (element.value.length > max_chars) {
+        element.value = element.value.substr(0, max_chars);
+    }
+}
+apz.app.OTPAuthentication.limitvalue = function(element, max_chars) {
+    $('#' + AuthenScreenID + 'errDiv').addClass('sno');
+    /*if (element.value.length === max_chars) {
+        apz.app.OTPAuthentication.ValidateOTP("");
+    }*/
+}
+apz.app.OTPAuthentication.resendOTP = function(params, Count) {
+    /* if (Count) {
+         window.otpRegenCount = otpRegenCount + 1;
+     }*/
+    if (RegenCount >= window.KendraApp.Transpayload.otpResObj.otpResendCount && window.isSkipAvail) {
+        ApzCOB.fnDisplayMsg("Click on Skip OTP to continue with manual process.", "I");
+        $("#" + screenID + "skp_ul").removeClass("sno");
+    } else { 
+    $("#" + AuthenScreenID + "otpExpiredMsg").addClass("sno");
+    $("#" + AuthenScreenID + "skp_ul").addClass("sno"); 
+    var OTPuserID = "";
+    otpFieldNumber = 0;
+    apz.app.OTPAuthentication.clearvalue();
+    if (!apz.isNull(params)) {
+        OTPuserID = params.customerId;
+    } else {
+        if (Transpayload.Module === "REGISTRATION" || Transpayload.Module === "FORGOTUSERNAME" || Transpayload.Module === "FORGOTPASSWORD" ||
+            Transpayload.Module === "FORGOTTXNPIN" || Transpayload.Module === "FORGOTMPIN") {
+            OTPuserID = Transpayload.req.apiRequest.userId;
+        } else {
+            OTPuserID = gApzCOB.LoggedInUserDetails.loginResponse.userDet.id;
+        }
+    }
+    var req = {
+        "apiRequest": {
+            "interfaceName": "GenerateOTPAndSendSMS",
+            "appId": apz.appId,
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "payload": {}
+            }
+        }
+    }
+    if (Transpayload.apiRequest.hasOwnProperty("requestObj")) {
+        req.apiRequest.requestObj = Transpayload.apiRequest.requestObj;
+    }
+    if (Count) {
+        req.apiRequest.requestObj.actionType = "OTP_SEND";
+        //req.apiRequest.requestObj.mobileNo = "9538145309";
+        req.apiRequest.requestObj.mobileNo =window.KendraApp.Transpayload.req.apiRequest.requestObj.mobileNo;
+        req.apiRequest.requestObj.branchId = KendraApp.Transpayload.req.apiRequest.requestObj.branchId;
+        req.apiRequest.requestObj.type = KendraApp.Transpayload.req.apiRequest.requestObj.type;
+        req.apiRequest.requestObj.workflowId = "GenerateOTPAndSendSMS";
+        req.apiRequest.requestObj.interfaceName = "GenerateOTPAndSendSMS";
+        req.apiRequest.workflowId = "GenerateOTPAndSendSMS";
+        req.apiRequest.interfaceName = "GenerateOTPAndSendSMS";
+        if (KendraApp.Transpayload.req.apiRequest.requestObj.hasOwnProperty("accountNo")) {
+            req.apiRequest.requestObj.accountNo = KendraApp.Transpayload.req.apiRequest.requestObj.accountNo;
+        }
+        if (KendraApp.Transpayload.req.apiRequest.requestObj.hasOwnProperty("customerName")) {
+            req.apiRequest.requestObj.customerName = KendraApp.Transpayload.req.apiRequest.requestObj.customerName;
+        }
+        if (KendraApp.Transpayload.req.apiRequest.requestObj.hasOwnProperty("applicationId")) {
+            req.apiRequest.requestObj.applicationId = KendraApp.Transpayload.req.apiRequest.requestObj.applicationId;
+        }
+    }
+    if (Transpayload.apiRequest.hasOwnProperty("authType") && Transpayload.apiRequest.hasOwnProperty("keyword")) {
+        req.apiRequest.keyword = Transpayload.apiRequest.keyword;
+        req.apiRequest.authType = Transpayload.apiRequest.authType;
+    }
+    if(apz.deviceType !== 'WEB'){
+      apz.app.BaseScreens.UEstartTimer("Resend OTP",req);  
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(apz.appId, "WorkFlowService", "N", "N", req, true, apz.app.OTPAuthentication.resendOTPCB);
+    }
+};
+apz.app.OTPAuthentication.resendOTPCB = function(params) {
+    if (apz.deviceType !== 'WEB') {
+     apz.app.BaseScreens.UEstopTimer("Resend OTP ", params);
+    }
+    try {
+        var ifaceName = ApzCOB.GetInterfaceResMap(params);
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (apz.deviceType !== "WEB") {
+                //apz.app.OTPAuthentication.AutoReadOTP();
+            }
+            $("#" + AuthenScreenID + "wrongOtpErrDiv").addClass('sno');
+            var otpRes = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+            var otpResObj = JSON.parse(otpRes.apiResponse.ResponseBody.responseObj).GenerateOTP;
+            window.KendraApp.Transpayload.otpResObj = otpResObj;
+            window.KendraApp.Transpayload.Module = "LOAN";
+            // otpResObj.otpRegenCount = 3;
+            //   RegenCount = RegenCount === 0 ? otpResObj.otpResendCount : RegenCount + 1;
+            RegenCount = RegenCount + 1;
+            $("#" + AuthenScreenID + "OTPRefno").text(otpResObj.RefNo);
+            $("#" + AuthenScreenID + "dummyotptxt").text(otpResObj.otp);
+            apz.app.OTPAuthentication.startTimer(otpResObj.otpExpiry);
+            pwdMaximumLength = otpResObj.otpLength; 
+            $("#" + AuthenScreenID + "otp").attr("maxlength", otpResObj.otpLength);
+            //$("#" + AuthenScreenID + "Regenerateotp_ul").addClass("sno");
+            $("#" + AuthenScreenID + "expiryDIV").removeClass("sno");
+            $("#" + AuthenScreenID + "otpconfirm").removeClass("sno");
+            $("#" + OTPDIV).removeClass("sno");
+            $("#" + AuthenScreenID + "otp_1").focus();
+            apz.app.OTPAuthentication.GenerateInputField()
+            apz.stopLoader();
+        } else {
+            ApzCOB.messageDisplayFunction('APZRMB-OTP-FAILED', $("#" + AuthenScreenID + "otpcancel").trigger("onclick"));
+            apz.stopLoader();
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.checkAuthenticationServiceErrorCallback(params);
+    }
+    if (ApzCOB.checkCalendarOpen()) {
+        document.getElementById("ui-datepicker-div").style.display = "none";
+    }
+};
+apz.app.OTPAuthentication.skipOTP = function() {
+    if (window.KendraApp.Transpayload.Module == 'LOAN' && window.isSkipAvail) {
+        window.userSkipedOTP=true;
+        if (window.KendraApp.Transpayload.req.apiRequest.requestObj.type=='DISBURSE') {
+            ApzCOB.toggleModal("Authen__OTPAuthentication__mdl_OTPAuthModal");
+            window.isloanOTP = false;
+            apz.app.LoanDisbursementList.loanCreationT24Service(window.t24ReqObj);
+        } else {
+            ApzCOB.toggleModal("Authen__OTPAuthentication__mdl_OTPAuthModal");
+            window.isloanOTP = false;
+            KendraApp.currentLoanAppRequest.applicationdtls.addInfo.otpDetails.userSkipedCB = true;
+            ApzCOB.saveLoan();
+        }
+    } else {
+        ApzCOB.toggleModal("Authen__OTPAuthentication__mdl_OTPAuthModal");
+    }
+}

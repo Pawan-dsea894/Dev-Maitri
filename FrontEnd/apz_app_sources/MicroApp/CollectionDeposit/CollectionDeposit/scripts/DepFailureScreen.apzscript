@@ -1,0 +1,44 @@
+var FailureScreen = "Collec__DepFailureScreen__";
+var paintData = '';
+var statusNode = "#Collec__IPaintFailureScreenData__o__Collec__IPaintFailureScreenData_Res__value_";
+apz.app.onLoad_DepFailureScreen = function(params) {
+    // Initialization logic if needed
+};
+apz.app.onShown_DepFailureScreen = function(params) {
+    //   $('#header').addClass('sno');
+    //  $('#footer').addClass('sno');
+    paintData = params;
+    $("#" + FailureScreen + "displayData").text('for ' + paintData.kmName + ' | ' + paintData.kendraCount + ' kendras' + '( ₹ ' + ApzCOB
+        .fn_FormatAmount(paintData.totalColAmt) + ')');
+}
+apz.app.DepFailureScreen.moreDetailsFunc = function() {
+    let paintList = paintData.data;
+    if (paintData.fromScreen === 'CashierScreen') {
+        if ($("#" + FailureScreen + "moreDetList").is(':visible')) {
+            $("#" + FailureScreen + "moreDetList").addClass('sno');
+            $("#" + FailureScreen + 'moreDetIcon').removeClass('active');
+        } else {
+            $("#" + FailureScreen + "moreDetList").removeClass('sno');
+            $("#" + FailureScreen + 'moreDetIcon').addClass('active');
+            let combinedData = Object.keys(paintList).map((key, index) => ({
+                key: key !== 'UPI' ? key.replace(/([A-Z])/g, ' $1').trim() : 'UPI',
+                value: Object.values(paintList)[index]
+            }));
+            apz.data.scrdata.Collec__IPaintFailureScreenData_Res = {};
+            apz.data.scrdata.Collec__IPaintFailureScreenData_Res = combinedData;
+            apz.data.loadData("IPaintFailureScreenData", 'Collec');
+            combinedData.forEach(function(obj, i) {
+                if (obj.key === 'Status') {
+                    if (obj.value === "APPROVAL PENDING BY BM") {
+                        $(statusNode + i).addClass('bg-info');
+                    } else if (obj.value === "PUSHBACK") {
+                        $(statusNode + i).addClass('bg-dark-err');
+                    }
+                }
+                if (obj.key === "Amount Collected") {
+                    $(statusNode + i).parents().eq(1).addClass('brd-btm');
+                }
+            })
+        }
+    }
+}

@@ -1,0 +1,173 @@
+var UpdIncAssScrId = 'Income__UpdateIncomeAssessment__';
+var dayName = '';
+var KresponseData = [];
+var KresponseDayData = [];
+var SelectedKendraDet = [];
+window.fromIncomeAssmt = false;
+var prevRow = '';
+var selectedRespData = [];
+var selectedRow = '';
+var days = [{
+    'key': 'Monday',
+    'value': '1',
+}, {
+    'key': 'Tuesday',
+    'value': '2'
+}, {
+    'key': 'Wednesday',
+    'value': '3'
+}, {
+    'key': 'Thrusday',
+    'value': '4'
+}, {
+    'key': 'Friday',
+    'value': '5'
+}]
+var FullDay = {
+    "MON": "Monday",
+    "TUE": "Tuesday",
+    "WED": "Wednesday",
+    "THU": "Thrusday",
+    "FRI": "Friday"
+}
+apz.app.onLoad_UpdateIncomeAssessment = function() {
+    $('#header').addClass('sno');
+    $('#footer').addClass('sno');
+}
+apz.app.onShown_UpdateIncomeAssessment = function() {
+    apz.data.scrdata.Income__IPaintMeetingDay_Res = {};
+    apz.data.scrdata.Income__IPaintMeetingDay_Res = days;
+    apz.data.loadData("IPaintMeetingDay", 'Income');
+    var currDay = new Date().getDay();
+    if (currDay === 0) {
+        currDay = 7;
+    }
+    days.forEach(function(obj, i) {
+        if (obj.value === String(currDay)) {
+            dayName = obj.key;
+            $("#Income__IPaintMeetingDay__o__Income__IPaintMeetingDay_Res__key_" + i).addClass('active');
+        }
+    });
+    var kendraApplications = kendraResponse;
+    kendraApplications.forEach(function(k, i) {
+        kendraApplications[i].kendraDtls.kendraName = kendraApplications[i].kendraDtls.kendraName;
+        kendraApplications[i].kendraDtls.kendraId = ((kendraApplications[i].kendraDtls.kendraId).toString()).includes('#') === true ?
+            kendraApplications[i].kendraDtls.kendraId : '#' + kendraApplications[i].kendraDtls.kendraId;
+        kendraApplications[i].kendraDtls.fullMeetingDay = FullDay[kendraApplications[i].kendraDtls.meetingDay] === undefined ?
+            kendraApplications[i].kendraDtls.meetingDay : FullDay[kendraApplications[i].kendraDtls.meetingDay];
+        KresponseData.push(kendraApplications[i].kendraDtls);
+    });
+    KresponseData.forEach(function(e, i) {
+        if (e.fullMeetingDay === dayName) {
+            KresponseDayData.push(e);
+        }
+    })
+    $("#" + UpdIncAssScrId + "meetingFullDay").text(dayName);
+    $("#" + UpdIncAssScrId + "meetingFullDay").removeClass('sno');
+    apz.data.scrdata.Income__IPaintKendraRes_Res = {};
+    if (KresponseDayData.length > 0) {
+        apz.data.scrdata.Income__IPaintKendraRes_Res.KendraNames = KresponseDayData;
+        apz.data.loadData("IPaintKendraRes", 'Income');
+    } else {
+        // $("#" + UpdIncAssScrId + "meetingFullDay").addClass('sno');
+        $("#" + UpdIncAssScrId + "noRecordFound").removeClass('sno');
+        $("#" + UpdIncAssScrId + "kendraList").addClass('sno');
+    }
+}
+apz.app.UpdateIncomeAssessment.onClickKendra = function(pthis) {
+    selectedRow = $(pthis).attr('rowno');
+    var custDtls = [];
+    if (KresponseDayData.length !== 0) {
+        var custDtls = KresponseDayData[selectedRow].customerDtls.map((obj, i) => ({
+            ...obj,
+            kendraId: "#" + obj.kendraId,
+            kendraName: KresponseDayData[selectedRow].kendraName
+        }));
+    } else {
+        var custDtls = SelectedKendraDet[selectedRow].customerDtls.map((obj, i) => ({
+            ...obj,
+            kendraId: "#" + obj.kendraId,
+            kendraName: SelectedKendraDet[selectedRow].kendraName
+        }));
+    }
+    if (prevRow !== selectedRow) {
+        $("#Income__UpdateIncomeAssessment__subdiv_" + prevRow).parent().parent().addClass('sno');
+        $("#Income__UpdateIncomeAssessment__subdiv_" + prevRow).closest('li').removeClass('active');
+    }
+    if ($("#Income__UpdateIncomeAssessment__subdiv_" + selectedRow).is(':visible')) {
+        $("#Income__UpdateIncomeAssessment__subdiv_" + selectedRow).parent().parent().addClass('sno');
+        $("#Income__UpdateIncomeAssessment__subdiv_" + selectedRow).closest('li').removeClass('active');
+    } else {
+        $(".subdivdisplay").html('');
+        $("#Income__UpdateIncomeAssessment__subdiv_" + selectedRow).append($("#Income__UpdateIncomeAssessment__customerList").html());
+        $("#Income__UpdateIncomeAssessment__subdiv_" + selectedRow).closest('.sno').removeClass('sno');
+        $("#Income__UpdateIncomeAssessment__subdiv_" + selectedRow).closest('li').addClass('active');
+        apz.data.scrdata.Income__IPaintKendraRes_Res.CustNames = [];
+        apz.data.scrdata.Income__IPaintKendraRes_Res.CustNames = custDtls;
+        apz.data.loadData("IPaintKendraRes", 'Income');
+        prevRow = selectedRow;
+    }
+}
+apz.app.UpdateIncomeAssessment.onClickSearchFucn = function(ev) {
+    let searchText = $("#" + ev.id).val();
+    let accSearchResult = [];
+    let filteredCustomers = [];
+    apz.data.scrdata.Income__IPaintKendraRes_Res.KendraNames = {};
+    filteredCustomers = KresponseDayData;
+    accSearchResult = filteredCustomers.filter(function(e, i) {
+        return ((e.kendraName && e.kendraName.toUpperCase().indexOf(searchText.toUpperCase()) !== -1) || (e.kendraId && e.kendraId
+            .indexOf(searchText.toUpperCase()) !== -1));
+    });
+    apz.data.scrdata.Income__IPaintKendraRes_Res.KendraNames = accSearchResult;
+    if (accSearchResult.length === 0) {
+        //$("#" + UpdIncAssScrId + "meetingFullDay").addClass('sno');
+        $("#" + UpdIncAssScrId + "noRecordFound").removeClass('sno');
+        $("#" + UpdIncAssScrId + "kendraList").addClass('sno');
+    } else {
+        $("#" + UpdIncAssScrId + "meetingFullDay").removeClass('sno');
+        $("#" + UpdIncAssScrId + "noRecordFound").addClass('sno');
+        $("#" + UpdIncAssScrId + "kendraList").removeClass('sno');
+    }
+    if (searchText.length === 0) {
+        apz.data.scrdata.Income__IPaintKendraRes_Res.KendraNames = filteredCustomers;
+    }
+    apz.data.loadData("IPaintKendraRes", 'Income');
+}
+apz.app.UpdateIncomeAssessment.paintKendraDtlsBasedOnDay = function(pthis) {
+    var prowno = $(pthis).attr('rowno');
+    SelectedKendraDet = [];
+    $('.ett-para').removeClass('active');
+    $(pthis).addClass('active');
+    var id = $('#' + pthis.id).text();
+    KresponseData.forEach(function(e, i) {
+        if (e.fullMeetingDay === id) {
+            SelectedKendraDet.push(e);
+        }
+    })
+    $("#" + UpdIncAssScrId + "meetingFullDay").text(id);
+    $("#" + UpdIncAssScrId + "meetingFullDay").removeClass('sno');
+    if (SelectedKendraDet.length === 0) {
+        $("#" + UpdIncAssScrId + "kendraList").addClass('sno');
+        $("#" + UpdIncAssScrId + "noRecordFound").removeClass('sno');
+    } else {
+        apz.data.scrdata.Income__IPaintKendraRes_Res.KendraNames = SelectedKendraDet;
+        apz.data.loadData("IPaintKendraRes", 'Income');
+        $("#" + UpdIncAssScrId + "kendraList").removeClass('sno');
+        $("#" + UpdIncAssScrId + "noRecordFound").addClass('sno');
+    }
+}
+apz.app.UpdateIncomeAssessment.onClickCustomerDet = function(ev) {
+    var rowno = $(ev).attr('rowno');
+    var selData = KresponseDayData.length !== 0 ? KresponseDayData : SelectedKendraDet;
+    selectedRespData.push(selData[selectedRow]);
+    selectedRespData.push(selData[selectedRow].customerDtls[rowno]);
+    window.fromIncomeAssmt = true;
+    window.selectedMembersData = [];
+    gApzCOB.memberCounts = {
+        son: 0,
+        daughter: 0
+    }
+    gApzCOB.addedFamilyMembersArray = [];
+    ApzCOB.defEarningMemObjFormat();
+    ApzCOB.launchMicroApp('Kendra', 'MemberDetails', 'APZCBO__BaseScreens__BaseDIV', selectedRespData);
+}

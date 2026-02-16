@@ -1,0 +1,1021 @@
+var LoanEmiCalculatorScrId = "Calcu__LoanEmiCalculator__";
+window.isApplicationFromCalculator = true;
+var fromScreen = '',
+    loanAmount = '',
+    FrequencyData1 = '';
+var tempLoanPrdArray = [],
+    eligibleProducts = [],
+    FrequencyData = [],
+    vintageData=[];
+var loanMode = false,
+    emiMode = false;
+var loanInstallmentData = {},
+    frequency = '',
+    emiAmt = '';
+var frequencyArr = [{
+    freq: 'WEEKLY',
+    val:'Weekly',
+    noWeek: 52,
+    multiplier: 4.33
+}, {
+    freq: 'BI-WEEKLY',
+    val:'BiWeekly',
+    noWeek: 26,
+    multiplier: 2.167
+}, {
+    freq: 'FOUR-WEEKLY',
+    val:'FourWeekly',
+    noWeek: 13,
+    multiplier: 1.083
+}]
+var matchedProducts,uniqueProducts = [],minEmiVal=Infinity,maxEmiVal=0,activeproduct=[],enteredEMIAmt,defAmtArr,termArr;
+var checkMandFields = false;
+var iglProducts = ["Grameen Vishesh Loan", "Grameen Vishesh Supplementary Loan"];
+var filteredLoanPrdArray,excludedDescriptions = [];
+KendraApp.ProductResponse.forEach(function(j, i) {
+    if (KendraApp.ProductResponse[i].productDtls.productType != 'IGL' || KendraApp.ProductResponse[i].productDtls.description ===
+            'Grameen Vishesh Supplementary Loan' || KendraApp.ProductResponse[i].productDtls.description === 'Grameen Vishesh Loan') {
+            excludedDescriptions.push(KendraApp.ProductResponse[i].productDtls.description)
+        }
+    })
+var feeCharge,emiModeLoanamt=0;
+var netLoanAmt,vintage, loanInterest, tenure, processingFee, processingFee;
+var  roiData='',roiBasedOnRisk='',annualROI='', termWeeks='',payLoad='';
+var branchRisk = 'H'
+var paintFreqData = false,paintVintageData = false,paintTenurData = false;
+var termWeeksArray = [];
+var backNavData='';
+var arr = [{
+    "radio": "0 WEEKLY"
+}, {
+    "radio": "0 BI-WEEKLY"
+}, {
+    "radio": "0 FOUR-WEEKLY"
+}]
+var vintageArr = [{
+    "radio": "less than 4 yrs"
+}, {
+    "radio": "More than 4 years"
+}]
+var tenureArr = [{
+    "radio": "1 year"
+}, {
+    "radio": "2 years"
+},{
+    "radio": "3 years"
+}]
+apz.app.onLoad_LoanEmiCalculator = function() {
+    //yet to do
+}
+apz.app.onShown_LoanEmiCalculator = function(params) {
+    backNavData = params?.data
+    fromScreen = params
+    fromScreen = params?.scr??params
+    loanMode = true;
+    window.isCalculatorFrom = fromScreen
+    apz.app.LoanEmiCalculator.fetchEmiData();
+    if(window.isBackToCalculation && Object.keys(KendraApp.LoanCalculatorObj).length != 0){
+        window.isBackToCalculation=false;
+        if (KendraApp?.LoanCalculatorObj && KendraApp?.LoanCalculatorObj?.amountMode === 'Loan amount mode') {
+            apz.app.LoanEmiCalculator.paintData();
+        }
+        return
+    }else{
+        window.isBackToCalculation=false;
+        KendraApp.LoanCalculatorObj={}
+    }
+    $("#header").addClass("sno");
+    $('#footer').addClass('sno');
+    $('#Calcu__LoanEmiCalculator__finalLoanAmount_ul').removeClass('fnl-amt');
+    apz.app.LoanEmiCalculator.loadLoanProducts();
+    apz.app.LoanEmiCalculator.loadRadioBtnData();
+}
+apz.app.LoanEmiCalculator.loadRadioBtnData = function() {
+    apz.data.scrdata.Calcu__FrequencieData_Res = {};
+    apz.data.scrdata.Calcu__FrequencieData_Res.Frequencie = arr;
+    apz.data.scrdata.Calcu__VintageData_Res = {};
+    apz.data.scrdata.Calcu__VintageData_Res.Vintage = vintageArr;
+    apz.data.scrdata.Calcu__TenureData_Res = {};
+    apz.data.scrdata.Calcu__TenureData_Res.Tenure = tenureArr;
+    apz.data.loadData("FrequencieData", 'Calcu');
+    apz.data.loadData("VintageData", 'Calcu');
+    apz.data.loadData("TenureData", 'Calcu');
+    $("input[type='CHECKBOX'][id^='Calcu__LoanEmiCalculator__radio_']").prop("checked", false);
+    $("input[type='CHECKBOX'][id^='Calcu__LoanEmiCalculator__vintageRadio_']").prop("checked", false);
+    $("input[type='CHECKBOX'][id^='Calcu__LoanEmiCalculator__selectTenure_']").prop("checked", false);
+    $("#Calcu__LoanEmiCalculator__radio_0").prop("checked", true);
+    $("#Calcu__LoanEmiCalculator__vintageRadio_0").prop("checked", true);
+    $("#Calcu__LoanEmiCalculator__selectTenure_0").prop("checked", true);
+    tenure = parseInt(($(`#Calcu__TenureData__o__Tenure__radio_0_txtcnt`).text()).split(' ')[0])
+}
+apz.app.LoanEmiCalculator.paintData = function() {
+    paintFreqData=true,paintVintageData= true,paintTenurData=true;
+    if(KendraApp?.LoanCalculatorObj?.amountMode === 'Loan amount mode'){
+        $("#Calcu__LoanEmiCalculator__loanMode_option_One").prop("checked", true);
+        apz.setElmValue(LoanEmiCalculatorScrId + "loanAmt", KendraApp.LoanCalculatorObj.loanAmount);
+        $('#' + LoanEmiCalculatorScrId + 'emiAmtDiv').addClass('sno');
+        $('#' + LoanEmiCalculatorScrId + 'loanAmtDiv').removeClass('sno');
+        emiMode = false;
+        loanMode = true;
+        apz.app.LoanEmiCalculator.productbasedOnlaonamt()
+    }else if(KendraApp?.LoanCalculatorObj?.amountMode === 'EMI amount mode'){
+        $("#Calcu__LoanEmiCalculator__loanMode_option_Two").prop("checked", true);
+        apz.setElmValue(LoanEmiCalculatorScrId + "emiAmt", KendraApp.LoanCalculatorObj.emiAmt);
+        $('#' + LoanEmiCalculatorScrId + 'emiAmtDiv').removeClass('sno');
+        $('#' + LoanEmiCalculatorScrId + 'loanAmtDiv').addClass('sno');
+        emiMode = true;
+        loanMode = false;
+        apz.app.LoanEmiCalculator.productbasedOnEmiAmt()
+    }
+    $(`#${LoanEmiCalculatorScrId}loanProd`).val(KendraApp.LoanCalculatorObj.product ?? '')
+    apz.app.LoanEmiCalculator.dropDownOnChange(document.getElementById(`${LoanEmiCalculatorScrId}loanProd`))
+    apz.app.LoanEmiCalculator.getEmiCalculationData()
+}
+apz.app.LoanEmiCalculator.startApplication = function() {
+    var mandFields;
+    if (loanMode || !loanMode && !emiMode) {
+        mandFields = [LoanEmiCalculatorScrId + "loanAmt", LoanEmiCalculatorScrId + "loanProd"]
+    } else {
+        mandFields = [LoanEmiCalculatorScrId + "emiAmt", LoanEmiCalculatorScrId + "loanProd"]
+    }
+    if (ApzCOB.customeValidateFields(mandFields)) {
+        checkMandFields = true;
+    }
+    ApzCOB.fnDisplayMsg("Are you sure you want to proceed with the application?", "C", apz.app.LoanEmiCalculator.cancelCB);
+    $(".ajs-button.ajs-ok").text("Proceed");
+    //$(".ajs-button.ajs-cancel").text("No");
+}
+apz.app.LoanEmiCalculator.cancelCB = function(params) {
+    if (params.choice === true) {
+        window.isLoanCreateFromCalculator = true;
+        apz.app.LoanEmiCalculator.saveInstallmentData()
+        //ApzCOB.launchMicroApp("NEWLOA", "AddLoanDetails", "APZCBO__BaseScreens__STAGE1", '');
+    } else {
+        ApzCOB.launchMicroApp('Dashbo', 'dashboard', gAppId + '__BaseScreens__BaseDIV', '');
+    }
+}
+apz.app.LoanEmiCalculator.backNavigation = function() {
+    KendraApp.LoanCalculatorObj={};
+    window.isLoanCreateFromCalculator = false;
+    if (fromScreen === 'Dashboard') {
+        ApzCOB.launchMicroApp('Dashbo', 'dashboard', gAppId + '__BaseScreens__BaseDIV', '');
+    } else if (fromScreen === 'NewLoanApplication') {
+         ApzCOB.launchMicroApp("NEWLOA", "NewLoanApplication", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedKendra);
+    } else if (fromScreen === 'CustomerDetails') {
+        window.isCalcFromCustToLoanInput=false;
+        let obj={
+            'scr':'NewLoanApplication',
+            'childScrId':'NEWLOA'
+        }
+        ApzCOB.launchMicroApp("Custom", "CustomerDetails", "APZCBO__BaseScreens__BaseDIV", backNavData);
+    }
+}
+apz.app.LoanEmiCalculator.onChangeLoanMode = function(pthis) {
+    var id = pthis.id;
+    if (id === 'Calcu__LoanEmiCalculator__loanMode_option_One') {
+        $('#' + LoanEmiCalculatorScrId + 'emiAmtDiv').addClass('sno');
+        $('#' + LoanEmiCalculatorScrId + 'loanAmtDiv').removeClass('sno');
+        loanMode = true
+        emiMode = false;
+    } else if (id === 'Calcu__LoanEmiCalculator__loanMode_option_Two') {
+        $('#' + LoanEmiCalculatorScrId + 'emiAmtDiv').removeClass('sno');
+        $('#' + LoanEmiCalculatorScrId + 'loanAmtDiv').addClass('sno');
+        loanMode = false
+        emiMode = true;
+    }
+    //['loanAmtErrorDiv', 'loanProdErrorDiv', 'emiAmtErrorDiv'].hide()
+    apz.setElmValue(LoanEmiCalculatorScrId + 'loanProd', -1)
+    apz.app.LoanEmiCalculator.setEmpty()
+}
+apz.app.LoanEmiCalculator.setEmpty = function(ids) {
+    var ids;
+    if(ids){
+        ids = ids;
+    }else{
+        ids = ['emiAmt', 'loanAmt', 'loanAmount', 'vintage', 'loanInterest', 'tenure', 'frequency', 'processingFee', 'finalLoanAmount'];
+    }
+    ids.forEach((id) => {
+        apz.setElmValue(LoanEmiCalculatorScrId + id, '')
+    })
+    $('#Calcu__LoanEmiCalculator__finalLoanAmount_ul').removeClass('fnl-amt');
+    //apz.setElmValue(LoanEmiCalculatorScrId + 'loanProd', -1)
+    apz.app.LoanEmiCalculator.loadRadioBtnData();
+}
+apz.app.LoanEmiCalculator.dropDownOnChange = function(pthis) {
+    let inputID = pthis.id;
+    $("#" + inputID + "_div").find("li").removeClass("is-selected hilt");
+    $("#" + inputID + '_div li[data-value="' + $("#" + inputID).val() + '"]').addClass("is-selected hilt");
+}
+apz.app.LoanEmiCalculator.loadLoanProducts = function(params) {
+    apz.startLoader();
+    tempLoanPrdArray = [];
+    var ProductResponse;
+    if (params) {
+        ProductResponse = params
+    } else {
+        //ProductResponse = KendraApp.ProductResponse;
+        ProductResponse = [];
+    }
+    if (ProductResponse.length > 0) {
+        ProductResponse.forEach(function(j, k) {
+            var tempLoanObj = {
+                "val": j.productDtls.description,
+                "desc": j.productDtls.description
+            }
+            tempLoanPrdArray.push(tempLoanObj);
+        });
+    }
+    tempLoanPrdArray.unshift({
+        "val": '-1',
+        "desc": ApzCOB.getDescfromLitCode("LIT_COMM_MSG_PLEASE_SELECT")
+    })
+    apz.populateDropdown(document.getElementById(LoanEmiCalculatorScrId + "loanProd"), tempLoanPrdArray);
+    if(fromScreen === 'CustomerDetails'){
+         if (KendraApp.selectedCustomer.custStatus === 'NQA') {
+            filteredLoanPrdArray = tempLoanPrdArray.filter(item => excludedDescriptions.includes(item.desc));
+            filteredLoanPrdArray.unshift({
+                "val": '-1',
+                "desc": ApzCOB.getDescfromLitCode("LIT_COMM_MSG_PLEASE_SELECT")
+            })
+        } else {
+            filteredLoanPrdArray = tempLoanPrdArray.filter(item => !iglProducts.includes(item.desc));
+        }
+         apz.populateDropdown(document.getElementById(LoanEmiCalculatorScrId + "loanProd"), filteredLoanPrdArray);
+    }
+    apz.stopLoader();
+}
+apz.app.LoanEmiCalculator.productbasedOnlaonamt = function(pthis) {
+    eligibleProducts = [];
+    var id, loanAmt;
+    if (pthis) {
+        id = pthis.id
+        loanAmt = parseInt($('#' + id).val())
+    } else {
+        loanAmt = $('#' + LoanEmiCalculatorScrId + "loanAmt").val()
+    }
+    var maxAmt = 200000,
+        minAmt = 1000;
+    if (loanAmt > maxAmt) {
+        ApzCOB.fnDisplayMsg("loan amount is more than maximum amount", 'I');
+        loanAmt = maxAmt
+        $('#' + LoanEmiCalculatorScrId + "loanAmt").val(maxAmt)
+    } else if (loanAmt < minAmt) {
+        ApzCOB.fnDisplayMsg("loan amount is less than minimum amount", 'I');
+        loanAmt = minAmt
+        $('#' + LoanEmiCalculatorScrId + "loanAmt").val(minAmt)
+    }
+    loanAmount = loanAmt;
+    if (loanAmt != '') {
+        KendraApp.ProductResponse.forEach((item) => {
+            var minAmounts = item.productDtls.amountMin.split(",").map(Number);
+            var maxAmounts = item.productDtls.amountMax.split(",").map(Number);
+            if (loanAmt >= minAmounts[0] && loanAmt <= maxAmounts[maxAmounts.length - 1]) {
+                eligibleProducts.push(item)
+            }
+        })
+    }
+    apz.app.LoanEmiCalculator.loadLoanProducts(eligibleProducts)
+    if(fromScreen === 'CustomerDetails'){
+         if (KendraApp.selectedCustomer.custStatus === 'NQA') {
+            filteredLoanPrdArray = eligibleProducts.filter(item => excludedDescriptions.includes(item.productDtls.description));
+        } else {
+            filteredLoanPrdArray = eligibleProducts.filter(item => !iglProducts.includes(item.productDtls.description));
+        }
+        apz.app.LoanEmiCalculator.loadLoanProducts(filteredLoanPrdArray);
+    }
+    var ids = ['loanAmount', 'vintage', 'loanInterest', 'tenure', 'frequency', 'processingFee', 'finalLoanAmount'];
+    apz.app.LoanEmiCalculator.setEmpty(ids);
+}
+apz.app.LoanEmiCalculator.addSubtLoanAmount = function(pthis) {
+    apz.startLoader();
+    var maxAmt,minAmt;
+    var id = pthis.id;
+    if(loanMode){
+        loanAmount = $('#' + LoanEmiCalculatorScrId + "loanAmt").val()
+        if (loanAmount === '') {
+            return
+        }
+        maxAmt = 200000
+        minAmt = 1000
+        loanAmount = parseInt(loanAmount)
+        if (id === (LoanEmiCalculatorScrId + 'plus')) {
+            loanAmount += 1000
+            if (loanAmount >= maxAmt) {
+                loanAmount = maxAmt; // Ensure maximum amount is amountMax
+                document.getElementById(LoanEmiCalculatorScrId + "plus").style.pointerEvents = 'none';
+                document.getElementById(LoanEmiCalculatorScrId + "plus").style.opacity = '0.5';
+            }
+        } else if (id === (LoanEmiCalculatorScrId + 'minus')) {
+            loanAmount -= 1000
+            if (loanAmount <= minAmt) {
+                loanAmount = minAmt; // Ensure minimum amount is amountMin
+                document.getElementById(LoanEmiCalculatorScrId + "minus").style.pointerEvents = 'none';
+                document.getElementById(LoanEmiCalculatorScrId + "minus").style.opacity = '0.5';
+            }
+        }
+        apz.setElmValue(LoanEmiCalculatorScrId + "loanAmt", loanAmount);
+        if (loanAmount < maxAmt) {
+            document.getElementById(LoanEmiCalculatorScrId + "plus").style.pointerEvents = 'auto';
+            document.getElementById(LoanEmiCalculatorScrId + "plus").style.opacity = '1';
+        }
+        if (loanAmount > minAmt) {
+            document.getElementById(LoanEmiCalculatorScrId + "minus").style.pointerEvents = 'auto';
+            document.getElementById(LoanEmiCalculatorScrId + "minus").style.opacity = '1';
+        }
+        apz.app.LoanEmiCalculator.productbasedOnlaonamt()
+    }else if(emiMode){
+        enteredEMIAmt = $('#' + LoanEmiCalculatorScrId + "emiAmt").val()
+        if (enteredEMIAmt === '') {
+            return
+        }
+        maxAmt = Math.floor(maxEmiVal)
+        minAmt = Math.ceil(minEmiVal)
+        enteredEMIAmt = parseInt(enteredEMIAmt)
+        if (id === (LoanEmiCalculatorScrId + 'el_icn_79')) {
+            enteredEMIAmt += 1
+            if (enteredEMIAmt >= maxAmt) {
+                enteredEMIAmt = maxAmt; // Ensure maximum amount is amountMax
+                document.getElementById(LoanEmiCalculatorScrId + "el_icn_79").style.pointerEvents = 'none';
+                document.getElementById(LoanEmiCalculatorScrId + "el_icn_79").style.opacity = '0.5';
+            }
+        } else if (id === (LoanEmiCalculatorScrId + 'el_icn_78')) {
+            enteredEMIAmt -= 1
+            if (enteredEMIAmt <= minAmt) {
+                enteredEMIAmt = minAmt; // Ensure minimum amount is amountMin
+                document.getElementById(LoanEmiCalculatorScrId + "el_icn_78").style.pointerEvents = 'none';
+                document.getElementById(LoanEmiCalculatorScrId + "el_icn_78").style.opacity = '0.5';
+            }
+        }
+        apz.setElmValue(LoanEmiCalculatorScrId + "emiAmt", enteredEMIAmt);
+        if (enteredEMIAmt < maxAmt) {
+            document.getElementById(LoanEmiCalculatorScrId + "el_icn_79").style.pointerEvents = 'auto';
+            document.getElementById(LoanEmiCalculatorScrId + "el_icn_79").style.opacity = '1';
+        }
+        if (enteredEMIAmt > minAmt) {
+            document.getElementById(LoanEmiCalculatorScrId + "el_icn_78").style.pointerEvents = 'auto';
+            document.getElementById(LoanEmiCalculatorScrId + "el_icn_78").style.opacity = '1';
+        }
+        apz.app.LoanEmiCalculator.productbasedOnEmiAmt();
+    }
+}
+apz.app.LoanEmiCalculator.getEmiCalculationData = function(pthis) {
+var loanAmount;
+vintageData=[];
+    var prod = $('#Calcu__LoanEmiCalculator__loanProd').val();
+    var amtloan 
+    if(loanMode){
+        amtloan= $('#' + LoanEmiCalculatorScrId + "loanAmt").val()
+    }else{
+        amtloan= $('#' + LoanEmiCalculatorScrId + "emiAmt").val()
+    }
+    if (prod === 'Please Select' || amtloan === '') {
+        var ids = ['loanAmount', 'vintage', 'loanInterest', 'tenure', 'frequency', 'processingFee', 'finalLoanAmount'];
+        apz.app.LoanEmiCalculator.setEmpty(ids);
+        return
+    }
+    KendraApp.ProductResponse.forEach((k, i) => {
+        if (k.productDtls.description === prod) {
+            payLoad = k.productDtls?.payload
+            loanAmount = parseInt($('#Calcu__LoanEmiCalculator__loanAmt').val())
+            termWeeks = k.productDtls?.term
+            feeCharge = k.productDtls?.feeCharge
+            defAmtArr = k.productDtls.amountDefault.split(',');
+            termArr = k.productDtls.term.split(',');
+            return
+        }
+    })
+    payLoad = JSON.parse(payLoad)
+    apz.app.LoanEmiCalculator.loadTenurData()
+    const roiObject = payLoad.find(obj => obj.ROI);
+    roiData = roiObject?.ROI || [];
+    roiBasedOnRisk = roiData.filter(item => item.risk === branchRisk);
+    if(roiBasedOnRisk.length>0){
+        roiBasedOnRisk.forEach((item)=>{
+            var obj={
+                vintage:item?.label
+                }
+            vintageData.push(obj)
+        })
+        apz.app.LoanEmiCalculator.loadVintageData()
+        annualROI = apz.app.LoanEmiCalculator.getRoi();
+
+    }
+    if(emiMode){
+        loanAmount = parseInt($('#Calcu__LoanEmiCalculator__emiAmt').val())
+    }
+    apz.app.LoanEmiCalculator.calculateAllEMIs(loanAmount,annualROI,termWeeks)
+}
+apz.app.LoanEmiCalculator.calculateAllEMIs = function(loanAmount,annualROI,termWeeks) {
+    FrequencyData = [];
+    var prod = $('#Calcu__LoanEmiCalculator__loanProd').val();
+    var amtloan 
+    if(loanMode){
+        amtloan= $('#' + LoanEmiCalculatorScrId + "loanAmt").val()
+    }else{
+        amtloan= $('#' + LoanEmiCalculatorScrId + "emiAmt").val()
+    }
+    if (prod === 'Please Select' || amtloan === '') {
+        return
+    }
+    const ROI = annualROI / 100;
+    var tenureMonths;
+    if(termWeeks >= 52){
+         tenureMonths = Math.round(termWeeks / 52) * 12;
+    }else{
+         tenureMonths =(termWeeks / 52)*12;
+    }
+    const frequencies = {
+      Weekly: {
+        divisor: 52,
+        multiplier: 4.33,
+      },
+      BiWeekly: {
+        divisor: 26,
+        multiplier: 2.167,
+      },
+      FourWeekly: {
+        divisor: 13,
+        multiplier: 1.083,
+      },
+    };
+    const results = {};
+    for (let freq in frequencies) {
+        const {
+            divisor,
+            multiplier
+        } = frequencies[freq];
+        const numInstallments = Math.round(tenureMonths * multiplier);
+        const ratePerPeriod = ROI / divisor;
+        let matchedItem = frequencyArr.find(item => item.val === freq); 
+        if(loanMode){
+            var EMI = Math.abs(
+            (loanAmount * ratePerPeriod) / (1 - Math.pow(1 + ratePerPeriod, -numInstallments)));   
+            var obj = {
+                freq: matchedItem.freq,
+                amt: EMI.toFixed(2)
+            }
+        }else if(emiMode){
+            var EMI = loanAmount;
+            var loanAmountBasedOnEMi = EMI * (1 - Math.pow(1 + ratePerPeriod, -numInstallments)) / ratePerPeriod
+            var obj = {
+                freq: matchedItem.freq,
+                //amt: loanAmountBasedOnEMi.toFixed(2),
+                amt:Math.round(loanAmountBasedOnEMi / 1000) * 1000
+            }
+        }
+        FrequencyData.push(obj)
+        //results[freq] = EMI.toFixed(2);
+    }
+    apz.app.LoanEmiCalculator.loadFrequencyData()
+    //apz.app.LoanEmiCalculator.loadVintageData()
+}
+apz.app.LoanEmiCalculator.getRoi = function(pthis) {
+    roiBasedOnRisk.forEach((item,ind)=>{
+        if($(`#Calcu__LoanEmiCalculator__vintageRadio_${ind}`).prop('checked')){
+            annualROI = item.value;
+            vintage = item.label
+        }
+    })
+    return annualROI
+}
+apz.app.LoanEmiCalculator.loadFrequencyData = function(pthis) {
+    var radioVal,arr = []
+    FrequencyData.forEach((k) => {
+        if(loanMode){
+            radioVal = k.amt + ' ' + k.freq
+        }else{
+            var amt = ApzCOB.fn_FormatAmount(k.amt)
+            radioVal = `${k.freq} (total amount ₹ ${amt})`
+        }
+        var obj = {
+            radio: radioVal
+        }
+        arr.push(obj)
+    })
+    if (arr.length > 0) {
+        apz.data.scrdata.Calcu__FrequencieData_Res = {};
+        apz.data.scrdata.Calcu__FrequencieData_Res.Frequencie = arr;
+        apz.data.loadData("FrequencieData", 'Calcu');
+        $("input[type='CHECKBOX'][id^='Calcu__LoanEmiCalculator__radio_']").prop("checked", false);
+        if(emiMode){
+            apz.data.scrdata.Calcu__FrequencieData_Res.Frequencie.forEach((item,ind)=>{
+                $('#Calcu__LoanEmiCalculator__el_txt_694_'+ind).addClass('sno')
+            })
+        }else{
+             apz.data.scrdata.Calcu__FrequencieData_Res.Frequencie.forEach((item,ind)=>{
+                $('#Calcu__LoanEmiCalculator__el_txt_694_'+ind).removeClass('sno')
+            })
+        }
+        apz.app.LoanEmiCalculator.onChangeFrequency()
+        apz.app.LoanEmiCalculator.paintWeeklyEMIBreakup()
+    }
+}
+apz.app.LoanEmiCalculator.loadVintageData = function() {
+    var vintageArr=[];
+    vintageData.forEach((k) => {
+        var obj = {
+            radio: k.vintage
+        }
+        vintageArr.push(obj)
+    })
+     if (vintageArr.length > 0) {
+        apz.data.scrdata.Calcu__VintageData_Res = {};
+        apz.data.scrdata.Calcu__VintageData_Res.Vintage = vintageArr;
+        apz.data.loadData("VintageData", 'Calcu');
+        apz.data.scrdata.Calcu__VintageData_Res.Vintage.forEach((k,ind)=>{
+            if(ind === 0){
+                $(`#Calcu__LoanEmiCalculator__vintageRadio_${ind}`).prop('checked',true)
+            }else{
+                $(`#Calcu__LoanEmiCalculator__vintageRadio_${ind}`).prop('checked',false)
+            }
+        })
+        apz.app.LoanEmiCalculator.onChangeVintage();
+    }
+}
+apz.app.LoanEmiCalculator.loadTenurData = function(pthis) {
+    var uniqueTenurArray=[];
+    termWeeksArray=[];
+    termWeeks.split(',').forEach(item => {
+        var weeks = parseInt(item.replace(/\D/g, ''), 10)
+        obj={
+            tenureInWeek:weeks,
+            radio:(weeks<52?52:weeks)/52 + ' Years'
+        }
+        termWeeksArray.push(obj);
+    });
+    let uniqueArray = [];
+    let seen = new Map();
+
+    termWeeksArray.forEach(item => {
+        seen.set(item.radio, item); // overwrite old with new
+    });
+    uniqueArray = Array.from(seen.values());
+     if(loanMode){
+         var lnAmount = Number($('#' + LoanEmiCalculatorScrId + "loanAmt").val())
+        if (defAmtArr.length > 1) {
+                switch (defAmtArr.length) {
+                    case 5:
+                        if (lnAmount <= defAmtArr[0]) {
+                            term = parseInt(termArr[0].slice(0, -1));
+                        } else if (lnAmount <= defAmtArr[1]) {
+                            term = parseInt(termArr[1].slice(0, -1));
+                        } else if (lnAmount <= defAmtArr[2]) {
+                            term = parseInt(termArr[2].slice(0, -1));
+                        } else if (lnAmount <= defAmtArr[3]) {
+                            term = parseInt(termArr[3].slice(0, -1));
+                        } else if (lnAmount <= defAmtArr[4]) {
+                            term = parseInt(termArr[4].slice(0, -1));
+                        }
+                        break;
+                    case 4:
+                        if (lnAmount <= defAmtArr[0]) {
+                            term = parseInt(termArr[0].slice(0, -1));
+                        } else if (lnAmount <= defAmtArr[1]) {
+                            term = parseInt(termArr[1].slice(0, -1));
+                        } else if (lnAmount <= defAmtArr[2]) {
+                            term = parseInt(termArr[2].slice(0, -1));
+                        } else if (lnAmount <= defAmtArr[3]) {
+                            term = parseInt(termArr[3].slice(0, -1));
+                        }
+                        break;
+                    case 3:
+                        if (lnAmount <= defAmtArr[0]) {
+                            term = parseInt(termArr[0].slice(0, -1));
+                        } else if (lnAmount <= defAmtArr[1]) {
+                            term = parseInt(termArr[1].slice(0, -1));
+                        } else if (lnAmount <= defAmtArr[2]) {
+                            term = parseInt(termArr[2].slice(0, -1));
+                        }
+                        break;
+                    case 2:
+                        if (lnAmount <= defAmtArr[0]) {
+                            term = parseInt(termArr[0].slice(0, -1));
+                        } else if (lnAmount <= defAmtArr[1]) {
+                            term = parseInt(termArr[1].slice(0, -1));
+                        }
+                        break;
+                }
+                if($('#Calcu__LoanEmiCalculator__loanProd').val() != 'Emergency Loan'){
+                    uniqueArray.forEach((item)=>{
+                        if(item.tenureInWeek === term){
+                            uniqueTenurArray.push(item)
+                        }
+                    })
+                }else{
+                    uniqueTenurArray = uniqueArray;
+                }
+        }else{
+            uniqueTenurArray = uniqueArray;
+        }
+    }else{
+        uniqueTenurArray = uniqueArray;
+    }
+    apz.data.scrdata.Calcu__TenureData_Res = {};
+    apz.data.loadData("TenureData", 'Calcu');
+    apz.data.scrdata.Calcu__TenureData_Res.Tenure = uniqueTenurArray;
+    apz.data.loadData("TenureData", 'Calcu');
+    apz.data.scrdata.Calcu__TenureData_Res.Tenure.forEach((k,ind)=>{
+        if(ind === 0){
+            $(`#Calcu__LoanEmiCalculator__selectTenure_${ind}`).prop("checked", true);
+        }else{
+            $(`#Calcu__LoanEmiCalculator__selectTenure_${ind}`).prop("checked", false);
+        }
+    })
+    termWeeks = apz.data.scrdata.Calcu__TenureData_Res.Tenure[0].tenureInWeek
+    var prod = $(`#Calcu__LoanEmiCalculator__loanProd`).val()
+    if(prod === 'Emergency Loan'){
+        if(loanAmount === '1000'){
+            termWeeks = apz.data.scrdata.Calcu__TenureData_Res.Tenure[0].tenureInWeek
+        }else if(loanAmount === '2000'){
+            termWeeks = apz.data.scrdata.Calcu__TenureData_Res.Tenure[1].tenureInWeek
+        }
+    }    
+    tenure = parseInt(($(`#Calcu__TenureData__o__Tenure__radio_0_txtcnt`).text()).split(' ')[0])
+    apz.app.LoanEmiCalculator.onChangeTenure()
+}
+apz.app.LoanEmiCalculator.onChangeFrequency = function(pthis) {
+    var prod = $('#Calcu__LoanEmiCalculator__loanProd').val();
+    var amtloan 
+    if(loanMode){
+        amtloan= $('#' + LoanEmiCalculatorScrId + "loanAmt").val()
+    }else{
+        amtloan= $('#' + LoanEmiCalculatorScrId + "emiAmt").val()
+    }
+    if (prod === 'Please Select' || amtloan === '') {
+        return
+    }
+    if(loanMode){
+        if (pthis) {
+        var id = pthis.id;
+        var selectedId = id.replace('Calcu__LoanEmiCalculator__radio_', '');
+        emiAmt = $(`#Calcu__FrequencieData__o__Frequencie__radio_${selectedId}_txtcnt`).text().split(' ')[0];
+        frequency = $(`#Calcu__FrequencieData__o__Frequencie__radio_${selectedId}_txtcnt`).text().split(' ')[1];
+    } else {
+        if (paintFreqData) {
+            paintFreqData = false
+            apz.data.scrdata.Calcu__FrequencieData_Res.Frequencie.forEach((item,ind)=>{
+                const [amount, freq] = item.radio.split(' ');
+                if(freq === KendraApp.LoanCalculatorObj.breakupDtls.fequency){
+                    $(`#Calcu__LoanEmiCalculator__radio_${ind}`).prop('checked',true)
+                    emiAmt = $(`#Calcu__FrequencieData__o__Frequencie__radio_${ind}_txtcnt`).text().split(' ')[0];
+                    frequency = $(`#Calcu__FrequencieData__o__Frequencie__radio_${ind}_txtcnt`).text().split(' ')[1];
+                }else{
+                    $(`#Calcu__LoanEmiCalculator__radio_${ind}`).prop('checked',false)
+                }
+            })
+        } else {
+            emiAmt = $(`#Calcu__FrequencieData__o__Frequencie__radio_${0}_txtcnt`).text().split(' ')[0];
+            frequency = $(`#Calcu__FrequencieData__o__Frequencie__radio_${0}_txtcnt`).text().split(' ')[1];
+            $("#Calcu__LoanEmiCalculator__radio_0").prop("checked", true);
+        }
+    }
+    }else if(emiMode){
+        emiAmt = parseInt($('#Calcu__LoanEmiCalculator__emiAmt').val())
+        if (pthis) {
+        var id = pthis.id;
+        var selectedId = id.replace('Calcu__LoanEmiCalculator__radio_', '');
+        emiModeLoanamt = parseInt(($(`#Calcu__FrequencieData__o__Frequencie__radio_${selectedId}_txtcnt`).text().split(' ')[4]).replace(/[^\d]/g, ''), 10);
+        frequency = $(`#Calcu__FrequencieData__o__Frequencie__radio_${selectedId}_txtcnt`).text().split(' ')[0];
+    } else {
+        if (paintFreqData) {
+            paintFreqData = false
+            apz.data.scrdata.Calcu__FrequencieData_Res.Frequencie.forEach((item,ind)=>{
+                const [freq] = item.radio.split(' ');
+                if(freq === KendraApp.LoanCalculatorObj.breakupDtls.fequency){
+                    $(`#Calcu__LoanEmiCalculator__radio_${ind}`).prop('checked',true)
+                    emiModeLoanamt = parseInt(($(`#Calcu__FrequencieData__o__Frequencie__radio_${ind}_txtcnt`).text().split(' ')[4]).replace(/[^\d]/g, ''), 10);
+                    frequency = $(`#Calcu__FrequencieData__o__Frequencie__radio_${ind}_txtcnt`).text().split(' ')[0];
+
+                }else{
+                    $(`#Calcu__LoanEmiCalculator__radio_${ind}`).prop('checked',false)
+                }
+            })
+        } else {
+            emiModeLoanamt = parseInt(($(`#Calcu__FrequencieData__o__Frequencie__radio_${0}_txtcnt`).text().split(' ')[4]).replace(/[^\d]/g, ''), 10);
+            frequency = $(`#Calcu__FrequencieData__o__Frequencie__radio_${0}_txtcnt`).text().split(' ')[0];
+            $("#Calcu__LoanEmiCalculator__radio_0").prop("checked", true);
+        }
+    }
+    }
+    apz.app.LoanEmiCalculator.paintWeeklyEMIBreakup();
+}
+apz.app.LoanEmiCalculator.onChangeVintage = function(pthis) {
+    if(loanMode){
+        if (pthis) {
+            annualROI = apz.app.LoanEmiCalculator.getRoi();
+            apz.app.LoanEmiCalculator.calculateAllEMIs(loanAmount,annualROI,termWeeks);
+        } else {
+            if(paintVintageData){
+                paintVintageData=false
+                apz.data.scrdata.Calcu__VintageData_Res.Vintage.forEach((item,ind)=>{
+                    if(item.radio === KendraApp.LoanCalculatorObj.breakupDtls.vintage){
+                        $(`#Calcu__LoanEmiCalculator__vintageRadio_${ind}`).prop('checked',true)
+                        //apz.app.LoanEmiCalculator.getEmiCalculationData()
+                    }else{
+                        $(`#Calcu__LoanEmiCalculator__vintageRadio_${ind}`).prop('checked',false)
+                    }
+                })
+
+            }else{
+                var isVintageChecked=false
+                roiBasedOnRisk.forEach((item, ind) => {
+                    if ($(`#Calcu__LoanEmiCalculator__vintageRadio_${ind}`).prop("checked")) {
+                            isVintageChecked = true
+                    }
+                });
+                if(!isVintageChecked){
+                    $("#Calcu__LoanEmiCalculator__vintageRadio_0").prop("checked", true);
+                }
+            }
+        }
+    }else if(emiMode){
+        if (pthis) {
+            annualROI = apz.app.LoanEmiCalculator.getRoi();
+            enteredEMIAmt = $('#' + LoanEmiCalculatorScrId + "emiAmt").val();
+            apz.app.LoanEmiCalculator.calculateAllEMIs(enteredEMIAmt,annualROI,termWeeks);
+        } else {
+            if(paintVintageData){
+                paintVintageData=false
+                apz.data.scrdata.Calcu__VintageData_Res.Vintage.forEach((item,ind)=>{
+                    if(item.radio === KendraApp.LoanCalculatorObj.breakupDtls.vintage){
+                        $(`#Calcu__LoanEmiCalculator__vintageRadio_${ind}`).prop('checked',true)
+                        //apz.app.LoanEmiCalculator.getEmiCalculationData()
+                    }else{
+                        $(`#Calcu__LoanEmiCalculator__vintageRadio_${ind}`).prop('checked',false)
+                    }
+                })
+
+            }else{
+                var isVintageChecked=false
+                roiBasedOnRisk.forEach((item, ind) => {
+                    if ($(`#Calcu__LoanEmiCalculator__vintageRadio_${ind}`).prop("checked")) {
+                            isVintageChecked = true
+                    }
+                });
+                if(!isVintageChecked){
+                    $("#Calcu__LoanEmiCalculator__vintageRadio_0").prop("checked", true);
+                }
+            }
+        }
+    }
+}
+apz.app.LoanEmiCalculator.onChangeTenure = function(pthis) {
+    if(loanMode){
+        if (pthis) {
+            apz.app.LoanEmiCalculator.calculateAllEMIs(loanAmount,annualROI,termWeeks)
+        } else {
+            if(paintTenurData){
+                paintTenurData=false
+                apz.data.scrdata.Calcu__TenureData_Res.Tenure.forEach((item,ind)=>{
+                    const [year] = item.radio.split(' ');
+                    if(parseInt(year) === KendraApp.LoanCalculatorObj.breakupDtls.tenure){
+                        $(`#Calcu__LoanEmiCalculator__selectTenure_${ind}`).prop('checked',true)
+                        termWeeks = apz.data.scrdata.Calcu__TenureData_Res.Tenure[ind].tenureInWeek
+                        tenure = parseInt(($(`#Calcu__TenureData__o__Tenure__radio_${ind}_txtcnt`).text()).split(' ')[0])
+                    }else{
+                        $(`#Calcu__LoanEmiCalculator__selectTenure_${ind}`).prop('checked',false)
+                    }
+                })
+            }else{
+                var isTenureChecked=false
+                apz.data.scrdata.Calcu__TenureData_Res.Tenure.forEach((item, ind) => {
+                    if ($(`#Calcu__LoanEmiCalculator__selectTenure_${ind}`).prop("checked")) {
+                            isTenureChecked = true
+                    }
+                });
+                if(!isTenureChecked){
+                    $("#Calcu__LoanEmiCalculator__selectTenure_0").prop("checked", true);
+                }
+            }
+        }
+    }else if(emiMode){
+        if (pthis) {
+            enteredEMIAmt = $('#' + LoanEmiCalculatorScrId + "emiAmt").val();
+            apz.app.LoanEmiCalculator.calculateAllEMIs(enteredEMIAmt,annualROI,termWeeks)
+        } else {
+            if(paintTenurData){
+                paintTenurData=false
+                apz.data.scrdata.Calcu__TenureData_Res.Tenure.forEach((item,ind)=>{
+                    const [year] = item.radio.split(' ');
+                    if(parseInt(year) === KendraApp.LoanCalculatorObj.breakupDtls.tenure){
+                        $(`#Calcu__LoanEmiCalculator__selectTenure_${ind}`).prop('checked',true)
+                        termWeeks = apz.data.scrdata.Calcu__TenureData_Res.Tenure[ind].tenureInWeek
+                        tenure = parseInt(($(`#Calcu__TenureData__o__Tenure__radio_${ind}_txtcnt`).text()).split(' ')[0])
+                    }else{
+                        $(`#Calcu__LoanEmiCalculator__selectTenure_${ind}`).prop('checked',false)
+                    }
+                })
+            }else{
+                var isTenureChecked=false
+                apz.data.scrdata.Calcu__TenureData_Res.Tenure.forEach((item, ind) => {
+                    if ($(`#Calcu__LoanEmiCalculator__selectTenure_${ind}`).prop("checked")) {
+                            isTenureChecked = true
+                    }
+                });
+                if(!isTenureChecked){
+                    $("#Calcu__LoanEmiCalculator__selectTenure_0").prop("checked", true);
+                }
+            }
+        }
+    }
+}
+apz.app.LoanEmiCalculator.paintWeeklyEMIBreakup = function() {
+    var loanAmount;
+    if(loanMode){
+        loanAmount = parseInt($('#Calcu__LoanEmiCalculator__loanAmt').val())
+    }else if(emiMode){
+        loanAmount = emiModeLoanamt;
+    }
+    loanInterest = annualROI;
+    //processingFee = loanAmount * 0.01;
+    feeCharge = Number(feeCharge);
+    processingFee = ApzCOB.calProcessingFees(loanAmount,feeCharge);
+    //netLoanAmt  = loanAmount - processingFee
+    netLoanAmt  = loanAmount;
+    finalLoanAmount = loanAmount - processingFee;
+    $('#Calcu__LoanEmiCalculator__finalLoanAmount_ul').addClass('fnl-amt');
+    //$(`#Calcu__LoanEmiCalculator__loanAmount`).text(`₹${ApzCOB.fn_FormatAmount(netLoanAmt)}`)
+    $(`#Calcu__LoanEmiCalculator__loanAmount`).text(`₹${netLoanAmt.toLocaleString()}`)
+    $(`#Calcu__LoanEmiCalculator__vintage`).text(vintage)
+    $(`#Calcu__LoanEmiCalculator__loanInterest`).text(`${loanInterest}%`)
+    $(`#Calcu__LoanEmiCalculator__tenure`).text(`${tenure} year`)
+    formatted = frequency.charAt(0).toUpperCase() + frequency.slice(1).toLowerCase();
+    $(`#Calcu__LoanEmiCalculator__frequency`).text(formatted)
+    $(`#Calcu__LoanEmiCalculator__processingFee`).text(`-₹${processingFee.toLocaleString()}`)
+    $(`#Calcu__LoanEmiCalculator__finalLoanAmount`).text(`₹${finalLoanAmount.toLocaleString()}`)
+    var product = $(`#Calcu__LoanEmiCalculator__loanProd`).val()
+    if(product ==='Emergency Loan'||product==='Livelihood Improvement Loan'){
+        $('#Calcu__LoanEmiCalculator__gr_row_117').addClass('sno')
+    }else{
+        $('#Calcu__LoanEmiCalculator__gr_row_117').removeClass('sno')
+    }
+}
+apz.app.LoanEmiCalculator.saveInstallmentData = function() {
+    if(checkMandFields){
+        loanInstallmentData = {
+            'amountMode': $('#Calcu__LoanEmiCalculator__loanMode_option_One').prop('checked') ? 'Loan amount mode' : 'EMI amount mode',
+            'product':$(`#Calcu__LoanEmiCalculator__loanProd`).val(),
+            'loanAmount':emiMode?emiModeLoanamt:parseInt($(`#Calcu__LoanEmiCalculator__loanAmt`).val()),
+            'emiAmt':emiMode?emiAmt:0,
+            "breakupDtls": {
+                'loanAmt': netLoanAmt,
+                'vintage': vintage,
+                'loanInterest': loanInterest,
+                'tenure': tenure,
+                'fequency': frequency,
+                'processingFee': processingFee,
+                'finalAmt': finalLoanAmount
+            }
+        }
+    }
+    KendraApp.LoanCalculatorObj={}
+    KendraApp.LoanCalculatorObj=loanInstallmentData;
+    if(fromScreen === 'Dashboard'){
+        ApzCOB.launchMicroApp("NEWLOA", "FabNewLoanApplication", "APZCBO__BaseScreens__BaseDIV", "");
+        window.isCalcToFAB = true
+    }else if(fromScreen === 'CustomerDetails'){
+        //ApzCOB.launchMicroApp("NEWLOA", "AddLoanDetails", "APZCBO__BaseScreens__STAGE1", obj);
+        window.isCalcFromCustToLoanInput = true
+        apz.startLoader();
+        ApzCOB.fetchCustomerIdDetails(KendraApp?.selectedCustomer?.customerId);
+    }else if(fromScreen === 'NewLoanApplication'){
+        window.isCalcNewLoan=true;
+        ApzCOB.launchMicroApp("NEWLOA", "NewLoanApplication", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedKendra);
+        // window.isCalcFromCustToLoanInput = true
+    }
+}
+apz.app.LoanEmiCalculator.addingRatioButtonFunctionality = function(pthis) {
+    var selectedId,optionsList,id;
+    let idParts = pthis.id
+    if(idParts.includes('vintageRadio')){
+        selectedId = parseInt(idParts.replace('Calcu__LoanEmiCalculator__vintageRadio_', ''));
+        optionsList = apz.data.scrdata.Calcu__VintageData_Res.Vintage
+        id = 'Calcu__LoanEmiCalculator__vintageRadio_'
+    }else if(idParts.includes('selectTenure')){
+        selectedId = parseInt(idParts.replace('Calcu__LoanEmiCalculator__selectTenure_', ''));
+        optionsList = apz.data.scrdata.Calcu__TenureData_Res.Tenure
+        id = 'Calcu__LoanEmiCalculator__selectTenure_'
+        tenure = parseInt(($(`#Calcu__TenureData__o__Tenure__radio_${selectedId}_txtcnt`).text()).split(' ')[0])
+        termWeeks = apz.data.scrdata.Calcu__TenureData_Res.Tenure[selectedId].tenureInWeek
+    }else {
+        selectedId = parseInt(idParts.replace('Calcu__LoanEmiCalculator__radio_', ''));
+        optionsList = apz.data.scrdata.Calcu__FrequencieData_Res.Frequencie
+        id =  'Calcu__LoanEmiCalculator__radio_'
+    }
+    optionsList.forEach(function(val, index) {
+        let optionId = `${id}${index}`;
+        if (index != selectedId) {
+            $("#" + optionId).prop("checked", false);
+        } else {
+            $("#" + optionId).prop("checked", true);
+        }
+    })
+}
+//EMI mode
+apz.app.LoanEmiCalculator.productbasedOnEmiAmt = function(pthis) {
+    apz.startLoader();
+    eligibleProducts = [];
+    var id, enteredEMI;
+    if (pthis) {
+        id = pthis.id
+        enteredEMI = parseInt($('#' + id).val())
+    } else {
+        enteredEMI = $('#' + LoanEmiCalculatorScrId + "emiAmt").val()
+    }
+    var maxAmt = Math.floor(maxEmiVal)
+    var minAmt = Math.ceil(minEmiVal);
+    setTimeout(function() {
+        if (enteredEMI > maxAmt) {
+        ApzCOB.fnDisplayMsg("EMi amount is more than maximum amount", 'I');
+        enteredEMI = maxAmt
+        $('#' + LoanEmiCalculatorScrId + "emiAmt").val(maxAmt)
+        } else if (enteredEMI < minAmt) {
+            ApzCOB.fnDisplayMsg("EMI amount is less than minimum amount", 'I');
+            enteredEMI = minAmt
+            $('#' + LoanEmiCalculatorScrId + "emiAmt").val(minAmt)
+        }
+        const matchedProducts = emiData.filter(item => {
+            let min = parseFloat(item.min);
+            let max = parseFloat(item.max);
+            return Number(enteredEMI) >= min && Number(enteredEMI) <= max;
+        });
+        uniqueProducts = [];
+        const prodName = new Set();
+
+        matchedProducts.forEach(item => {
+            if (!prodName.has(item.product_Name)) {
+                prodName.add(item.product_Name);
+                uniqueProducts.push(item);
+            }
+        });
+
+        if (uniqueProducts.length != 0) {
+            uniqueProducts.forEach((item)=>{
+                KendraApp.ProductResponse.forEach((prod)=>{
+                    if(item.newProductCode === prod.productDtls.productId){
+                        eligibleProducts.push(prod)
+                    }
+                })
+                
+            })
+        }
+        var ids = ['loanAmount', 'vintage', 'loanInterest', 'tenure', 'frequency', 'processingFee', 'finalLoanAmount'];
+        apz.app.LoanEmiCalculator.setEmpty(ids);
+        apz.app.LoanEmiCalculator.loadLoanProducts(eligibleProducts)
+    }, 2000);
+}
+apz.app.LoanEmiCalculator.fetchEmiData = function() {
+    var req = {
+        "apiRequest": {
+            "interfaceName": "FetchEmiProductList",
+            "appId": gAppId
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, 'FetchEmiProductList', 'N', 'N', req, 'Y', apz.app.LoanEmiCalculator.fetchEmiDataCB);
+}
+var emiData;
+apz.app.LoanEmiCalculator.fetchEmiDataCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__FetchEmiProductList_Res.apiResponse.ResponseBody.responseObj)) {
+                emiData = JSON.parse(params.res.APZCBO__FetchEmiProductList_Res.apiResponse.ResponseBody.responseObj);
+                emiData = emiData.EmiProductList;
+                activeproduct=[]
+                KendraApp.ProductResponse.forEach((item)=>{
+                    if(item.productDtls.productStatus ==="Active"){
+                        activeproduct.push(item.productDtls.productId)
+                    }
+                })
+                if(emiData.length>0){
+                    emiData.forEach(item => {
+                    if (activeproduct.includes(item.newProductCode)) {
+                            let minNum = parseFloat(item.min);
+                            let maxNum = parseFloat(item.max);
+    
+                            if (minNum < minEmiVal) {
+                                minEmiVal = minNum;
+                            }
+                            if (maxNum > maxEmiVal) {
+                                maxEmiVal = maxNum;
+                            }
+                        }
+                    });
+                }
+                if (KendraApp?.LoanCalculatorObj && KendraApp?.LoanCalculatorObj?.amountMode === 'EMI amount mode') {
+                    apz.app.LoanEmiCalculator.paintData();
+                }
+            } else {
+                apz.stopLoader();
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        } else {
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(params.res.APZCBO__FetchAuditTrail_Res.apiResponse.ResponseHeader.ResponseMessage, "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+};

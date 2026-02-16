@@ -1,0 +1,11 @@
+{
+    "OTPApp__OTPCharIF_Res": {
+        "salesChartData": [{
+            "name": "sales",
+            "value": "60"
+        }, {
+            "name": "training",
+            "value": "40"
+        }]
+    }
+}

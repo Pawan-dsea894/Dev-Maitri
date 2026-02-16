@@ -1,0 +1,609 @@
+var PendingTaskScrId = 'Income__PendingTask__';
+var pendingTaskList = '';
+var paintList = [];
+var onselectData = [];
+var updatedCommonCode = [];
+var selectedKendraUpdatesData;
+var kendraUpdatesSrData;
+var applicationID = '#Income__IPaintPendingTaskMembers__o__Income__IPaintPendingTaskMembers_Res__applicationStatus_';
+//the below code should be from Common code table added hear for development
+var commonCodeData = [{
+    "pendingTask": "Income Assement",
+    "display": false,
+    "order": 1
+}, {
+    "pendingTask": "Kendra Management",
+    "display": true,
+    "order": 2
+}, {
+    "pendingTask": "Death Intimation",
+    "display": true,
+    "order": 3
+}]
+apz.app.onLoad_PendingTask = function(params) {
+    $('#header').addClass('sno');
+    $('#footer').addClass('sno');
+    apz.data.scrdata.Income__IPaintPendingTaskDashbord_Res = {}
+}
+apz.app.onShown_PendingTask = function(params) {
+    apz.app.PendingTask.IncomeAssesmentCount();
+    apz.app.PendingTask.paintStatus();
+    if (window.userRole === 'BM') {
+        apz.app.PendingTask.fetchSrCreationOfBM();
+    } else {
+        kendraUpdatesSrData = srList;
+        apz.app.PendingTask.paintPendingDashbord();
+    }
+    if (window.RpcOnHoldBacknavigation) {
+        apz.app.PendingTask.RpcPendingBackNavigation();
+        apz.app.PendingTask.OnclickArrow();
+    }
+    if (window.accessType === 'LC' || window.accessType === 'CL') {
+        apz.data.scrdata.Income__IPaintPendingTaskDashbord_Res.PendingTaskDash.forEach((d, i) => {
+            if (d.pendingTask === 'Death Intimation') {
+                apz.data.scrdata.Income__IPaintPendingTaskDashbord_Res.PendingTaskDash[i].count = count;
+            }
+        });
+        apz.data.loadData("IPaintPendingTaskDashbord", 'Income');
+        CollectionsCommon.fetchFromDeathIntimationSQLLite("pendingTask");
+    } else {
+        $("span:contains('Death Intimation')").closest("li").addClass("sno");
+    }
+    
+}
+apz.app.PendingTask.paintStatus = function() {
+    var status = [{
+        key: "All",
+        value: ""
+    }, {
+        key: "Pending",
+        value: ""
+    }, {
+        key: "RPC On Hold",
+        value: ""
+    }, {
+        key: "Completed",
+        value: ""
+    }];
+    let statusList = []
+    status.forEach(function(el, i) {
+        var obj = {
+            status: status[i].key
+        }
+        statusList.push(obj)
+    })
+    if (statusList.length > 0) {
+        apz.data.scrdata.Income__IPaintPendingTaskStatus_Res = {};
+        apz.data.scrdata.Income__IPaintPendingTaskStatus_Res.PendingTaskStatus = statusList;
+        apz.data.loadData("IPaintPendingTaskStatus", 'Income');
+        $('#Income__IPaintPendingTaskStatus__o__PendingTaskStatus__status_0').addClass('active');
+    }
+}
+apz.app.PendingTask.backNavigate = function() {
+    ApzCOB.dashboardAppListAPI();
+}
+apz.app.PendingTask.backNavigateStage2 = function() {
+    //   ['Stage2'].hide();
+    //  ['Stage1'].show();
+    $("#" + PendingTaskScrId + 'Stage1').removeClass('sno');
+    $("#" + PendingTaskScrId + 'Stage2').addClass('sno');
+}
+apz.app.PendingTask.OnclickArrow = function() {
+    apz.startLoader();
+    setTimeout(function() {
+    apz.app.PendingTask.paintMemberDet();
+    },3000);
+    //apz.stopLoader();
+}
+apz.app.PendingTask.paintMemberDet = function() {
+    
+    if (paintList.length === 0) {
+        pendingTaskList = applicationResp;
+        paintList = [];
+        $("#" + PendingTaskScrId + 'searchInput').val('');
+        pendingTaskList.map((data) => {
+            var newObj = {};
+            newObj.kendraName = data.kendraName;
+            newObj.kendraId = data.kendraId;
+            newObj.customerName = data.customerName;
+            newObj.customerId = data.customerId;
+            newObj.applicationId = data.applicationId;
+            newObj.applicationDate = data.applicationDate;
+            if (data.applicationStatus === "QAUPDATE") {
+                newObj.currentStageNum = '2'
+                newObj.status = "PENDING";
+                newObj.applicationStatus = "Add Family Member Details";
+            } else if (data.applicationStatus === "EARNINGSUPDATE") {
+                newObj.currentStageNum = '2'
+                newObj.status = "PENDING";
+                newObj.applicationStatus = "Add Family Member Details";
+            } else if (data.applicationStatus === "PENDING") {
+                newObj.currentStageNum = '1'
+                newObj.status = "PENDING";
+                newObj.applicationStatus = "Add Member Profile";
+            } else if (data.applicationStatus === "APPROVED" || data.applicationStatus === "COMPLETED") {
+                newObj.currentStageNum = '3'
+                newObj.status = "COMPLETED"
+            } /*else if (data.applicationStatus === "PENDING") {
+                newObj.currentStageNum = '4'
+                newObj.status = "PENDING BY RPC"
+            } */else if (data.applicationStatus === "ON HOLD" || data.applicationStatus === "ONHOLD") {
+                newObj.currentStageNum = '4'
+                newObj.status = "RPC ON HOLD"
+            }
+            /*else if (JSON.parse(data.payload).hasOwnProperty('earnings') && JSON.parse(data.payload).earnings.length > 0) {
+                let finalResp = JSON.parse(data.payload).earnings;
+                finalResp.forEach(function(obj1, i) {
+                    if (obj1.status === "ON HOLD") {
+                        newObj.status = "RPC ON HOLD"
+                    }
+                })
+            }*/
+            paintList.push(newObj);
+        });
+    }
+    if (paintList.length > 0) {
+        $("#" + PendingTaskScrId + 'pendingMemberListRow').removeClass('sno');
+        $("#" + PendingTaskScrId + 'noRecordFound').addClass('sno');
+        $("#" + PendingTaskScrId + 'Stage1').addClass('sno');
+        $("#" + PendingTaskScrId + 'Stage2').removeClass('sno');
+        apz.data.scrdata.Income__IPaintPendingTaskMembers_Res = {};
+        apz.data.scrdata.Income__IPaintPendingTaskMembers_Res = paintList;
+        apz.data.loadData("IPaintPendingTaskMembers", 'Income');
+        paintList.forEach(function(obj1, i) {
+            if (obj1.status === 'COMPLETED' || obj1.status === 'RPC ON HOLD' || obj1.status === 'PENDING BY RPC') {
+                $(applicationID + i).parent().parent().parent().parent().addClass('sno');
+                $('#Income__PendingTask__arrowicon_' + i).removeClass('sno');
+            } else {
+                $(applicationID + i).parent().parent().parent().parent().removeClass('sno');
+                $('#Income__PendingTask__arrowicon_' + i).addClass('sno');
+            }
+        })
+    } else {
+        $("#" + PendingTaskScrId + 'pendingMemberListRow').addClass('sno');
+        $("#" + PendingTaskScrId + 'noRecordFound').removeClass('sno');
+    }
+     apz.stopLoader();
+}
+apz.app.PendingTask.RpcPendingBackNavigation = function() {
+    window.RpcOnHoldBacknavigation = false;
+    $("#" + PendingTaskScrId + 'Stage1').addClass('sno');
+    $("#" + PendingTaskScrId + 'Stage2').removeClass('sno');
+}
+// apz.app.PendingTask.onSelectedOption = function(pthis) {
+//     var selectedMenu = $("#" + pthis.id).text().toUpperCase();
+//     $("#" + PendingTaskScrId + 'searchInput').val('');
+//     $('.ett-para').removeClass('active');
+//     $(pthis).addClass('active');
+//     onselectData = [];
+//     if (selectedMenu === 'ALL') {
+//         onselectData = paintList;
+//     } else {
+//         paintList.forEach(function(obj1, i) {
+//             if (obj1.status === selectedMenu) {
+//                 onselectData.push(obj1)
+//             }
+//         })
+//     }
+//     if (onselectData.length > 0) {
+//         $("#" + PendingTaskScrId + 'pendingMemberListRow').removeClass('sno');
+//         $("#" + PendingTaskScrId + 'noRecordFound').addClass('sno');
+//         apz.data.scrdata.Income__IPaintPendingTaskMembers_Res = onselectData;
+//         apz.data.loadData("IPaintPendingTaskMembers", 'Income');
+//         onselectData.forEach(function(obj, i) {
+//             if (obj.status === 'COMPLETED' || obj.status === 'RPC ON HOLD' || obj.status === 'PENDING BY RPC') {
+//                 $(applicationID + i).parent().parent().parent().parent().addClass('sno');
+//                 $('#Income__PendingTask__arrowicon_' + i).removeClass('sno');
+//             } else {
+//                 $(applicationID + i).parent().parent().parent().parent().removeClass('sno');
+//                 $('#Income__PendingTask__arrowicon_' + i).addClass('sno');
+//             }
+//         });
+//     } else {
+//         $("#" + PendingTaskScrId + 'pendingMemberListRow').removeClass('sno');
+//         $("#" + PendingTaskScrId + 'noRecordFound').addClass('sno');
+//     }
+// }
+apz.app.PendingTask.onSelectedOption = function(pthis) {
+    var selectedMenu = $("#" + pthis.id).text().toUpperCase();
+    $("#" + PendingTaskScrId + 'searchInput').val('');
+    $('.ett-para').removeClass('active');
+    $(pthis).addClass('active');
+    onselectData = [];
+    apz.startLoader();
+    if (selectedMenu === 'ALL') {
+        onselectData = paintList;
+    } else {
+        paintList.forEach(function(obj1) {
+            if (obj1.status === selectedMenu) {
+                onselectData.push(obj1);
+            }
+        });
+    }
+    setTimeout(function() {
+        if (onselectData.length > 0) {
+            $("#" + PendingTaskScrId + 'pendingMemberListRow').removeClass('sno');
+            $("#" + PendingTaskScrId + 'noRecordFound').addClass('sno');
+            apz.data.scrdata.Income__IPaintPendingTaskMembers_Res = onselectData;
+            apz.data.loadData("IPaintPendingTaskMembers", 'Income');
+            onselectData.forEach(function(obj, i) {
+                var parentElement = $(applicationID + i).parent().parent().parent().parent();
+                var arrowIcon = $('#Income__PendingTask__arrowicon_' + i);
+
+                if (obj.status === 'COMPLETED' || obj.status === 'RPC ON HOLD' || obj.status === 'PENDING BY RPC') {
+                    parentElement.addClass('sno');
+                    arrowIcon.removeClass('sno');
+                } else {
+                    parentElement.removeClass('sno');
+                    arrowIcon.addClass('sno');
+                }
+            });
+        } else {
+            $("#" + PendingTaskScrId + 'pendingMemberListRow').addClass('sno');
+            $("#" + PendingTaskScrId + 'noRecordFound').removeClass('sno');
+        }
+        apz.stopLoader();
+    }, 3000);
+}
+var selectedApp
+apz.app.PendingTask.onClickCompleteNow = function(pthis) {
+    var selRow = $(pthis).attr("rowno");
+    apz.app.PendingTask.onPendingtask(pthis);
+    //ApzCOB.launchMicroApp("Income", "RpcPending", "APZCBO__BaseScreens__BaseDIV", "");
+}
+apz.app.PendingTask.onPendingtask = function(pthis) {
+    var selRow = $(pthis).attr("rowno");
+    var selectedApp = apz.data.scrdata.Income__IPaintPendingTaskMembers_Res[selRow];
+    let filterData = selectedApp.status;
+    IncomeApp.editpayload = {};
+    KendraApp.selectedCustomer = {};
+    pendingTaskList.forEach(function(el, i) {
+        if (selectedApp.applicationId === el.applicationId) {
+            IncomeApp.editpayload = el;
+        }
+    })
+    KendraApp.KendraResponse.forEach(function(j) {
+        if (!apz.isNull(j.kendraDtls.customerDtls)) {
+            j.kendraDtls.customerDtls.forEach(function(el) {
+                if (el.customerId === IncomeApp.editpayload.customerId && el.customerName === IncomeApp.editpayload.customerName) {
+                    KendraApp.selectedCustomer = el;
+                }
+            });
+        }
+    });
+    if (selectedApp.status === 'COMPLETED' || selectedApp.status === 'RPC ON HOLD' || selectedApp.status === 'PENDING BY RPC') {
+        var selectedData = apz.data.scrdata.Income__IPaintPendingTaskMembers_Res[selRow];
+        pendingTaskList.forEach(function(el, i) {
+            if (selectedData.applicationId === pendingTaskList[i].applicationId) {
+                selectedApp = pendingTaskList[i];
+                selectedApp.filterData = filterData;
+            }
+        })
+        ApzCOB.launchMicroApp("Income", "RpcPending", "APZCBO__BaseScreens__BaseDIV", selectedApp);
+    } else {
+        IncomeApp.flow = 'fromApp';
+        IncomeApp.isPendingTask = true;
+        if (typeof IncomeApp.editpayload.payload == 'string') {
+            IncomeApp.editpayload.payload = JSON.parse(IncomeApp.editpayload.payload)
+        }
+        IncomeApp.payLoad = IncomeApp.editpayload.payload;
+        IncomeApp.applicationId = IncomeApp.editpayload.applicationId;
+        IncomeApp.versionNum = IncomeApp.editpayload.latestVersionNo;
+        //IncomeApp.editpayload.payload = JSON.parse(IncomeApp.editpayload.payload)
+        switch (IncomeApp.editpayload.applicationStatus) {
+            case "PENDING":
+                IncomeApp.payLoad.houseHoldDetails={};
+                //ApzCOB.launchMicroApp('Income', 'AddHouseHoldDetails', 'APZCBO__BaseScreens__BaseDIV', IncomeApp);
+                ApzCOB.launchMicroApp('Income', 'AddEarningFamilyMem', 'APZCBO__BaseScreens__BaseDIV', IncomeApp);
+                break;
+            case "QAUPDATE":
+                IncomeApp.payLoad.earnings={};
+                ApzCOB.launchMicroApp('Income', 'AddEarningFamilyMem', 'APZCBO__BaseScreens__BaseDIV', IncomeApp);
+                break;
+            case "EARNINGSUPDATE":
+                IncomeApp.payLoad.income={};
+                ApzCOB.launchMicroApp('Income', 'MonthlyHouseHoldExp', 'APZCBO__BaseScreens__BaseDIV', IncomeApp);
+                break;
+            case "PENDINGBYRPC":
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_PENDINGBYRPC_ERR_MSG"), "I");
+                break;
+            default:
+                ApzCOB.launchMicroApp('Income', 'IncomeAssessment', 'APZCBO__BaseScreens__BaseDIV', );
+                break;
+        }
+        if (apz.isNull(IncomeApp.editpayload)) {
+            ApzCOB.launchMicroApp('Income', 'IncomeAssessment', 'APZCBO__BaseScreens__BaseDIV', );
+        }
+    }
+}
+apz.app.PendingTask.searchFunc = function(ev) {
+    let searchText = $("#" + ev.id).val().toUpperCase(); // Convert the input text to uppercase for case-insensitive comparison
+    let accSearchResult = [];
+    let filteredCustomers = onselectData.length > 0 ? onselectData : paintList;
+    if (searchText.length > 0) {
+        accSearchResult = filteredCustomers.filter(function(e) {
+            return (e.customerId && e.customerId.toUpperCase().includes(searchText)) || (e.applicationId && e.applicationId.toUpperCase()
+                .includes(searchText)) || (e.kendraName && e.kendraName.toUpperCase().includes(searchText)) || (e.customerName && e
+                .customerName.toUpperCase().includes(searchText)) || (e.kendraId && e.kendraId.toUpperCase().includes(searchText));
+        });
+        apz.data.scrdata.Income__IPaintPendingTaskMembers_Res = accSearchResult;
+        if (accSearchResult.length === 0) {
+            $("#" + PendingTaskScrId + 'pendingMemberListRow').addClass('sno');
+            $("#" + PendingTaskScrId + 'noRecordFound').removeClass('sno');
+        } else {
+            $("#" + PendingTaskScrId + 'pendingMemberListRow').removeClass('sno');
+            $("#" + PendingTaskScrId + 'noRecordFound').addClass('sno');
+        }
+    } else {
+        apz.data.scrdata.Income__IPaintPendingTaskMembers_Res = filteredCustomers;
+        $("#" + PendingTaskScrId + 'pendingMemberListRow').removeClass('sno');
+        $("#" + PendingTaskScrId + 'noRecordFound').addClass('sno');
+    }
+    apz.data.loadData("IPaintPendingTaskMembers", 'Income');
+}
+apz.app.PendingTask.paintPendingDashbord = function() {
+    updatedCommonCode = commonCodeData.sort((a, b) => a.order - b.order);
+    let paintArr = [];
+    updatedCommonCode.forEach(d => {
+        let obj = {};
+        obj.pendingTask = d.pendingTask;
+        if (d.pendingTask === 'Kendra Management') {
+            obj.count = kendraUpdatesSrData.filter(d => d.appStatus === "PENDING").length;
+        } else {
+            obj.count = paintList.length
+        }
+        paintArr.push(obj);
+    });
+    apz.data.scrdata.Income__IPaintPendingTaskDashbord_Res.PendingTaskDash = paintArr;
+    apz.data.loadData("IPaintPendingTaskDashbord", 'Income');
+}
+apz.app.PendingTask.IncomeAssesmentCount = function() {
+    pendingTaskList = applicationResp;
+    paintList = [];
+    $("#" + PendingTaskScrId + 'searchInput').val('');
+    pendingTaskList.map((data) => {
+        var newObj = {};
+        newObj.kendraName = data.kendraName;
+        newObj.kendraId = data.kendraId;
+        newObj.customerName = data.customerName;
+        newObj.customerId = data.customerId;
+        newObj.applicationId = data.applicationId;
+        newObj.applicationDate = data.applicationDate;
+        if (data.applicationStatus === "PENDING") {
+            newObj.currentStageNum = '1'
+            newObj.status = "PENDING";
+            newObj.applicationStatus = "Add Member Profile";
+        }
+        else if (data.applicationStatus === "QAUPDATE") {
+            newObj.currentStageNum = '2'
+            newObj.status = "PENDING";
+            newObj.applicationStatus = "Add Family Member Details";
+        } else if (data.applicationStatus === "EARNINGSUPDATE") {
+            newObj.currentStageNum = '2'
+            newObj.status = "PENDING";
+            newObj.applicationStatus = "Add Family Member Details";
+        } else if (data.applicationStatus === "INITIATE") {
+            newObj.currentStageNum = '1'
+            newObj.status = "PENDING";
+            newObj.applicationStatus = "Add Member Profile";
+        } else if (data.applicationStatus === "APPROVED" || data.applicationStatus === "COMPLETED") {
+            newObj.currentStageNum = '4'
+            newObj.status = "COMPLETED"
+        } /*else if (data.applicationStatus === "PENDINGBYRPC") {
+            newObj.currentStageNum = '4'
+            newObj.status = "PENDING BY RPC"
+        }*/ else if (data.applicationStatus === "ON HOLD" || data.applicationStatus === "ONHOLD") {
+            newObj.currentStageNum = '4'
+            newObj.status = "RPC ON HOLD"
+        }
+        /*else if (JSON.parse(data.payload).hasOwnProperty('earnings') && JSON.parse(data.payload).earnings.length > 0) {
+            let finalResp = JSON.parse(data.payload).earnings;
+            finalResp.forEach(function(obj1, i) {
+                if (obj1.status === "ON HOLD") {
+                    newObj.status = "RPC ON HOLD"
+                }
+            })
+        }*/
+        paintList.push(newObj);
+    });
+}
+apz.app.PendingTask.clickNextPendingDashbord = function(pthis) {
+    let row = pthis.id.split("_").at(-1);
+    if (updatedCommonCode[row].pendingTask === 'Income Assement') {
+        apz.app.PendingTask.OnclickArrow();
+    } else if (updatedCommonCode[row].pendingTask === 'Kendra Management') {
+        apz.app.PendingTask.paintKendraSrList();
+    } else if (updatedCommonCode[row].pendingTask === 'Death Intimation') {
+        ApzCOB.launchMicroApp("KenMet", "DeathIntimationPendingList", "APZCBO__BaseScreens__BaseDIV", '');
+    }
+}
+apz.app.PendingTask.paintKendraSrList = function() {
+    $("#" + PendingTaskScrId + 'selfDeclareIncRow').addClass('sno');
+    $("#" + PendingTaskScrId + 'kendraUpdatesDashbord').removeClass('sno');
+    apz.app.PendingTask.paintFilterData();
+    apz.app.PendingTask.paintKendraUpdatesDashbord('All');
+}
+apz.app.PendingTask.paintFilterData = function() {
+    let filterData = [];
+    let paintArr = [];
+    if (window.userRole === 'KM') {
+        filterData = ['All', 'Time Changes', 'Frequency Changes'];
+    } else {
+        filterData = ['All', 'Day Changes'];
+    }
+    filterData.forEach(d => {
+        let obj = {};
+        obj.filter = d;
+        if (d === 'Day Changes') {
+            obj.count = kendraUpdatesSrData.filter(d => d.srType === 'DayChanges').length
+        } else if (d === 'Time Changes') {
+            obj.count = kendraUpdatesSrData.filter(d => d.srType === 'TimeChanges').length
+        } else if (d === 'Frequency Changes') {
+            obj.count = kendraUpdatesSrData.filter(d => d.srType === 'FrequencyChanges').length
+        } else {
+            obj.count = kendraUpdatesSrData.length
+        }
+        paintArr.push(obj);
+    })
+    apz.data.scrdata.Income__IPaintPendingTaskDashbord_Res.filterData = paintArr;
+    apz.data.loadData("IPaintPendingTaskDashbord", 'Income');
+}
+apz.app.PendingTask.paintKendraUpdatesDashbord = function(filterType) {
+    let paintArr = [];
+    let data = JSON.parse(JSON.stringify(kendraUpdatesSrData));
+    if (filterType !== 'All') {
+        data = kendraUpdatesSrData.filter(d => d.srType === filterType)
+    }
+    data.forEach(d => {
+        let obj = {};
+        let srFilterData = typeof d.payload === 'string' ? JSON.parse(d.payload) : d.payload;
+        let kendraData = kendraResponse.find(d => d.kendraDtls.kendraId == srFilterData.kendraId);
+        obj.kendraData = kendraData;
+        obj.selDataForApproveOrReject = d;
+        obj.kendraName = kendraData.kendraDtls.kendraName;
+        obj.kendraDetails = '#' + kendraData.kendraDtls.kendraId;
+        obj.status = d.appStatus;
+        obj.appId = d.applicationId;
+        obj.timeChangesApp = srFilterData.newStartTime + ' to ' + srFilterData.newEndTime;
+        if (d.srType === 'DayChanges') {
+            obj.timeChangesApp = srFilterData.newDay;
+        } else if (d.srType === 'TimeChanges') {
+            obj.timeChangesApp = srFilterData.newStartTime + ' to ' + srFilterData.newEndTime;
+        } else if (d.srType === 'FrequencyChanges') {
+            obj.timeChangesApp = srFilterData.newFrequency;
+        }
+        paintArr.push(obj);
+    });
+    if (paintArr.length === 0) {
+        $("#" + PendingTaskScrId + 'noRecDiv').removeClass('sno');
+    } else {
+        $("#" + PendingTaskScrId + 'noRecDiv').addClass('sno');
+        apz.data.scrdata.Income__IPaintPendingTaskDashbord_Res.kendraData = paintArr;
+        apz.data.loadData("IPaintPendingTaskDashbord", 'Income');
+    }
+}
+apz.app.PendingTask.onClickOfFilterData = function(pthis) {
+    let row = pthis.id.split("_").at(-1);
+    let selData = apz.data.scrdata.Income__IPaintPendingTaskDashbord_Res.filterData[row].filter;
+    if (selData === 'Day Changes') {
+        apz.app.PendingTask.paintKendraUpdatesDashbord('DayChanges');
+    } else if (selData === 'Time Changes') {
+        apz.app.PendingTask.paintKendraUpdatesDashbord('TimeChanges');
+    } else if (selData === 'Frequency Changes') {
+        apz.app.PendingTask.paintKendraUpdatesDashbord('FrequencyChanges');
+    } else {
+        apz.app.PendingTask.paintKendraUpdatesDashbord('All');
+    }
+}
+apz.app.PendingTask.paintKendraUpdateDetails = function(pthis) {
+    let row = pthis.id.split("_").at(-1);
+    $("#" + PendingTaskScrId + 'kendraUpdatesDashbord').addClass('sno');
+    $("#" + PendingTaskScrId + 'kendraUpdatesDetails').removeClass('sno');
+    let selData = apz.data.scrdata.Income__IPaintPendingTaskDashbord_Res.kendraData[row];
+    selectedKendraUpdatesData = selData;
+    apz.setElmValue(PendingTaskScrId + 'reqKendra', selData.kendraData.kendraDtls.kendraName);
+    apz.setElmValue(PendingTaskScrId + 'reqKendraId', '#' + selData.kendraData.kendraDtls.kendraId);
+    apz.setElmValue(PendingTaskScrId + 'reqKendraSince', selData.kendraData.kendraDtls.activationDate);
+    apz.setElmValue(PendingTaskScrId + 'reqKendraAdd', selData.kendraData.kendraDtls.kendraAddr);
+    apz.setElmValue(PendingTaskScrId + 'status', selData.selDataForApproveOrReject.appStatus);
+    apz.setElmValue(PendingTaskScrId + 'reqTotalCust', selData.kendraData.kendraDtls.customerDtls ? selData.kendraData.kendraDtls.customerDtls
+        .length : 0);
+    let paintingPayloadData = typeof selData.selDataForApproveOrReject.payload === 'string' ? JSON.parse(selData.selDataForApproveOrReject
+        .payload) : selData.selDataForApproveOrReject.payload;
+    if (selData.selDataForApproveOrReject.srType === 'FrequencyChanges') {
+        apz.setElmValue(PendingTaskScrId + 'olderDataTxt', 'Old Frequency');
+        apz.setElmValue(PendingTaskScrId + 'reqDataTxt', 'Requested Frequency');
+        apz.setElmValue(PendingTaskScrId + 'reqKendraOldTime', selData.kendraData.kendraDtls.meetingFrequency);
+        apz.setElmValue(PendingTaskScrId + 'reqReqTime', paintingPayloadData.payload.newFrequency);
+    } else if (selData.selDataForApproveOrReject.srType === 'TimeChanges') {
+        apz.setElmValue(PendingTaskScrId + 'olderDataTxt', 'Old Meeting Time');
+        apz.setElmValue(PendingTaskScrId + 'reqDataTxt', 'Requested Time');
+        apz.setElmValue(PendingTaskScrId + 'reqKendraOldTime', selData.kendraData.kendraDtls.meetingStartTime + ' - ' + selData.kendraData
+            .kendraDtls.endingTime + 'AM');
+        apz.setElmValue(PendingTaskScrId + 'reqReqTime', paintingPayloadData.newStartTime + ' - ' + paintingPayloadData.newEndTime);
+    } else {
+        apz.setElmValue(PendingTaskScrId + 'olderDataTxt', 'Old Meeting Day');
+        apz.setElmValue(PendingTaskScrId + 'reqDataTxt', 'Requested Day');
+        apz.setElmValue(PendingTaskScrId + 'reqKendraOldTime', paintingPayloadData.meetingDay);
+        apz.setElmValue(PendingTaskScrId + 'reqReqTime', paintingPayloadData.newDay);
+    }
+    apz.setElmValue(PendingTaskScrId + 'selKmName', selData.kendraData.kendraDtls.kmName);
+    apz.setElmValue(PendingTaskScrId + 'selKendraId', selData.kendraData.kendraDtls.kendraId);
+}
+apz.app.PendingTask.backNavigateKendraStage1 = function() {
+    ApzCOB.launchMicroApp("Income", "PendingTask", 'APZCBO__BaseScreens__BaseDIV', '');
+}
+apz.app.PendingTask.backNavigateKendraStage2 = function() {
+    $("#" + PendingTaskScrId + 'kendraUpdatesDashbord').removeClass('sno');
+    $("#" + PendingTaskScrId + 'kendraUpdatesDetails').addClass('sno');
+}
+apz.app.PendingTask.fetchSrCreationOfBM = function() {
+    let UserBranchId = ''
+    let createBy = LoggedInUserDetails.loginResponse.userDet.name
+    var req = {
+        "apiRequest": {
+            "interfaceName": "FetchAllSROperation",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "branchId": UserBranchId,
+                "createdBy": createBy
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "FetchAllSROperation", "N", "N", req, false, apz.app.PendingTask.fetchSrCreationOfBMCB);
+}
+apz.app.PendingTask.fetchSrCreationOfBMCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__FetchAllSROperation_Res.apiResponse.ResponseBody.responseObj)) {
+                if (params.res.APZCBO__FetchAllSROperation_Res.apiResponse.ResponseHeader.ResponseCode === '0') {
+                    let fetchResponse = params.res.APZCBO__FetchAllSROperation_Res.apiResponse.ResponseBody.responseObj;
+                    let listRes = JSON.parse(fetchResponse);
+                    if (listRes.hasOwnProperty('apiResponse')) {
+                        kendraUpdatesSrData = listRes.apiResponse;
+                        apz.app.PendingTask.paintPendingDashbord();
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.PendingTask.resetBtn = function() {
+    apz.data.scrdata.Income__IPaintFilterData_Res.filterData.forEach((d, i) => {
+        $("#" + PendingTaskScrId + 'el_cbx_1_' + i).prop('checked', false)
+    });
+}
+apz.app.PendingTask.applyFilter = function() {
+    let selKendra = [];
+    apz.data.scrdata.Income__IPaintFilterData_Res.filterData.forEach((d, idx) => {
+        if ($("#" + PendingTaskScrId + 'el_cbx_1_' + idx).prop('checked')) {
+            selKendra.push(d.kendraName);
+        }
+    });
+    let paintData = selKendra.length > 0 ? paintList.filter(d => selKendra.includes(d.kendraName)) : paintList;
+    apz.data.scrdata.Income__IPaintPendingTaskMembers_Res = paintData;
+    apz.data.loadData("IPaintPendingTaskMembers", 'Income');
+    ApzCOB.toggleModal(PendingTaskScrId + "filterModel");
+}
+apz.app.PendingTask.onClickOfendingTask = function() {
+    let mainFilterData = [{
+        "key": "Kendras"
+    }]
+    let names = paintList.map(d => d.kendraName)
+    let uniqueKendraNames = [...new Set(names)];
+    let filterData = uniqueKendraNames.map(data => ({
+        kendraName: data
+    }));
+    ApzCOB.toggleModal(PendingTaskScrId + "filterModel");
+    apz.data.scrdata.Income__IPaintFilterData_Res = {};
+    apz.data.scrdata.Income__IPaintFilterData_Res.mainKey = mainFilterData;
+    apz.data.scrdata.Income__IPaintFilterData_Res.filterData = filterData;
+    apz.data.loadData("IPaintFilterData", 'Income');
+    apz.app.PendingTask.resetBtn()
+}

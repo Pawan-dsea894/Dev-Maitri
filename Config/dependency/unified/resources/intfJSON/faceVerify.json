@@ -1,0 +1,25 @@
+{
+    "apiURL": "${URL}",
+    "servicetype": "HTTP",
+    "methodType": "POST",
+    "contentType": "application/json",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "*/*",
+      "Apikey": "Y2FsZ2xpbnRlcmZhY2Vlc2I=",
+      "Authorization": "Basic dXNlcm5hbWU6MjAyMUBHS2FwIQ=="
+    },
+    "requestDef": {
+      "clientRefId": "${REQUEST~apiRequest.clientRefId}",
+      "person": "${REQUEST~apiRequest.person}",
+      "card":"${REQUEST~apiRequest.card}"
+    },
+    "responseDef": "",
+    "logging": {
+      "logRequired": "Y",
+      "logType": "BOTH",
+	  "externalAPILogRequired":"N",
+	  "externalAPILogType":"NONE"
+    }
+  }
+  

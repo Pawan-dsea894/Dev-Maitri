@@ -1,0 +1,362 @@
+var currentValue = '';
+var reasonRowSel = '';
+var zeroCollectionRecord = [];
+var ALLOWONLYNUMDECIMALS = /[^0-9 .]/g
+var zeroColScrId = "KenMet__ZeroCollection__";
+apz.app.onLoad_ZeroCollection = function(params) {
+    apz.data.scrdata.KenMet__IPaintZeroCollection_Res = {};
+    apz.data.scrdata.KenMet__IPaintZeroCollection_Res.zeroCollectionKendraData = [];
+}
+apz.app.onShown_ZeroCollection = function(params) {
+    $('#header').addClass('sno');
+    $('#footer').addClass('sno');
+    $('#KenMet__GroupsData__row_groupsHeader').addClass('sno');
+    $("#KenMet__GroupsData__row_gorupsDataRow").addClass('sno');
+    apz.app.ZeroCollection.loadReasonsData();
+    apz.app.ZeroCollection.loadZerCollectionScreen(params);
+    document.getElementById(zeroColScrId + 'confirmProceedBtn').disabled = true;
+    if (parReasonsArr.length === 0) {
+        ApzCOB.FetchLov("PARREASONS");
+    }
+}
+apz.app.ZeroCollection.loadZerCollectionScreen = function(params) {
+    collectionZeroFlow = true;
+    if (params.length === 0) {
+        $("#" + zeroColScrId + 'noRecDiv').removeClass('sno');
+        $("#" + zeroColScrId + 'groupDataDiv').addClass('sno');
+    } else {
+        $("#" + zeroColScrId + 'noRecDiv').addClass('sno');
+        $("#" + zeroColScrId + 'groupDataDiv').removeClass('sno');
+        apz.data.scrdata.KenMet__IPaintZeroCollection_Res.zeroCollectionKendraData = params;
+        apz.data.loadData('IPaintZeroCollection', 'KenMet');
+    }
+}
+// apz.app.ZeroCollection.onClickReasonDropDown = function(pthis) {
+//     let id = pthis.id.split("_").at(-1);
+//     reasonRowSel = id;
+//     ApzCOB.toggleModal(zeroColScrId + 'zeroCollectionReason');
+//     if (apz.isNull(document.getElementById(zeroColScrId + "reasonsIpBox_" + id).value)) {
+//         apz.app.ZeroCollection.clearAllToggleModel();
+//     }
+// }
+apz.app.ZeroCollection.onClickReasonDropDown = function(pthis) {
+    let id = pthis.id.split("_").at(-1);
+    reasonRowSel = id;
+    $("#KenMet__ZeroCollection__zeroCollectionReason_close").addClass("sno")
+    ApzCOB.toggleModal(zeroColScrId + 'zeroCollectionReason');
+    if (!$('body').hasClass('mdl-opn')) {
+            $('body').addClass('mdl-opn')
+        }
+    if (apz.isNull(document.getElementById(zeroColScrId + "reasonsIpBox_" + id).value)) {
+        apz.app.ZeroCollection.clearAllToggleModel();
+    }
+}
+apz.app.ZeroCollection.clearAllToggleModel = function() {
+    apz.data.scrdata.KenMet__IPaintZeroCollection_Res.reasonsForDeathIntimation.forEach((d, i) => {
+        $("#" + zeroColScrId + 'rea_chk_' + i).prop("checked", false);
+        let liId = document.getElementById(zeroColScrId + "relationWithMemDiv_row_" + i);
+        liId.querySelector("#" + zeroColScrId + "deathClaim_row").classList.add('sno');
+        apz.setElmValue(zeroColScrId + 'fam_mem_name_' + i, "");
+        apz.setElmValue(zeroColScrId + 'fam_mem_mob_' + i, "");
+        document.getElementById(zeroColScrId + 'rea_chk_' + i).disabled = false;
+        document.getElementById(zeroColScrId + "relationWithMemDiv_row_" + i).classList.remove("active");
+        let paintData = apz.data.scrdata.KenMet__IPaintZeroCollection_Res.reasonsForDeathIntimation[i].reason;
+        if (paintData === 'Others') {
+            liId.querySelector("#KenMet__ZeroCollection__reasonsDiv_row").classList.add('sno');
+            document.getElementById(zeroColScrId + "inputReasons_" + i).value = '';
+        }
+    });
+}
+apz.app.ZeroCollection.onClickConfirmAndProceed = function() {
+    if (!apz.isNull(selectedGrpId)) {
+        deathIntGrpObj[selectedGrpId] = [];
+    }
+    $("#" + zeroColScrId + "zero_subHeader").addClass('sno');
+    $("#" + zeroColScrId + "zero_groupsHeader").addClass('sno');
+    $("#" + zeroColScrId + "row_zeroDataRow").addClass('sno');
+    if (FromScreenData) {
+        apz.app.RepeatCollScreen.SuccessScreen();
+    } else {
+        apz.app.GroupsData.launchSuccessScreen();
+    }
+}
+apz.app.ZeroCollection.onClickOfReasonsChkBox = function(pthis) {
+    let id = pthis.id.split("_").at(-1);
+    //reasonRowSel = id;
+    apz.data.scrdata.KenMet__IPaintZeroCollection_Res.reasonsForDeathIntimation.forEach((d, i) => {
+        let liId = document.getElementById(zeroColScrId + "relationWithMemDiv_row_" + i);
+        if (parseInt(id) !== i) {
+            $("#" + zeroColScrId + 'rea_chk_' + i).prop('checked', false);
+            liId.querySelector("#KenMet__ZeroCollection__deathClaim_row").classList.add('sno');
+            liId.querySelector("#KenMet__ZeroCollection__reasonsDiv_row").classList.add('sno');
+            document.getElementById(zeroColScrId + 'rea_chk_' + i).disabled = false;
+            document.getElementById(zeroColScrId + "relationWithMemDiv_row_" + i).classList.remove("active");
+        } else {
+            $("#" + zeroColScrId + 'rea_chk_' + i).prop('checked', true);
+            let paintData = apz.data.scrdata.KenMet__IPaintZeroCollection_Res.reasonsForDeathIntimation[id].reason;
+            if (paintData === 'Member Deceased' || paintData === 'Spouse Deceased') {
+                liId.querySelector("#KenMet__ZeroCollection__deathClaim_row").classList.remove('sno');
+                liId.querySelector("#KenMet__ZeroCollection__reasonsDiv_row").classList.add('sno');
+            } else if (paintData === 'Others') {
+                liId.querySelector("#KenMet__ZeroCollection__reasonsDiv_row").classList.remove('sno');
+                liId.querySelector("#KenMet__ZeroCollection__deathClaim_row").classList.add('sno');
+                document.getElementById(zeroColScrId + "inputReasons_" + id).value = '';
+            }
+            document.getElementById(zeroColScrId + 'rea_chk_' + i).disabled = true;
+            document.getElementById(zeroColScrId + "relationWithMemDiv_row_" + i).classList.add("active");
+        }
+    });
+    document.getElementById(zeroColScrId + 'rea_chk_' + id).disabled = true;
+    document.getElementById(zeroColScrId + 'confirm_btn').disabled = true;
+    apz.data.scrdata.KenMet__IPaintZeroCollection_Res.reasonsForDeathIntimation.forEach((d, i) => {
+        if ($("#" + zeroColScrId + 'rea_chk_' + i).prop('checked')) {
+            document.getElementById(zeroColScrId + 'confirm_btn').disabled = false;
+        }
+    });
+}
+apz.app.ZeroCollection.loadReasonsData = function() {
+    apz.data.scrdata.KenMet__IPaintZeroCollection_Res.reasonsForDeathIntimation = parReasonsArr;
+    apz.data.loadData('IPaintZeroCollection', 'KenMet');
+    document.getElementById(zeroColScrId + 'confirm_btn').disabled = true;
+    parReasonsArr.forEach((d, i) => {
+        document.getElementById(zeroColScrId + 'fam_mem_mob_' + i).type = 'number';
+    });
+}
+// apz.app.ZeroCollection.onClickOfConfirmReaBtn = function() {
+//     let today = new Date();
+//     let dd = String(today.getDate()).padStart(2, '0');
+//     let mm = String(today.getMonth() + 1).padStart(2, '0');
+//     let yyyy = today.getFullYear();
+//     let value = '';
+//     let c = '';
+//     apz.data.scrdata.KenMet__IPaintZeroCollection_Res.reasonsForDeathIntimation.forEach((d, i) => {
+//         if ($("#" + zeroColScrId + 'rea_chk_' + i).prop('checked')) {
+//             index = i;
+//             value = d.reason;
+//         }
+//     });
+//     let liId = document.getElementById(zeroColScrId + "relationWithMemDiv_row_" + index);
+//     let inoutBxVal = document.getElementById("KenMet__ZeroCollection__inputReasons_" + index).value;
+//     if (apz.isNull(value)) {
+//         ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COLL_MSG_PLE_SEL_REASON"), "E");
+//     } else if (value === "Others" && apz.isNull(inoutBxVal)) {
+//         ApzCOB.toggleModal(zeroColScrId + 'customAlertModel');
+//         $("#KenMet__KMDashboard__calculatorIcon").addClass('sno');
+//         ApzCOB.toggleModal(zeroColScrId + 'zeroCollectionReason');
+//         if (!$('body').hasClass('mdl-opn')) {
+//             $('body').addClass('mdl-opn')
+//         }
+//     } else if (apz.app.ZeroCollection.isClaimFormEntered(value, index)) {
+//         ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COL_ERR_PLS_ENT_MEM_NAME_NUM"), "E");
+//     } else if (apz.app.ZeroCollection.checkValideMobileNo(value, index)) {
+//         ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COLL_MSG_VALID_PHONE_NO"), "E");
+//     } else {
+//         let deathObj = {};
+//         deathObj.id = apz.data.scrdata.KenMet__IPaintZeroCollection_Res.zeroCollectionKendraData[reasonRowSel].id;
+//         deathObj.customerName = apz.data.scrdata.KenMet__IPaintZeroCollection_Res.zeroCollectionKendraData[reasonRowSel].customerName;
+//         deathObj.type = value;
+//         deathObj.familyMemName = apz.getElmValue(zeroColScrId + 'fam_mem_name_' + index);
+//         deathObj.familyMemMobNo = apz.getElmValue(zeroColScrId + 'fam_mem_mob_' + index);
+//         deathObj.deathIntimationStatus = 'Draft';
+//         deathObj.createdDate = `${dd}/${mm}/${yyyy}`;
+//         zeroCollectionRecord.push(deathObj);
+//         if (value === 'Others') {
+//             apz.setElmValue(zeroColScrId + "reasonsIpBox_" + reasonRowSel, inoutBxVal);
+//         } else {
+//             apz.setElmValue(zeroColScrId + "reasonsIpBox_" + reasonRowSel, value);
+//         }
+//         ApzCOB.toggleModal(zeroColScrId + 'zeroCollectionReason');
+//     }
+//     let notFilled = false;
+//     apz.data.scrdata.KenMet__IPaintZeroCollection_Res.zeroCollectionKendraData.forEach((d, i) => {
+//         if (apz.isNull(apz.getElmValue(zeroColScrId + "reasonsIpBox_" + i))) {
+//             notFilled = true;
+//         }
+//     });
+//     if (notFilled) {
+//         document.getElementById(zeroColScrId + 'confirmProceedBtn').disabled = true;
+//     } else {
+//         document.getElementById(zeroColScrId + 'confirmProceedBtn').disabled = false;
+//     }
+// }
+apz.app.ZeroCollection.onClickOfConfirmReaBtn = function() {
+    let today = new Date();
+    let dd = String(today.getDate()).padStart(2, '0');
+    let mm = String(today.getMonth() + 1).padStart(2, '0');
+    let yyyy = today.getFullYear();
+    let value = '';
+    let c = '';
+    apz.data.scrdata.KenMet__IPaintZeroCollection_Res.reasonsForDeathIntimation.forEach((d, i) => {
+        if ($("#" + zeroColScrId + 'rea_chk_' + i).prop('checked')) {
+            index = i;
+            value = d.reason;
+        }
+    });
+    let liId = document.getElementById(zeroColScrId + "relationWithMemDiv_row_" + index);
+    let inoutBxVal = document.getElementById("KenMet__ZeroCollection__inputReasons_" + index).value;
+    if (apz.isNull(value)) {
+        //ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COLL_MSG_PLE_SEL_REASON"), "E");
+        ApzCOB.toggleModal(zeroColScrId + 'customAlertModel');
+        $("#KenMet__ZeroCollection__el_txt_132_txtcnt").text(ApzCOB.getDescfromLitCode("LIT_COLL_MSG_PLE_SEL_REASON"))
+        $("#KenMet__KMDashboard__calculatorIcon").addClass('sno');
+        ApzCOB.toggleModal(zeroColScrId + 'zeroCollectionReason');
+        if (!$('body').hasClass('mdl-opn')) {
+            $('body').addClass('mdl-opn')
+        }
+    } else if (value === "Others" && apz.isNull(inoutBxVal)) {
+        ApzCOB.toggleModal(zeroColScrId + 'customAlertModel');
+        $("#KenMet__ZeroCollection__el_txt_132_txtcnt").text(ApzCOB.getDescfromLitCode("Please select reason to continue"))
+        $("#KenMet__KMDashboard__calculatorIcon").addClass('sno');
+        ApzCOB.toggleModal(zeroColScrId + 'zeroCollectionReason');
+        if (!$('body').hasClass('mdl-opn')) {
+            $('body').addClass('mdl-opn')
+        }
+    } else if (apz.app.ZeroCollection.isClaimFormEntered(value, index)) {
+        // ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COL_ERR_PLS_ENT_MEM_NAME_NUM"), "E");
+        ApzCOB.toggleModal(zeroColScrId + 'customAlertModel');
+        $("#KenMet__ZeroCollection__el_txt_132_txtcnt").text(ApzCOB.getDescfromLitCode("LIT_COL_ERR_PLS_ENT_MEM_NAME_NUM"))
+        $("#KenMet__KMDashboard__calculatorIcon").addClass('sno');
+        ApzCOB.toggleModal(zeroColScrId + 'zeroCollectionReason');
+        if (!$('body').hasClass('mdl-opn')) {
+            $('body').addClass('mdl-opn')
+        }
+    } else if (apz.app.ZeroCollection.checkValideMobileNo(value, index)) {
+        // ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COLL_MSG_VALID_PHONE_NO"), "E");
+        ApzCOB.toggleModal(zeroColScrId + 'customAlertModel');
+        $("#KenMet__ZeroCollection__el_txt_132_txtcnt").text(ApzCOB.getDescfromLitCode("LIT_COLL_MSG_VALID_PHONE_NO"))
+        $("#KenMet__KMDashboard__calculatorIcon").addClass('sno');
+        ApzCOB.toggleModal(zeroColScrId + 'zeroCollectionReason');
+        if (!$('body').hasClass('mdl-opn')) {
+            $('body').addClass('mdl-opn')
+        }
+    } else {
+        let deathObj = {};
+        deathObj.id = apz.data.scrdata.KenMet__IPaintZeroCollection_Res.zeroCollectionKendraData[reasonRowSel].id;
+        deathObj.customerName = apz.data.scrdata.KenMet__IPaintZeroCollection_Res.zeroCollectionKendraData[reasonRowSel].customerName;
+        deathObj.type = value;
+        deathObj.familyMemName = apz.getElmValue(zeroColScrId + 'fam_mem_name_' + index);
+        deathObj.familyMemMobNo = apz.getElmValue(zeroColScrId + 'fam_mem_mob_' + index);
+        deathObj.deathIntimationStatus = 'Draft';
+        deathObj.createdDate = `${dd}/${mm}/${yyyy}`;
+        zeroCollectionRecord.push(deathObj);
+        if (value === 'Others') {
+            apz.setElmValue(zeroColScrId + "reasonsIpBox_" + reasonRowSel, inoutBxVal);
+        } else {
+            apz.setElmValue(zeroColScrId + "reasonsIpBox_" + reasonRowSel, value);
+        }
+        ApzCOB.toggleModal(zeroColScrId + 'zeroCollectionReason');
+        if ($('body').hasClass('mdl-opn')) {
+            $('body').removeClass('mdl-opn')
+        }
+    }
+    let notFilled = false;
+    apz.data.scrdata.KenMet__IPaintZeroCollection_Res.zeroCollectionKendraData.forEach((d, i) => {
+        if (apz.isNull(apz.getElmValue(zeroColScrId + "reasonsIpBox_" + i))) {
+            notFilled = true;
+        }
+    });
+    if (notFilled) {
+        document.getElementById(zeroColScrId + 'confirmProceedBtn').disabled = true;
+    } else {
+        document.getElementById(zeroColScrId + 'confirmProceedBtn').disabled = false;
+    }
+    document.getElementById(zeroColScrId + 'confirm_btn').disabled = true;
+}
+apz.app.ZeroCollection.isClaimFormEntered = function(value, row) {
+    if (value === 'Member Deceased' || value === 'Spouse Deceased') {
+        if (apz.isNull(apz.getElmValue(zeroColScrId + 'fam_mem_name_' + row)) || apz.isNull(apz.getElmValue(zeroColScrId + 'fam_mem_mob_' +
+            row))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+apz.app.ZeroCollection.checkValideMobileNo = function(value, row) {
+    if (value === 'Member Deceased' || value === 'Spouse Deceased') {
+        let mobNo = (apz.getElmValue(zeroColScrId + 'fam_mem_mob_' + row))
+        let mobLength = mobNo.length;
+        if (mobLength !== 10) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+apz.app.ZeroCollection.onClickOfZeroFlowBackNav = function() {
+    $("#" + zeroColScrId + "zero_subHeader").addClass('sno');
+    $("#" + zeroColScrId + "zero_groupsHeader").addClass('sno');
+    $("#" + zeroColScrId + "row_zeroDataRow").addClass('sno');
+    if (FromScreenData) {
+        apz.childScr = "RepeatCollScreen";
+        $("#" + RepeatCollScreenId + "repeatColHeader").removeClass('sno');
+        $("#" + RepeatCollScreenId + "repeatColDetails").removeClass('sno');
+    } else {
+        apz.childScr = "GroupsData";
+        $('#KenMet__GroupsData__row_groupsHeader').removeClass('sno');
+        $("#KenMet__GroupsData__row_gorupsDataRow").removeClass('sno');
+    }
+}
+apz.app.ZeroCollection.callDeathIntimationSqlLite = function() {
+    if (!apz.isNull(zeroCollectionRecord)) {
+        let sqlData = {};
+        sqlData.branchId = collectionKendraData[selKendraRowNo].branchId;
+        sqlData.kmId = collectionKendraData[selKendraRowNo].kmId;
+        sqlData.kendraId = collectionKendraData[selKendraRowNo].kendraId;
+        sqlData.kendraName = collectionKendraData[selKendraRowNo].kendraName
+        sqlData.meetingDate = collectionKendraData[selKendraRowNo].meetingDate;
+        sqlData.paylod = zeroCollectionRecord;
+        CollectionsCommon.storeDeathIntmationSQLLite(sqlData);
+    }
+}
+apz.app.ZeroCollection.validPhoneNumber = function(pthis) {
+    pthis.value = pthis.value.replace(ALLOWONLYNUMDECIMALS, '');
+    if (pthis.value.includes('.')) {
+        let [integerPart, decimalPart] = pthis.value.split('.');
+        pthis.value = `${integerPart}.${decimalPart.substring(0, 2)}`;
+    }
+    if (pthis.value && pthis.value.length >= 1) {
+        let firstDigit = pthis.value[0];
+        if (['9', '8', '7', '6'].includes(firstDigit)) {
+            return;
+        } else {
+            //ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COLL_MSG_VALID_PHONE_NO"), "E");
+            ApzCOB.toggleModal(zeroColScrId + 'customAlertModel');
+            $("#KenMet__ZeroCollection__el_txt_132_txtcnt").text(ApzCOB.getDescfromLitCode("LIT_COLL_MSG_VALID_PHONE_NO"))
+            $("#KenMet__KMDashboard__calculatorIcon").addClass('sno');
+            ApzCOB.toggleModal(zeroColScrId + 'zeroCollectionReason');
+            if (!$('body').hasClass('mdl-opn')) {
+                $('body').addClass('mdl-opn')
+            }
+            apz.setElmValue(pthis.id, '');
+        }
+    }
+}
+apz.app.ZeroCollection.settingFieldLength = function(pthis, val) {
+    apz.setElmValue(pthis.id, $('#' + pthis.id).val().substr(0, val))
+}
+//added below event listener for UNAP-1387 issue
+document.addEventListener("click", function(event) {
+    if (apz.childScr === "ZeroCollection") {
+        if (event.target.closest(".icon-Drop-Down_Filled")) {
+            const inputElement = event.target.closest("span").querySelector("input");
+            if (inputElement) {
+                inputElement.click();
+            }
+        }
+    }
+});
+apz.app.ZeroCollection.reasonCB = function() {
+    ApzCOB.toggleModal(zeroColScrId + 'customAlertModel');
+    $("#KenMet__KMDashboard__calculatorIcon").removeClass('sno');
+    ApzCOB.toggleModal(zeroColScrId + 'zeroCollectionReason');
+    let btn =document.getElementById(zeroColScrId + 'confirm_btn');
+    if (btn.disabled) {
+        btn.disabled = false;
+    } else {
+        btn.disabled = true;
+    }
+    // if ($('body').hasClass('mdl-opn')) {
+    //     $('body').removeClass('mdl-opn');
+    // }
+}

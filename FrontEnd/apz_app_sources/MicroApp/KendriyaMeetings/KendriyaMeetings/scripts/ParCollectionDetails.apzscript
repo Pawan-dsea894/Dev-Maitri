@@ -1,0 +1,135 @@
+var ParCollectScreenId = 'KenMet__ParCollectionDetails__';
+var memberDetails = [];
+var selectedRow = '';
+var prevRow = '';
+var SelectedData = '';
+var backData = {};
+apz.app.onLoad_ParCollectionDetails = function(params) {
+    // Initialization logic if needed
+};
+apz.app.onShown_ParCollectionDetails = function(params) {
+    $('#header').addClass('sno');
+    $('#footer').addClass('sno');
+    SelectedData = params.parData;
+    backData = params.backNav;
+    //SelectedData = params;
+    let parAmttotal = 0;
+    totalDueData = JSON.parse(JSON.stringify(SelectedData.colldtls));
+    var groupData = [];
+    var SelectedGroup = [];
+    //if (totalDueData.hasOwnProperty('colldtls')) {
+        //totalDueData.colldtls.groups
+        if (totalDueData.hasOwnProperty('groups')) {
+            var GroupData = totalDueData.groups
+            for (i = 0; i < GroupData.length; i++) {
+                if (GroupData[i].members.length > 0) {
+                    for (j = 0; j < GroupData[i].members.length; j++) {
+                        if (GroupData[i].members[j].hasOwnProperty("prevParAmt") && GroupData[i].members[j].parFlg === "Y") {
+                            GroupData[i].members[j]['groupid'] = 'Group ' + GroupData[i].id;
+                            GroupData[i].members[j]['parAmt'] = ApzCOB.fn_FormatAmount(GroupData[i].members[j].loans.map(g => g.parAmt).reduce((
+                                acc, curValue) => acc + curValue, 0));
+                            /* GroupData[i]['parAmt'] = ApzCOB.fn_FormatAmount(GroupData[i].members.map(g => g.parAmt).reduce((acc, curValue) => acc +
+                                 curValue, 0));*/
+                            //modified on 11-02-2025 by sathish
+                            //modified below as to paint par amount for the customer level
+                            // parAmttotal = parAmttotal + GroupData[i].members[j].loans.map(g => g.parAmt).reduce((acc, curValue) => acc + curValue,
+                            //     0)
+                            parAmttotal = parAmttotal + GroupData[i].members[j].prevParAmt;
+                            GroupData[i].members[j]['prevParAmt'] = ApzCOB.fn_FormatAmount(GroupData[i].members[j].loans.reduce((s, d) => s + Math.round(d
+                                .prevParAmt), 0));
+                            memberDetails.push(GroupData[i].members[j])
+                        }
+                    }
+                } else {
+                    GroupData[i]['parAmt'] = "0";
+                }
+            }
+        }
+    //}
+    var parSummary = apz.app.KMDashboard.returnPreviousPartCount();
+    $("#" + ParCollectScreenId + "totalParAmt").text("₹" + ApzCOB.fn_FormatAmount(parSummary.totalParAmount));
+    if (memberDetails.length > 0) {
+        var totalPrevParAmt = 0;
+        for (var i = 0; i < memberDetails.length; i++) {
+            var unformattedAmount = ApzCOB.fn_unFormatAmount(memberDetails[i].prevParAmt);
+            var parsedAmount = parseInt(unformattedAmount, 10);
+            totalPrevParAmt += parsedAmount;
+        }
+        // $("#" + ParCollectScreenId + "totalParAmt").text("₹" + ApzCOB.fn_FormatAmount(totalPrevParAmt));
+        $("#" + ParCollectScreenId + "ParCollectionRow").removeClass('sno');
+        $("#" + ParCollectScreenId + "NoRecordRow").addClass('sno');
+        apz.data.scrdata.KenMet__IPaintParAmountDet_Res = {};
+        apz.data.scrdata.KenMet__IPaintParAmountDet_Res.CustomerDet = {};
+        apz.data.scrdata.KenMet__IPaintParAmountDet_Res.CustomerDet = memberDetails;
+        apz.data.loadData("IPaintParAmountDet", 'KenMet');
+        const seenGroupIds = new Set();
+        var count = 0;
+        memberDetails.forEach((item, index) => {
+            let groupid = item.groupid;
+            //$("#" + "KenMet__IPaintParAmountDet__o__CustomerDet__groupid_" + index).text('Group ' + groupid);
+            if (seenGroupIds.has(groupid)) {
+                $("#" + ParCollectScreenId + "ParCollectionDataList_row_" + index + "> * > :first-child").addClass('sno');
+            } else {
+                seenGroupIds.add(groupid);
+                count += 1;
+                //  $("#" + ParCollectScreenId + "ParCollectionDataList_row_" + String(count - 1)).addClass('zero-brd');
+            }
+            document.getElementById(ParCollectScreenId + 'txt_memParFlag_' + index).classList.remove('sno');
+            $("#" + ParCollectScreenId + 'txt_memParFlag_' + index).addClass('bg-dark-err');
+        });
+    } else {
+        $("#" + ParCollectScreenId + "ParCollectionRow").addClass('sno');
+        $("#" + ParCollectScreenId + "NoRecordRow").removeClass('sno');
+    }
+}
+apz.app.ParCollectionDetails.onClickCustomerDet = function(pthis) {
+    var selectedRow = $(pthis).attr('rowno');
+    var selectedLoanList = memberDetails[selectedRow].loans;
+    selectedLoanList.forEach(function(loan) {
+        if (loan.prevParAmt !== undefined && typeof loan.prevParAmt === 'number') {
+            loan.prevParAmt = Math.round(loan.prevParAmt * 100) / 100;
+        }
+    });
+    if (prevRow !== selectedRow) {
+        $("#" + ParCollectScreenId + "subdiv_" + prevRow).parents().eq(1).addClass('sno');
+        $("#KenMet__ParCollectionDetails__subdiv_" + prevRow).closest('li').removeClass('active');
+        $("#" + ParCollectScreenId + "DropDownIcon_" + selectedRow).removeClass('active');
+    }
+    if ($("#" + ParCollectScreenId + "subdiv_" + selectedRow).is(':visible')) {
+        $("#" + ParCollectScreenId + "subdiv_" + selectedRow).parents().eq(1).addClass('sno');
+        $("#" + ParCollectScreenId + "DropDownIcon_" + selectedRow).removeClass('active');
+    } else {
+        $(".subdivdisplay").html('');
+        $("#" + ParCollectScreenId + "subdiv_" + selectedRow).append($("#" + ParCollectScreenId + "LoadDataDisplayList").html());
+        $("#" + ParCollectScreenId + "subdiv_" + selectedRow).closest('.sno').removeClass('sno');
+        $("#" + ParCollectScreenId + "DropDownIcon_" + selectedRow).addClass('active');
+        //modified on 11-02-2025 by sathish
+        //modified below as to paint par amount for the loans level
+        /*selectedLoanList.forEach(loan => {
+            if (loan.dueAmt === loan.osAmt) {
+                loan.prevParAmt = ApzCOB.fn_FormatAmount(loan.dueAmt);
+            } else {
+                loan.prevParAmt = 0;
+            }
+        })*/
+        apz.data.scrdata.KenMet__IPaintParAmountDet_Res.LoanDetails = {};
+        apz.data.scrdata.KenMet__IPaintParAmountDet_Res.LoanDetails = selectedLoanList;
+        apz.data.loadData("IPaintParAmountDet", 'KenMet');
+        prevRow = selectedRow;
+    }
+}
+apz.app.ParCollectionDetails.backNavigation = function() {
+    startTimerFunc = true;
+    ApzCOB.launchMicroApp("KenMet", "KMDashboard", "APZCBO__BaseScreens__BaseDIV", backData);
+}
+apz.app.ParCollectionDetails.onclickCustomerDet = function(pthis) {
+    let backNavData = {};
+    backNavData.childScrId = 'KenMet'
+    backNavData.scr = 'ParCollectionDetails';
+    backNavData.screenId = ParCollectScreenId;
+    backNavData.baseDiv = 'parColBaseDiv';
+    backNavData.data = JSON.parse(JSON.stringify(SelectedData));
+    let selRow = pthis.id.split("_").at(-1);
+    backNavData.selCustId = apz.data.scrdata.KenMet__IPaintParAmountDet_Res.CustomerDet[selRow].id;
+    ApzCOB.customerDetNavigationFunc(backNavData);
+}

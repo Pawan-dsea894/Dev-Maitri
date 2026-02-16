@@ -1,0 +1,31 @@
+{
+    "apiURL": "${URL}",
+    "servicetype": "HTTP",
+    "methodType": "POST",
+    "contentType": "application/json",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "*/*",
+      "Apikey": "Z3JhbWVlbmtvb3RhcHJvZA",
+       "Authorization": "Basic dXNlcm5hbWU6MjAyMUBHS2FwIQ=="
+    },
+    "requestDef": {
+        "method":"${REQUEST~apiRequest.requestObj.method}",
+        "appid": "${REQUEST~apiRequest.requestObj.appid}",
+        "id":"${REQUEST~apiRequest.requestObj.id}",
+        "gkv":"${REQUEST~apiRequest.requestObj.gkv}",
+        "params":{
+          "custId": "${REQUEST~apiRequest.requestObj.customerId}",
+          "custName": "${REQUEST~apiRequest.requestObj.customerName}",
+          "phoneNum1": "${REQUEST~apiRequest.requestObj.phoneNum1}"
+        } 
+    },
+    "responseDef": "",
+    "logging": {
+      "logRequired": "Y",
+      "logType": "BOTH",
+	  "externalAPILogRequired":"N",
+	  "externalAPILogType":"NONE"
+    }
+  }
+  

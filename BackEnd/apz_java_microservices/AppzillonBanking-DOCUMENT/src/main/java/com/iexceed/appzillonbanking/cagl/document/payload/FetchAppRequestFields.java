@@ -1,0 +1,21 @@
+package com.iexceed.appzillonbanking.cagl.document.payload;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class FetchAppRequestFields {
+	
+	@JsonProperty("applicationId")
+	private String applicationId;
+	
+	@JsonProperty("customerId")
+	private String customerId;
+	
+	@JsonProperty("versionNum")
+	private int versionNum;
+}

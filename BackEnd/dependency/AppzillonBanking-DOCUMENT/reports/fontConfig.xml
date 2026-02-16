@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<font>
+    <!-- Font aliases: Maps font-family aliases to specific fonts -->
+    <font-aliases>
+        <mapping name="serif" font-family="Tunga" />
+    </font-aliases>
+
+    <!-- Font encodings: Defines the encoding for the specified font-family -->
+    <font-encodings>
+        <encoding font-family="Tunga" encoding="Cp1252" /> <!-- ANSI encoding for Tunga font -->
+    </font-encodings>
+
+    <!-- Composite fonts: Allows for combining multiple fonts into a single logical font -->
+    <composite-font name="all-fonts">
+        <font font-family="Tunga" catalog="Western" />
+    </composite-font>
+
+    <!-- Font paths: Specifies the paths where BIRT should look for custom fonts -->
+    <font-paths>
+        <!-- Specify the absolute or relative path to the Tunga font file -->
+        <path path="/app/reports/Tunga.ttf" />
+        <!-- If there are multiple fonts, you can add more paths as needed -->
+    </font-paths>
+</font>
+

@@ -1,0 +1,460 @@
+var screenId = 'Income__AddHouseHoldDetails__';
+var aScrId = '#Income__AddHouseHoldDetails__';
+var Validation = true;
+var checkedQues = false;
+var data = {
+    "questions": [{
+        "id": "Question1",
+        "title": "House Ownership",
+        "type": "Radio",
+        "mandatory": true,
+        "options": ["Rented", "Owned"]
+    }, {
+        "id": "Question2",
+        "title": "Type of House",
+        "type": "Radio",
+        "mandatory": true,
+        "options": ["Pakka", "Semi Pakka", "Kaccha"]
+    }, {
+        "id": "Question3",
+        "title": "Type of Roof",
+        "type": "Radio",
+        "mandatory": true,
+        "options": ["Concrete", "Tin", "Thatched", "Terracota"]
+    }, {
+        "id": "Question4",
+        "title": "No. of Rooms in the house",
+        "type": "Radio",
+        "mandatory": true,
+        "options": ["1", "2", "3", "4", ">4"]
+    }, {
+        "id": "Question5",
+        "title": "Mode of Major Savings",
+        "type": "Radio",
+        "mandatory": true,
+        "options": ["Bank (FD/Savings)", "Gold", "Insurance", "Post office", "Others"]
+    }, {
+        "id": "Question6",
+        "title": "Basic Amenities",
+        "type": "Checkbox",
+        "mandatory": true,
+        "options": ["Water Pipeline Connection", "Electricity", "LPG Connection", "Sewage Connection", "Toilet", "None"]
+    }, {
+        "id": "Question7",
+        "title": "Other Assets",
+        "type": "Checkbox",
+        "mandatory": true,
+        "options": ["Livestock (Cattle)", "TV", "Fridge (Refrigerator)", "Washing Machine", "Air Cooler (AC)", "2-Wheeler", "3-Wheeler",
+            "4-Wheeler", "Smartphone", "None"
+        ]
+    }, {
+        "id": "Question8",
+        "title": "No. of 2-Wheeler?",
+        "type": "Radio",
+        "mandatory": false,
+        "options": ["1", "2", "3", ">3"]
+    }, {
+        "id": "Question9",
+        "title": "No. of 3-Wheeler?",
+        "type": "Radio",
+        "mandatory": false,
+        "options": ["1", "2", "3", ">3"]
+    }, {
+        "id": "Question10",
+        "title": "No. of 4-Wheeler?",
+        "type": "Radio",
+        "mandatory": false,
+        "options": ["1", "2", "3", ">3"]
+    }, {
+        "id": "Question11",
+        "title": "No. of Smartphones in the family?",
+        "type": "Radio",
+        "mandatory": false,
+        "options": ["1", "2", "3", ">3"]
+    }, {
+        "id": "Question12",
+        "title": "Is Customer using Smartphone?",
+        "type": "Radio",
+        "mandatory": false,
+        "options": ["No", "Yes"]
+    }, {
+        "id": "Question13",
+        "title": "Customer Educational Qualification",
+        "type": "Radio",
+        "mandatory": true,
+        "options": ["Illiterate", "Class 1-5", "Class 6-10", "10th Pass", "12th Pass", "Undergraduate", "Post Graduate & Above"]
+    }, {
+        "id": "Question14",
+        "title": "Spouse Educational Qualification",
+        "type": "Radio",
+        "mandatory": false,
+        "options": ["Illiterate", "Class 1-5", "Class 6-10", "10th Pass", "12th Pass", "Undergraduate", "Post Graduate & Above"]
+    }, {
+        "id": "Question15",
+        "title": "Total Family Members (Including Customer)?",
+        "type": "Radio",
+        "mandatory": true,
+        "options": ["1", "2", "3", "4", "5", ">5"]
+    }, {
+        "id": "Question16",
+        "title": "Customer Current Business Tenure (In Years)?",
+        "type": "Radio",
+        "mandatory": true,
+        "options": ["0", "<=7", ">7", "NA"]
+    }, {
+        "id": "Question17",
+        "title": "Spouse Current Business Tenure (In Years)?",
+        "type": "Radio",
+        "mandatory": false,
+        "options": ["0", "<=7", ">7", "NA"]
+    }, {
+        "id": "Question18",
+        "title": "Total Household Land Holding (In Acres)?",
+        "type": "Radio",
+        "mandatory": true,
+        "options": ["0", "<=0.2", "0.2-0.5", "0.5-1", ">1"]
+    }]
+};
+var requestData = "";
+var kycDetails = "";
+var rowNo = "";
+var screenData = "";
+apz.app.onLoad_AddHouseHoldDetails = function(params) {
+    screenData = params;
+    // KendraApp = params.KendraApp;
+    requestData = params.requestData
+    kycDetails = params.kycDetails
+    //  rowNo = params.rowNo
+};
+apz.app.onShown_AddHouseHoldDetails = function(params) {
+    //KendraApp = params.KendraApp;
+    requestData = params.requestData
+    //  var kycDetails = params.kycDetails
+    //  var rowNo = params.rowNo
+    $('#Income__IncomeAssessment__el_txt_20').addClass('sno');
+    $('#Income__IncomeAssessment__gr_row_16').addClass('sno');
+    $('#Income__IncomeAssessment__ct_frm_180').addClass('sno');
+    $('#Income__IncomeAssessment__gr_row_215').addClass('sno');
+    $('#Income__IncomeAssessment__ct_frm_180').removeClass('sno');
+    $('#Income__IncomeAssessment__sc_col_276').removeClass('sno');
+    $('#Income__IncomeAssessment__el_bdg_1').addClass('sno');
+    $('#Income__IncomeAssessment__el_btn_59').addClass('sno');
+    $("#Income__IncomeAssessment__ct_frm_12").addClass('sno');
+    $("#Income__IncomeAssessment__ps_pls_22").addClass('sno');
+    $('#Income__IncomeAssessment__gr_row_20').addClass('sno');
+    $('#' + screenId + 'houseHoldRow').removeClass('sno');
+    apz.app.AddHouseHoldDetails.PaintSelectedCustomerDet();
+    apz.app.AddHouseHoldDetails.loadQuestion();
+};
+apz.app.AddHouseHoldDetails.PaintSelectedCustomerDet = function() {
+    let vintageYear = KendraApp.selectedCustomer.custVintage ? +KendraApp.selectedCustomer.custVintage + ' Years' : '';
+    apz.setElmValue(screenId + "custName", KendraApp.selectedCustomer.customerName ? KendraApp.selectedCustomer.customerName : "");
+    apz.setElmValue(screenId + "el_txt_63", KendraApp.selectedCustomer.customerName.substring(0, 2));
+    apz.setElmValue(screenId + "groupId", (KendraApp.selectedCustomer.customerId ? KendraApp.selectedCustomer.customerId : ""));
+    apz.setElmValue(screenId + "maxLoanLimit", KendraApp.selectedCustomer.maxAmountLimit ? "₹ " + KendraApp.selectedCustomer.maxAmountLimit : "");
+    apz.setElmValue(screenId + "vintage1", "Customer Vintage: " + vintageYear);
+    apz.setElmValue(screenId + "groupID1", (KendraApp.selectedCustomer.groupId ? KendraApp.selectedCustomer.groupId : ""));
+}
+apz.app.AddHouseHoldDetails.createRquest = function() {
+    Validation = true;
+    requestData = data;
+    let paintedData = apz.data.scrdata.Income__IPaintHouseHoldDetails_Res;
+    for (let i = 0; i < data.questions.length; i++) {
+        let ansArr = [];
+        if (data.questions[i].type === "Radio") {
+            for (let j = 0; j < paintedData["Question" + (i + 1)].length; j++) {
+                if ($("#" + screenId + "radio_opt_" + (i + 1) + "_" + j).prop("checked")) {
+                    ansArr.push(paintedData["Question" + (i + 1)][j].radio);
+                    break;
+                }
+            }
+        } else if (data.questions[i].type === "Checkbox") {
+            for (let k = 0; k < paintedData["Question" + (i + 1)].length; k++) {
+                if ($("#" + screenId + "chk_opt_" + (i + 1) + "_" + k).prop("checked")) {
+                    ansArr.push(paintedData["Question" + (i + 1)][k].checkbox);
+                }
+            }
+        } else {
+            ansArr.push($("#Income__IPaintHouseHoldDetails__o__Question" + (i + 1) + "__input_0").val())
+        }
+        requestData.questions[i].value = ansArr;
+    }
+    data.questions.forEach(function(obj, j) {
+        let idnum = obj['id'].match(/\d+/)[0];
+        if (obj.title.includes('2-Wheeler') || obj.title.includes('3-Wheeler') || obj.title.includes('4-Wheeler') || obj.title.includes(
+                'Smartphone') || obj.title.includes('Spouse Educational Qualification') || obj.title.includes(
+                'Spouse Current Business Tenure')) {
+            if (!$("#Income__AddHouseHoldDetails__que_" + idnum + "_div").is(':visible')) {
+                if (apz.isNull(obj.value[0])) {
+                    requestData.questions[j].value = '0';
+                }
+            }
+        }
+    })
+    requestData.questions.forEach(function(obj, i) {
+        if (Array.isArray(obj.value) && apz.isNull(obj.value[0])) {
+            var idnum = obj.id.match(/\d+/)[0];
+            Validation = false;
+            $('#' + 'Income__AddHouseHoldDetails__' + 'houseErrorText' + idnum + '_ul').removeClass('sno');
+            $('#' + 'Income__AddHouseHoldDetails__' + 'houseErrorText' + idnum + '_ul').text('Please enter the ' + obj.title +
+            ' details');
+        }
+    })
+}
+apz.app.AddHouseHoldDetails.addFamilyMembersDetails = function() {
+    apz.app.AddHouseHoldDetails.createRquest()
+    if (Validation) {
+        IncomeApp.checkedQues = true;
+        window.IncomeApp.screen = apz.childScr;
+        IncomeApp.payLoad.houseHoldDetails = requestData;
+        IncomeApp.status = 'QAUPDATE';
+        IncomeApp.workflow = {};
+        apz.app.CommonScript.updateIncomeAssesment();
+    }
+    //ApzCOB.launchMicroApp('Income', 'AddEarningFamilyMem', 'APZCBO__BaseScreens__BaseDIV', '');
+}
+apz.app.AddHouseHoldDetails.backNavigateIncomeDtls = function(pthis) {
+    IncomeApp.backNav = true;
+    var data = {
+        // KendraApp: KendraApp,
+        requestData: requestData,
+        kycDetails: kycDetails,
+        rowNo: rowNo,
+        checkedQues: true,
+        incomepayload: IncomeApp.payLoad
+    };
+    ApzCOB.launchMicroApp('Income', 'IncomeAssessment', 'APZCBO__BaseScreens__BaseDIV', data);
+}
+//function added to load question and options using interface
+apz.app.AddHouseHoldDetails.loadQuestion = function() {
+    $(aScrId + 'que_options_row').removeClass("sno");
+    apz.data.scrdata.Income__IPaintHouseHoldDetails_Res = {};
+    data.questions.forEach((value, index) => {
+        let queType = value.type;
+        if (value.mandatory) {
+            $("#Income__AddHouseHoldDetails__que_" + (index + 1) + '_div').removeClass("sno");
+        } else {
+            if (value.hasOwnProperty('value') && !apz.isNull(value.value[0])) {
+                $("#Income__AddHouseHoldDetails__que_" + (index + 1) + '_div').removeClass("sno");
+            } else {
+                $("#Income__AddHouseHoldDetails__que_" + (index + 1) + '_div').addClass("sno");
+            }
+        }
+        document.getElementById('Income__AddHouseHoldDetails__que_' + (index + 1) + '_title').innerText = value.title;
+        if (queType === "Radio" || queType === "Checkbox") {
+            apz.data.scrdata.Income__IPaintHouseHoldDetails_Res['Question' + (index + 1)] = apz.app.AddHouseHoldDetails.loadOptions(
+                queType, 'Question' + (index + 1), (index + 1));
+        } else {
+            $(aScrId + 'input_' + (index + 1) + '_row').removeClass("sno");
+            // $(aScrId + 'input_' + (index + 1) + '_row').closest('li').addClass('home-loan');
+        }
+    });
+    apz.data.loadData("IPaintHouseHoldDetails", apz.currAppId);
+    if (KendraApp.selectedCustomer.maritalStatus !== 'MARRIED') {
+        $('#Income__AddHouseHoldDetails__que_14_div').addClass('sno');
+        $('#Income__AddHouseHoldDetails__que_17_div').addClass('sno');
+    } else {
+        $('#Income__AddHouseHoldDetails__que_14_div').removeClass('sno');
+        $('#Income__AddHouseHoldDetails__que_17_div').removeClass('sno');
+    }
+    if (IncomeApp.backNav || screenData.backNav || screenData.editNav || IncomeApp.checkedQues || window.houseHoldDetails != "") {
+        apz.app.AddHouseHoldDetails.paintexstingData();
+    }
+}
+apz.app.AddHouseHoldDetails.paintexstingData = function() {
+    if (window.isUpdateIncome) {
+        window.isUpdateIncome = false;
+        IncomeApp.payLoad.houseHoldDetails = window.houseHoldDetails
+    }
+    IncomeApp.payLoad.houseHoldDetails.questions.forEach((value, index) => {
+        let queType = value.type;
+        var idnum = value['id'].match(/\d+/)[0];
+        //  console.log(value);
+        var checkbox = 'chk_opt_';
+        var radiobox = 'radio_opt_';
+        if (queType === "Radio") {
+            for (k = 0; k < value.value.length; k++) {
+                for (j = 0; j < value.options.length; j++) {
+                    if (value.value[k] === value.options[j]) {
+                        if ($("#Income__AddHouseHoldDetails__que_" + idnum + "_div").is(':visible')) {
+                            $("#Income__AddHouseHoldDetails__" + radiobox + idnum + '_' + j).prop('checked', true);
+                        } else {
+                            $("#Income__AddHouseHoldDetails__que_" + idnum + "_div").removeClass('sno');
+                            $("#Income__AddHouseHoldDetails__" + radiobox + idnum + '_' + j).prop('checked', true);
+                        }
+                    }
+                }
+            }
+        } else if (queType === "Checkbox") {
+            if ($("#Income__AddHouseHoldDetails__que_" + idnum + "_div").is(':visible')) {
+                for (k = 0; k < value.value.length; k++) {
+                    for (j = 0; j < value.options.length; j++) {
+                        if (value.value[k] === value.options[j]) {
+                            $("#Income__AddHouseHoldDetails__" + checkbox + idnum + '_' + j).prop('checked', true);
+                        }
+                    }
+                }
+            }
+        }
+    });
+   // IncomeApp.checkedQues = false;
+    IncomeApp.backNav = false;
+}
+apz.app.AddHouseHoldDetails.loadOptions = function(type, question, index) {
+    let itfOptions;
+    let options = data.questions[index - 1].options;
+    if (type === "Radio") {
+        itfOptions = options.map(option => ({
+            radio: option
+        }));
+        $(aScrId + 'radio_' + index + '_row').removeClass("sno");
+    } else if (type === "Checkbox") {
+        itfOptions = options.map(option => ({
+            checkbox: option
+        }));
+        $(aScrId + 'checkbox_' + index + '_row').removeClass("sno");
+    }
+    return itfOptions;
+}
+//convert check box as a radio button functionality
+apz.app.AddHouseHoldDetails.addingRatioButtonFunctionality = function(pthis) {
+    let idParts = pthis.id.split("__");
+    let questionInfo = idParts[2].split("_");
+    let questionNo = questionInfo[2];
+    let selQueNo = questionInfo[3];
+    let optionsList = apz.data.scrdata.Income__IPaintHouseHoldDetails_Res["Question" + questionNo];
+    $('#' + 'Income__AddHouseHoldDetails__' + 'houseErrorText' + questionNo + '_ul').addClass('sno');
+    optionsList.forEach(function(val, index) {
+        let optionId = `Income__AddHouseHoldDetails__radio_opt_${questionNo}_${index}`;
+        if (index != selQueNo) {
+            $("#" + optionId).prop("checked", false);
+        }
+    })
+}
+apz.app.AddHouseHoldDetails.checkboxErrorMsgHide = function(pthis) {
+    let idParts = pthis.id.split("__");
+    let questionInfo = idParts[2].split("_");
+    let questionNo = questionInfo[2];
+    let selQueNo = questionInfo[3];
+    let optionsList = apz.data.scrdata.Income__IPaintHouseHoldDetails_Res["Question" + questionNo];
+    $('#' + 'Income__AddHouseHoldDetails__' + 'houseErrorText' + questionNo + '_ul').addClass('sno');
+    /* optionsList.forEach(function(val, index) {
+         let optionId = `Income__AddHouseHoldDetails__radio_opt_${questionNo}_${index}`;
+         if (index != selQueNo) {
+            // $("#" + optionId).prop("checked", false);
+             $('#' + 'Income__AddHouseHoldDetails__' + 'houseErrorText' + selQueNo + '_' + 0).addClass('sno');
+         }
+     })*/
+}
+apz.app.AddHouseHoldDetails.onClickOfEdit = function() {
+    var data = {
+        //  KendraApp: KendraApp,
+        requestData: requestData,
+        checkedQues: true,
+        incomepayload: IncomeApp.payLoad
+        // kycDetails:kycDetails,
+        // rowNo:rowNo
+    };
+    ApzCOB.launchMicroApp('Income', 'IncomeAssessment', 'APZCBO__BaseScreens__BaseDIV', data);
+}
+apz.app.AddHouseHoldDetails.onClickofOtherAssest = function(pthis) {
+    let prowno = $(pthis).attr('rowno');
+    let textLength = $("#Income__AddHouseHoldDetails__ct_lst_105 ul li").length - 1;
+    if ($(pthis).prop('checked') && parseInt(prowno) == textLength) {
+        $("#Income__AddHouseHoldDetails__ct_lst_105 ul li").each(function(i) {
+            if (i !== textLength) {
+                $('#Income__AddHouseHoldDetails__chk_opt_7_' + i).prop('checked', false)
+            }
+        })
+    } else if (parseInt(prowno) !== textLength) {
+        $('#Income__AddHouseHoldDetails__chk_opt_7_' + textLength).prop('checked', false)
+    }
+}
+apz.app.AddHouseHoldDetails.onClickBasicAmenities = function(pthis) {
+    let prowno = $(pthis).attr('rowno');
+    let textLength = $("#Income__AddHouseHoldDetails__ct_lst_103 ul li").length;
+    if ($(pthis).prop('checked') && parseInt(prowno) === textLength) {
+        $("#Income__AddHouseHoldDetails__ct_lst_103 ul li").each(function(i) {
+            if (i !== textLength) {
+                $('#Income__AddHouseHoldDetails__chk_opt_6_' + i).prop('checked', false)
+            }
+        })
+    } else if (parseInt(prowno) !== textLength) {
+        $('#Income__AddHouseHoldDetails__chk_opt_6_' + textLength).prop('checked', false)
+    }
+}
+apz.app.AddHouseHoldDetails.OtherAssestchanges = function(pthis) {
+    let prowno = $(pthis).attr('rowno');
+    let textLength = $("#Income__AddHouseHoldDetails__ct_lst_110 ul li").length - 1;
+    var value = $(pthis).parent().parent().parent().find('p').find('span').text();
+    if ($(pthis).prop('checked')) {
+        switch (value) {
+            case "2-Wheeler":
+                $('#Income__AddHouseHoldDetails__que_8_div').removeClass('sno');
+                $('#' + 'Income__AddHouseHoldDetails__' + 'houseErrorText' + 8 + '_ul').addClass('sno');
+                $('#Income__AddHouseHoldDetails__chk_opt_7_' + 9).prop('checked', false);
+                let checkboxes1 = $(`input[id^='Income__AddHouseHoldDetails__radio_opt_${8}_']`);
+                checkboxes1.filter(':checked').prop('checked', false);
+                break;
+            case "3-Wheeler":
+                $('#Income__AddHouseHoldDetails__que_9_div').removeClass('sno');
+                $('#' + 'Income__AddHouseHoldDetails__' + 'houseErrorText' + 9 + '_ul').addClass('sno');
+                $('#Income__AddHouseHoldDetails__chk_opt_7_' + 9).prop('checked', false);
+                let checkboxes2 = $(`input[id^='Income__AddHouseHoldDetails__radio_opt_${9}_']`);
+                checkboxes2.filter(':checked').prop('checked', false);
+                break;
+            case "4-Wheeler":
+                $('#Income__AddHouseHoldDetails__que_10_div').removeClass('sno');
+                $('#' + 'Income__AddHouseHoldDetails__' + 'houseErrorText' + 10 + '_ul').addClass('sno');
+                $('#Income__AddHouseHoldDetails__chk_opt_7_' + 9).prop('checked', false);
+                let checkboxes3 = $(`input[id^='Income__AddHouseHoldDetails__radio_opt_${10}_']`);
+                checkboxes3.filter(':checked').prop('checked', false);
+                break;
+            case "Smartphone":
+                $('#Income__AddHouseHoldDetails__que_11_div').removeClass('sno');
+                $('#Income__AddHouseHoldDetails__que_12_div').removeClass('sno');
+                $('#' + 'Income__AddHouseHoldDetails__' + 'houseErrorText' + 11 + '_ul').addClass('sno');
+                $('#' + 'Income__AddHouseHoldDetails__' + 'houseErrorText' + 12 + '_ul').addClass('sno');
+                $('#Income__AddHouseHoldDetails__chk_opt_7_' + 9).prop('checked', false);
+                let checkboxes4 = $(`input[id^='Income__AddHouseHoldDetails__radio_opt_${11}_']`);
+                checkboxes4.filter(':checked').prop('checked', false);
+                let checkboxes5 = $(`input[id^='Income__AddHouseHoldDetails__radio_opt_${12}_']`);
+                checkboxes5.filter(':checked').prop('checked', false);
+                break;
+            case "None":
+                $('#Income__AddHouseHoldDetails__chk_opt_7_' + 0).prop('checked', false)
+                $('#Income__AddHouseHoldDetails__chk_opt_7_' + 1).prop('checked', false)
+                $('#Income__AddHouseHoldDetails__chk_opt_7_' + 2).prop('checked', false)
+                $('#Income__AddHouseHoldDetails__chk_opt_7_' + 3).prop('checked', false)
+                $('#Income__AddHouseHoldDetails__chk_opt_7_' + 4).prop('checked', false)
+                $('#Income__AddHouseHoldDetails__chk_opt_7_' + 5).prop('checked', false)
+                $('#Income__AddHouseHoldDetails__chk_opt_7_' + 6).prop('checked', false)
+                $('#Income__AddHouseHoldDetails__chk_opt_7_' + 7).prop('checked', false)
+                $('#Income__AddHouseHoldDetails__chk_opt_7_' + 8).prop('checked', false)
+                $('#Income__AddHouseHoldDetails__que_8_div').addClass('sno');
+                $('#Income__AddHouseHoldDetails__que_9_div').addClass('sno');
+                $('#Income__AddHouseHoldDetails__que_10_div').addClass('sno');
+                $('#Income__AddHouseHoldDetails__que_11_div').addClass('sno');
+                $('#Income__AddHouseHoldDetails__que_12_div').addClass('sno');
+                break;
+        }
+    } else {
+        switch (value) {
+            case "2-Wheeler":
+                $('#Income__AddHouseHoldDetails__que_8_div').addClass('sno');
+                break;
+            case "3-Wheeler":
+                $('#Income__AddHouseHoldDetails__que_9_div').addClass('sno');
+                break;
+            case "4-Wheeler":
+                $('#Income__AddHouseHoldDetails__que_10_div').addClass('sno');
+                break;
+            case "Smartphone":
+                $('#Income__AddHouseHoldDetails__que_11_div').addClass('sno');
+                $('#Income__AddHouseHoldDetails__que_12_div').addClass('sno');
+                break;
+            case "None":
+                break;
+        }
+    }
+}

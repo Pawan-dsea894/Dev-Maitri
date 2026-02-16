@@ -1,0 +1,46 @@
+LIT_CODE~LIT_DESC
+LIT_CUSTVER_DLBL1~رقم Aadhaar أو VID
+LIT_CUSTVER_DLBL2~أدخل رقم Aadhaar أو VID
+LIT_CUSTVER_DLBL3~الرجاء إدخال رقم Aadhaar أو VID صالح
+LIT_CUSTVER_DLBL4~لنفتح حسابك
+LIT_CUSTVER_DLBL5~الأشياء التي يجب أن تكون في متناول اليد لفتح الحساب
+LIT_CUSTVER_DLBL6~لنفتح حسابك
+LIT_CUSTVER_DLBL7~الأشياء التي يجب أن تكون في متناول اليد لفتح الحساب
+LIT_CUSTVER_DLBL8~لنفتح حسابك
+LIT_CUSTVER_DLBL9~الأشياء التي يجب أن تكون في متناول اليد لتقديم طلب للحصول على بطاقة الائتمان
+LIT_CUSTVER_DLBL10~لنفتح حسابك
+LIT_CUSTVER_DLBL11~الأشياء التي يجب أن تكون في متناول اليد للتقدم بطلب للحصول على قرض
+LIT_UPDOC_DLBL2~الصورة والتوقيع
+LIT_UPDOC_DLBL1~الصورة والتوقيع
+LIT_UPDOC_DLBL4~إثبات العنوان
+LIT_UPDOC_DLBL3~إثبات العنوان
+LIT_UPDOC_DLBL6~إثبات الهوية
+LIT_UPDOC_DLBL5~إثبات الهوية
+LIT_UPDOC_DLBL8~تحميل كشف حساب آخر 3 أشهر
+LIT_UPDOC_DLBL7~مستندات أخرى
+LIT_KYCVER_DLBL4~صور الهوية الوطنية الأمامية والخلفية
+LIT_KYCVALID_DLBL2~تحقق من تحميل صور الهوية الوطنية الخاصة بك
+LIT_KYCVER_DLBL2~سوف نتحقق من هويتك الوطنية من خلال نظام خارجي ونحصل على التفاصيل
+LIT_KYCVER_DLBL3~صور الهوية الوطنية التي تم تحميلها
+LIT_KYCVER_DLBL5~جبهة الهوية الوطنية
+LIT_KYCVER_RDLBL1~ستتم إعادة توجيه هذه الصفحة إلى UIDAI للتحقق من Aadhaar
+LIT_KYCVER_PLBL1~أو - أدخل رقم Aadhaar
+LIT_KYCVALID_DLBL1~مستند اعرف عميلك (KYC)
+LIT_KYCVER_DLBL1~قم بتحميل هويتك الوطنية لمستندات KYC
+LIT_KYCVER_DLBL6~عودة الهوية الوطنية
+LIT_WIDGET_LABEL_DLBL1~في تَقَدم
+LIT_WIDGET_LABEL_DLBL2~قيد الانتظار
+LIT_WIDGET_LABEL_DLBL3~مكتمل
+LIT_WIDGET_LABEL_DLBL4~مرفوض
+LIT_WIDGET_LABEL_DLBL5~العملاء المحتملون المعينون
+LIT_KYC_EMIRATES_VALID_DLBL2~تحقق من صور الهوية الإماراتية التي تم تحميلها
+LIT_KYC_EMIRATES_VER_DLBL4~تحقق من صور الهوية الإماراتية التي تم تحميلها
+LIT_KYC_EMIRATES_VER_DLBL2~سوف نتحقق من هوية الإمارات الخاصة بك باستخدام نظام خارجي ونحصل على التفاصيل
+LIT_KYC_EMIRATES_VER_DLBL5~واجهة هوية الإمارات
+LIT_KYC_EMIRATES_VER_RDLBL1~ستتم إعادة توجيه هذه الصفحة إلى UIDAI للتحقق من هوية الإمارات
+LIT_KYC_EMIRATES_VER_PLBL1~أو - أدخل هوية الإمارات
+LIT_KYC_EMIRATES_VER_DLBL1~قم بتحميل هوية الإمارات الخاصة بك لمستندات اعرف عميلك
+LIT_KYC_EMIRATES_VER_DLBL6~عودة الهوية الإماراتية
+LIT_KYC_EMIRATES_VER_DLBL3~Emirates ID Uploaded Images
+LIT_NON_PERIOD~6
+LIT_NON_ELI_CONTCTNO~1800 624 5677

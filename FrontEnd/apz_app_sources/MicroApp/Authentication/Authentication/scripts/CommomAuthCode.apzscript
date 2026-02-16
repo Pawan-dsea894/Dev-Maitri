@@ -1,0 +1,84 @@
+  var postLoginScrn = apz.currScr.split("_")[0];
+  apz.app.CommomAuthCode = {};
+  var screenID = "Authen__OTPAuthentication__";
+  var DualAuthScreenID = "Authen__DualAuth__";
+  window.otpRegenCount = 3;
+  apz.app.CommomAuthCode.TimerEnd = function() {
+      if (apz.getElmValue('Authen__OTPAuthentication__otptimertext') === "0:00") {
+          clearInterval(selInterval);
+      }
+      if (apz.childScr === 'OTPAuthentication') {
+          if (window.otpRegenCount !== RegenCount) {
+              $("#" + screenID + "Regenerateotp").removeClass("sno");
+              $("#" + screenID + "Regenerateotp_ul").removeClass("sno");
+              $("#" + screenID + "otpExpiredMsg").removeClass("sno");
+              $("#" + screenID + "otpSecText_ul").removeClass("sno");
+              $("#" + screenID + "otptimertext_ul").removeClass("sno");
+              $("#" + screenID + "otpExpiredErrDiv").addClass("sno");
+              $("#" + screenID + "expiryDIV").addClass("sno");
+              $("#" + screenID + "dummyotptxt").removeClass("sno");
+              $("#" + screenID + "otpSubmitBtn").attr('disabled', false);
+          } else if (!ShowError) {
+              window.ShowError = true;
+              // ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_OTP_REGEN_ERROR"), 'E', ApzCOB.launchDashboard);
+              /**BEFOR-SONAR QUBE- FIXES exisiting code */
+            //   if (postLoginScrn === 'PostLogin') {
+            //       // ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_OTP_REGEN_ERROR"), 'E', ApzCOB.launchDashboard);
+            //       $("#" + screenID + "otpSecText_ul").addClass("sno");
+            //       $("#" + screenID + "otptimertext_ul").addClass("sno");
+            //       $("#" + screenID + "otpExpiredErrDiv").removeClass("sno");
+            //       $("#" + screenID + "otpSubmitBtn").attr('disabled', true);
+            //       $("#" + screenID + "otpExpiredMsg").addClass("sno");
+            //   } else {
+            //       // ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_OTP_REGEN_ERROR"), 'E', apz.app.PreLogin_BaseScreen
+            //       //     .launchpreloginbasescreenforOTP);
+            //       $("#" + screenID + "otpSecText_ul").addClass("sno");
+            //       $("#" + screenID + "otptimertext_ul").addClass("sno");
+            //       $("#" + screenID + "dummyotptxt").addClass("sno");
+            //       $("#" + screenID + "otpExpiredErrDiv").removeClass("sno");
+            //       $("#" + screenID + "otpSubmitBtn").attr('disabled', true);
+            //       $("#" + screenID + "otpExpiredMsg").addClass("sno");
+            //   }
+            /**SONAR QUBE- FIXES */
+               $("#" + screenID + "otpSecText_ul").addClass("sno");
+                  $("#" + screenID + "otptimertext_ul").addClass("sno");
+                  $("#" + screenID + "dummyotptxt").addClass("sno");
+                  $("#" + screenID + "otpExpiredErrDiv").removeClass("sno");
+                  $("#" + screenID + "otpSubmitBtn").attr('disabled', true);
+                  $("#" + screenID + "otpExpiredMsg").addClass("sno");
+          }
+      } else {
+          if (window.otpRegenCount !== RegenCount) {
+              $("#" + screenID + "Regenerateotp").removeClass("sno");
+              $("#" + screenID + "Regenerateotp_ul").removeClass("sno");
+              $("#" + screenID + "otpSecText_ul").removeClass("sno");
+              $("#" + screenID + "otptimertext_ul").removeClass("sno");
+              $("#" + screenID + "otpExpiredErrDiv").addClass("sno");
+              $("#" + screenID + "expiryDIV").addClass("sno");
+              $("#" + screenID + "dummyotptxt").removeClass("sno");
+              $("#" + screenID + "otpSubmitBtn").attr('disabled', false);
+              $("#" + screenID + "otpExpiredMsg").removeClass("sno");
+          } else if (!ShowError) {
+              window.ShowError = true;
+              // ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_OTP_REGEN_ERROR"), 'E', ApzCOB.launchDashboard);
+              if (postLoginScrn === 'PostLogin') {
+                  //ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_OTP_REGEN_ERROR"), 'E', ApzCOB.launchDashboard);
+                  $("#" + screenID + "otpSecText_ul").addClass("sno");
+                  $("#" + screenID + "otptimertext_ul").addClass("sno");
+                  $("#" + screenID + "otpExpiredErrDiv").removeClass("sno");
+                  $("#" + screenID + "dummyotptxt").addClass("sno");
+                  $("#" + screenID + "otpSubmitBtn").attr('disabled', true);
+                  $("#" + screenID + "otpExpiredMsg").addClass("sno");
+              } else {
+                  // ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_OTP_REGEN_ERROR"), 'E', apz.app.PreLogin_BaseScreen
+                  //     .launchpreloginbasescreenforOTP);
+                  $("#" + screenID + "otpSecText_ul").addClass("sno");
+                  $("#" + screenID + "otptimertext_ul").addClass("sno");
+                  $("#" + screenID + "otpExpiredErrDiv").removeClass("sno");
+                  $("#" + screenID + "dummyotptxt").addClass("sno");
+                  $("#" + screenID + "otpSubmitBtn").attr('disabled', true);
+                  $("#" + screenID + "otpExpiredMsg").addClass("sno");
+              }
+          }
+      }
+  };

@@ -1,0 +1,289 @@
+var AuditOnHoldScrId = 'Audit__AuditTrail__';
+var custData, auditDtls, viewAuditTrialArr = [],
+    auditTrialArr = [];
+var isRepeatedSanctionStageId = false;
+var isRepeatedDisbursementStageId = false;
+var isRepeatedCrtApprovedSanctionStageId = false;
+var isCrtPending = false
+var updatedArray, loanAmtChanges = [],
+    repaymentFreqChanges = [],
+    productChanges = [],
+    productTypeChanges = [],
+    purposeChanges = [],
+    subPurposeChanges = [],
+    insuranceChanges = [];
+apz.app.onLoad_AuditTrail = function(params) {
+    //initialization
+};
+apz.app.onShown_AuditTrail = function(params) {
+    custData = params;
+    apz.app.AuditTrail.paintViewAuditTrailData();
+    apz.app.AuditTrail.compareLoanAmount();
+};
+apz.app.AuditTrail.backNavigate = function() {
+    window.ViewAuditTrail = true
+    //ApzCOB.launchMicroApp("Audit", "LoanApplicationPending", 'APZCBO__BaseScreens__BaseDIV', custData);
+    ApzCOB.launchMicroApp("Audit", "AllLoanApplication", 'APZCBO__BaseScreens__BaseDIV', custData);
+}
+apz.app.AuditTrail.paintViewAuditTrailData = function() {
+    var stageName, userName, userRole;
+    if (!apz.isNull(window.auditTrialData) && window.auditTrialData.auditTrailData.length > 0) {
+        window.auditTrialData.auditTrailData.forEach(function(el, i) {
+            stageName = window.auditTrialData.auditTrailData[i].stageId ? (window.StageName[parseInt(window.auditTrialData.auditTrailData[
+                    i].stageId) - 1] ? window.StageName[parseInt(window.auditTrialData.auditTrailData[i].stageId) - 1].stageName :
+                '-') : '-'
+            userName = window.auditTrialData.auditTrailData[i].userId ?? ''
+            userRole = window.auditTrialData.auditTrailData[i].userRole ?? ''
+            var obj = {
+                stageId: window.auditTrialData.auditTrailData[i].stageId,
+                stageName: stageName,
+                userName: 'By' + ' ' + userName + '(' + userRole + ')',
+                date: window.auditTrialData.auditTrailData[i].createDate ?? 'NO DATA',
+                product: JSON.parse(window.auditTrialData.auditTrailData[i].payload).shortDesc ?? 'NO DATA',
+                amount: window.auditTrialData.auditTrailData[i].loanAmt ? window.auditTrialData.auditTrailData[i].loanAmt : 'NO DATA',
+                createTs: window.auditTrialData.auditTrailData[i].createTs ?? 'NO DATA'
+            }
+            auditTrialArr.push(obj)
+        })
+    }
+    auditTrialArr.forEach((item, index) => {
+        if (index === 0) {
+            viewAuditTrialArr.push(item);
+            return;
+        }
+        const prev = viewAuditTrialArr[viewAuditTrialArr.length - 1];
+        if (prev.stageId === item.stageId) {
+            if (item.stageId === '4') {
+                isCrtPending = true;
+            } else if (item.stageId === '8') {
+                isRepeatedSanctionStageId = true;
+            } else if (item.stageId === '15') {
+                isRepeatedDisbursementStageId = true;
+            }else if(item.stageId === '9'){
+                isRepeatedCrtApprovedSanctionStageId = true;
+            }
+            // Compare timestamps
+            if (item.createTs > prev.createTs) {
+                viewAuditTrialArr[viewAuditTrialArr.length - 1] = item; // Replace with newer
+            }
+        } else {
+            viewAuditTrialArr.push(item); // Different stageId, keep
+        }
+    });
+    if (viewAuditTrialArr.length > 0) {
+        apz.data.scrdata.Audit__ViewAuditTrailData_Res = {};
+        apz.data.scrdata.Audit__ViewAuditTrailData_Res.ViewAuditTrail = viewAuditTrialArr;
+        apz.data.loadData("ViewAuditTrailData", 'Audit');
+        // $("#Audit__LoanApplicationPending__takeAction_" + (auditTrialArr.length - 1)).removeClass("sno");
+        // $("#Audit__LoanApplicationPending__el_icn_60_" + (auditTrialArr.length - 1)).addClass("sno");
+        // $("#Audit__LoanApplicationPending__el_icn_61_" + (auditTrialArr.length - 1)).removeClass("sno");
+    }
+}
+apz.app.AuditTrail.hideNshow = function(pthis) {
+    var updatedDataArr = [];
+    var id = (pthis.id).match(/\d+/)[0];
+    let block = $(`#${'Audit__AuditTrail__auditList_row_'+id} #${'Audit__AuditTrail__stage2_row'}`);
+    if ((block).hasClass('sno')) {
+        block.removeClass('sno');
+        $(`#${'Audit__AuditTrail__auditList_row_'+id} #${'Audit__AuditTrail__stage1_row'}`).addClass("sno");
+        $(`#${'Audit__AuditTrail__auditList_row_'+id} #${'Audit__AuditTrail__modified_row'}`).removeClass("sno");
+    } else {
+        block.addClass('sno');
+        $(`#${'Audit__AuditTrail__auditList_row_'+id} #${'Audit__AuditTrail__stage1_row'}`).removeClass("sno");
+        $(`#${'Audit__AuditTrail__auditList_row_'+id} #${'Audit__AuditTrail__modified_row'}`).addClass("sno");
+    }
+}
+apz.app.AuditTrail.compareLoanAmount = function() {
+    var targetId, uniqueId, id, clonedRow;
+    var updatedDataArr = [];
+    loanAmtChanges = [], repaymentFreqChanges = [], productTypeChanges = [], purposeChanges = [], subPurposeChanges = [],insuranceChanges = [];
+    var loanAmtAudit = window.auditTrialData.auditTrailData;
+    if (loanAmtAudit.length > 1) {
+        loanAmtAudit.sort((a, b) => new Date(a.createTs) - new Date(b.createTs));
+        for (let i = 1; i < loanAmtAudit.length; i++) {
+            //loanAmt
+            let prevRecord = loanAmtAudit[i - 1];
+            let currentRecord = loanAmtAudit[i];
+            if (parseInt(prevRecord.loanAmt) !== parseInt(currentRecord.loanAmt)) {
+                let loanAmount = '₹' + prevRecord.loanAmt + ' ' + '->' + ' ' + '₹' + currentRecord.loanAmt
+                var obj = {
+                    loanAmt: loanAmount,
+                    userRole: loanAmtAudit[i].userRole,
+                    userName: loanAmtAudit[i].userId,
+                    stageId: loanAmtAudit[i].stageId,
+                    time:loanAmtAudit[i].createTs
+                }
+                loanAmtChanges.push(obj);
+            }
+            //frequency
+            let prevFreq = JSON.parse(prevRecord.payload).repaymentFrequency;
+            let currFreq = JSON.parse(currentRecord.payload).repaymentFrequency;
+            if (prevFreq !== currFreq) {
+                repaymentFreqChanges.push({
+                    freqChange: prevFreq.match(/idDesc\s*=\s*([^\s}]+)/)[1] + ' -> ' + currFreq.match(/idDesc\s*=\s*([^\s}]+)/)[1],
+                    stageId: loanAmtAudit[i].stageId,
+                    time:loanAmtAudit[i].createTs
+                });
+            }
+            //product Type
+            let prevProdType = JSON.parse(prevRecord.payload).productType;
+            let currProdType = JSON.parse(currentRecord.payload).productType;
+            if (prevProdType !== currProdType) {
+                productTypeChanges.push({
+                    ProdType: `${prev.currProdType} -> ${curr.productType}`,
+                    userRole: curr.userRole,
+                    userName: curr.userId,
+                    stageId: loanAmtAudit[i].stageId,
+                    time:loanAmtAudit[i].createTs
+                });
+            }
+            //purpose
+            let prevPurpose = prevRecord.purpose?.match(/purposeDesc=([^,}]*)/)?.[1]?.trim();
+            let currPurpose = currentRecord.purpose?.match(/purposeDesc=([^,}]*)/)?.[1]?.trim();
+            if ((prevPurpose && currPurpose) && prevPurpose !== currPurpose) {
+                purposeChanges.push({
+                    Purpose: `${prevPurpose} -> ${currPurpose}`,
+                    stageId: loanAmtAudit[i].stageId,
+                    time:loanAmtAudit[i].createTs
+                });
+            }
+            //sub purpose
+            let prevSubPurpose = prevRecord.purpose?.match(/productSubPurpose=([^,}]*)/)?.[1]?.trim();
+            let currSubPurpose = currentRecord.purpose?.match(/productSubPurpose=([^,}]*)/)?.[1]?.trim();
+            if ((prevSubPurpose && currSubPurpose) && prevSubPurpose !== currSubPurpose) {
+                subPurposeChanges.push({
+                    subPurpose: `${prevSubPurpose} -> ${currSubPurpose}`,
+                    stageId: loanAmtAudit[i].stageId,
+                    time:loanAmtAudit[i].createTs
+                });
+            }
+            // insurance
+            let prevInsur,currInsur,prevMemberInsur,currMemberInsur,currSpouseInsur,prevSpouseInsur,prevInsurCharges,currInsurCharges;
+            prevInsur = JSON.parse(prevRecord.payload).insuranceDetails
+            currInsur = JSON.parse(currentRecord.payload).insuranceDetails
+            if (typeof prevInsur === "object") {
+                prevMemberInsur = prevInsur.member;
+                prevSpouseInsur = prevInsur.Spouse;
+                prevInsurCharges = prevInsur.insurCharges;
+            }else if (typeof prevInsur === "string") {
+                prevMemberInsur = prevInsur.match(/member=([^,}]*)/)?.[1]?.trim();
+                prevSpouseInsur = prevInsur.match(/Spouse=([^,}]*)/)?.[1]?.trim();
+                prevInsurCharges =  prevInsur.match(/insurCharges=([^,}]*)/)?.[1]?.trim();
+            }
+             if (typeof currInsur === "object") {
+                currMemberInsur = currInsur.member;
+                currSpouseInsur = currInsur.Spouse;
+                currInsurCharges = currInsur.insurCharges;
+            }else if (typeof currInsur === "string") {
+                currMemberInsur = currInsur.match(/member=([^,}]*)/)?.[1]?.trim();
+                currSpouseInsur = currInsur.match(/Spouse=([^,}]*)/)?.[1]?.trim();
+                currInsurCharges = currInsur.match(/insurCharges=([^,}]*)/)?.[1]?.trim();
+            }
+            if ((prevMemberInsur && currMemberInsur) && prevMemberInsur !== currMemberInsur) {
+                insuranceChanges.push({
+                    memberInsur: `${prevMemberInsur} -> ${currMemberInsur}`,
+                    stageId: loanAmtAudit[i].stageId,
+                    time:loanAmtAudit[i].createTs
+                });
+            }
+            if ((prevSpouseInsur && currSpouseInsur) && prevSpouseInsur !== currSpouseInsur) {
+                insuranceChanges.push({
+                    spouseInsur: `${prevSpouseInsur} -> ${currSpouseInsur}`,
+                    stageId: loanAmtAudit[i].stageId,
+                    time:loanAmtAudit[i].createTs
+                });
+            }
+            if ((prevInsurCharges && currInsurCharges) && prevInsurCharges !== currInsurCharges) {
+                insuranceChanges.push({
+                    insurCharges: `₹ ${prevInsurCharges} -> ₹ ${currInsurCharges}`,
+                    stageId: loanAmtAudit[i].stageId,
+                    time:loanAmtAudit[i].createTs
+                });
+            }
+        }
+        updatedArray = loanAmtChanges.concat(repaymentFreqChanges, subPurposeChanges, purposeChanges,insuranceChanges);
+        if (updatedArray.length > 0) {
+            const stageFlagMap = {
+                isCrtPending: '4',
+                isRepeatedSanctionStageId: '8',
+                isRepeatedCrtApprovedSanctionStageId:'9',
+                isRepeatedDisbursementStageId: '15'
+            };
+            // Collect all active stageIds from flags
+            const activeStageIds = Object.keys(stageFlagMap).filter(flag => window[flag]) // Check if the flag is true
+                .map(flag => stageFlagMap[flag]);
+            apz.data.scrdata.Audit__ViewAuditTrailData_Res.ViewAuditTrail.forEach(function(k, ind) {
+                if (activeStageIds.includes(k.stageId)) {
+                    updatedDataArr = [];
+                    updatedArray.forEach(function(item, i) {
+                        if (k.stageId === item.stageId) {
+                            updatedDataArr.push(item)
+                        }
+                    })
+                    if (updatedDataArr.length > 0) {
+                        $('#Audit__AuditTrail__iconDd_' + ind).removeClass("sno");
+                        updatedDataArr.sort((a, b) => new Date(a.time) - new Date(b.time));
+                        id = 0;
+                        for (i = 0;(updatedDataArr.length - 1) >= i; i++) {
+                            targetId = $('#Audit__AuditTrail__loanMainDiv_row')
+                            uniqueId = `Audit__AuditTrail__loanMainDiv_row_${id}`;
+                            clonedRow = targetId.clone(); // clone the element
+                            clonedRow.attr('id', uniqueId);
+                            clonedRow.find('[id]').each(function() {
+                                const oldId = $(this).attr('id');
+                                const newId = `${oldId}_${id}`;
+                                $(this).attr('id', newId);
+                            });
+                            $(`#${'Audit__AuditTrail__auditList_row_'+ind} #${'Audit__AuditTrail__sc_col_1117_li'}`).append(clonedRow)
+                            clonedRow.removeClass('sno')
+                            if (!apz.isNull(updatedDataArr[i].loanAmt)) {
+                                $(`#${'Audit__AuditTrail__auditList_row_'+ind} #${'Audit__AuditTrail__loanValue_0_txtcnt_'+i}`).text(
+                                    updatedDataArr[i].loanAmt);
+                                $(`#${'Audit__AuditTrail__auditList_row_'+ind} #${'Audit__AuditTrail__loanText_0_txtcnt_'+i}`).text(
+                                    'Loan Amount');
+                                id += 1;
+                            } else if (!apz.isNull(updatedDataArr[i].freqChange)) {
+                                $(`#${'Audit__AuditTrail__auditList_row_'+ind} #${'Audit__AuditTrail__loanValue_0_txtcnt_'+i}`).text(
+                                    updatedDataArr[i].freqChange);
+                                $(`#${'Audit__AuditTrail__auditList_row_'+ind} #${'Audit__AuditTrail__loanText_0_txtcnt_'+i}`).text(
+                                    'Repayment Frequecy');
+                                id += 1;
+                            } else if (!apz.isNull(updatedDataArr[i].subPurpose)) {
+                                $(`#${'Audit__AuditTrail__auditList_row_'+ind} #${'Audit__AuditTrail__loanValue_0_txtcnt_'+i}`).text(
+                                    updatedDataArr[i].subPurpose);
+                                $(`#${'Audit__AuditTrail__auditList_row_'+ind} #${'Audit__AuditTrail__loanText_0_txtcnt_'+i}`).text(
+                                    'Sub purpose');
+                                id += 1;
+                            } else if (!apz.isNull(updatedDataArr[i].Purpose)) {
+                                $(`#${'Audit__AuditTrail__auditList_row_'+ind} #${'Audit__AuditTrail__loanValue_0_txtcnt_'+i}`).text(
+                                    updatedDataArr[i].Purpose);
+                                $(`#${'Audit__AuditTrail__auditList_row_'+ind} #${'Audit__AuditTrail__loanText_0_txtcnt_'+i}`).text(
+                                    'Purpose');
+                                id += 1;
+                            }
+                            else if (!apz.isNull(updatedDataArr[i].memberInsur)) {
+                                $(`#${'Audit__AuditTrail__auditList_row_'+ind} #${'Audit__AuditTrail__loanValue_0_txtcnt_'+i}`).text(
+                                    updatedDataArr[i].memberInsur);
+                                $(`#${'Audit__AuditTrail__auditList_row_'+ind} #${'Audit__AuditTrail__loanText_0_txtcnt_'+i}`).text(
+                                    'Member Insurance');
+                                id += 1;
+                            }else if (!apz.isNull(updatedDataArr[i].spouseInsur)) {
+                                $(`#${'Audit__AuditTrail__auditList_row_'+ind} #${'Audit__AuditTrail__loanValue_0_txtcnt_'+i}`).text(
+                                    updatedDataArr[i].spouseInsur);
+                                $(`#${'Audit__AuditTrail__auditList_row_'+ind} #${'Audit__AuditTrail__loanText_0_txtcnt_'+i}`).text(
+                                    'Spouse Insurance');
+                                id += 1;
+                            }else if (!apz.isNull(updatedDataArr[i].insurCharges)) {
+                                $(`#${'Audit__AuditTrail__auditList_row_'+ind} #${'Audit__AuditTrail__loanValue_0_txtcnt_'+i}`).text(
+                                    updatedDataArr[i].insurCharges);
+                                $(`#${'Audit__AuditTrail__auditList_row_'+ind} #${'Audit__AuditTrail__loanText_0_txtcnt_'+i}`).text(
+                                    'Insurance Charges');
+                                id += 1;
+                            }
+                        }
+                    }
+                }
+            })
+        }
+    } else {}
+}

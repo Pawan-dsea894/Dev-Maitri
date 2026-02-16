@@ -1,0 +1,164 @@
+/*
+ * Code by Sathish
+ * Date 29-08-2024
+ * In prams send the success message as "succMsg"
+ * In params secondary message as "subHeader"
+ * and to show more info data send in key value pair as "moreInfo" -> as info and desc
+ */
+var kenMetSucScrId = "KenMet__kenSuccessScreen__";
+var prevScr = '';
+var collectionSelectedRow = '';
+var pendingUpdateRes = [];
+var memPendingTypes = [{
+    "key": "All",
+    "value": "All"
+}, {
+    "key": "Mobile Number",
+    "value": "Mobile Number"
+    // }, {
+    //     "key": "Income",
+    //     "value": "Income"
+    // }, {
+    //     "key": "Address",
+    //     "value": "Address"
+    // }, {
+    //     "key": "KYC",
+    //     "value": "KYC"
+    // }, {
+    //     "key": "Location",
+    //     "value": "Location"
+}]
+apz.app.onLoad_kenSuccessScreen = function(params) {
+    //write code here
+    $("#header").addClass("sno");
+    $("#footer").addClass("sno");
+    apz.data.scrdata.KenMet__IPaintSucessData_Res = [];
+}
+apz.app.onShown_kenSuccessScreen = function(params) {
+    apz.stopLoader();
+    if (params.fromScreen) {
+        if (params.fromScreen === 'KMDashboard') {
+            collectionSelectedRow = params.collectionKendraRow;
+        } else if (params.fromScreen === 'BMApproval') {
+            ApzCOB.fetchDeathIntimationBMDetails('approvalSuccessScr');
+            if (params.failureScr) {
+                $("#" + kenMetSucScrId + 'succScrMainDiv').addClass('failed');
+                $("#" + kenMetSucScrId + 'moreDetailsDiv').addClass('flr-bg');
+            }
+        }
+        prevScr = params.fromScreen;
+        if (params.fromScreen === 'LocationCapture') {
+            $("#" + kenMetSucScrId + 'close_icon').removeClass('sno');
+        } else {
+            $("#" + kenMetSucScrId + 'close_icon').addClass('sno');
+        }
+    } else {
+        $("#" + kenMetSucScrId + 'close_icon').addClass('sno');
+    }
+    if (params.subHeader) {
+        apz.setElmValue(kenMetSucScrId + 'subHeader', params.subHeader);
+    }
+    if (params.hasOwnProperty('isFromGroupDetails') && params.isFromGroupDetails) {
+        document.getElementById(kenMetSucScrId + 'successMessage').innerText = ApzCOB.getDescfromLitCode('LIT_COL_LBL_FINALSUCCMSG');
+        prevScr = 'GroupsData'
+    }
+    document.getElementById(kenMetSucScrId + 'successMessage').innerText = params.succMsg;
+    apz.data.scrdata.KenMet__IPaintSucessData_Res.moreInfoData = params.moreInfo;
+    apz.data.loadData('IPaintSucessData', 'KenMet');
+    if (prevScr === 'GroupsData') {
+        apz.data.scrdata.KenMet__IPaintSucessData_Res.moreInfoData.forEach((obj, i) => {
+            if (i === 1 || i === 5) {
+                $('#KenMet__IPaintSucessData__o__moreInfoData__info_' + i).closest('li').addClass('brd-btm pb20');
+            }
+        })
+    }
+    if (params.prevScr) {
+        prevScr = params.prevScr;
+    }
+    apz.app.kenSuccessScreen.loadPendingDetails();
+}
+apz.app.kenSuccessScreen.closeApp = function() {
+    if (prevScr === "GroupsData") {
+        apz.app.KMDashboard.fromSuccessScreen();
+    } else if (prevScr === "KMDashboard") {
+        // let launchObj = {};
+        // launchObj = apz.data.scrdata.Widget__IPaintKendMeetings_Res.WidgetData[collectionSelectedRow];
+        // launchObj.kendraDet = collectionKendraData[collectionSelectedRow];
+        // var launchData = [];
+        // launchData = launchObj;
+        // ApzCOB.launchMicroApp("KenMet", "KMDashboard", "APZCBO__BaseScreens__BaseDIV", launchData);
+        ApzCOB.dashboardAppListAPI();
+    } else if (prevScr === "NonMeetingFab") {
+        let params = {};
+        params.flow = "fab";
+        ApzCOB.launchMicroApp('KenMet', 'NonMeetingDayColl', 'APZCBO__BaseScreens__BaseDIV', params);
+    } else {
+        ApzCOB.dashboardAppListAPI();
+    }
+}
+apz.app.kenSuccessScreen.clickMoreOptionsBtn = function() {
+    if (document.getElementById(kenMetSucScrId + "moreDetailsDiv").classList.contains("sno")) {
+        document.getElementById(kenMetSucScrId + "moreDetailsDiv").classList.remove("sno");
+        $("#" + kenMetSucScrId + 'moreDetBtn').addClass('active');
+    } else {
+        document.getElementById(kenMetSucScrId + "moreDetailsDiv").classList.add("sno");
+        $("#" + kenMetSucScrId + 'moreDetBtn').removeClass('active');
+    }
+}
+apz.app.kenSuccessScreen.loadPendingDetails = function() {
+    if (prevScr === 'GroupsData') {
+        apz.data.scrdata.KenMet__IPaintPendMemTypes_Res = [];
+        apz.data.scrdata.KenMet__IPaintPendMemTypes_Res = memPendingTypes;
+        apz.data.loadData('IPaintPendMemTypes', "KenMet");
+        $('#' + kenMetSucScrId + 'lst_pendingTypesList_row_0').addClass('active');
+        pendingUpdateRes = kendraResponse.filter(obj => obj.kendraDtls.kendraId === parseInt(selectedKendra.kendraId))
+        let custMobileUpdateArr = pendingUpdateRes[0].kendraDtls.customerDtls.filter(cust => cust.mobileNum === "");
+        if (custMobileUpdateArr.length > 0) {
+            document.getElementById(kenMetSucScrId + 'row_pendCustDetails').classList.remove('sno');
+            document.getElementById(kenMetSucScrId + 'row_pendingMemDetails').classList.remove('sno');
+            document.getElementById(kenMetSucScrId + 'frm_noPendUpdCust').classList.add('sno');
+            apz.data.scrdata.KenMet__IPaintPendMemDetails_Res = [];
+            apz.data.scrdata.KenMet__IPaintPendMemDetails_Res = custMobileUpdateArr;
+            apz.data.loadData('IPaintPendMemDetails', "KenMet");
+        } else {
+            document.getElementById(kenMetSucScrId + 'row_pendCustDetails').classList.add('sno');
+            document.getElementById(kenMetSucScrId + 'frm_noPendUpdCust').classList.remove('sno');
+            document.getElementById(kenMetSucScrId + 'row_pendingMemDetails').classList.add('sno');
+        }
+    }
+}
+apz.app.kenSuccessScreen.loadParticType = function(pthis) {
+    let clickedRow = $(pthis).attr('rowno');
+    //code below logic to show for other pending types
+    // if (clickedRow === "0") {
+    // } else {
+    // }
+    pendingUpdateRes = kendraResponse.filter(obj => obj.kendraDtls.kendraId === parseInt(selectedKendra.kendraId))
+    let selGrpId = parseInt(document.getElementById(grpDataScrId + 'txt_groupName').innerText.split(' ')[1])
+    let custMobileUpdateArr = pendingUpdateRes[0].kendraDtls.customerDtls.filter(cust => cust.mobileNum === "" && cust.groupId === selGrpId)
+    if (custMobileUpdateArr.length > 0) {
+        document.getElementById(kenMetSucScrId + 'row_pendCustDetails').classList.remove('sno');
+        document.getElementById(kenMetSucScrId + 'row_pendingMemDetails').classList.remove('sno');
+        document.getElementById(kenMetSucScrId + 'frm_noPendUpdCust').classList.add('sno');
+        apz.data.scrdata.KenMet__IPaintPendMemDetails_Res = [];
+        apz.data.scrdata.KenMet__IPaintPendMemDetails_Res = custMobileUpdateArr;
+        apz.data.loadData('IPaintPendMemDetails', "KenMet");
+    }
+    //document.getElementById(kenMetSucScrId + 'lst_pendingTypesList li').removeClass('active');
+    apz.data.scrdata.KenMet__IPaintPendMemTypes_Res.forEach((d, i) =>{
+         $('#' + kenMetSucScrId + 'lst_pendingTypesList_row_' + i).removeClass('active'); 
+    });
+    $('#' + kenMetSucScrId + 'lst_pendingTypesList_row_' + clickedRow).addClass('active');
+}
+apz.app.kenSuccessScreen.onClickOfChange = function(pthis) {
+    let backNavData = {};
+    backNavData.childScrId = 'KenMet'
+    backNavData.scr = 'kenSuccessScreen';
+    backNavData.screenId = kenMetSucScrId;
+    backNavData.baseDiv = 'kenSuccessScrBaseDiv';
+    backNavData.data = '';
+    let selRow = pthis.id.split("_").at(-1);
+    backNavData.selCustId = apz.data.scrdata.KenMet__IPaintPendMemDetails_Res[selRow].customerId;
+    backNavData.customerDet = apz.data.scrdata.KenMet__IPaintPendMemDetails_Res[selRow];
+    ApzCOB.customerDetNavigationFunc(backNavData);
+}

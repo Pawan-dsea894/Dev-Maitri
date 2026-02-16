@@ -1,0 +1,1877 @@
+var KendraDetailscrId = 'Kendra__KendraDetails__';
+var uploadData;
+var changeFlow;
+var selectedValue;
+window.fromKendraDet = true;
+var selKmDataDay;
+var selStartTime;
+var fromEditFlow;
+var selEndTime;
+var selDay;
+var selFreq;
+var loactionCaptureFlow;
+var currLatitude;
+var currLongitude;
+var data;
+var locationDetails;
+var d = new Date();
+var selTimeDropDownId = 'startTimeScr';
+var timeOverLapFlow = false;
+var dayArrList = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+var menuLists = [{
+    "key": "Add New Member",
+    "icon": "icon-AddNewMember"
+}, {
+    "key": "Regroup Members",
+    "icon": "icon-change_circle"
+}, {
+    "key": "Change GL/KL",
+    "icon": "icon-switch_account"
+}, {
+    "key": "View More Actions",
+    "icon": "icon-switch_account"
+}, {
+    "key": "Allocate KM",
+    "icon": "icon-AddNewMember"
+}];
+var viewmoremenuLists = [{
+    "key": "Add New Member",
+    "icon": "icon-AddNewMember"
+}, {
+    "key": "Regroup Members",
+    "icon": "icon-change_circle"
+}, {
+    "key": "Change GL/KL",
+    "icon": "icon-switch_account"
+}, {
+    "key": "View More Actions",
+    "icon": "icon-expand_circle"
+}, {
+    "key": "Add New Member1",
+    "icon": "icon-AddNewMember"
+}, {
+    "key": "Regroup Members1",
+    "icon": "icon-change_circle"
+}, {
+    "key": "Change GL/KL1",
+    "icon": "icon-switch_account"
+}, {
+    "key": "Add New Member2",
+    "icon": "icon-AddNewMember"
+}];
+var DayList = [{
+    "key": "Monday"
+}, {
+    "key": "Tuesday"
+}, {
+    "key": "Wednesday"
+}, {
+    "key": "Thursday"
+}, {
+    "key": "Friday"
+}, {
+    "key": "Saturday"
+}, {
+    "key": "Sunday"
+}];
+apz.app.KendraDetails.selectedKendraLocation = {
+    lat: null,
+    long: null
+};
+apz.app.onLoad_KendraDetails = function(params) {
+    menuLists = apz.app.KendraDetails.filterMenuList(menuLists);
+    $('#footer').addClass('sno');
+    selectedKendraFromMyKendra = params;
+    //data = params;
+    if(isAddLoanToKendraDtls || isCustomerDtlsToKendraDtls){
+        isAddLoanToKendraDtls = false;
+        isCustomerDtlsToKendraDtls = false;
+        if (params?.kendraDtls) {
+            selectedValue = params.kendraDtls;
+        data = params;
+        } else {
+            selectedValue = params;
+        data={}
+        data.kendraDtls = params
+        }
+        // apz.currAppId= 'Kendra'
+        // apz.childScr = 'KendraDetails'
+    }else{
+        selectedValue = params.kendraDtls;
+        data = params;
+    }
+    //selectedValue = params.kendraDtls??params;
+    window.selectedKendraData.push(params)
+    apz.app.KendraDetails.updatedPaintTime();
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res = {};
+    if (!apz.isNull(selectedValue.kendraAddr)) {
+        $("#" + KendraDetailscrId + "el_btn_60").removeClass('sno');
+        $("#" + KendraDetailscrId + "el_btn_102").addClass('sno');
+    } else {
+        $("#" + KendraDetailscrId + "el_btn_60").addClass('sno');
+        $("#" + KendraDetailscrId + "el_btn_102").removeClass('sno');
+    }
+}
+apz.app.onShown_KendraDetails = function(params) {
+    $("#" + "APZCBO__BaseScreens__sidebarController").addClass('sno');
+    uploadData = [];
+    window.customerDet = [];
+    window.SelectedKendraDet = [];
+    uploadData.push(selectedValue);
+    uploadData[0].activationDate = new Date(uploadData[0].activationDate).format('d M Y');
+    uploadData[0].customerDtls = apz.isNull(uploadData[0].customerDtls) ? [] : uploadData[0].customerDtls;
+    //modified below logic for painting customers count based on cust length as custcount is coming as 0 in some scenerios
+    uploadData[0].custCount = apz.isNull(uploadData[0].custCount) ? 0 : (uploadData[0].custCount === 0 ? uploadData[0].customerDtls.length : uploadData[0].custCount);
+    if (uploadData[0].time) {
+        uploadData[0].time = uploadData[0].time.replace(/(AM|PM)/g, '').replace(/ :/g, '').trim();
+    }
+    KendraApp.KendraResponse.forEach(function(obj, i) {
+        if (uploadData[0].kendraId === obj.kendraDtls.kendraId) {
+            window.customerDet = obj.kendraDtls.customerDtls;
+            SelectedKendraDet.push(obj.kendraDtls);
+        }
+    });
+    var address = '';
+    if (!apz.isNull(uploadData[0].kendraAddr)) {
+        var address = '';
+        var parts = [];
+        if (!apz.isNull(uploadData[0].kendraAddr)) parts.push(uploadData[0].kendraAddr);
+        if (!apz.isNull(uploadData[0].areaType)) parts.push(uploadData[0].areaType);
+        if (!apz.isNull(uploadData[0].village)) parts.push(uploadData[0].village);
+        if (!apz.isNull(uploadData[0].taluk)) parts.push(uploadData[0].taluk);
+        if (!apz.isNull(uploadData[0].district)) parts.push(uploadData[0].district);
+        if (!apz.isNull(uploadData[0].state)) parts.push(uploadData[0].state);
+        var pincode = uploadData[0].pincode ? ` (${uploadData[0].pincode})` : '';
+        // Join the non-empty address parts with a separator (e.g., comma and space)
+        address = parts.join(', ') + pincode;
+    }
+     uploadData[0].address=address;
+    apz.data.scrdata.Kendra__IPaintDataListing_Res = {};
+    apz.data.scrdata.Kendra__IPaintKendraDetails_Res = {};
+    apz.data.scrdata.Kendra__IPaintKendraDetails_Res.kendraDetailsResponse = [uploadData[0]];
+    apz.data.scrdata.Kendra__IPaintKendraDetails_Res.FetchCustomers = customerDet;
+    apz.data.loadData("IPaintKendraDetails", 'Kendra');
+    apz.data.scrdata.Kendra__QuickLinkMenuList_Res = {};
+    apz.data.scrdata.Kendra__QuickLinkMenuList_Res.menuList = menuLists;
+    apz.data.loadData("QuickLinkMenuList", 'Kendra');
+    apz.app.KendraDetails.removeEditBtnBasedOnCondition();
+    apz.app.KendraDetails.paintPendingArrovals();
+    apz.setElmValue(KendraDetailscrId + 'parCount', ApzCOB.findOverdueCustomers(selectedValue.customerDtls) + 'PAR');
+    //added below change for UNAP-1414 for painting par count from KMDashboard screen
+    if (params.hasOwnProperty('parCount') && !apz.isNull(params.parCount)) {
+        apz.setElmValue(KendraDetailscrId + 'parCount', params.parCount + 'PAR');
+    }
+    apz.app.KendraDetails.fetchLatiLongData();
+    //apz.app.KendraDetails.PaintKendraDetails();
+    if ((userRole === 'CASHIER' || userRole === 'BM')) {
+        document.getElementById(KendraDetailscrId + 'kendraColDiv').classList.add('sno');
+    } else {
+        document.getElementById(KendraDetailscrId + 'kendraColDiv').classList.remove('sno');
+    }
+    // let year = parseInt(collectionServerDate.substring(0, 4), 10);
+    // let month = parseInt(collectionServerDate.substring(4, 6), 10) - 1; // Months are zero-based in JavaScript
+    // let day = parseInt(collectionServerDate.substring(6, 8), 10);
+    // date = new Date(year, month, day);
+    // let  weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    // let getDayAbbreviation = (date) => weekdays[date.getDay()].substring(0, 3).toUpperCase();
+    // let todayDay = getDayAbbreviation(date);
+    // let tomorrow = new Date(date);
+    // tomorrow.setDate(date.getDate() + 1);
+    // let tomorrowDay = getDayAbbreviation(tomorrow);
+    // if (selectedValue.meetingDay === todayAbbreviation || selectedValue.meetingDay === tomorrowAbbreviation) {
+    // document.getElementById(KendraDetailscrId + "kendraColDiv").classList.add("sno");
+    // } else {
+    //     document.getElementById(KendraDetailscrId + "kendraColDiv").classList.remove("sno");
+    // }
+    if (window.accessType === 'LC' || window.accessType === 'CL') {
+        $('#Kendra__KendraDetails__kendraColDiv').removeClass('sno')
+    } else {
+        $('#Kendra__KendraDetails__kendraColDiv').addClass('sno')
+    }
+    apz.app.KendraDetails.paintCustDetails()
+}
+apz.app.KendraDetails.PaintKendraDetails = function() {
+    apz.setElmValue(KendraDetailscrId + "kendraName", custData.mobileNum);
+    apz.setElmValue(KendraDetailscrId + "kendraID", custData.mobileNum);
+    apz.setElmValue(KendraDetailscrId + "activationDate", custData.mobileNum);
+    apz.setElmValue(KendraDetailscrId + "custCount", custData.mobileNum);
+    apz.setElmValue(KendraDetailscrId + "weeklyCollection", custData.mobileNum);
+    apz.setElmValue(KendraDetailscrId + "parCount", custData.mobileNum);
+    apz.setElmValue(KendraDetailscrId + "location", custData.mobileNum);
+    apz.setElmValue(KendraDetailscrId + "address", custData.mobileNum);
+    apz.setElmValue(KendraDetailscrId + "day&Time", custData.mobileNum);
+    apz.setElmValue(KendraDetailscrId + "meetingFrequency", custData.mobileNum);
+}
+apz.app.KendraDetails.onClickMembers = function(pthis) {
+    var rowno = $(pthis).attr("rowno");
+    SelectedKendraDet.push(customerDet[rowno]);
+    isexsitingApp=false;
+    viewCustomer=true;
+    isKendraDtlsToCustomerDtls = true;
+    isViewCustomerFromKendraDetails = true;
+    KendraApp.selectedCustomer = apz.data.scrdata.Kendra__CustomerDtlsList_Res.CustomerDtls[rowno]
+    ApzCOB.fetchCustomerIdDetails(KendraApp.selectedCustomer.customerId);
+    //ApzCOB.launchMicroApp('Kendra', 'MemberDetails', 'APZCBO__BaseScreens__BaseDIV', SelectedKendraDet);
+}
+apz.app.KendraDetails.viewMoreDetails = function(pthis) {
+    var menuName = $("#" + pthis.id).text();
+    if (menuName === "View More Actions") {
+        $("#" + KendraDetailscrId + "viewMoreActionsRow").removeClass('sno');
+        $("#" + KendraDetailscrId + "menuList").addClass('sno');
+        apz.data.scrdata.Kendra__QuickLinkMenuList_Res = {};
+        apz.data.scrdata.Kendra__QuickLinkMenuList_Res.viewMoreMenuList = viewmoremenuLists;
+        apz.data.loadData("QuickLinkMenuList", 'Kendra');
+    }
+}
+// apz.app.KendraDetails.DayModalSelection = function(pthis) {
+//     let id = pthis.id.split('__').at(-1);
+//     let headerTxt = '';
+//     Kendra__KendraDetails__timeSelectionModal_window
+//     if (id === 'dayChangeBtn') {
+//         changeFlow = 'dayChanges';
+//         headerTxt = 'Are you sure you want to change kendra meeting day?';
+//     } else if (id === 'timeChangeBtn') {
+//         changeFlow = 'timeChanges';
+//         headerTxt = 'Are you sure you want to change kendra meeting time?';
+//     } else {
+//         changeFlow = 'frequencyChanges'
+//         headerTxt = 'Are you sure you want to change kendra meeting frequency?'
+//     }
+//     let modal = document.getElementById("Kendra__KendraDetails__timeSelectionModal_window");
+//     let h1Tag = modal.querySelector("h1");
+//     if (h1Tag) {
+//         h1Tag.innerHTML = headerTxt;
+//     }
+//     ApzCOB.toggleModal(KendraDetailscrId + "timeSelectionModal");
+// }
+apz.app.KendraDetails.onClickOfEditTime = function() {
+    fromEditFlow = 'TimeChanges';
+    apz.app.KendraDetails.onClickOfTimeChanges();
+}
+apz.app.KendraDetails.onClickOfTimeChanges = function() {
+    $('#' + KendraDetailscrId + 'kdMainScr').addClass('sno');
+    $('#' + KendraDetailscrId + 'changeMeetingTimeDiv').removeClass('sno');
+    document.getElementById(KendraDetailscrId + "timeChangesRequest").disabled = true;
+    apz.app.KendraDetails.paintKendraTimeSlots();
+}
+apz.app.KendraDetails.paintKendraTimeSlots = function() {
+    let selKmName = selectedValue.kmName;
+    let selMeetingDay = selectedValue.meetingDay;
+    let selectedKmData = kendraResponse.filter(d => d.kendraDtls.kmName === selKmName);
+    selKmDataDay = selectedKmData.filter(d => d.kendraDtls.meetingDay === selMeetingDay);
+    let updateArr = apz.app.KendraDetails.paintBusyAndFreeSlots(selKmDataDay);
+    updateArr = apz.app.KendraDetails.sortTimeData(updateArr);
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.PaintTimeSlots = updateArr;
+    apz.data.loadData("IPaintPaintKMBMDetails", 'Kendra');
+    apz.app.KendraDetails.paintBackGroundColorToTimeSlots(updateArr);
+    // document.getElementById(KendraDetailscrId + 'timeSlotsEditTime_grp_lbl').innerText = (selectedValue.meetingDay + '| ' + (selectedValue
+    //     .meetingStartTime).split(' ')[0] + ' - ' + (selectedValue.endingTime).split(' ')[0]);
+    document.getElementById(KendraDetailscrId + 'timeSlotsEditTime_grp_lbl').innerText = (selectedValue.meetingDay + '| ' + (selectedValue.time));
+    document.getElementById(KendraDetailscrId + 'timeSlotsEditNameKid_grp_lbl').innerText = '(By ' + selectedValue.kmName + ' #' + selectedValue
+        .kendraId + ')';
+    //apz.app.KendraDetails.convertToTimeString
+}
+apz.app.KendraDetails.TimeModal = function() {
+    ApzCOB.toggleModal(KendraDetailscrId + "timeSelectionModal");
+}
+apz.app.KendraDetails.TimeSelectionScreenDet = function() {
+    $('#' + KendraDetailscrId + 'changeDiv').removeClass('sno');
+    $('#' + KendraDetailscrId + 'kdMainScr').addClass('sno');
+    ApzCOB.toggleModal(KendraDetailscrId + "timeSelectionModal");
+    let chageTextData;
+    let text;
+    if (changeFlow === 'dayChanges') {
+        text = 'Select an available day for kendra meeting';
+        chageTextData = dayArrList[d.getDay()];
+        $("#" + KendraDetailscrId + 'changeDateListDiv').removeClass('sno');
+        apz.app.KendraDetails.loadDayList()
+    } else if (changeFlow === 'timeChanges') {
+        text = 'Select an available time for kendra meeting';
+        chageTextData = d.getHours().toString() + ':' + d.getMinutes().toString();
+        $('#' + KendraDetailscrId + 'changeTimeListDiv').removeClass('sno');
+        apz.app.KendraDetails.loadStartTimeSlotes();
+    } else {
+        text = 'Confirm kendra meeting frequency change to weekly';
+        chageTextData = 'This change cannot be reversed';
+        $('#' + KendraDetailscrId + 'changeFormListDiv').removeClass('sno');
+    }
+    document.getElementById('Kendra__KendraDetails__changeHeading').innerText = text;
+    document.getElementById('Kendra__KendraDetails__changeType').innerText = chageTextData;
+}
+apz.app.KendraDetails.loadDayList = function() {
+    let paintDays = dayArrList.filter((_, index) => d.getDay() !== index);
+    let paintArr = paintDays.map(data => ({
+        days: data
+    }));
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.PaintDaySlots = paintArr;
+    apz.data.loadData("IPaintPaintKMBMDetails", 'Kendra');
+}
+apz.app.KendraDetails.onClickDayModalSelection = function(pthis) {
+    var rowno = $('#' + pthis.id).attr('rowno');
+    var dataElement1 = document.getElementById('Kendra__KendraDetails__daySelectionList');
+    $("#" + KendraDetailscrId + "daycheckBox" + rowno).prop('checked', true);
+    var temp = dataElement1.querySelectorAll('input')
+    temp.forEach(function(params, i) {
+        if (params.id !== pthis.id) {
+            $("#" + params.id).prop('checked', false);
+        } else {
+            var dayName = apz.data.scrdata.Kendra__IPaintDataListing_Res.DayList[i].key
+        }
+    })
+}
+apz.app.KendraDetails.onDaySubmitRequest = function() {
+    if (window.userRole === "BM") {
+        $("#" + KendraDetailscrId + "dayChangeDet").text('SENT FOR AM APPROVAL');
+        $("#" + KendraDetailscrId + "dayChangeDet_ul").removeClass('sno');
+    } else if (window.userRole === "KM") {
+        $("#" + KendraDetailscrId + "dayChangeDet").text('SENT FOR BM APPROVAL');
+        $("#" + KendraDetailscrId + "dayChangeDet_ul").removeClass('sno');
+    }
+    ApzCOB.toggleModal(KendraDetailscrId + "dateSelectionModal");
+}
+apz.app.KendraDetails.onClickTimeModalSelection = function(pthis) {
+    var rowno = $('#' + pthis.id).attr('rowno');
+    var dataElement1 = document.getElementById('Kendra__KendraDetails__timeSlotSelectionList');
+    $("#" + KendraDetailscrId + "timeSlotCheckBox" + rowno).prop('checked', true);
+    var temp = dataElement1.querySelectorAll('input')
+    temp.forEach(function(params, i) {
+        if (params.id !== pthis.id) {
+            $("#" + params.id).prop('checked', false);
+        } else {
+            var SlotSelection = apz.data.scrdata.Kendra__IPaintDataListing_Res.timeSlot[i];
+        }
+    })
+}
+apz.app.KendraDetails.onTimeSubmitRequest = function() {
+    if (window.userRole === "BM") {
+        $("#" + KendraDetailscrId + "timeChangeDet").text('SENT FOR AM APPROVAL');
+        $("#" + KendraDetailscrId + "timeChangeDet_ul").removeClass('sno');
+    } else if (window.userRole === "KM") {
+        $("#" + KendraDetailscrId + "timeChangeDet").text('SENT FOR BM APPROVAL');
+        $("#" + KendraDetailscrId + "timeChangeDet_ul").removeClass('sno');
+    }
+    ApzCOB.toggleModal(KendraDetailscrId + "timeSelectionModal");
+}
+apz.app.KendraDetails.onClickOfChangeMeetingFreBtnl = function() {}
+apz.app.KendraDetails.loadStartTimeSlotes = function() {
+    let slotsArr = [];
+    let startTime = uploadData[0].meetingStartTime;
+    let endDate = uploadData[0].endingTime;
+    if (!startTime.includes(":")) {
+        startTime = apz.app.KendraDetails.convertToTimeString(startTime);
+    }
+    if (!endDate.includes(":")) {
+        endDate = apz.app.KendraDetails.convertToTimeString(endDate);
+    }
+    let slots = apz.app.KendraDetails.getTimeSlotToBePainted(startTime, endDate, 6);
+    slots.forEach((data, index) => {
+        let obj = {};
+        obj.time = data;
+        if (index === 0) {
+            obj.status = "Busy"
+            obj.kendras = uploadData[0].kendraName;
+        } else {
+            obj.status = "Free"
+            obj.kendras = " - ";
+        }
+        slotsArr.push(obj);
+    });
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.PaintTimeSlots = slotsArr;
+    apz.data.loadData("IPaintPaintKMBMDetails", 'Kendra');
+}
+apz.app.KendraDetails.convertToTimeString = function(timeNumber) {
+    let timeStr = timeNumber.toString().padStart(4, '0');
+    let hours = timeStr.slice(0, -2);
+    let minutes = timeStr.slice(-2);
+    return `${hours}:${minutes}`;
+}
+apz.app.KendraDetails.parseTime = function(timeStr) {
+    const [hours, minutes] = timeStr.split(":").map(Number);
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+    return date;
+}
+apz.app.KendraDetails.formatTime = function(date) {
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    if (minutes < 10) minutes = '0' + minutes;
+    return `${hours}:${minutes}`;
+}
+apz.app.KendraDetails.getTimeSlotToBePainted = function(start, end, count) {
+    let startTime = apz.app.KendraDetails.parseTime(start);
+    let endTime = apz.app.KendraDetails.parseTime(end);
+    let timeDifference = endTime - startTime;
+    let slots = [];
+    let currentStartTime = startTime;
+    for (let i = 0; i <= count; i++) {
+        const nextEndTime = new Date(currentStartTime.getTime() + timeDifference);
+        slots.push(`${apz.app.KendraDetails.formatTime(currentStartTime)} - ${apz.app.KendraDetails.formatTime(nextEndTime)}`);
+        currentStartTime = nextEndTime;
+    }
+    return slots;
+}
+apz.app.KendraDetails.setToggleHeader = function(value) {
+    let modal = document.getElementById("Kendra__KendraDetails__timeSelectionModal_window");
+    let h1Tag = modal.querySelector("h1");
+    h1Tag.innerHTML = value;
+}
+apz.app.KendraDetails.onClcikOfSubmitRequest = function() {}
+apz.app.KendraDetails.onClickOfBackNav = function() {
+    ApzCOB.launchMicroApp('Kendra', 'KendraDetails', 'APZCBO__BaseScreens__BaseDIV', selectedValue);
+}
+//time changes code
+apz.app.KendraDetails.onClickOfEditTimeChanges = function() {
+    //ApzCOB.toggleModal(KendraDetailscrId + "meetingTimeChanDrop");
+    let satrtdropDownData = apz.app.KendraDetails.generateTimePairs(6, 0, 13, 30);
+    let stopDropDown = apz.app.KendraDetails.generateTimePairs(6, 30, 14, 00);
+    $("#" + KendraDetailscrId + 'changeMeetingTimeDiv').addClass('sno');
+    $("#" + KendraDetailscrId + 'timeDropDownScr').removeClass('sno');
+    // document.getElementById(KendraDetailscrId + 'timeScrHea_grp_lbl').innerText = (selectedValue.meetingDay + '| ' + selectedValue
+    //     .meetingStartTime + ' ' + selectedValue.endingTime);
+    // document.getElementById(KendraDetailscrId + 'timeScrKmDet_grp_lbl').innerText = '(By ' + selectedValue.kmName + ' #' + selectedValue
+    //     .kendraId + ')';
+    // document.getElementById(KendraDetailscrId + 'timeSlotsTmeScr_grp_lbl').title = selectedValue.meetingDay + ' | ' + (selectedValue
+    //     .meetingStartTime).split(' ')[0] + ' - ' + (selectedValue.endingTime).split(' ')[0];
+    document.getElementById(KendraDetailscrId + 'timeSlotsTmeScr_grp_lbl').innerText = (selectedValue.meetingDay + '| ' + (selectedValue.time));
+    apz.setElmValue(KendraDetailscrId + 'startTimeScr', '00:00');
+    apz.setElmValue(KendraDetailscrId + 'endTimeScr', '00:00');
+}
+apz.app.KendraDetails.confirmTimeChanges = function() {
+    let startValue = apz.getElmValue(KendraDetailscrId + "startTimeScr");
+    let endTime = apz.getElmValue(KendraDetailscrId + "endTimeScr");
+    selStartTime = startValue;
+    selEndTime = endTime;
+    if (startValue && endTime) {
+        if (apz.app.KendraDetails.convertToMinutes(startValue) < apz.app.KendraDetails.convertToMinutes(endTime)) {
+            // $("#" + KendraDetailscrId + 'timeDropDownScr').addClass('sno');
+            // $("#" + KendraDetailscrId + 'timeDropDownScr').addClass('sno');
+            if (fromEditFlow === 'DayChanges') {
+                ApzCOB.toggleModal(KendraDetailscrId + "DayChangeConModel");
+            } else {
+                document.getElementById(KendraDetailscrId + 'timeChangesRequest').disabled = false;
+                apz.app.KendraDetails.checkTimeOveralapAndShowModel(selStartTime, selEndTime);
+            }
+        } else {
+            ApzCOB.fnDisplayMsg("Pease enter valid time format", "E");
+        }
+    } else {
+        ApzCOB.fnDisplayMsg("Pease fill the details to continue", "E");
+    }
+}
+apz.app.KendraDetails.checkTimeOveralapAndShowModel = function(slStartTime, slEndTime) {
+    // selStartTime = slStartTime;
+    // selEndTime = slEndTime;
+    //ApzCOB.toggleModal(KendraDetailscrId + "meetingTimeChanDrop");
+    let timeArr = [];
+    selKmDataDay.forEach(d => {
+        let obj = {};
+        obj.startTime = d.kendraDtls.meetingStartTime;
+        obj.endTime = d.kendraDtls.endingTime;
+        timeArr.push(obj);
+    });
+    if (apz.app.KendraDetails.checkTimeOverlap(timeArr, selStartTime, selEndTime)) {
+        timeOverLapFlow = true;
+        ApzCOB.toggleModal(KendraDetailscrId + "timeSlotsOverlapError");
+    } else {
+        timeOverLapFlow = false;
+        //apz.app.KendraDetails.createRequestForTimeChange();
+        apz.app.KendraDetails.showFinalmeetingSchedule();
+    }
+}
+apz.app.KendraDetails.showFinalmeetingSchedule = function() {
+    //document.getElementById(KendraDetailscrId + 'timeChangesRequest').disabled = true;
+    if (timeOverLapFlow) {
+        ApzCOB.toggleModal(KendraDetailscrId + "timeSlotsOverlapError");
+    }
+    //$("#" + KendraDetailscrId + 'timeDropDownScr').addClass('sno');
+    $("#" + KendraDetailscrId + 'timeDropDownScr').addClass('sno');
+    $("#" + KendraDetailscrId + 'timeDropDownScr').addClass('sno');
+    $("#" + KendraDetailscrId + 'changeMeetingTimeDiv').removeClass('sno');
+    let updateArr = apz.app.KendraDetails.paintBusyAndFreeSlots(selKmDataDay);
+    let newTimeReq = {}
+    newTimeReq.time = (selStartTime) + "-" + (selEndTime);
+    newTimeReq.status = "Busy";
+    newTimeReq.kendras = selectedValue.kendraName;
+    updateArr.push(newTimeReq);
+    //updateArr = apz.app.KendraDetails.sortTimeData(updateArr);
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.PaintTimeSlots = updateArr;
+    apz.data.loadData("IPaintPaintKMBMDetails", 'Kendra');
+    apz.app.KendraDetails.paintBackGroundColorToTimeSlots(updateArr);
+    document.getElementById(KendraDetailscrId + 'timeSlotsEditTime_grp_lbl').innerText = (selectedValue.meetingDay + '| ' + apz.app.KendraDetails
+        .convertToTimeString(selectedValue.meetingStartTime) + ' - ' + apz.app.KendraDetails.convertToTimeString(selectedValue.endingTime));
+    document.getElementById(KendraDetailscrId + 'timeSlotsEditNameKid_grp_lbl').innerText = '(By ' + selectedValue.kmName + ' #' + selectedValue
+        .kendraId + ')';
+}
+apz.app.KendraDetails.timeChangesSubmitRequestFunc = function() {
+    if (fromEditFlow === 'DayChanges') {
+        ApzCOB.toggleModal(KendraDetailscrId + "DayChangeConModel");
+    } else {
+        ApzCOB.toggleModal(KendraDetailscrId + "TimeChangeConModel");
+        //apz.app.KendraDetails.createRequestForTimeChange(payloadObj)
+    }
+}
+apz.app.KendraDetails.createRequestForTimeChange = function(payloadData) {
+    ApzCOB.toggleModal(KendraDetailscrId + "TimeChangeConModel");
+    let payloadObj = {};
+    payloadObj.kendraId = selectedValue.kendraId;
+    payloadObj.newStartTime = selStartTime;
+    payloadObj.newEndTime = selEndTime;
+    var req = {
+        "apiRequest": {
+            "interfaceName": "RaiseSROperation",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "srType": "TimeChanges",
+                "payload": JSON.stringify(payloadObj),
+                "createdRole": LoggedInUserDetails.loginResponse.addInfo1,
+                "currRole": LoggedInUserDetails.loginResponse.addInfo1,
+                "nextRole": "BM",
+                "appStatus": "Pending",
+                "createBy": LoggedInUserDetails.loginResponse.userDet.name,
+                "updateBy": LoggedInUserDetails.loginResponse.userDet.name,
+                "branchId": LoggedInUserDetails.loginResponse.addInfo2
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "RaiseSROperation", "N", "N", req, false, apz.app.KendraDetails.createRequestForTimeChangeCB);
+}
+apz.app.KendraDetails.createRequestForTimeChangeCB = function(params) {
+    try {
+        apz.stopLoader();
+        if (params.status && apz.isNull(params.errors)) {
+            if (params.res.APZCBO__RaiseSROperation_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+                if (params.res.APZCBO__RaiseSROperation_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                    $("#" + KendraDetailscrId + "changeMeetingTimeDiv").addClass("sno");
+                    $("#" + KendraDetailscrId + "reasonEditDiv").addClass("sno");
+                    $("#" + KendraDetailscrId + "successDiv").removeClass("sno");
+                    apz.app.KendraDetails.paintDateAndTimeSucessScreen();
+                }
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.KendraDetails.paintKendraSuccessDataForTimeChanges = function() {
+    let previostime = apz.app.KendraDetails.convertToTimeString(selectedValue.meetingStartTime) + '-' + apz.app.KendraDetails.convertToTimeString(
+        selectedValue.endingTime);
+    let updatedTime = apz.app.KendraDetails.convertToTimeString(selStartTime) + '-' + apz.app.KendraDetails.convertToTimeString(selEndTime);
+    apz.setElmValue(KendraDetailscrId + "successMsg", "Kendra time change request has submitted successfully");
+    apz.setElmValue(KendraDetailscrId + "KmdetailsAndId", selectedValue.kendraName + " | #" + selectedValue.kendraId);
+    apz.setElmValue(KendraDetailscrId + "moreInfoThirdVal", "Sent to BM Approval");
+    apz.setElmValue(KendraDetailscrId + "moreInfoFirstRowVal", previostime);
+    apz.setElmValue(KendraDetailscrId + "moreInfoSecVal", updatedTime);
+}
+apz.app.KendraDetails.generateTimePairs = function(initalHour, initalMin, finalHour, finalMin) {
+    const timePairs = [];
+    let hour = initalHour;
+    let minute = initalMin;
+    while (hour < finalHour || (hour === finalHour && minute <= finalMin)) {
+        let time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        timePairs.push({
+            time
+        });
+        minute += 30;
+        if (minute === 60) {
+            minute = 0;
+            hour++;
+        }
+    }
+    return timePairs;
+}
+apz.app.KendraDetails.checkTimeOverlap = function(slots, start, end) {
+    start = apz.app.KendraDetails.timeToMinutes(parseInt(start.split(":").join("")));
+    end = apz.app.KendraDetails.timeToMinutes(parseInt(end.split(":").join("")));
+    for (let slot of slots) {
+        let slotStart = apz.app.KendraDetails.timeToMinutes(parseInt(slot.startTime));
+        let slotEnd = apz.app.KendraDetails.timeToMinutes(parseInt(slot.endTime));
+        if ((start < slotEnd && end > slotStart)) {
+            return true;
+        }
+    }
+    return false;
+}
+apz.app.KendraDetails.timeToMinutes = function(time) {
+    let hours = Math.floor(time / 100);
+    let minutes = time % 100;
+    return hours * 60 + minutes;
+}
+//time changes functionality ends 
+//day chnages functionanlity starts
+apz.app.KendraDetails.onClickOfDayChanges = function() {
+    fromEditFlow = 'DayChanges';
+    ApzCOB.toggleModal(KendraDetailscrId + "dayChangesToggleMod");
+    document.getElementById(KendraDetailscrId + 'avaDaysSubBtn').disabled = true;
+    let dayList = dayArrList.filter(d => d.substring(0, 3).toUpperCase() !== selectedValue.meetingDay);
+    dayList = dayList.map(data => ({
+        days: data
+    }));
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.PaintDaySlots = dayList;
+    apz.data.loadData("IPaintPaintKMBMDetails", 'Kendra');
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.PaintDaySlots.forEach((d, idx) => {
+        $("#" + KendraDetailscrId + "daysCheckBox_" + idx).prop("checked", false)
+    });
+}
+apz.app.KendraDetails.onClickOfDaysList = function(pthis) {
+    if (!$("#" + pthis.id).prop("checked")) {
+        document.getElementById(KendraDetailscrId + 'avaDaysSubBtn').disabled = true;
+    }
+    let selId = pthis.id.split("_").at("-1");
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.PaintDaySlots.forEach((d, idx) => {
+        if (parseInt(selId) !== idx) {
+            $("#Kendra__KendraDetails__daysCheckBox_" + idx).prop("checked", false);
+        } else if (parseInt(selId) === idx && ($("#" + pthis.id).prop("checked"))) {
+            document.getElementById(KendraDetailscrId + 'avaDaysSubBtn').disabled = false;
+        }
+    });
+}
+apz.app.KendraDetails.onClickOfSubmitFromDayChanges = function() {
+    $('#' + KendraDetailscrId + 'kdMainScr').addClass('sno');
+    $('#' + KendraDetailscrId + 'changeMeetingTimeDiv').removeClass('sno');
+    apz.app.KendraDetails.paintKendraTimeSlots();
+}
+apz.app.KendraDetails.submitOfKendraDays = function() {
+    //document.getElementById(KendraDetailscrId + "timeChangesRequest").disabled = true
+    ApzCOB.toggleModal(KendraDetailscrId + "dayChangesToggleMod");
+    apz.app.KendraDetails.onClickOfTimeChanges();
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.PaintDaySlots.forEach((d, idx) => {
+        if ($("#Kendra__KendraDetails__daysCheckBox_" + idx).prop("checked")) {
+            selDay = d.days;
+        }
+    });
+    document.getElementById(KendraDetailscrId + "timeChangesRequest").disabled = false;
+}
+apz.app.KendraDetails.createRequestForDayChanges = function() {
+    ApzCOB.toggleModal(KendraDetailscrId + "DayChangeConModel");
+    let payloadObj = {};
+    payloadObj.kendraId = selectedValue.kendraId;
+    payloadObj.newStartTime = selStartTime;
+    payloadObj.newEndTime = selEndTime;
+    payloadObj.newDay = selDay;
+    payloadObj.oldStartTime = apz.app.KendraDetails.convertToTimeString(selectedValue.meetingStartTime);
+    payloadObj.oldEndTime = apz.app.KendraDetails.convertToTimeString(selectedValue.endingTime);
+    payloadObj.oldMeetingDay = selectedValue.meetingDay;
+    payloadObj.kmName = LoggedInUserDetails.loginResponse.userDet.name;
+    payloadObj.kendraName = selectedValue.kendraName;
+    var req = {
+        "apiRequest": {
+            "interfaceName": "RaiseSROperation",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "srType": "DayChanges",
+                "payload": JSON.stringify(payloadObj),
+                "createdRole": LoggedInUserDetails.loginResponse.addInfo1,
+                "currRole": LoggedInUserDetails.loginResponse.addInfo1,
+                "nextRole": "AM",
+                "appStatus": "Pending",
+                "createBy": LoggedInUserDetails.loginResponse.userDet.name,
+                "updateBy": LoggedInUserDetails.loginResponse.userDet.name,
+                "branchId": LoggedInUserDetails.loginResponse.addInfo2
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "RaiseSROperation", "N", "N", req, false, apz.app.KendraDetails.createRequestForDayChangesCB);
+}
+apz.app.KendraDetails.createRequestForDayChangesCB = function(params) {
+    try {
+        apz.stopLoader();
+        if (params.status && apz.isNull(params.errors)) {
+            if (params.res.APZCBO__RaiseSROperation_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+                if (params.res.APZCBO__RaiseSROperation_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                    $("#" + KendraDetailscrId + "changeMeetingTimeDiv").addClass("sno");
+                    $("#" + KendraDetailscrId + "reasonEditDiv").addClass("sno");
+                    $("#" + KendraDetailscrId + "successDiv").removeClass("sno");
+                    $("#" + KendraDetailscrId + 'timeDropDownScr').addClass('sno');
+                    apz.app.KendraDetails.paintDayAndTimeChangesSuccessScreen();
+                }
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+//Frequncy changes starts
+apz.app.KendraDetails.onClickOfChangeFrequency = function() {
+    let chkBoxData = ['Weekly']
+    ApzCOB.toggleModal(KendraDetailscrId + "frequencyModel");
+    let paintData = chkBoxData.map(data => ({
+        freq: data
+    }));
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.PaintFrequencyData = paintData;
+    apz.data.loadData("IPaintPaintKMBMDetails", 'Kendra');
+    document.getElementById(KendraDetailscrId + 'freSubmitBtn').disabled = true;
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.PaintFrequencyData.forEach((d, i) => {
+        $("#" + KendraDetailscrId + 'freqChkBox_' + i).prop('checked', false);
+    })
+}
+apz.app.KendraDetails.onClickOfSubmitFreqModel = function() {
+    ApzCOB.toggleModal(KendraDetailscrId + "frequencyModel");
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.PaintFrequencyData.forEach((d, idx) => {
+        if ($("#" + KendraDetailscrId + 'freqChkBox_' + idx).prop("checked")) {
+            selFreq = d.freq;
+        }
+    })
+    ApzCOB.toggleModal(KendraDetailscrId + "FreqChangeConModel");
+}
+apz.app.KendraDetails.onClickOfSubmitFreModel = function() {
+    ApzCOB.toggleModal(KendraDetailscrId + "FreqChangeConModel");
+    let payloadObj = {};
+    payloadObj.kendraId = selectedValue.kendraId;
+    payloadObj.oldFrequency = selectedValue.meetingFrequency;
+    payloadObj.newFrequency = selFreq;
+    var req = {
+        "apiRequest": {
+            "interfaceName": "RaiseSROperation",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "srType": "FrequencyChanges",
+                "payload": JSON.stringify(payloadObj),
+                "createdRole": LoggedInUserDetails.loginResponse.addInfo1,
+                "currRole": LoggedInUserDetails.loginResponse.addInfo1,
+                "nextRole": "BM",
+                "appStatus": "Pending",
+                "createBy": LoggedInUserDetails.loginResponse.userDet.name,
+                "updateBy": LoggedInUserDetails.loginResponse.userDet.name,
+                "branchId": LoggedInUserDetails.loginResponse.addInfo2
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "RaiseSROperation", "N", "N", req, false, apz.app.KendraDetails.frequencyChangesCB);
+}
+apz.app.KendraDetails.frequencyChangesCB = function(params) {
+    try {
+        apz.stopLoader();
+        if (params.status && apz.isNull(params.errors)) {
+            if (params.res.APZCBO__RaiseSROperation_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+                if (params.res.APZCBO__RaiseSROperation_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                    $("#" + KendraDetailscrId + "kdMainScr").addClass("sno");
+                    $("#" + KendraDetailscrId + "reasonEditDiv").addClass("sno");
+                    $("#" + KendraDetailscrId + "successDiv").removeClass("sno");
+                    $("#" + KendraDetailscrId + 'timeDropDownScr').addClass('sno');
+                    apz.app.KendraDetails.paintFrequencySuccessScreen();
+                }
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.KendraDetails.freqCheckBoxList = function(pthis) {
+    if ($("#" + pthis.id).prop('checked')) {
+        document.getElementById(KendraDetailscrId + 'freSubmitBtn').disabled = false;
+    } else {
+        document.getElementById(KendraDetailscrId + 'freSubmitBtn').disabled = true;
+    }
+}
+apz.app.KendraDetails.paintDateAndTimeSucessScreen = function() {
+    apz.setElmValue(KendraDetailscrId + 'successMsg', 'Kendra Time Change Request Submitted Successfully');
+    apz.setElmValue(KendraDetailscrId + 'KmdetailsAndId', selectedValue.kendraName + ' | ' + '#' + selectedValue.kendraId);
+    let infoArr = ['Previous Time', 'Updated Time', 'Status'];
+    let paintObj = {}
+    paintObj.previousTime = selectedValue.meetingStartTime.split(' ')[0] + '-' + selectedValue.endingTime.split(' ')[0];
+    paintObj.updatedTime = (selStartTime) + '-' + (selEndTime);
+    paintObj.status = 'Sent for BM approval';
+    let paintArr = infoArr.reduce((acc, d) => {
+        let obj = {
+            info: d
+        };
+        obj.details = d === 'Previous Time' ? paintObj.previousTime : d === 'Updated Time' ? paintObj.updatedTime : paintObj.status;
+        acc.push(obj);
+        return acc;
+    }, []);
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.SuccessDetails = paintArr;
+    apz.data.loadData("IPaintPaintKMBMDetails", 'Kendra');
+}
+apz.app.KendraDetails.paintDayAndTimeChangesSuccessScreen = function() {
+    apz.setElmValue(KendraDetailscrId + 'successMsg', 'Kendra Day & Time Change Request Submitted Successfully');
+    apz.setElmValue(KendraDetailscrId + 'KmdetailsAndId', selectedValue.kendraName + ' | ' + '#' + selectedValue.kendraId);
+    let info = ['Previous Day', 'Updated Day', 'Previous Time', 'Updated Time', 'Status'];
+    let paintObj = {}
+    paintObj.previousTime = apz.app.KendraDetails.convertToTimeString(selectedValue.meetingStartTime) + '-' + apz.app.KendraDetails
+        .convertToTimeString(selectedValue.endingTime);
+    paintObj.updatedTime = (apz.isNull(selStartTime) && apz.isNull(selEndTime)) ? 'Time not updated' : selStartTime + '-' + selEndTime;
+    paintObj.status = 'Moved for AM Approval';
+    paintObj.updatedDay = selDay;
+    paintObj.previousDay = selectedValue.meetingDay;
+    let paintArr = info.reduce((acc, d) => {
+        let obj = {
+            info: d
+        };
+        obj.details = d === 'Previous Day' ? paintObj.previousDay : d === 'Updated Day' ? paintObj.updatedDay : d === 'Previous Time' ?
+            paintObj.previousTime : d === 'Updated Time' ? paintObj.updatedTime : paintObj.status;
+        acc.push(obj);
+        return acc;
+    }, []);
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.SuccessDetails = paintArr;
+    apz.data.loadData("IPaintPaintKMBMDetails", 'Kendra');
+}
+apz.app.KendraDetails.paintFrequencySuccessScreen = function() {
+    apz.setElmValue(KendraDetailscrId + 'successMsg', 'Kendra Frequency Change Request Submitted Successfully');
+    apz.setElmValue(KendraDetailscrId + 'KmdetailsAndId', selectedValue.kendraName + ' | ' + '#' + selectedValue.kendraId);
+    let infoArr = ['Previous Frequency', 'Updates Frequency', 'Status'];
+    let paintObj = {}
+    paintObj.previousFreq = selectedValue.meetingFrequency
+    paintObj.updatedFreq = selFreq;
+    paintObj.status = 'Sent for BM approval';
+    let paintArr = infoArr.reduce((acc, d) => {
+        let obj = {
+            info: d
+        };
+        obj.details = d === 'Previous Frequency' ? paintObj.previousFreq : d === 'Updates Frequency' ? paintObj.updatedFreq : paintObj
+            .status;
+        acc.push(obj);
+        return acc;
+    }, []);
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.SuccessDetails = paintArr;
+    apz.data.loadData("IPaintPaintKMBMDetails", 'Kendra');
+}
+apz.app.KendraDetails.onClickOfMoreInfoSuccessScreen = function() {
+    if ($("#" + KendraDetailscrId + 'moreInfoData').hasClass('sno')) {
+        $("#" + KendraDetailscrId + 'moreInfoData').removeClass('sno');
+    } else {
+        $("#" + KendraDetailscrId + 'moreInfoData').addClass('sno');
+    }
+}
+apz.app.KendraDetails.updatedPaintTime = function() {
+    let meetingStartTime = selectedValue.meetingStartTime;
+    let endTime = selectedValue.endingTime;
+    selectedValue.time = apz.app.KendraDetails.convertToTimeString(meetingStartTime) + ' - ' + apz.app.KendraDetails.convertToTimeString(endTime);
+}
+apz.app.KendraDetails.paintPendingArrovals = function() {
+    let srApprovalData = [];
+    srList.forEach(d => {
+        let payload = (typeof d.payload === 'string') ? JSON.parse(d.payload) : d.payload;
+        if (selectedValue.kendraId === payload.kendraId) {
+            srApprovalData.push({
+                ...d,
+                updateTs: d.updateTs
+            });
+        }
+    });
+    srApprovalData.sort((a, b) => {
+        const normalizeDate = (dateStr) => {
+            const validDateStr = dateStr.replace(/:(\d{3})([+-]\d{2}:\d{2})$/, '.$1$2');
+            return new Date(validDateStr);
+        };
+        const dateA = normalizeDate(a.updateTs);
+        const dateB = normalizeDate(b.updateTs);
+        return dateB - dateA;
+    });
+    if (srApprovalData.length > 0) {
+        let latestData = srApprovalData[0];
+        apz.app.KendraDetails.removePendingApprovalList(latestData);
+        $("#" + KendraDetailscrId + 'dayChangeBtn').addClass('sno');
+    }
+}
+apz.app.KendraDetails.removePendingApprovalList = function(data) {
+    if (window.userRole === 'KM') {
+        if (data.srType === "TimeChanges" && data.appStatus === "PENDING") {
+            $("#" + KendraDetailscrId + 'timeBmApprovalDiv_ul').removeClass('sno');
+            $("#" + KendraDetailscrId + 'timeEditBtn').addClass('sno');
+        } else if (data.srType === "FrequencyChanges" && data.appStatus === "PENDING") {
+            $("#" + KendraDetailscrId + 'meetingBmApprovalDiv_ul').removeClass('sno');
+            $("#" + KendraDetailscrId + 'freqEditBtn').addClass('sno');
+        }
+    } else {
+        $("#" + KendraDetailscrId + 'dayBmApprovalDiv_ul').removeClass('sno');
+    }
+}
+apz.app.KendraDetails.removeEditBtnBasedOnCondition = function() {
+    let daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    let now = new Date();
+    let today = daysOfWeek[now.getDay()];
+    let tom = daysOfWeek[(now.getDay() + 1) % 7];
+    if (window.userRole === 'KM') {
+        $("#" + KendraDetailscrId + 'dayChangeBtn').addClass('sno');
+        if (selectedValue.meetingFrequency === 'WEEKLY') {
+            $("#" + KendraDetailscrId + 'freqEditBtn').addClass('sno');
+        } else if (today === selectedValue.meetingDay || tom === selectedValue.meetingDay) {
+            $("#" + KendraDetailscrId + 'freqEditBtn').addClass('sno');
+        }
+    } else {
+        $("#" + KendraDetailscrId + 'freqEditBtn').addClass('sno');
+        $("#" + KendraDetailscrId + 'timeEditBtn').addClass('sno');
+        if (selectedValue.meetingDay === today || selectedValue.meetingDay === tom) {
+            $("#" + KendraDetailscrId + 'dayChangeBtn').addClass('sno');
+        } else {
+            $("#" + KendraDetailscrId + 'dayChangeBtn').removeClass('sno');
+        }
+    }
+}
+apz.app.KendraDetails.onClickOfQueckActions = function(pthis, event) {
+    event.preventDefault();
+    event.stopPropagation();
+    let id = pthis.id.split("_").at(-1);
+    let selctedIconVal = menuLists[id].key;
+    if (selctedIconVal === 'Allocate KM' && window.userRole === 'BM') {
+        ApzCOB.launchMicroApp('Kendra', 'KendraAllocationJourney', 'APZCBO__BaseScreens__BaseDIV', selectedValue.kmId);
+    } else if (selctedIconVal === 'Allocate KM' && window.userRole === 'KM') {
+        ApzCOB.fnDisplayMsg("Kendra Mangers cannot assign kendra ", "E");
+    } else {
+        ApzCOB.fnDisplayMsg("Feature Coming Soon", "E");
+    }
+    if (selctedIconVal === 'Allocate KM') {
+        window.allocate = true;
+    }
+}
+apz.app.KendraDetails.getCurPosLatitudeAndLogitude = function() {
+    try {
+        var gps = {
+            id: "LOCATEUSER",
+            callBack: apz.app.KendraDetails.getCurPosLatitudeAndLogitudeCB
+        };
+        apz.startLoader();
+        apz.ns.getLocation(gps);
+    } catch (e) {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("Geolocation is not supported"));
+    }
+}
+apz.app.KendraDetails.getCurPosLatitudeAndLogitudeCB = function(params) {
+    try {
+        if (params.status) {
+            apz.stopLoader();
+            locationDetails = params;
+            var json = {
+                "markerInfo": [{
+                    "locationLatitude": params.latitude.toString(),
+                    "locationLongitude": params.longitude.toString(),
+                    "locationName": "My Location",
+                    "locationDescription": "My Location"
+                }]
+            };
+            json.id = KendraDetailscrId + 'MapMainDiv';
+            json.callBack = apz.app.KendraDetails.loadMapCB;
+            apz.ns.loadMap(json);
+        } else {
+            ApzCOB.fnDisplayMsg("Please turn on the location", "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.KendraDetails.loadMapCB = function(params) {
+    ApzCOB.toggleModal(KendraDetailscrId + "confirmLocationModel");
+    apz.app.KendraDetails.captureKendraLocation();
+}
+apz.app.KendraDetails.fetchLatiLongData = function() {
+    var req = {
+        "apiRequest": {
+            "interfaceName": "FetchLatiLongData",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "KendraUserId": selectedValue.kendraId,
+                "latLongFlag": "kendra"
+            }
+        }
+    }
+    apz.startLoader()
+    ApzCOB.serverBuildParam(gAppId, "FetchLatiLongData", "N", "N", req, false, apz.app.KendraDetails.fetchLatiLongDataCB);
+}
+apz.app.KendraDetails.fetchLatiLongDataCB = function(params) {
+    try {
+        apz.stopLoader();
+        if (params.status && apz.isNull(params.errors)) {
+            if (params.res.APZCBO__FetchLatiLongData_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+                if (params.res.APZCBO__FetchLatiLongData_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                    let response = (params.res.APZCBO__FetchLatiLongData_Res.apiResponse.ResponseBody.responseObj);
+                    if (response === 'null') {
+                        $("#" + KendraDetailscrId + 'captureLocationDiv').removeClass('sno');
+                        $("#" + KendraDetailscrId + 'locationDiv').addClass('sno');
+                    } else {
+                        $("#" + KendraDetailscrId + 'captureLocationDiv').addClass('sno');
+                        $("#" + KendraDetailscrId + 'locationDiv').removeClass('sno');
+                        let respData = JSON.parse(response);
+                        apz.app.KendraDetails.selectedKendraLocation.lat = respData.lat;
+                        apz.app.KendraDetails.selectedKendraLocation.long = respData.longit;
+                        let address = respData.address ? respData.address : 'N/A';
+                        apz.setElmValue(KendraDetailscrId + 'locatioVal', address);
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.KendraDetails.captureKendraLocation = function() {
+    var req = {
+        "apiRequest": {
+            "interfaceName": "KendraLatiLongSave",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "kendraId": selectedValue.kendraId,
+                "lat": locationDetails.latitude,
+                "longit": locationDetails.longitude,
+                "updatedBy": LoggedInUserDetails.loginResponse.userDet.name,
+                "UpdatedAt": locationDetails.address,
+                "address": locationDetails.address
+            }
+        }
+    }
+    apz.startLoader()
+    ApzCOB.serverBuildParam(gAppId, "KendraLatiLongSave", "N", "N", req, false, apz.app.KendraDetails.captureKendraLocationCB);
+}
+apz.app.KendraDetails.captureKendraLocationCB = function(params) {
+    try {
+        apz.stopLoader();
+        if (params.status && apz.isNull(params.errors)) {
+            if (params.res.APZCBO__KendraLatiLongSave_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+                if (params.res.APZCBO__KendraLatiLongSave_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                    let now = new Date();
+                    let currDate = now.toLocaleDateString(); // e.g., "7/22/2024"
+                    let currTime = now.toLocaleTimeString();
+                    $("#" + KendraDetailscrId + "kdMainScr").addClass("sno");
+                    $("#" + KendraDetailscrId + "reasonEditDiv").addClass("sno");
+                    $("#" + KendraDetailscrId + "successDiv").removeClass("sno");
+                    apz.setElmValue(KendraDetailscrId + 'successMsg', 'Kendra Location captured successfully');
+                    apz.setElmValue(KendraDetailscrId + 'KmdetailsAndId', selectedValue.kendraName + ' | ' + '#' + selectedValue.kendraId);
+                    let data = apz.app.KendraDetails.extractAddressDetails(locationDetails.address);
+                    let pincode = data.pinCode;
+                    let state = data.state;
+                    let city = data.city;
+                    apz.setElmValue(KendraDetailscrId + 'KmdetailsAndId', selectedValue.kendraName + ' | ' + '#' + selectedValue.kendraId);
+                    let infoArr = ['Date', 'Time', 'Location Captured By', 'Area', 'State', 'Pincode'];
+                    let detailsArr = [currDate, currTime, LoggedInUserDetails.loginResponse.userDet.name, city, state, pincode];
+                    let paintArr = [];
+                    infoArr.forEach((d, idx) => {
+                        let obj = {};
+                        obj.info = d,
+                            obj.details = detailsArr[idx];
+                        paintArr.push(obj)
+                    });
+                    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.SuccessDetails = paintArr;
+                    apz.data.loadData("IPaintPaintKMBMDetails", 'Kendra');
+                }
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+//update kendra location
+apz.app.KendraDetails.updateKendraLocation = function(latitude, longitude) {
+    var req = {
+        "apiRequest": {
+            "interfaceName": "BranchLatiLongSave",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "kendraId": selectedValue.kendraId,
+                "lat": locationDetails.latitude,
+                "longit": locationDetails.longitude,
+                "updatedBy": LoggedInUserDetails.userID
+            }
+        }
+    }
+    ApzCOB.serverBuildParam(gAppId, "BranchLatiLongSave", "N", "N", req, false, apz.app.KendraDetails.updateKendraLocationCB);
+}
+//update Kendra Location
+apz.app.KendraDetails.updateKendraLocationCB = function(params) {
+    try {
+        if (params.status && apz.isNull(params.errors)) {
+            if (params.res.APZCBO__BranchLatiLongSave_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+                if (params.res.APZCBO__BranchLatiLongSave_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                    let now = new Date();
+                    let currDate = now.toLocaleDateString(); // e.g., "7/22/2024"
+                    let currTime = now.toLocaleTimeString();
+                    $("#" + KendraDetailscrId + "changeMeetingTimeDiv").addClass("sno");
+                    $("#" + KendraDetailscrId + "reasonEditDiv").addClass("sno");
+                    $("#" + KendraDetailscrId + "successDiv").removeClass("sno");
+                    apz.setElmValue(KendraDetailscrId + 'successMsg', 'Kendra Location captured successfully');
+                    let data = apz.app.KendraDetails.extractAddressDetails(locationDetails.address);
+                    let pincode = data.pinCode;
+                    let state = data.state;
+                    let city = data.city;
+                    apz.setElmValue(KendraDetailscrId + 'KmdetailsAndId', selectedValue.kendraName + ' | ' + '#' + selectedValue.kendraId);
+                    let infoArr = ['Date', 'Time', 'Location Captured By', 'Area', 'State', 'Pincode'];
+                    let detailsArr = [currDate, currTime, LoggedInUserDetails.loginResponse.userDet.name, city, state, pincode];
+                    let paintArr = [];
+                    infoArr.forEach((d, idx) => {
+                        let obj = {};
+                        debugger;
+                        obj.info = d,
+                            obj.details = detailsArr[idx];
+                        paintArr.push(obj)
+                    });
+                    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.SuccessDetails = paintArr;
+                    apz.data.loadData("IPaintPaintKMBMDetails", 'Kendra');
+                }
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.KendraDetails.onClickOfConfirmKendraLoc = function(pthis) {
+    if ($("#" + pthis.id).prop('checked')) {
+        document.getElementById(KendraDetailscrId + 'proceedBtn').disabled = false;
+    } else {
+        document.getElementById(KendraDetailscrId + 'proceedBtn').disabled = true;
+    }
+}
+apz.app.KendraDetails.onClickOfProceedKendraLoc = function() {
+    apz.app.KendraDetails.loadCurrLocationMap();
+}
+apz.app.KendraDetails.onClickOfCaptureLocation = function() {
+    document.getElementById(KendraDetailscrId + 'proceedBtn').disabled = true
+    loactionCaptureFlow = 'saveLocFlow';
+    ApzCOB.toggleModal(KendraDetailscrId + "confirmLocationModel");
+}
+apz.app.KendraDetails.onClickOfEditLocation = function() {
+    document.getElementById(KendraDetailscrId + 'proceedBtn').disabled = true
+    loactionCaptureFlow = 'updateLocFlow';
+    ApzCOB.toggleModal(KendraDetailscrId + "confirmLocationModel");
+    $("#" + KendraDetailscrId + "el_cbx_7_ul").prop("checked", false);
+}
+apz.app.KendraDetails.onClickOfEditAddress = function(val) {
+    let kendraData = {
+        selectedKendra: data,
+        func: val
+    };
+    ApzCOB.launchMicroApp("Kendra", "KendraAddressUpdate", 'APZCBO__BaseScreens__BaseDIV', kendraData);
+}
+apz.app.KendraDetails.sortTimeData = function(data) {
+    let isValidTime = timeStr => /^\d{2}:\d{2}-\d{2}:\d{2}$/.test(timeStr);
+    let parseTime = timeStr => {
+        let [startTime] = timeStr.split('-');
+        let [hours, minutes] = startTime.split(':').map(Number);
+        return hours * 60 + minutes;
+    };
+    // Check for invalid data
+    // for (let item of data) {
+    //     if (!isValidTime(item.time)) {
+    //         return data;
+    //     }
+    // }
+    // Sort data if all time strings are valid
+    let sortedData = data.sort((a, b) => {
+        return parseTime(a.time) - parseTime(b.time);
+    });
+    return sortedData;
+}
+apz.app.KendraDetails.paintBackGroundColorToTimeSlots = function(data) {
+    data.forEach((d, i) => {
+        let selLiDiv = document.getElementById(KendraDetailscrId + 'timeSlotsList_row_' + i);
+        if ((i % 2) === 0) {
+            selLiDiv.querySelector("#" + KendraDetailscrId + 'timeSlotsRow_li').classList.remove('ter');
+            selLiDiv.querySelector("#" + KendraDetailscrId + 'statusRow_li').classList.remove('ter');
+            selLiDiv.querySelector("#" + KendraDetailscrId + 'kendaRow_li').classList.remove('ter');
+            selLiDiv.querySelector("#" + KendraDetailscrId + 'kendaRow_li').classList.add('sec');
+        } else {
+            selLiDiv.querySelector("#" + KendraDetailscrId + 'kendaRow_li').classList.remove('sec');
+            selLiDiv.querySelector("#" + KendraDetailscrId + 'timeSlotsRow_li').classList.add('ter');
+            selLiDiv.querySelector("#" + KendraDetailscrId + 'statusRow_li').classList.add('ter');
+            selLiDiv.querySelector("#" + KendraDetailscrId + 'kendaRow_li').classList.add('ter');
+        }
+        if (apz.getElmValue('Kendra__IPaintPaintKMBMDetails__o__PaintTimeSlots__status_' + i) === 'Busy') {
+            selLiDiv.querySelector("#Kendra__IPaintPaintKMBMDetails__o__PaintTimeSlots__status_" + i).classList.remove('var2');
+            selLiDiv.querySelector("#Kendra__IPaintPaintKMBMDetails__o__PaintTimeSlots__status_" + i).classList.add('var1');
+        } else {
+            selLiDiv.querySelector("#Kendra__IPaintPaintKMBMDetails__o__PaintTimeSlots__status_" + i).classList.add('var2');
+            selLiDiv.querySelector("#Kendra__IPaintPaintKMBMDetails__o__PaintTimeSlots__status_" + i).classList.remove('var1');
+        }
+    })
+}
+apz.app.KendraDetails.paintBusyAndFreeSlots = function(selKmDataDay) {
+    let timeSlotsArr = []
+    selKmDataDay.map(d => {
+        let obj = {};
+        obj.startTime = d.kendraDtls.meetingStartTime;
+        obj.endTime = d.kendraDtls.endingTime;
+        obj.kendraName = d.kendraDtls.kendraName;
+        timeSlotsArr.push(obj);
+    })
+    let sortedTimeSlots = timeSlotsArr.sort((a, b) => parseInt(a.startTime) - parseInt(b.startTime));
+    let newTimeSlotsArr = [];
+    for (let i = 0; i < sortedTimeSlots.length; i++) {
+        let currentSlot = sortedTimeSlots[i];
+        let nextSlot = sortedTimeSlots[i + 1];
+        newTimeSlotsArr.push({
+            time: `${apz.app.KendraDetails.formatTimeToCheckFeeTime(parseInt(currentSlot.startTime))}-${apz.app.KendraDetails.formatTimeToCheckFeeTime(parseInt(currentSlot.endTime))}`,
+            status: "Busy",
+            kendras: currentSlot.kendraName
+        });
+        if (nextSlot) {
+            let currentEndTime = parseInt(currentSlot.endTime);
+            let nextStartTime = parseInt(nextSlot.startTime);
+            let timeDifference = nextStartTime - currentEndTime;
+            if (timeDifference > 30) {
+                newTimeSlotsArr.push({
+                    time: `${apz.app.KendraDetails.formatTimeToCheckFeeTime(currentEndTime)}-${apz.app.KendraDetails.formatTimeToCheckFeeTime(nextStartTime)}`,
+                    status: "Free",
+                    kendras: "-"
+                });
+            }
+        }
+    }
+    return newTimeSlotsArr;
+}
+apz.app.KendraDetails.formatTimeToCheckFeeTime = function(time) {
+    let hour = Math.floor(time / 100);
+    let minute = time % 100;
+    let period = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12 || 12;
+    return `${hour}:${minute.toString().padStart(2, '0')}`;
+}
+apz.app.KendraDetails.filterMenuList = function(menuLists) {
+    let updatedRec = menuLists;
+    if (window.userRole === 'KM') {
+        updatedRec = menuLists.filter(d => d.key !== 'Allocate KM');
+    }
+    return updatedRec;
+}
+apz.app.KendraDetails.extractAddressDetails = function(address) {
+    let pinCodeRegex = /\b\d{6}\b/;
+    let stateRegex = /, (\w+)(?= \d{6})/;
+    let cityRegex = /, (\w+), \w+ \d{6}/;
+    let pinCodeMatch = address.match(pinCodeRegex);
+    let pinCode = pinCodeMatch ? pinCodeMatch[0] : null;
+    let stateMatch = address.match(stateRegex);
+    let state = stateMatch ? stateMatch[1] : null;
+    let cityMatch = address.match(cityRegex);
+    let city = cityMatch ? cityMatch[1] : null;
+    return {
+        pinCode,
+        state,
+        city
+    };
+}
+apz.app.KendraDetails.backNavEditTimePage = function() {
+    $('#' + KendraDetailscrId + 'kdMainScr').removeClass('sno');
+    $('#' + KendraDetailscrId + 'changeMeetingTimeDiv').addClass('sno');
+}
+apz.app.KendraDetails.backNavigationOnHeader = function() {
+    if (kendraBackNavigationObj.hasOwnProperty('stage')) {
+        if (kendraBackNavigationObj.stage === 'LoanApplication') {
+            ApzCOB.launchMicroApp("NEWLOA", "NewLoanApplication", "APZCBO__BaseScreens__BaseDIV", JSON.parse(kendraBackNavigationObj.data));
+            kendraBackNavigationObj={}
+        } else if (kendraBackNavigationObj.stage === 'KmDashboard') {
+            startTimerFunc = true;
+            ApzCOB.launchMicroApp("KenMet", "KMDashboard", "APZCBO__BaseScreens__BaseDIV", kendraBackNavigationObj.data);
+        } else if (kendraBackNavigationObj.stage === 'DashboardSearch') {
+            ApzCOB.launchMicroApp('Widget', 'DashboardSearch', 'APZCBO__BaseScreens__BaseDIV', );
+        } else {
+            ApzCOB.backNavigation();
+        }
+    } else {
+        ApzCOB.backNavigation();
+    }
+}
+apz.app.KendraDetails.onClickTimeInputBox = function(pthis) {
+    ApzCOB.toggleModal(KendraDetailscrId + "timeSlotsModel");
+    let satrtdropDownData = apz.app.KendraDetails.generateTimePairs(6, 0, 14, 00);
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.timeSlots = satrtdropDownData;
+    apz.data.loadData("IPaintPaintKMBMDetails", 'Kendra');
+    selTimeDropDownId = pthis.id;
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.timeSlots.forEach((d, idx) => {
+        $("#" + KendraDetailscrId + 'timeSelChkBox_' + idx).prop('checked', false);
+    });
+}
+apz.app.KendraDetails.onClickOfInputBoxTime = function(pthis) {
+    $("#" + KendraDetailscrId + 'keyPadForTime').removeClass('sno');
+}
+apz.app.KendraDetails.onKeyPressStartBtn = function(pthis) {
+    let valEnt = pthis.value;
+    if (valEnt.includes(':')) {
+        valEnt = valEnt.replace(':', '');
+    }
+    if (valEnt.length >= 3) {
+        while (valEnt.length < 4) {
+            valEnt = '0' + valEnt;
+        }
+        let hours = parseInt(valEnt.substring(0, 2), 10);
+        let minutes = parseInt(valEnt.substring(2), 10);
+        hours = Math.max(0, Math.min(23, hours));
+        if (minutes < 0) {
+            minutes = 0;
+        } else if (minutes > 59) {
+            minutes = 59;
+        }
+        // else if (minutes % 10 !== 0) {
+        //     minutes = Math.round(minutes / 10) * 10;
+        //     if (minutes === 60) {
+        //         minutes = 59;
+        //     }
+        // }
+        let formattedTime = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
+        apz.setElmValue(pthis.id, formattedTime);
+    }
+}
+apz.app.KendraDetails.onClickOfSubmitBtn = function() {
+    let selData;
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.timeSlots.forEach((d, idx) => {
+        if ($("#" + KendraDetailscrId + 'timeSelChkBox_' + idx).prop("checked")) {
+            selData = idx;
+        }
+    });
+    if (apz.isNull(selData)) {
+        ApzCOB.fnDisplayMsg("Please select the time slot", "E");
+    } else {
+        apz.setElmValue(KendraDetailscrId + selTimeDropDownId.split("_")[4], apz.getElmValue(
+            "Kendra__IPaintPaintKMBMDetails__o__timeSlots__time_" + selData));
+        ApzCOB.toggleModal(KendraDetailscrId + "timeSlotsModel");
+    }
+}
+apz.app.KendraDetails.onClickOfTimeCheckBox = function(pthis) {
+    let id = parseInt(pthis.id.split("_").at(-1));
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.timeSlots.forEach((d, idx) => {
+        if (id !== idx) {
+            $("#" + KendraDetailscrId + 'timeSelChkBox_' + idx).prop("checked", false);
+        }
+    });
+}
+apz.app.KendraDetails.onClickBackNavKendraMeetingTime = function() {
+    $("#" + KendraDetailscrId + 'timeDropDownScr').addClass('sno');
+    $("#" + KendraDetailscrId + 'changeMeetingTimeDiv').removeClass('sno');
+}
+apz.app.KendraDetails.convertToMinutes = function(time) {
+    let [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
+}
+apz.app.KendraDetails.onClickOfMarkCollection = function() {
+    let params = {};
+    params.kendraId = selectedValue.kendraId;
+    params.flow = 'Kendra';
+    ApzCOB.launchMicroApp('KenMet', 'NonMeetingDayColl', 'APZCBO__BaseScreens__BaseDIV', params);
+}
+apz.app.KendraDetails.viewLocationMap = function() {
+    try {
+        let kendraDetails = apz.app.KendraDetails.selectedKendraLocation;
+        if (kendraDetails.lat && kendraDetails.long) {
+            apz.app.KendraDetails.captureCurrentLocation(apz.app.KendraDetails.onLocationCaptured);
+        } else {
+            ApzCOB.fnDisplayMsg("Location not captured & capture now.", "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+};
+apz.app.KendraDetails.captureCurrentLocation = function(callback) {
+    try {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                let params = {
+                    status: true,
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                };
+                callback(params);
+            },
+            function(error) {
+                let params = { status: false };
+                callback(params);
+            }
+        );
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg("Error capturing location. Please enable GPS.", "E");
+    }
+};
+apz.app.KendraDetails.onLocationCaptured = function(params) {
+    apz.stopLoader();
+    try {
+        if (params.status) {
+            let kendraDetails = apz.app.KendraDetails.selectedKendraLocation;
+            let destination = kendraDetails.lat + ',' + kendraDetails.long;
+            let origin = params.latitude + ',' + params.longitude;
+            let url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
+
+            if (apz.deviceType === "WEB") {
+                window.open(url);
+            } else {
+                var json = {
+                    "url": url,
+                    "id": "BROWSERID",
+                    "callBack": apz.app.googlemapsCB
+                };
+                apz.ns.openUrl(json);
+            }
+        } else {
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("Please enabled location"), "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+};
+ var customerDtlsArr = [],uniqueGroupID=[],arrayList=[];
+apz.app.KendraDetails.paintCustDetails = function() {
+    if(userRole === 'BM'){
+        if(data.kendraDtls.customerDtls.length === 0){
+            isFetchingKendraDetails=true;
+            var kendraID = data?.kendraDtls?.kendraId
+            ApzCOB.fetchCustDetailsDeo(kendraID);  
+        }else{
+            apz.app.KendraDetails.paintCustomerDetails()
+        }
+    }else{
+        apz.app.KendraDetails.paintCustomerDetails()
+    }
+}
+apz.app.KendraDetails.getCustomerDetails = function(params) {
+    data.kendraDtls.customerDtls = params
+    apz.app.KendraDetails.paintCustomerDetails()
+}
+apz.app.KendraDetails.paintCustomerDetails = function() {
+    if (data.kendraDtls.customerDtls.length > 0) {
+        arrayList = [];
+        uniqueGroupID = [...new Set(data.kendraDtls.customerDtls.map(obj => obj.groupId))];
+        let tempArray0 = [];
+        if (uniqueGroupID.length > 0) {
+            uniqueGroupID.forEach(function(j, k) {
+                let tempObj0 = {
+                    "groupIdDesc": "Group " + k,
+                    "groupId": j
+                }
+                tempArray0.push(tempObj0);
+            });
+            apz.data.scrdata.Kendra__GroupWiseCustList_Res = {};
+            apz.data.scrdata.Kendra__GroupWiseCustList_Res.GroupWiseCust = tempArray0;
+            apz.data.loadData("GroupWiseCustList", 'Kendra');
+            $("#Kendra__GroupWiseCustList__o__GroupWiseCust__groupId_0").addClass("active");
+            $('#Kendra__KendraDetails__ct_lst_41 ul').addClass('gap8')
+        }
+        //NQA Group notification
+        data.kendraDtls.customerDtls.forEach(function (k,i) {
+            if(k.custStatus === 'NQA'){
+                apz.data.scrdata.Kendra__GroupWiseCustList_Res.GroupWiseCust.forEach(function(item,index){
+                    if(k.groupId === item.groupId){
+                        $("#" + "Kendra__KendraDetails__nqaFlag_" + index).removeClass("sno");
+                    }
+                })
+            }    
+        })
+        arrayList = data.kendraDtls.customerDtls.filter(val => (val.groupId === uniqueGroupID[0]));
+        for (let i = 0; i < arrayList.length; i++) {
+            arrayList.forEach(function(el, i) {
+                if (arrayList[i].maritalStatus === 'MARRIED') {
+                    if (arrayList[i].earnings.length > 0) {
+                        arrayList[i].earnings.forEach(function(e, k) {
+                            if (arrayList[i].earnings[k].memRelation === 'SPOUSE') {
+                                arrayList[i].spouseName = arrayList[i].earnings[k].name;
+                            }
+                        })
+                    }
+                }
+            })
+            customerDtlsArr.push(arrayList[i]);
+        }
+        if (customerDtlsArr.length > 0) {
+            apz.data.scrdata.Kendra__CustomerDtlsList_Res = {};
+            apz.data.scrdata.Kendra__CustomerDtlsList_Res.CustomerDtls = customerDtlsArr;
+            apz.data.loadData("CustomerDtlsList", 'Kendra');
+            apz.app.KendraDetails.removefunctiononclick("Kendra__KendraDetails__ct_lst_40");
+            $("#" + "Kendra__KendraDetails__noRecordDiv").addClass("sno");
+            apz.app.KendraDetails.updateCustomerDetails();
+            apz.app.KendraDetails.checkCustomersDetails();
+        } else {
+            $("#" + "Kendra__KendraDetails__gr_row_234").addClass("sno");
+            $("#" + "Kendra__KendraDetails__noRecordDiv").removeClass("sno");
+        }
+    }else {
+        $("#" + "Kendra__KendraDetails__gr_row_234").addClass("sno");
+        $("#" + "Kendra__KendraDetails__noRecordDiv").removeClass("sno");
+    }
+}
+apz.app.KendraDetails.onClickGroup = function(pthis) {
+    apz.app.KendraDetails.ensurePopoverExists();
+    customerDtlsArr = [];
+    rowNo = $(pthis).attr('rowno');
+    apz.data.scrdata.Kendra__GroupWiseCustList_Res.GroupWiseCust.forEach(function(m, n) {
+        if (parseInt(rowNo) === n) {
+            $("#" + "Kendra__GroupWiseCustList__o__GroupWiseCust__groupId_" + n).addClass("active");
+        } else {
+            $("#" + "Kendra__GroupWiseCustList__o__GroupWiseCust__groupId_" + n).removeClass("active");
+        }
+    });
+    arrayList = data.kendraDtls.customerDtls.filter(val => (val.groupId === uniqueGroupID[rowNo]));
+    for (let i = 0; i < arrayList.length; i++) {
+        arrayList.forEach(function(el, i) {
+            if (arrayList[i].maritalStatus === 'MARRIED') {
+                if (arrayList[i].earnings.length > 0) {
+                    arrayList[i].earnings.forEach(function(e, k) {
+                        if (arrayList[i].earnings[k].memRelation === 'SPOUSE') {
+                            arrayList[i].spouseName = arrayList[i].earnings[k].name;
+                        }
+                    })
+                }
+            }
+        })
+        customerDtlsArr.push(arrayList[i]);
+    }
+    if (customerDtlsArr.length > 0) {
+        apz.data.scrdata.Kendra__CustomerDtlsList_Res = {};
+        apz.data.scrdata.Kendra__CustomerDtlsList_Res.CustomerDtls = customerDtlsArr;
+        apz.data.loadData("CustomerDtlsList", 'Kendra');
+        apz.app.KendraDetails.updateCustomerDetails();
+    }
+}
+apz.app.KendraDetails.updateCustomerDetails = function() {
+    apz.data.scrdata.Kendra__CustomerDtlsList_Res.CustomerDtls.forEach(function(j, k) {
+        if (j.loanDtls.length > 0) {
+            var parCount = ApzCOB.findOverdueCustomers(j);
+            if (parCount !== 0) {
+                $("#" + "Kendra__KendraDetails__el_bdg_9_" + k).removeClass("sno");
+            } else {
+                $("#" + "Kendra__KendraDetails__el_bdg_9_" + k).addClass("sno");
+            }
+        } else {
+            $("#" + "Kendra__KendraDetails__el_bdg_9_" + k).addClass("sno");
+        }
+        // if (apz.data.scrdata.Kendra__CustomerDtlsList_Res.CustomerDtls[k].custStatus === "NQA") {
+        //     $("#" + "Kendra__KendraDetails__el_bdg_8_" + k).removeClass("sno");
+        // } else {
+        //     $("#" + "Kendra__KendraDetails__el_bdg_8_" + k).addClass("sno");
+        // }
+        if (!apz.isNull(j.newCustStatus)) {
+            $("#" + "Kendra__KendraDetails__el_bdg_8_" + k).removeClass("sno");
+            $("#" + "Kendra__KendraDetails__el_bdg_8_" + k).removeClass("sno").text(j.newCustStatus);
+        } else {
+            $("#" + "Kendra__KendraDetails__el_bdg_8_" + k).removeClass("sno").addClass("sno");
+        }
+         if (apz.data.scrdata.Kendra__CustomerDtlsList_Res.CustomerDtls[k].spouseName) {
+             $("#Kendra__KendraDetails__el_txt_1083_" + k).removeClass("sno");
+             $("#Kendra__CustomerDtlsList__o__CustomerDtls__spouseName_" + k).removeClass("sno");
+         } else {
+             $("#Kendra__KendraDetails__el_txt_1083_" + k).addClass("sno");
+             $("#Kendra__CustomerDtlsList__o__CustomerDtls__spouseName_" + k).addClass("sno");
+         }
+         var totalOutstandingAmt = 0;
+            var loanData = apz.data.scrdata.Kendra__CustomerDtlsList_Res.CustomerDtls[k].loanDtls
+            if (loanData.length > 0) {
+              loanData.forEach(function (el, i) {
+                if (el.status !== "CLOSED") {
+                  var outstandingAMT = 0;
+                  if (
+                    el.outstandingPrincipal === undefined ||
+                    el.outstandingPrincipal === null
+                  ) {
+                    el.outstandingPrincipal = 0;
+                  }
+                  totalOutstandingAmt =
+                    totalOutstandingAmt + parseInt(el.outstandingPrincipal);
+                }
+              });
+            }
+            if (totalOutstandingAmt == 0) {
+               $(`#${'Kendra__KendraDetails__ct_lst_40_row_'+k} #${'Kendra__KendraDetails__sc_col_1752_li'}`).addClass("sno");
+            } else {
+                $(`#${'Kendra__KendraDetails__ct_lst_40_row_'+k} #${'Kendra__KendraDetails__sc_col_1752_li'}`).removeClass("sno");
+                $('#Kendra__CustomerDtlsList__o__CustomerDtls__loanAmount_'+k).text(ApzCOB.fn_FormatAmount(totalOutstandingAmt))
+            }
+            if(window.myKendraFlow && userRole === 'BM'){
+                $(`#${'Kendra__KendraDetails__ct_lst_40_row_'+k} #${'Kendra__KendraDetails__sc_col_1755_li'}`).addClass("sno");
+            }
+            let showIcon = apz.app.KendraDetails.hideAndShowIdentificationsCust(j.kendraId, j.customerId);
+                if (!showIcon) {
+                    $("#Kendra__KendraDetails__icn_pendingDetIcnLoan_" + k).removeClass("sno");
+                } else {
+                    $("#Kendra__KendraDetails__icn_pendingDetIcnLoan_" + k).addClass("sno");
+                }    
+    });
+}
+apz.app.KendraDetails.onClickApplyLoan = function(params) {
+    isKendraDtlsToAddLoan = true;
+    isApplyingLoanFromKendraDetails = true;
+    apz.app.KendraDetails.selectLoan(params)
+}
+apz.app.KendraDetails.selectLoan = function(pthis) {
+    event.preventDefault();
+    event.stopPropagation();
+    KendraApp.currentLoanAppRequest = {};
+    KendraApp.AppCreateResObj = {};
+    let rowNo = $(pthis).attr('rowno');
+    KendraApp.selectedKendra = data.kendraDtls;
+    KendraApp.selectedCustomer = apz.data.scrdata.Kendra__CustomerDtlsList_Res.CustomerDtls[rowNo]
+    KendraApp.selectedCustomer.loanDtls.forEach((item) => {
+        item.overdueInterest = item.overdueInterest || "0";
+        item.overduePrincipal = item.overduePrincipal || "0";
+        item.outstandingPrincipal = item.outstandingPrincipal || "0";
+    });
+    if (KendraApp.selectedCustomer.custQualify==='CREDIT') {
+        if (KendraApp.selectedCustomer.hasOwnProperty("customerId") && "" !== KendraApp.selectedCustomer.customerId) {
+            ApzCOB.fetchCustomerIdDetails(KendraApp.selectedCustomer.customerId);
+        } else {
+            apz.app.KendraDetails.selectLoanContinueFn();
+        }
+    } else {
+       ApzCOB.fnDisplayMsg("Customer not belongs to group lending. Hence loan application is not allowed.", "E"); 
+    }
+}
+apz.app.KendraDetails.selectLoanContinueFn = function(params) {
+    if (!viewCustomer) {
+        // let dob = ApzCOB.ageCalculator(KendraApp.selectedCustomer.depDob);
+        let age = ApzCOB.ageCalculator(KendraApp.selectedCustomer.dob);
+        if (age > 65) {
+            ApzCOB.fnDisplayMsg("Member above 65 years.", "E");
+            KendraApp.selectedCustomer = {};
+            return;
+        } else if (age < 18) {
+            ApzCOB.fnDisplayMsg("Member below 18 years.", "E");
+            KendraApp.selectedCustomer = {};
+            return;
+        }
+        if (apz.isNull(KendraApp.selectedCustomer.income)) {
+            KendraApp.selectedCustomer.income = [];
+        }
+        if (apz.isNull(KendraApp.selectedCustomer.earnings)) {
+            KendraApp.selectedCustomer.earnings = [];
+        }
+        if (KendraApp.selectedCustomer.income.length == 0) {
+            /*var income = [{
+                "customerId": KendraApp.selectedCustomer.customerId,
+                "totIncome": "300000",
+                "totExpense": "150000",
+                "assesmentDt": "20220624"
+            }];*/
+            //KendraApp.selectedCustomer.income = income;
+        }
+        KendraApp.selectedCustomer.isEarning = true;
+        if (KendraApp.selectedCustomer.earnings.length == 0) {
+            KendraApp.selectedCustomer.isEarning = false;
+            /*var earnings = [{
+                "customerId": KendraApp.selectedCustomer.customerId,
+                "name": "Tajammul Pasha",
+                "dob": "19820801",
+                "memRelation": "SPOUSE",
+                "legaldocName": "VOTER-ID",
+                "legaldocId": "EENPM5694R"
+            }];*/
+            //KendraApp.selectedCustomer.earnings = earnings;
+        }
+        if (apz.isNull(KendraApp.selectedCustomer.primaryId) || apz.isNull(KendraApp.selectedCustomer.primaryType)) {
+            ApzCOB.fnDisplayMsg("KYC ID is missing.Kindly update details to enter loan application.", "E");
+            KendraApp.selectedCustomer = {};
+            return;
+        }
+        if (apz.isNull(KendraApp.selectedCustomer.bankAccNo)) {
+            ApzCOB.fnDisplayMsg("Bank details is missing.Kindly update details to enter loan application.", "E");
+            KendraApp.selectedCustomer = {};
+            return;
+        }
+        if (KendraApp.selectedCustomer.maritalStatus === "MARRIED") {
+            if (!apz.isNull(KendraApp.selectedCustomer.memRelation.split(',')[0])) {
+                if (apz.isNull(KendraApp.selectedCustomer.depname.split(',')[0]) || apz.isNull(KendraApp.selectedCustomer.depDocId.split(',')[
+                    0]) || apz.isNull(KendraApp.selectedCustomer.depDocType.split(',')[0]) || apz.isNull(KendraApp.selectedCustomer.depDob.split(
+                        ',')[0])) {
+                    ApzCOB.fnDisplayMsg("Spouse information is missing. Kindly update details to enter loan application.", "E");
+                    KendraApp.selectedCustomer = {};
+                } else {
+                    var depDetails = [{
+                        "customerId": KendraApp.selectedCustomer.customerId,
+                        "name": KendraApp.selectedCustomer.depname.split(',')[0],
+                        "dob": KendraApp.selectedCustomer.depDob.split(',')[0],
+                        "memRelation": KendraApp.selectedCustomer.memRelation.split(',')[0],
+                        "legaldocId": KendraApp.selectedCustomer.depDocId.split(',')[0],
+                        "legaldocName": KendraApp.selectedCustomer.depDocType.split(',')[0]
+                    }];
+                    KendraApp.selectedCustomer.household = depDetails;
+                    $('#APZCBO__BaseScreens__BaseDIV').addClass('sno');
+                     let obj='';
+                     if(window.isDraft){
+                        obj={
+                            data:params.matchingCustomer
+                        }
+                     }else{
+                        obj= KendraApp.selectedCustomer
+                     }
+                    ApzCOB.launchMicroApp("NEWLOA", "AddLoanDetails", "APZCBO__BaseScreens__STAGE1", obj);
+                    /*}*/
+                }
+            } else {
+                ApzCOB.fnDisplayMsg("Spouse information is missing. Kindly update details to enter loan application.", "E");
+                KendraApp.selectedCustomer = {};
+            }
+        } else {
+            var depDetails = [];
+            KendraApp.selectedCustomer.household = depDetails;
+            $('#APZCBO__BaseScreens__BaseDIV').addClass('sno');
+            let obj='';
+            if(window.isDraft){
+               obj=params.matchingCustomer
+            }else{
+               obj= KendraApp.selectedCustomer
+            }
+            ApzCOB.launchMicroApp("NEWLOA", "AddLoanDetails", "APZCBO__BaseScreens__STAGE1", obj);
+            /*}*/
+        }
+    } else {
+        let obj={
+            'scr':apz.childScr,
+            'childScrId':apz.currAppId
+        }
+        ApzCOB.launchMicroApp("Custom", "CustomerDetails", "APZCBO__BaseScreens__BaseDIV", obj);
+    }
+}
+
+apz.app.KendraDetails.removefunctiononclick = function(containerId) {
+    $(`#${containerId} li`).each(function() {
+        var currentOnClick = $(this).attr("onclick");
+        if (currentOnClick) {
+            var updatedOnClick = currentOnClick.replace(/apz\.data\.rowClicked\(this,\s*event\);?/g, "");
+            updatedOnClick = updatedOnClick.replace(/;;+/g, ";").trim();
+            if (updatedOnClick.endsWith(";")) {
+                updatedOnClick = updatedOnClick.slice(0, -1);
+            }
+            $(this).attr("onclick", updatedOnClick);
+        }
+    });
+};
+/**Flag authenticated customers identification for mobile etc*/
+apz.app.KendraDetails.checkCustomersDetails = function(){
+    apz.data.scrdata.Kendra__CustomerDtlsList_Res.CustomerDtls.forEach(function(j,k){
+         let showIcon = apz.app.KendraDetails.hideAndShowIdentificationsCust(j.kendraId, j.customerId);
+                if (!showIcon) {
+                    $("#Kendra__KendraDetails__icn_pendingDetIcnLoan_" + k).removeClass("sno");
+                } else {
+                    $("#Kendra__KendraDetails__icn_pendingDetIcnLoan_" + k).addClass("sno");
+                }
+    })
+}
+apz.app.KendraDetails.hideAndShowIdentificationsCust = function(kendraId, customerId) {
+    let kendraDts = kendraResponse.find((d) => d.kendraDtls.kendraId == kendraId);
+    if (!apz.isNull(kendraDts.kendraDtls.customerDtls)) {
+        let customerDts = kendraDts.kendraDtls.customerDtls.find((cust) = cust => cust.customerId == customerId);
+        if ((customerDts.hasOwnProperty("mobileNum") && apz.isNull(customerDts.mobileNum) && customerDts.mobileNum === "")) {
+            return false;
+        } else if ((customerDts.hasOwnProperty("primaryId") && apz.isNull(customerDts.primaryId) && customerDts.primaryId === "")) {
+            return false;
+        } else if ((customerDts.hasOwnProperty("bankAccNo") && apz.isNull(customerDts.bankAccNo) && customerDts.bankAccNo === "")) {
+            return false;
+        } else if ((customerDts.hasOwnProperty("maritalStatus") && apz.isNull(customerDts.maritalStatus) && customerDts.maritalStatus ===
+                "MARRIED" && apz.isNull(customerDts.depDocId))) {
+            return false;
+        }
+    }
+    return true;
+}
+apz.app.KendraDetails.loadPendUpdateDetails = function (pthis) {
+    let selRowNo = $(pthis).attr('rowno');
+    let selCustDet = apz.data.scrdata.Kendra__CustomerDtlsList_Res.CustomerDtls[selRowNo];
+    let mobileNumb = selCustDet.mobileNum
+        ? "Mobile No. not verified (" + selCustDet.mobileNum + ")"
+        : "Mobile No. not updated";
+    let kendraDts = kendraResponse.find(d => d.kendraDtls.kendraId == selCustDet.kendraId);
+    let customerDts = kendraDts?.kendraDtls?.customerDtls.find(cust => cust.customerId == selCustDet.customerId);
+    setTimeout(() => {
+        $("#" + KendraDetailscrId + "txt_mobileNumUpdate").text(mobileNumb);
+        let sectionsToHide = [
+            "mobNoErrDiv",
+            "kycErrDiv",
+            "txt_spousekyc_dts",
+            "txt_acc_dts",
+            "sc_col_1765", 
+            "sc_col_1766" 
+        ];
+        sectionsToHide.forEach(id => {
+            document.getElementById(KendraDetailscrId + id)?.classList.add("sno");
+        });
+        if (!selCustDet.mobileNumber || !selCustDet.mobileNum) {
+            document.getElementById(KendraDetailscrId + 'mobNoErrDiv')?.classList.remove("sno");
+        }
+        if (!selCustDet.primaryId) {
+            document.getElementById(KendraDetailscrId + 'kycErrDiv')?.classList.remove("sno");
+        }
+        if (!customerDts?.bankAccNo) {
+            document.getElementById(KendraDetailscrId + 'txt_acc_dts')?.classList.remove("sno");
+            document.getElementById(KendraDetailscrId + 'sc_col_1766')?.classList.remove("sno");
+        }
+        if (customerDts?.maritalStatus === "MARRIED" && apz.isNull(customerDts?.depDocId)) {
+            document.getElementById(KendraDetailscrId + 'txt_spousekyc_dts')?.classList.remove("sno");
+            document.getElementById(KendraDetailscrId + 'sc_col_1765')?.classList.remove("sno");
+        }
+    }, 100);
+};
+
+apz.app.KendraDetails.onClickPopoverClose = function() {
+    $(".popover").fadeOut(200, function() {
+        $(this).remove();
+    });
+}
+apz.app.KendraDetails.ensurePopoverExists = function () {
+    if ($("#Kendra__KendraDetails__ppr_memUpdate").length === 0) {
+        $("#scr__Kendra__KendraDetails__main").append(`
+    <div id="Kendra__KendraDetails__ppr_memUpdate" class="sno scb-max65 info-popovr" aria-hidden="true">
+        <div id="Kendra__KendraDetails__gr_row_235" class="grb">
+            <div id="Kendra__KendraDetails__gr_col_245" class="gcb-col12">
+                <div id="Kendra__KendraDetails__pl_pnl_225_div" class="plt-simp ma0">
+                    <div id="Kendra__KendraDetails__ps_pls_244" class="pst-simp tsp pa0">
+                        <div id="Kendra__KendraDetails__ct_nav_15" class="crt-navb head tsp">
+                            <ul id="Kendra__KendraDetails__sc_row_1203" class="srb pri">
+                                <li id="Kendra__KendraDetails__sc_col_1762" class="rht pri scb-col100">
+                                    <button id="Kendra__KendraDetails__el_btn_104" type="button" onclick="apz.app.KendraDetails.onClickPopoverClose();" class="ett-bttn tsp med icl btn-icn" enabled="enabled">
+                                        <svg id="btn_icon_icon-close-gk" aria-hidden="true" role="presentation" class="ett-icon icon-close-gk px24">
+                                            <use xlink:href="#icon-close-gk"></use>
+                                        </svg>
+                                        <span id="Kendra__KendraDetails__el_btn_104_txtcnt"></span>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="Kendra__KendraDetails__ct_nav_16" class="crt-navb tsp">
+                            <ul id="Kendra__KendraDetails__sc_row_1204" class="srb pri sno mb16">
+                                <li id="Kendra__KendraDetails__mobNoErrDiv" class="txt-inl align-cen pri scb-col100">
+                                    <svg aria-hidden="true" id="Kendra__KendraDetails__el_icn_91" class="ett-icon icon-close-gk pri px16">
+                                        <use xlink:href="#icon-close-gk"></use>
+                                    </svg>
+                                    <p id="Kendra__KendraDetails__txt_mobileNumUpdate" class="ett-para pri fs14">
+                                        <span id="Kendra__KendraDetails__txt_mobileNumUpdate_txtcnt"></span>
+                                    </p>
+                                </li>
+                            </ul>
+                            <ul id="Kendra__KendraDetails__sc_row_1205" class="srb pri sno bordertop">
+                                <li id="Kendra__KendraDetails__kycErrDiv" class="txt-inl align-cen pri scb-col100">
+                                    <svg aria-hidden="true" id="Kendra__KendraDetails__el_icn_92" class="ett-icon icon-close-gk pri px16">
+                                        <use xlink:href="#icon-close-gk"></use>
+                                    </svg>
+                                    <p id="Kendra__KendraDetails__txt_kycUpdate" class="ett-para pri fs14">
+                                        <span id="Kendra__KendraDetails__txt_kycUpdate_txtcnt">KYC not completed</span>
+                                    </p>
+                                </li>
+                            </ul>
+                            <ul id="Kendra__KendraDetails__sc_row_1206" class="srb pri sno mb16">
+                                <li id="Kendra__KendraDetails__sc_col_1765" class="txt-inl align-cen pri scb-col100">
+                                    <svg aria-hidden="true" id="Kendra__KendraDetails__el_icn_93" class="ett-icon icon-close-gk pri px16">
+                                        <use xlink:href="#icon-close-gk"></use>
+                                    </svg>
+                                    <p id="Kendra__KendraDetails__txt_spousekyc_dts" class="ett-para pri fs14">
+                                        <span id="Kendra__KendraDetails__txt_spousekyc_dts_txtcnt">Spouse KYC details are not available.</span>
+                                    </p>
+                                </li>
+                            </ul>
+                            <ul id="Kendra__KendraDetails__sc_row_1207" class="srb pri sno mb16">
+                                <li id="Kendra__KendraDetails__sc_col_1766" class="txt-inl align-cen pri scb-col100">
+                                    <svg aria-hidden="true" id="Kendra__KendraDetails__el_icn_94" class="ett-icon icon-close-gk pri px16">
+                                        <use xlink:href="#icon-close-gk"></use>
+                                    </svg>
+                                    <p id="Kendra__KendraDetails__txt_acc_dts" class="ett-para pri fs14">
+                                        <span id="Kendra__KendraDetails__txt_acc_dts_txtcnt">Account details are unavailable.</span>
+                                    </p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+`);
+    }
+};
+/**Flag authenticated customers identification for mobile etc*/

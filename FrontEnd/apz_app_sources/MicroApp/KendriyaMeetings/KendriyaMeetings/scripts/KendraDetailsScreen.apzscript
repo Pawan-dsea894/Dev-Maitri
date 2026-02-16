@@ -1,0 +1,193 @@
+var KendraDetScrID = "KenMet__KendraDetailsScreen__";
+var paintkendraDet = '';
+var kendraSubmitToCashier = [];
+var selectKen = [];
+apz.app.onLoad_KendraDetailsScreen = function(params) {
+    //initialization
+}
+apz.app.onShown_KendraDetailsScreen = function(params) {
+    $('#header').addClass('sno');
+    $('#footer').addClass('sno');
+    paintkendraDet = params;
+    selectKen = kendras.filter(e => e.kendraId === paintkendraDet.kendraId);
+    apz.app.KendraDetailsScreen.paintDetails();
+}
+apz.app.KendraDetailsScreen.paintDetails = function() {
+    let totCollectedAmt = 0;
+    let dueAmt = 0;
+    let openAdvBal = 0;
+    let netDue = 0;
+    let cashCollected = 0;
+    let UPICollected = 0;
+    let closeAmt = 0;
+    let AdvBal = 0;
+    let isPartialPay = false;
+    let wfData = [];
+    let advCashAmt = 0;
+    let advUPIAmt = 0;
+    let = 0;
+    document.getElementById(KendraDetScrID + 'kendraName').innerText = paintkendraDet.kendraName;
+    document.getElementById(KendraDetScrID + 'kendraId').innerText = paintkendraDet.kendraId;
+    selectKen.forEach((obj, i) => {
+        if (obj.colldtls.hasOwnProperty('totCollAmt')) {
+            // totCollectedAmt = totCollectedAmt + obj.colldtls.totCollAmt;
+            obj.colldtls.groups.forEach((grp, k) => {
+                totCollectedAmt = totCollectedAmt + grp.totCollAmt;
+                netDue = netDue + grp.netDue;
+                dueAmt = dueAmt + grp.totalDue;
+                if (grp.netDue > grp.totCollAmt) {
+                    isPartialPay = true;
+                }
+                grp.members.forEach((mem, m) => {
+                    if (mem.hasOwnProperty('cashCollected') || mem.hasOwnProperty('totalCash') || mem.hasOwnProperty(
+                            'upiCollected') || mem.hasOwnProperty('totalUPI')) {
+                        if (mem.hasOwnProperty('dueAmount')) {
+                            mem.dueAmount = parseInt(String(mem.dueAmount).replace(/,/g, ''), 10);
+                        }
+                        if (mem.hasOwnProperty('outstandingAmt')) {
+                            mem.outstandingAmt = parseInt(String(mem.outstandingAmt).replace(/,/g, ''), 10);
+                        }
+                        //modified below advance adjusted amount based on advAdj node for UNAP-1267
+                        // openAdvBal = openAdvBal + parseInt(String(mem.totalAdv).replace(/,/g, ''), 10);
+                        openAdvBal = openAdvBal + parseInt(String(mem.advAdj).replace(/,/g, ''), 10) || 0;
+                        if (mem.hasOwnProperty('cashCollected') && mem.cashCollected > 0) {
+                            mem.cashCollected = parseInt(String(mem.cashCollected).replace(/,/g, ''), 10);
+                            advCashAmt = advCashAmt + mem.advAmt;
+                            mem.paymentFlg = "CASH";
+                        } else if (mem.hasOwnProperty('totalCash') && mem.totalCash > 0) {
+                            mem.cashCollected = parseInt(String(mem.totalCash).replace(/,/g, ''), 10);
+                            advCashAmt = advCashAmt + mem.advAmt;
+                            mem.paymentFlg = "CASH";
+                        }
+                        if (mem.hasOwnProperty('upiCollected') && mem.upiCollected > 0) {
+                            mem.upiCollected = parseInt(String(mem.upiCollected).replace(/,/g, ''), 10);
+                            advUPIAmt = advUPIAmt + mem.advAmt;
+                            mem.paymentFlg = "UPI";
+                        } else if (mem.hasOwnProperty('totalUPI') && mem.totalUPI > 0) {
+                            mem.upiCollected = parseInt(String(mem.totalUPI).replace(/,/g, ''), 10);
+                            advUPIAmt = advUPIAmt + mem.advAmt;
+                            mem.paymentFlg = "UPI";
+                        }
+                    } else {
+                        mem.cashCollected = 0;
+                        mem.dueAmount = 0;
+                        mem.outstandingAmt = 0;
+                        mem.upiCollected = 0;
+                    }
+                })
+                AdvBal = AdvBal + grp.totalAdv;
+                grp.members = grp.members.map(item => {
+                    const {
+                        cashCollected,
+                        upiCollected,
+                        ...rest
+                    } = item;
+                    return {
+                        ...rest,
+                        totalCash: cashCollected,
+                        totalUPI: upiCollected ? upiCollected : 0
+                    };
+                });
+            })
+            kendraSubmitToCashier.push(obj)
+        }
+        obj.colldtls.groups.forEach((grp, j) => {
+            grp.members.forEach((mem, k) => {
+                let memCashCollected = 0;
+                let memUPICollected = 0;
+                if (mem.hasOwnProperty('totalCash') && mem.totalCash > 0) {
+                    memCashCollected = mem.totalCash;
+                } else if (mem.hasOwnProperty('totalUPI') && mem.totalUPI > 0) {
+                    memUPICollected = mem.totalUPI;
+                } else {
+                    memCashCollected = 0;
+                }
+                // memCashCollected = mem.hasOwnProperty('cashCollected') ? parseInt(ApzCOB.fn_unFormatAmount(mem
+                //     .cashCollected)) : 0;
+                //  memCashCollected = mem.hasOwnProperty('cashCollected') ? mem.cashCollected : 0;
+                cashCollected = cashCollected + memCashCollected;
+                // UPICollected = UPICollected + 0;
+                UPICollected = UPICollected + memUPICollected;
+            })
+        })
+    })
+    // document.getElementById(KendraDetScrID + 'txt_totColAmt').innerText = "₹" + ApzCOB.fn_FormatAmount(totCollectedAmt);
+    document.getElementById(KendraDetScrID + 'netCol_amt').innerText = "₹" + ApzCOB.fn_FormatAmount(cashCollected + UPICollected);
+    document.getElementById(KendraDetScrID + 'inflow_amt').innerText = "₹" + ApzCOB.fn_FormatAmount(totCollectedAmt);
+    document.getElementById(KendraDetScrID + 'dueAmt').innerText = "₹" + ApzCOB.fn_FormatAmount(dueAmt);
+    document.getElementById(KendraDetScrID + 'openingAdvBal').innerText = "₹" + ApzCOB.fn_FormatAmount(openAdvBal);
+    document.getElementById(KendraDetScrID + 'advCol_amt').innerText = "₹" + ApzCOB.fn_FormatAmount(AdvBal);
+    document.getElementById(KendraDetScrID + 'advCol_cash').innerText = "₹" + ApzCOB.fn_FormatAmount(advCashAmt);
+    document.getElementById(KendraDetScrID + 'advCol_upi').innerText = "₹" + ApzCOB.fn_FormatAmount(advUPIAmt);
+    document.getElementById(KendraDetScrID + 'clos_amt').innerText = "₹" + ApzCOB.fn_FormatAmount(AdvBal);
+    document.getElementById(KendraDetScrID + 'netDue').innerText = "₹" + ApzCOB.fn_FormatAmount(netDue);
+    document.getElementById(KendraDetScrID + 'actualCol_amt').innerText = "₹" + ApzCOB.fn_FormatAmount(cashCollected + UPICollected + openAdvBal);
+    document.getElementById(KendraDetScrID + 'actCol_cash').innerText = "₹" + ApzCOB.fn_FormatAmount(cashCollected);
+    document.getElementById(KendraDetScrID + 'txt_netCollCashId').innerText = "₹" + ApzCOB.fn_FormatAmount(cashCollected);
+    document.getElementById(KendraDetScrID + 'actCol_upi').innerText = "₹" + ApzCOB.fn_FormatAmount(UPICollected);
+    document.getElementById(KendraDetScrID + 'txt_netUPICollId').innerText = "₹" + ApzCOB.fn_FormatAmount(UPICollected);
+    document.getElementById(KendraDetScrID + 'actCol_advAdj').innerText = "₹" + ApzCOB.fn_FormatAmount(openAdvBal);
+}
+apz.app.KendraDetailsScreen.meetingDayShowHide = function(pthis) {
+    if ($('#' + KendraDetScrID + 'icn_MeetDayDropDownIcn').hasClass('active')) {
+        $('#' + KendraDetScrID + 'collDetails').addClass('sno');
+        $('#' + KendraDetScrID + 'icn_MeetDayDropDownIcn').removeClass('active');
+    } else {
+        $('#' + KendraDetScrID + 'collDetails').removeClass('sno');
+        $('#' + KendraDetScrID + 'icn_MeetDayDropDownIcn').addClass('active');
+    }
+}
+apz.app.KendraDetailsScreen.onInflowShowHide = function(pthis) {
+    if ($('#' + KendraDetScrID + 'inFlowDropDown').hasClass('active')) {
+        $('#' + KendraDetScrID + 'inflowData').addClass('sno');
+        $('#' + KendraDetScrID + 'inFlowDropDown').removeClass('active');
+    } else {
+        $('#' + KendraDetScrID + 'inflowData').removeClass('sno');
+        $('#' + KendraDetScrID + 'inFlowDropDown').addClass('active');
+    }
+}
+apz.app.KendraDetailsScreen.onActualCollectShowHide = function(pthis) {
+    if ($('#' + KendraDetScrID + 'icn_actualCollecDownIcon').hasClass('active')) {
+        $('#' + KendraDetScrID + 'ActualdataRow').addClass('sno');
+        $('#' + KendraDetScrID + 'icn_actualCollecDownIcon').removeClass('active');
+    } else {
+        $('#' + KendraDetScrID + 'ActualdataRow').removeClass('sno');
+        $('#' + KendraDetScrID + 'icn_actualCollecDownIcon').addClass('active');
+    }
+}
+apz.app.KendraDetailsScreen.onAdvanceCollectShowHide = function(pthis) {
+    if ($('#' + KendraDetScrID + 'icn_AdvanceCollDownIcn').hasClass('active')) {
+        $('#' + KendraDetScrID + 'advanceRow').addClass('sno');
+        $('#' + KendraDetScrID + 'icn_AdvanceCollDownIcn').removeClass('active');
+    } else {
+        $('#' + KendraDetScrID + 'advanceRow').removeClass('sno');
+        $('#' + KendraDetScrID + 'icn_AdvanceCollDownIcn').addClass('active');
+    }
+}
+apz.app.KendraDetailsScreen.otherCollectShowHide = function(pthis) {
+    if ($('#' + KendraDetScrID + 'icn_otherCollecMoreInfo').hasClass('active')) {
+        $('#' + KendraDetScrID + 'otherCollData').addClass('sno');
+        $('#' + KendraDetScrID + 'icn_otherCollecMoreInfo').removeClass('active');
+    } else {
+        $('#' + KendraDetScrID + 'otherCollData').removeClass('sno');
+        $('#' + KendraDetScrID + 'icn_otherCollecMoreInfo').addClass('active');
+    }
+}
+apz.app.KendraDetailsScreen.outflowShowHide = function(pthis) {
+    if ($('#' + KendraDetScrID + 'icn_outflowDropIcn').hasClass('active')) {
+        $('#' + KendraDetScrID + 'row_outFlowDet').addClass('sno');
+        $('#' + KendraDetScrID + 'icn_outflowDropIcn').removeClass('active');
+    } else {
+        $('#' + KendraDetScrID + 'row_outFlowDet').removeClass('sno');
+        $('#' + KendraDetScrID + 'icn_outflowDropIcn').addClass('active');
+    }
+}
+apz.app.KendraDetailsScreen.netCollectShowHide = function(pthis) {
+    if ($('#' + KendraDetScrID + 'icn_NetCollDropIcon').hasClass('active')) {
+        $('#' + KendraDetScrID + 'netCollectionRow').addClass('sno');
+        $('#' + KendraDetScrID + 'icn_NetCollDropIcon').removeClass('active');
+    } else {
+        $('#' + KendraDetScrID + 'netCollectionRow').removeClass('sno');
+        $('#' + KendraDetScrID + 'icn_NetCollDropIcon').addClass('active');
+    }
+}

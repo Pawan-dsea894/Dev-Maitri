@@ -1,0 +1,65 @@
+var rowNo = "",
+    elScreenId = 'EMERGE__EmergencyLoanApplications__',
+    tempVar = "",
+    elApplicationsObj = {};
+apz.app.onLoad_EmergencyLoanApplications = function(params) {
+    elApplicationsObj.kendraDtls = KendraApp.selectedKendra;
+    $('#' + BaseScrId + "continue").removeClass("Finish EL Applications");
+}
+apz.app.onShown_EmergencyLoanApplications = function() {
+    apz.app.EmergencyLoanApplications.paintGroupDetails();
+}
+apz.app.EmergencyLoanApplications.getLoanDesc = function(custObj) {
+    tempVar = "";
+    if (custObj !== '' && custObj.hasOwnProperty("instantLoanDetailsObj")) {
+        tempVar = custObj.instantLoanDetailsObj.selEligibleLoanDtls.description;
+    }
+    return tempVar;
+}
+apz.app.EmergencyLoanApplications.paintGroupDetails = function() {
+    var groupArrayList = [];
+    if (elApplicationsObj.kendraDtls.customerDtls.length > 0) {
+        var arrayList = elApplicationsObj.kendraDtls.customerDtls;
+        for (let i = 0; i < arrayList.length; i++) {
+            var obj = {
+                "customerName": arrayList[i].customerName,
+                "customerIcon": arrayList[i].customerName.slice(0, 1),
+                "customerId": arrayList[i].customerId,
+                "groupId": arrayList[i].customerName,
+                "isInstantLoanDisbursed": arrayList[i].isInstantLoanDisbursed,
+                "loanDesc": apz.app.EmergencyLoanApplications.getLoanDesc(arrayList[i])
+            }
+            groupArrayList.push(obj);
+        }
+        apz.data.scrdata.EMERGE__ELApplications_Res = {};
+        apz.data.scrdata.EMERGE__ELApplications_Res.ELApplicationsNode = groupArrayList;
+        apz.data.loadData("ELApplications", 'EMERGE');
+        apz.data.scrdata.EMERGE__ELApplications_Res.ELApplicationsNode.forEach(function(j, k) {
+            if (!j.isInstantLoanDisbursed) {
+                //$("#EMERGE__EmergencyLoanApplications__editIcon_" + k).addClass("sno");
+                $("#EMERGE__EmergencyLoanApplications__arrowIcon_" + k).removeClass("sno");
+                $("#EMERGE__EmergencyLoanApplications__tickIcon_" + k).addClass("sno");
+                $("#EMERGE__ELApplications__o__ELApplicationsNode__customerIcon_" + k).removeClass("sno");
+                $("#EMERGE__ELApplications__o__ELApplicationsNode__loanDesc_" + k).addClass("sno");
+            } else {
+                $("#EMERGE__EmergencyLoanApplications__arrowIcon_" + k).removeClass("sno");
+                $("#EMERGE__EmergencyLoanApplications__tickIcon_" + k).removeClass("sno");
+                $("#EMERGE__ELApplications__o__ELApplicationsNode__customerIcon_" + k).addClass("sno");
+                $("#EMERGE__ELApplications__o__ELApplicationsNode__loanDesc_" + k).removeClass("sno");
+                //$("#EMERGE__EmergencyLoanApplications__editIcon_" + k).removeClass("sno");
+            }
+        })
+    }
+}
+apz.app.EmergencyLoanApplications.onBackNavigation = function() {
+    ApzCOB.launchMicroApp('Dashbo', 'dashboard', gAppId + '__BaseScreens__BaseDIV', '');
+    $('#header').removeClass('sno');
+    $('#footer').removeClass('sno');
+}
+apz.app.EmergencyLoanApplications.selectedELApplication = function(pthis) {
+    rowNo = $(pthis).attr('rowno');
+    var selectedELCustomer = KendraApp.selectedKendra.customerDtls.filter(val => (val.customerId === apz.data.scrdata.EMERGE__ELApplications_Res
+        .ELApplicationsNode[rowNo].customerId));
+    KendraApp.selectedELCustomer = (selectedELCustomer.length > 0) ? selectedELCustomer[0] : "";
+    ApzCOB.launchMicroApp("EMERGE", "ELApplication", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedELCustomer);
+}

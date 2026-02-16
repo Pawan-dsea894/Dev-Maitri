@@ -1,0 +1,603 @@
+var screenId = 'Income__MonthlyHouseHoldExp__';
+window.TotalMonthlyExpenseValues = [];
+var monthlyExpensesValue = [{
+    "key": "House Rent",
+    "value": ""
+}, {
+    "key": "Electricity Bill",
+    "value": ""
+}, {
+    "key": "Gas Bill",
+    "value": ""
+}, {
+    "key": "Family Phone Bill",
+    "value": ""
+}, {
+    "key": "Shop Rent",
+    "value": ""
+}, {
+    "key": "Food Expenses",
+    "value": ""
+}, {
+    "key": "Clothes Expenses",
+    "value": ""
+}, {
+    "key": "Medical Expenses",
+    "value": ""
+}, {
+    "key": "School Expenses",
+    "value": ""
+}, {
+    "key": "Pvt Tuition Expenses",
+    "value": ""
+}, {
+    "key": "Cable TV  Bill",
+    "value": ""
+}, {
+    "key": "Other Household Expenses",
+    "value": ""
+}];
+var incAndExpTotal = [{
+    "key": "Total Income",
+    "value": ""
+}, {
+    "key": "Total Expenses",
+    "value": ""
+}]
+/*
+var minValue = '120000';
+var maxValue = '300000';
+var ExpminValue = '60000';
+var ExpmaxValue = '300000';
+gApzCOB.incomeLimit = ApzCOB.GetCommonCodes("INCOMELIMIT").INCOMELIMIT;
+*/
+apz.app.onLoad_MonthlyHouseHoldExp = function(params) {
+    // Initialization logic if needed
+    //KendraApp = params.KendraApp;
+    let requestData = params.requestData
+};
+apz.app.onShown_MonthlyHouseHoldExp = function(params) {
+    //KendraApp = params.KendraApp;
+    requestData = params.requestData
+    $('#Income__AddEarningFamilyMem__eariningMembersMainRow').addClass('sno');
+    $('#' + screenId + 'monthlyExpRow').removeClass('sno');
+    let vintageYear = KendraApp.selectedCustomer.custVintage ? +KendraApp.selectedCustomer.custVintage + ' Years' : '';
+    apz.setElmValue(screenId + "updCustName", KendraApp.selectedCustomer.customerName);
+    apz.setElmValue(screenId + "updCustGroupID", (KendraApp.selectedCustomer.groupId));
+    apz.setElmValue(screenId + "updCustID", (KendraApp.selectedCustomer.customerId));
+    apz.setElmValue(screenId + "updVintage", "Customer Vintage: " + vintageYear);
+    apz.setElmValue(screenId + "el_txt_103", KendraApp.selectedCustomer.customerName.substring(0, 2));
+    apz.data.scrdata.Income__IPaintMonthlyExpenses_Res = {};
+    /*comenting below code because of new requirement*/
+    // apz.data.scrdata.Income__IPaintMonthlyExpenses_Res = monthlyExpensesValue;
+    apz.data.scrdata.Income__IPaintMonthlyExpenses_Res = incAndExpTotal /*adding code because of new requirement*/
+    if (KendraApp.selectedCustomer.income.length != 0) {
+        /*apz.setElmValue("Income__IPaintMonthlyExpenses__o__Income__IPaintMonthlyExpenses_Res__value_0", ApzCOB.fn_FormatAmount(KendraApp
+            .selectedCustomer.income[0].totIncome));
+        apz.setElmValue("Income__IPaintMonthlyExpenses__o__Income__IPaintMonthlyExpenses_Res__value_1", ApzCOB.fn_FormatAmount(KendraApp
+            .selectedCustomer.income[0].totExpense));*/
+        incAndExpTotal[1].value = ApzCOB.fn_FormatAmount(KendraApp.selectedCustomer.income[0].totExpense)
+        incAndExpTotal[0].value = ApzCOB.fn_FormatAmount(KendraApp.selectedCustomer.income[0].totIncome)
+    }
+    apz.data.loadData("IPaintMonthlyExpenses", 'Income');
+};
+apz.app.MonthlyHouseHoldExp.backNavigateIncomeDtls = function(pthis) {
+    var data = {
+        //  KendraApp: KendraApp,
+        requestData: requestData
+    };
+    ApzCOB.launchMicroApp('Income', 'AddEarningFamilyMem', 'APZCBO__BaseScreens__BaseDIV', data);
+}
+apz.app.MonthlyHouseHoldExp.nextIncomeDetails = function() {
+    var Validation = true;
+    var inputResponse = apz.data.scrdata.Income__IPaintMonthlyExpenses_Res;
+    inputResponse.forEach(function(obj, i) {
+        if (apz.isNull(obj.value)) {
+            Validation = false;
+            $('#' + "Income__MonthlyHouseHoldExp__ErrorMsg_" + i).removeClass('sno');
+            $('#' + "Income__MonthlyHouseHoldExp__ErrorMsg_" + i).text("Please Enter " + apz.data.scrdata
+                .Income__IPaintMonthlyExpenses_Res[i].key);
+        }
+    })
+    if (Validation) {
+        apz.app.MonthlyHouseHoldExp.navigateNextScreen();
+    }
+}
+apz.app.MonthlyHouseHoldExp.navigateNextScreen = function() {
+    window.TotalMonthlyExpenseValues = apz.data.scrdata.Income__IPaintMonthlyExpenses_Res;
+    // ApzCOB.launchMicroApp('Income', 'TotalIncomeSummary', 'APZCBO__BaseScreens__BaseDIV', "");
+}
+apz.app.MonthlyHouseHoldExp.HideErrorMsgFunc = function(pthis) {
+    $("#" + pthis.id).parent().next().addClass('sno');
+}
+/*apz.app.MonthlyHouseHoldExp.monthlyExpensesCalc = function(pthis) {
+    var rowno = $('#' + pthis.id).attr('rowno');
+    var dataElement1 = document.getElementById('Income__MonthlyHouseHoldExp__monthlyExpenseList')
+    var temp = dataElement1.querySelectorAll('input')
+    var minValue = '100000';
+    var maxValue = '300000';
+    if (apz.data.scrdata.Income__IPaintMonthlyExpenses_Res[rowno].key === "Total Income") {
+        // if ($("#Income__IPaintMonthlyExpenses__o__Income__IPaintMonthlyExpenses_Res__value_0").val().length === "9") {
+        if (ApzCOB.fn_unFormatAmount($("#Income__IPaintMonthlyExpenses__o__Income__IPaintMonthlyExpenses_Res__value_0").val()) > maxValue) {
+            $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').removeClass('sno');
+            $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').text('Please enter maxValue of 3,00,000');
+        } else if (ApzCOB.fn_unFormatAmount($("#Income__IPaintMonthlyExpenses__o__Income__IPaintMonthlyExpenses_Res__value_0").val()) <
+            minValue) {
+            $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').removeClass('sno');
+            $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').text('Please enter minValue of 1,00,000');
+        } else {
+            $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').addClass('sno');
+        }
+        // }
+    } else if (apz.data.scrdata.Income__IPaintMonthlyExpenses_Res[rowno].key === "Total Expenses") {
+        let maxAmount = '300000';
+        if (ApzCOB.fn_unFormatAmount($("#Income__IPaintMonthlyExpenses__o__Income__IPaintMonthlyExpenses_Res__value_1").val()) > maxAmount) {
+            $('#Income__MonthlyHouseHoldExp__ErrorMsg_1').removeClass('sno');
+            $('#Income__MonthlyHouseHoldExp__ErrorMsg_1').text('Please enter maxAmount of 3,00,000');
+        } else {
+            $('#Income__MonthlyHouseHoldExp__ErrorMsg_1').addClass('sno');
+        }
+    }
+}*/
+apz.app.MonthlyHouseHoldExp.edit = function(stages) {
+    var stagesSteps = stages;
+    if (stagesSteps === "stage1") {
+        var data = {
+            //KendraApp: KendraApp,
+            requestData: requestData,
+            checkedQues: true,
+            incomepayload: IncomeApp.payLoad
+        };
+        ApzCOB.launchMicroApp('Income', 'IncomeAssessment', 'APZCBO__BaseScreens__BaseDIV', data);
+    } else if (stagesSteps === "stage2") {
+        var data = {
+            //KendraApp: KendraApp,
+            requestData: requestData
+        };
+         ApzCOB.launchMicroApp('Income', 'AddEarningFamilyMem', 'APZCBO__BaseScreens__BaseDIV', data);
+        //ApzCOB.launchMicroApp('Income', 'AddHouseHoldDetails', 'APZCBO__BaseScreens__BaseDIV', data);
+    } else if (stagesSteps === "stage3") {
+        var data = {
+            //KendraApp: KendraApp,
+            requestData: requestData
+        };
+        ApzCOB.launchMicroApp('Income', 'AddEarningFamilyMem', 'APZCBO__BaseScreens__BaseDIV', data);
+    }
+}
+apz.app.MonthlyHouseHoldExp.finishIncomAss = function(kycDetails) {
+    var monthlyExpensesData = [];
+    var minValue = '120000';
+    var maxValue = '300000';
+    var ExpminValue = '60000';
+    var ExpmaxValue = '300000';
+/*    apz.app.MonthlyHouseHoldExp.getLimit();
+    gApzCOB.incomeLimit.forEach((limit, i) => {
+        if (limit.type == "Normal") {
+            if (limit.LimitSetting.isStatic) {
+                minValue = limit.LimitSetting.minValue;
+                maxValue = limit.LimitSetting.maxValue;
+                ExpminValue = limit.LimitSetting.exminValue;
+            } else {
+                limit.LimitSetting.Limits.forEach((li, j) => {
+                    if (KendraApp.selectedCustomer.permanentState == li.state) {
+                        if (li.isVintageCheck) {
+                            li.Limits.forEach((vintagelimit, k) => {
+                                if (KendraApp.selectedCustomer.custVintage => vintagelimit.minYear && KendraApp
+                                    .selectedCustomer.custVintage = < vintagelimit.maxYear) {
+                                    minValue = li.Limits.minValue;
+                                    maxValue = li.Limits.maxValue;
+                                    ExpminValue = li.Limits.exminValue;
+                                }
+                            })
+                        } else {
+                            minValue = li.Limits.minValue;
+                            maxValue = li.Limits.maxValue;
+                            ExpminValue = li.Limits.exminValue;
+                        }
+                    } else {
+                        if (li.isVintageCheck) {
+                            li.Limits.forEach((vintagelimit, k) => {
+                                if (KendraApp.selectedCustomer.custVintage => vintagelimit.minYear && KendraApp
+                                    .selectedCustomer.custVintage = < vintagelimit.maxYear) {
+                                    minValue = li.Limits.minValue;
+                                    maxValue = li.Limits.maxValue;
+                                    ExpminValue = li.Limits.exminValue;
+                                }
+                            })
+                        } else {
+                            minValue = li.Limits.minValue;
+                            maxValue = li.Limits.maxValue;
+                            ExpminValue = li.Limits.exminValue;
+                        }
+                    }
+                })
+            }
+        } 
+    });*/
+    
+    var obj = {};
+    $('ul.tsp > li').each(function() {
+        var inputField = $(this).find('input[type="text"]');
+        if (inputField.length > 0) {
+            var inputValue = inputField.val();
+            var inputKey = $(this).find('p.ett-para span').text();
+            if (inputKey == 'Total Income') {
+                obj.totIncome = ApzCOB.fn_unFormatAmount(inputValue);
+            }
+            if (inputKey == 'Total Expenses') {
+                obj.totExpense = ApzCOB.fn_unFormatAmount(inputValue);
+            }
+        }
+    });
+    obj.customerId = KendraApp.selectedCustomer.customerId;
+    obj.assesmentDt = new Date().format('Ymd');
+    monthlyExpensesData.push(obj);
+    var error = false;
+if (!window.reIncomeAssessment) {
+    if (KendraApp.selectedCustomer.custStatus === 'NQA') {
+        minValue = '300001';
+        maxValue = '480000'
+        if (KendraApp.selectedCustomer.permanentState === 'KARNATAKA') {
+             if (KendraApp.selectedCustomer.custVintage > '4') {
+                 maxValue = '600000'
+             } else if (KendraApp.selectedCustomer.custVintage <= '4') {
+                 maxValue = '480000'
+             }
+            if (monthlyExpensesData[0].totIncome == '') {
+                error = true;
+                $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').text('Please enter Amount');
+                $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').removeClass('sno');
+            } else if (parseInt(ApzCOB.fn_unFormatAmount(monthlyExpensesData[0].totIncome)) < minValue) {
+                error = true;
+                $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').text('Minimum Income to be entered is above 3 Lakhs');
+                $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').removeClass('sno');
+            } else if (parseInt(ApzCOB.fn_unFormatAmount(monthlyExpensesData[0].totIncome)) > maxValue) {
+                error = true;
+                let errMag = (maxValue === '600000' ? 'Maximum Income Input is Rs. 6 Lakhs' : 'Maximum Income Input is Rs. 4.8 Lakhs')
+                $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').text(errMag);
+                $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').removeClass('sno');
+            } else {
+                $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').addClass('sno');
+            }
+        } else {
+            maxValue = '480000'
+            if (monthlyExpensesData[0].totIncome == '') {
+                error = true;
+                $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').text('Please enter Amount');
+                $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').removeClass('sno');
+            } else if (parseInt(ApzCOB.fn_unFormatAmount(monthlyExpensesData[0].totIncome)) < minValue) {
+                error = true;
+                $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').text('Minimum Income to be entered is above 3 Lakhs');
+                $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').removeClass('sno');
+            } else if (parseInt(ApzCOB.fn_unFormatAmount(monthlyExpensesData[0].totIncome)) > maxValue) {
+                error = true;
+                $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').text('Maximum Income Input is Rs. 4.8 Lakhs');
+                $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').removeClass('sno');
+            } else {
+                $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').addClass('sno');
+            }
+        }
+    } else {
+        if (monthlyExpensesData[0].totIncome == '') {
+            error = true;
+            $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').text('Please enter Amount');
+            $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').removeClass('sno');
+        } else if (parseInt(ApzCOB.fn_unFormatAmount(monthlyExpensesData[0].totIncome)) < minValue) {
+            error = true;
+            $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').text('Please enter minimum Amount of 1,20,000');
+            $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').removeClass('sno');
+        } else if (parseInt(ApzCOB.fn_unFormatAmount(monthlyExpensesData[0].totIncome)) > maxValue) {
+            error = true;
+            $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').text('Please enter maximum Amount of 3,00,000');
+            $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').removeClass('sno');
+        } else {
+            $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').addClass('sno');
+        }
+    }
+}
+    if (monthlyExpensesData[0].totExpense == '') {
+        $('#Income__MonthlyHouseHoldExp__ErrorMsg_1').text('Please enter Amount');
+        $('#Income__MonthlyHouseHoldExp__ErrorMsg_1').removeClass('sno');
+        error = true;
+    } else if (parseInt(ApzCOB.fn_unFormatAmount(monthlyExpensesData[0].totExpense)) < ExpminValue) {
+        error = true;
+        $('#Income__MonthlyHouseHoldExp__ErrorMsg_1').text('Please enter minimum Amount of 60,000');
+        $('#Income__MonthlyHouseHoldExp__ErrorMsg_1').removeClass('sno');
+    } else if (parseInt(ApzCOB.fn_unFormatAmount(monthlyExpensesData[0].totExpense)) > parseInt(ApzCOB.fn_unFormatAmount(monthlyExpensesData[0]
+            .totIncome))) {
+        error = true;
+        $('#Income__MonthlyHouseHoldExp__ErrorMsg_1').text('Please enter Amount below' + ApzCOB.fn_FormatAmount(monthlyExpensesData[0]
+        .totIncome));
+        $('#Income__MonthlyHouseHoldExp__ErrorMsg_1').removeClass('sno');
+    } else {
+        $('#Income__MonthlyHouseHoldExp__ErrorMsg_1').addClass('sno');
+    }
+    //NQA
+    if (window.reIncomeAssessment) {
+        //window.reIncomeAssessment = false;
+        if (parseInt(ApzCOB.fn_unFormatAmount(monthlyExpensesData[0].totIncome)) > 300000) {
+            var minAmt, maxAmt;
+            minAmt = '120000';
+            if (KendraApp.selectedCustomer.permanentState === 'KARNATAKA') {
+                if (KendraApp.selectedCustomer.custVintage > '4') {
+                    maxAmt = '600000'
+                } else if (KendraApp.selectedCustomer.custVintage <= '4') {
+                    maxAmt = '480000'
+                }
+                if (parseInt(ApzCOB.fn_unFormatAmount(monthlyExpensesData[0].totIncome)) < minAmt) {
+                    error = true;
+                    $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').text('Minimum Income to be entered is above 3 Lakhs');
+                    $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').removeClass('sno');
+                } else if (parseInt(ApzCOB.fn_unFormatAmount(monthlyExpensesData[0].totIncome)) > maxAmt) {
+                    error = true;
+                    let errMag = (maxAmt === '600000' ? 'Maximum Income Input is Rs. 6 Lakhs' : 'Maximum Income Input is Rs. 4.8 Lakhs')
+                    $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').text(errMag);
+                    $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').removeClass('sno');
+                } else {
+                    $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').addClass('sno');
+                    apz.app.MonthlyHouseHoldExp.changeReIncomeProduct();
+                }
+            } else {
+                maxAmt = '480000'
+                if (parseInt(ApzCOB.fn_unFormatAmount(monthlyExpensesData[0].totIncome)) < minAmt) {
+                    error = true;
+                    $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').text('Minimum Income to be entered is above 1.2 Lakhs');
+                    $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').removeClass('sno');
+                } else if (parseInt(ApzCOB.fn_unFormatAmount(monthlyExpensesData[0].totIncome)) > maxAmt) {
+                    error = true;
+                    $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').text('Maximum Income Input is Rs. 4.8 Lakhs');
+                    $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').removeClass('sno');
+                } else {
+                    $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').addClass('sno');
+                    apz.app.MonthlyHouseHoldExp.changeReIncomeProduct();
+                }
+            }
+        } else {
+            if (parseInt(ApzCOB.fn_unFormatAmount(monthlyExpensesData[0].totIncome)) < 120000) {
+                error = true;
+                $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').text('Minimum Income to be entered is above 1.2 Lakhs');
+                $('#Income__MonthlyHouseHoldExp__ErrorMsg_0').removeClass('sno');
+            } else {
+                ApzCOB.fnDisplayMsg("Total Income amount is less than the NQA limit. Do you want to edit Income", "C", apz.app.MonthlyHouseHoldExp
+                    .reIncomeCB);
+                // apz.app.MonthlyHouseHoldExp.reject();
+                return;
+            }
+        }
+    }
+    if (!error) {
+        IncomeApp.payLoad.income = monthlyExpensesData;
+        window.IncomeApp.screen = apz.childScr;
+        IncomeApp.status = 'APPROVED';
+        IncomeApp.payLoad.earnings.forEach(function(o) {
+            if (o.isEdited) {
+                IncomeApp.status = 'PENDINGBYRPC';
+            }
+        });
+        IncomeApp.workflow = {};
+        apz.app.CommonScript.updateIncomeAssesment();
+        if (window.reIncomeAssessment) {
+            apz.app.AddLoanDetails.updateIncomeDetails();
+        }
+        //saving income data for draft
+        apz.app.AddLoanDetails.updateIncomeDetails();
+        apz.app.AddLoanDetails.saveData(); //draft changes
+        window.KendraApp.remarks='The Loan income submitted by '+LoggedInUserDetails.userID +' ('+currentUserRole +')';
+        apz.startLoader();//draft changes
+        ApzCOB.saveLoan()//draft changes
+        
+    }
+    /* let incAssessmentPayloadJSON = incAssessmentPayload;
+     // Log the collected data to the console (for debugging purposes)
+     console.log(incAssessmentPayloadJSON);
+     apz.app.MonthlyHouseHoldExp.finalCallSaveApp(incAssessmentPayloadJSON);*/
+     
+}
+apz.app.MonthlyHouseHoldExp.changeReIncomeProduct = function() {
+    $('#APZCBO__BaseScreens__STAGE1').removeClass('sno');
+    $('#APZCBO__BaseScreens__BaseDIV').addClass('sno');
+    $('#NEWLOA__AddLoanDetails__stage1').removeClass('sno');
+    $('#NEWLOA__AddLoanDetails__stage3').addClass('sno');
+    $('#NEWLOA__AddLoanDetails__gr_col_68').removeClass('sno');
+    screenId = 'NEWLOA__AddLoanDetails__';
+    apz.app.AddLoanDetails.loadLoanProducts();
+    var loanProductId = KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.loanDtls.productId
+    apz.currAppId = 'NEWLOA';
+    if (["GL.IGL.PRAGATI", "GL.IGL.PRAGATI.PLUS", "GL.IGL.PRAGATI.RESTR", "GL.IGL.PRAGATI.PLUS.2"].includes(loanProductId)) {
+        apz.data.scrdata.NEWLOA__LoanProduct_Res.loanProductNode.forEach(function(j, i) {
+            if (apz.data.scrdata.NEWLOA__LoanProduct_Res.loanProductNode[i].description === 'Grameen Vishesh Loan') {
+                $('#' + screenId + 'loanProductCheckBox_' + i).prop('checked', true);
+                $('#' + screenId + 'loanProductList_row_' + i).addClass('active');
+                apz.app.MonthlyHouseHoldExp.paintLoanProduct();
+            } else {
+                $('#' + screenId + 'loanProductCheckBox_' + i).prop('checked', false);
+                $('#' + screenId + 'loanProductList_row_' + i).removeClass('active');
+            }
+        })
+    } else if (["GL.PRAGATI.SUPLMNTRY", "GL.PRAGATI.SUPL.PLUS"].includes(loanProductId)) {
+        apz.data.scrdata.NEWLOA__LoanProduct_Res.loanProductNode.forEach(function(j, i) {
+            if (apz.data.scrdata.NEWLOA__LoanProduct_Res.loanProductNode[i].description === 'Grameen Vishesh Supplementary Loan') {
+                $('#' + screenId + 'loanProductCheckBox_' + i).prop('checked', true);
+                $('#' + screenId + 'loanProductList_row_' + i).addClass('active');
+                apz.app.MonthlyHouseHoldExp.paintLoanProduct();
+            } else {
+                $('#' + screenId + 'loanProductCheckBox_' + i).prop('checked', false);
+                $('#' + screenId + 'loanProductList_row_' + i).removeClass('active');
+            }
+        })
+    }
+    apz.app.MonthlyHouseHoldExp.paintFrequency()
+    // apz.setElmValue(screenId + 'loanProdInput', '');
+}
+apz.app.MonthlyHouseHoldExp.paintLoanProduct = function() {
+    let loanProdVal = "";
+    $.each(apz.data.scrdata.NEWLOA__LoanProduct_Res.loanProductNode, function(i) {
+        if ($('#' + screenId + 'loanProductCheckBox_' + i).prop('checked')) {
+            loanProdVal = $('#NEWLOA__LoanProduct__o__loanProductNode__description_' + i).text();
+            addLoanDetailsObj.scrDataStep1.loanProductVal = apz.data.scrdata.NEWLOA__LoanProduct_Res.loanProductNode[i];
+        }
+    })
+    $('#NEWLOA__AddLoanDetails__memCheckBox').prop('checked', true);
+    apz.setElmValue(screenId + "loanProdInput", loanProdVal);
+    apz.app.AddLoanDetails.onChangeLoanProduct(loanProdVal);
+}
+apz.app.MonthlyHouseHoldExp.paintFrequency = function() {
+    var purpose, subPurpose, repayFreq;
+    apz.setElmValue(screenId + "loanAmount", KendraApp.currentLoanAppRequest.applicationdtls.amount);
+    KendraApp.selectedAmt = parseInt(KendraApp.currentLoanAppRequest.applicationdtls.amount);
+    apz.app.AddLoanDetails.updateLoanAmount()
+    apz.app.AddLoanDetails.loadPuposeDetails()
+    tempPurposeResponse.forEach(function(j, i) {
+        if (KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.loanDtls.purpose.purposeDesc === tempPurposeResponse[i]
+            .purposeDesc) {
+            $('#' + screenId + 'purposeList_row_' + i).addClass('active');
+            purpose = $('#' + screenId + "purposeList_row_" + i).text();
+        } else {
+            $('#' + screenId + 'purposeList_row_' + i).removeClass('active');
+        }
+    })
+    $('#NEWLOA__AddLoanDetails__purposeList_row_0').click()
+    tempSubPurposeResponse.forEach(function(j, i) {
+        if (tempSubPurposeResponse[i] === KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.loanDtls.purpose
+            .productSubPurpose) {
+            $('#' + screenId + 'subPurposeCheckbox_' + i).prop('checked', true);
+            subPurpose = $('#NEWLOA__SubPurpose__o__SubPurposeNode__subPurposeIdDesc_' + i).text();
+        } else {
+            $('#' + screenId + 'subPurposeCheckbox_' + i).prop('checked', false);
+        }
+    });
+    repaymentFreqOpt.forEach(function(j, i) {
+        if (repaymentFreqOpt[i].idDesc === KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.loanDtls.repayFrequency.idDesc) {
+            $('#' + screenId + 'repayFreqCheckbox_' + i).prop('checked', true);
+            $('#' + screenId + 'repayFreqList_row_' + i).addClass('active');
+            repayFreq = $('#NEWLOA__ModalFieldsIntf__o__repaymentFreqNode__idDesc_' + i).text();
+        } else {
+            $('#' + screenId + 'repayFreqCheckbox_' + i).prop('checked', false);
+            $('#' + screenId + 'repayFreqList_row_' + i).removeClass('active');
+        }
+    });
+    apz.setElmValue(screenId + "purpAndSubpurp", purpose + " : " + subPurpose);
+    apz.setElmValue(screenId + "repayFreq", repayFreq);
+}
+apz.app.MonthlyHouseHoldExp.reIncomeCB = function(params) {
+    if (params.choice === true) {
+        //
+        IncomeApp.status = 'APPROVED';
+    } else if (params.choice === false) {
+        window.reIncomeAssessment = false;
+        apz.app.MonthlyHouseHoldExp.reject();
+    }
+}
+apz.app.MonthlyHouseHoldExp.updateProduct = function () {
+    $('#APZCBO__BaseScreens__STAGE1').removeClass('sno');
+    $('#APZCBO__BaseScreens__BaseDIV').addClass('sno');
+    apz.app.AddLoanDetails.updateIncomeDetails();
+}
+apz.app.MonthlyHouseHoldExp.reject = function () {
+    window.CRTworkflow = {
+        "currentRole": "KM",
+        "action": "REJECT",
+        "workflowId": "LOANINPUT",
+        "stage": "ReIncomeAssessment",
+        "remarks": ""
+    }
+    isClose = true;
+    KendraApp.AppCreateResObj.applicationId;
+    KendraApp.AppCreateResObj.versionNo;
+    window.cbApproveManual = 'N';
+    ApzCOB.kmActionPostCBCheck();
+}
+apz.app.MonthlyHouseHoldExp.finalCallSaveApp = function (incAssessmentPayloadJSON) {
+    let appDate = KendraApp.selectedCustomer.activationDate;
+    let formattedDate = appDate.slice(0, 4) + '-' + appDate.slice(4, 6) + '-' + appDate.slice(6, 8);
+    var req = {
+        "apiRequest": {
+            "interfaceName": "SaveIncomeAssessment",
+            "appId": gAppId,
+            "userId": LoggedInUserDetails.kmId,
+            "requestObj": {
+                "customerId": KendraApp.selectedCustomer.customerId,
+                "kendraId": KendraApp.selectedCustomer.kendraId,
+                "kmId": LoggedInUserDetails.kmId,
+                "versionNum": "",
+                "applicationDate": formattedDate,
+                "createdBy": "",
+                "kycType": KendraApp.selectedCustomer.primaryType,
+                "applicationStatus": "PENDING",
+                "productGrpCode": "",
+                "productCode": "",
+                "currentStage": "",
+                "currentScrId": "",
+                "branchCode": KendraApp.selectedCustomer.bankIfscCode,
+                "cbCheck": "",
+                "incAssessmentPayload": incAssessmentPayloadJSON,
+                "applicationRefNo": KendraApp.selectedCustomer.customerId + ApzCOB.generateRandomNumber()
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "SaveIncomeAssessment", "N", "N", req, 'Y', apz.app.MonthlyHouseHoldExp.finalCallSaveAppCB);
+}
+apz.app.MonthlyHouseHoldExp.finalCallSaveAppCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            var ifaceName = ApzCOB.GetInterfaceResMap(params);
+            var response = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+            if (response.status === 'success') {
+                apz.app.MonthlyHouseHoldExp.finalCallApprove();
+            } else {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("Already records available!"), "E");
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_TECHNICALDIFF"), "E");
+    }
+}
+apz.app.MonthlyHouseHoldExp.finalCallApprove = function() {
+    let appDate = KendraApp.selectedCustomer.activationDate;
+    let formattedDate = appDate.slice(0, 4) + '-' + appDate.slice(4, 6) + '-' + appDate.slice(6, 8);
+    var req = {
+        "apiRequest": {
+            "interfaceName": "ApproveIncomeAssessment",
+            "appId": "APZCBO",
+            "userId": "3213213",
+            "requestObj": {
+                "applicationId": "17183410292098063",
+                "versionNo": "1",
+                "incomeAssessmentPayload": incAssessmentPayloadJSON,
+                "updatedBy": "GK675",
+                "isApproved": "YES",
+                "remarks": "test",
+                "status": "APPROVED",
+                "workflow": {}
+                //   "workflow": {
+                //     "nextStageId": "BMQUEUE",
+                //     "currentRole": "KM",
+                //     "remarks": "test",
+                //     "nextWorkflowStatus": "SANCTIONINPROGRESS"
+                //   }
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "ApproveIncomeAssessment", "N", "N", req, 'Y', apz.app.MonthlyHouseHoldExp.finalCallApproveCB);
+}
+apz.app.MonthlyHouseHoldExp.finalCallApproveCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            var ifaceName = ApzCOB.GetInterfaceResMap(params);
+            var response = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+            if (response.status === 'success') {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_RECORD_SAVE_SUC"), "S", apz.app.Dashboard.LaunchDashboardCB);
+            } else {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("Already records available!"), "E");
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_TECHNICALDIFF"), "E");
+    }
+}

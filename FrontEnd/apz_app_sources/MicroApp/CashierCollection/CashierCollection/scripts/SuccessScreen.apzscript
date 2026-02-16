@@ -1,0 +1,34 @@
+var SuccessScreenId = 'CasCol__SuccessScreen__';
+apz.app.onShown_SuccessScreen = function() {
+    apz.app.SuccessScreen.paintCollectionDetails();
+}
+apz.app.SuccessScreen.paintCollectionDetails = function(){
+    apz.setElmValue(SuccessScreenId + 'name', selectedCashierDet.kmName);
+    apz.setElmValue(SuccessScreenId + 'kendraCount', selectedCashierDet.kendraCount);
+    apz.setElmValue(SuccessScreenId + 'collectedAmt', selectedCashierDet.totalColAmt);
+}
+
+apz.app.SuccessScreen.clickMoreOptionsBtn = function() {
+    if (document.getElementById(SuccessScreenId + "moreDetailsDiv").classList.contains("sno")) {
+        document.getElementById(SuccessScreenId + "moreDetailsDiv").classList.remove("sno");
+        $("#" + SuccessScreenId +'dropIcon').addClass('active')
+        apz.setElmValue(SuccessScreenId + 'dueAmt', selectedCashierDet.collInfo.totalDue);
+        apz.setElmValue(SuccessScreenId + 'amtCollected', selectedCashierDet.totalColAmt);
+    } else {
+        document.getElementById(SuccessScreenId + "moreDetailsDiv").classList.add("sno");
+        $("#" + SuccessScreenId +'dropIcon').removeClass('active')
+    }
+}
+apz.app.SuccessScreen.done = function() {
+    ApzCOB.dashboardAppListAPI();
+    //if (prevScr === "GroupsData") {
+    //     apz.childScr = "GroupsData";
+    //     document.getElementById(kenMetSucScrId + "launchNextScrDiv").classList.add('sno');
+    //     document.getElementById(grpDataScrId + 'row_groupsHeader').classList.remove('sno');
+    // document.getElementById(grpDataScrId + 'row_gorupsDataRow').classList.remove('sno');
+    // document.getElementById(grpDataScrId + 'row_footerDiv').classList.remove('sno');
+    // apz.app.KMDashboard.fromSuccessScreen();
+    // } else {
+    // ApzCOB.dashboardAppListAPI();
+    // }
+}

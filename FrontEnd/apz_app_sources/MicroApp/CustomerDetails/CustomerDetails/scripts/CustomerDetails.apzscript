@@ -1,0 +1,1286 @@
+var CustomerDtlScrId = "Custom__CustomerDetails__";
+var custData;
+var groupLoansList = [];
+var scrName;
+var activeloanDetailsList;
+var isParDetailsClciked = false;
+var backNavigationData = {};
+var passbookLoanId, passbookApplicationId, selectedLoan = '';
+var viewSanctionRep = false;
+var viewDisbKit = false;
+var viewCBReport = false;
+apz.app.onLoad_CustomerDetails = function() {
+    //yet to do
+}
+apz.app.onShown_CustomerDetails = function(params) {
+    selectedDataFromDashboardSearch = '';
+    backNavigationData = params;
+    scrName = params.screen;
+    if (isParDetailsClciked) {
+        custData = KendraApp.selectedCustomer.customerDetails;
+        isParDetailsClciked = false;
+    }else if(window.isViewCustFromDisbursemet){
+        window.isViewCustFromDisbursemet = false;
+        custData = viewDisbursemetCustData
+    } else {
+        $('#Custom__CustomerDetails__calculator').removeClass('sno')
+        custData = KendraApp.selectedCustomer;
+    }
+    $('#' + CustomerDtlScrId + 'LoanReportsDocumentsDiv').addClass('sno');
+    apz.app.CustomerDetails.loadKycId();
+    apz.app.CustomerDetails.loadKycType();
+    apz.app.CustomerDetails.loadMaritalStatus();
+    apz.app.CustomerDetails.paintDetails();
+    apz.app.CustomerDetails.paintMemberDetails();
+    $("#Custom__CustomerDetails__sc_row_588").addClass("sno");
+    $("#Custom__CustomerDetails__el_btn_35").addClass("sno");
+    $("#Custom__CustomerDetails__ps_pls_85_li").removeClass("sno");
+    $("#Custom__CustomerDetails__ps_pls_87_li").addClass("sno");
+    $("#Custom__CustomerDetails__ps_pls_87_li").addClass("sno");
+    $("#Custom__CustomerDetails__ps_pls_88_li").addClass("sno");
+    $("#Custom__CustomerDetails__ps_pls_89_li").addClass("sno");
+    $("#Custom__CustomerDetails__ps_pls_90_li").addClass("sno");
+    $("#Custom__CustomerDetails__ps_pls_91_li").addClass("sno");
+    $("#Custom__CustomerDetails__ps_pls_92_li").addClass("sno");
+    $("#Custom__CustomerDetails__ps_pls_93_li").addClass("sno");
+    $("#APZCBO__BaseScreens__STAGE1").addClass('sno');
+    //added below code by Sathish
+    //to check whether person is considered as deceased
+    //added on 05/02/2025
+    if (window.userRole === "KM") {
+        ApzCOB.fetchDeathIntimationBMDetails('approvalSuccessScr');
+    }
+    viewCustomer = false;
+    if (isexsitingApp) {
+        $("#Custom__CustomerDetails__cbreportLink").removeClass("sno");
+    }
+    window.fromGlobalSearch = false;
+    if ((userRole === 'CASHIER' || userRole === 'BM')) {
+        document.getElementById(CustomerDtlScrId + 'markCollectionDiv').classList.add('sno');
+    } else {
+        document.getElementById(CustomerDtlScrId + 'markCollectionDiv').classList.remove('sno');
+    }
+    if (window.accessType === 'LC' || window.accessType === 'CL') {
+        $('#Custom__CustomerDetails__markCollectionDiv').removeClass('sno')
+    } else {
+        $('#Custom__CustomerDetails__markCollectionDiv').addClass('sno')
+    }
+}
+apz.app.CustomerDetails.paintDetails = function() {
+    var joinedDate = custData.activationDate ? ApzCOB.confDateFormatter(ApzCOB.dateStringToDate(custData.activationDate), "dd/mm/yyyy") :
+        'NO DATA';
+    apz.setElmValue(CustomerDtlScrId + "custName", custData.customerName ?? 'NO DATA');
+    apz.setElmValue(CustomerDtlScrId + "kendraId", custData.kendraId ?? 'NO DATA');
+    apz.setElmValue(CustomerDtlScrId + "joinedDate", joinedDate);
+    $('#' + CustomerDtlScrId + 'profileName').text(custData.customerName.substr(0, 1) || 'A');
+    let totalAmt = [];
+    custData.loanDtls.forEach(function(el, i) {
+        totalAmt.push(parseInt(custData.loanDtls[i].amount))
+    })
+    let pendingLoanAmt = 0;
+    totalAmt.forEach(amt => {
+        pendingLoanAmt += amt;
+    });
+    apz.setElmValue(CustomerDtlScrId + "pendingLoanAmt", ApzCOB.fn_FormatAmount(pendingLoanAmt));
+    //below code added by sathish on 03/02/2025
+    //for UAT JIRA bug fix UNAP-1116
+    // fix to show weekly payment based on due amount
+    let weeklyPayment = 0;
+    if (backNavigationData.hasOwnProperty('customerDet') && !apz.isObjectEmpty(backNavigationData.customerDet)) {
+        if (backNavigationData.customerDet.hasOwnProperty("loans")) {
+            backNavigationData.customerDet.loans.forEach(loan => {
+                weeklyPayment = weeklyPayment + loan.dueAmt;
+            })
+        }
+    }
+    apz.setElmValue(CustomerDtlScrId + "weeklyPayment", ApzCOB.fn_FormatAmount(weeklyPayment));
+}
+apz.app.CustomerDetails.paintMemberDetails = function() {
+    var dob = custData.earnings[0] ? ApzCOB.dateformatter(ApzCOB.dateStringToDate(custData.earnings[0].dob), "d/m/Y") : 'NO DATA';
+    apz.setElmValue(CustomerDtlScrId + "membersDOB", ApzCOB.dateformatter(ApzCOB.dateStringToDate(custData.dob), "d/m/Y"));
+    apz.setElmValue(CustomerDtlScrId + "mobilNum", custData.mobileNum ?? 'NO DATA');
+    apz.setElmValue(CustomerDtlScrId + "kycId", custData.primaryId ?? 'NO DATA');
+    apz.setElmValue(CustomerDtlScrId + "kycType", custData.primaryType ?? 'NO DATA');
+    apz.setElmValue(CustomerDtlScrId + "maritalStatus", custData.maritalStatus ?? 'NO DATA');
+    if (custData.maritalStatus !== "") {
+        if ((custData.maritalStatus === "SINGLE") || (custData.maritalStatus === "SEPARATED") || (custData.maritalStatus === "WIDOWED") || (
+                custData.maritalStatus === "DIVORCED")) {
+            $("#Custom__CustomerDetails__spouseDetailsRow").addClass("sno");
+        } else {
+            $("#Custom__CustomerDetails__spouseDetailsRow").removeClass("sno");
+        }
+    } else {
+        $("#Custom__CustomerDetails__spouseDetailsRow").addClass("sno");
+    }
+    apz.setElmValue(CustomerDtlScrId + "spouseNameDob", (custData.depname ? custData.depname : 'NO DATA') + ', ' + (custData.depDob ? ApzCOB
+        .dateformatter(ApzCOB.dateStringToDate(custData.depDob), "d/m/Y") : 'NO DATA'));
+    apz.setElmValue(CustomerDtlScrId + "spouseKycId", apz.isNull(custData.depDocId) ? 'NO DATA' : custData.depDocId);
+    apz.setElmValue(CustomerDtlScrId + "spouseKycType", apz.isNull(custData.depDocType) ? 'NO DATA' : custData.depDocType);
+    apz.setElmValue(CustomerDtlScrId + "accNumber", custData.bankAccNo ?? 'NO DATA');
+    apz.setElmValue(CustomerDtlScrId + "ifsc", (custData.bankName ?? 'NO DATA') + ',' + custData.bankIfscCode ?? 'NO DATA');
+    if (custData.maritalStatus == 'MARRIED') {
+        $('#' + CustomerDtlScrId + 'spouseDetailsRow').removeClass('sno');
+        $('#' + CustomerDtlScrId + 'spouseKycIdDiv').removeClass('sno');
+        $('#' + CustomerDtlScrId + 'spouseKycTypeDiv').removeClass('sno');
+    } else {
+        $('#' + CustomerDtlScrId + 'spouseDetailsRow').addClass('sno');
+        $('#' + CustomerDtlScrId + 'spouseKycIdDiv').addClass('sno');
+        $('#' + CustomerDtlScrId + 'spouseKycTypeDiv').addClass('sno');
+    }
+}
+apz.app.CustomerDetails.loanDetails = function() {
+    $('#' + CustomerDtlScrId + 'ct_lst_1').addClass('sno');
+    $('#' + CustomerDtlScrId + 'ct_lst_6').removeClass('sno');
+    $('#' + CustomerDtlScrId + 'ct_frm_106').addClass('sno');
+    $('#' + CustomerDtlScrId + 'LoanReportsDocumentsDiv').addClass('sno');
+    if (KendraLoans.custFetchLoanAppRes?.applicationdtls?.length > 0) {
+        KendraLoans.custFetchLoanAppRes.applicationdtls.forEach(function(appDtl) {
+            if (appDtl.status === "DISBURSED" || appDtl.status === "INITIATE" || appDtl.status === "PENDING") {
+                var date,dateContent = KendraLoans?.custFetchLoanAppRes?.precloserLoanResponse ? JSON.parse(KendraLoans.custFetchLoanAppRes
+                    .precloserLoanResponse.responsePayload):''
+                    if (Array.isArray(dateContent?.linkedActivities) && dateContent.linkedActivities.length > 0) {
+                        date = dateContent.linkedActivities[0]?.body?.effectiveDate ?? ApzCOB.dateYYYYMMDDformat();
+                    } else {
+                        try {
+                            const precloserRes = KendraLoans?.custFetchLoanAppRes?.precloserLoanResponse?.responsePayload;
+                            if (typeof precloserRes === "string") {
+                                const payload = JSON.parse(precloserRes);
+                                if (Array.isArray(payload?.linkedActivities) && payload.linkedActivities.length > 0) {
+                                    date = payload.linkedActivities[0]?.body?.effectiveDate ?? ApzCOB.dateYYYYMMDDformat();
+                                } else {
+                                    date = ApzCOB.dateYYYYMMDDformat();
+                                }
+                            } else {
+                                const apiReqTs = KendraLoans?.custFetchLoanAppRes?.precloserLoanResponse?.apiReqTs;
+                                date = apiReqTs ? apiReqTs.substring(0, 10) : ApzCOB.dateYYYYMMDDformat();
+                            }
+                        } catch (e) {
+                            console.error("Error parsing precloserLoanResponse:", e);
+                            date = ApzCOB.dateYYYYMMDDformat();
+                        }
+                    }
+                const maitriLoan = {
+                    loanId: "",
+                    applicationId: appDtl.applicationId,
+                    customerId: appDtl.customerId,
+                    amount: appDtl.amount,
+                    approvedAmt: appDtl.amount ?? 'NO DATA',
+                    status: appDtl.status,
+                    freq: appDtl.customerDtls.loanDtls.repayFrequency.idDesc ?? 'NO DATA',
+                    term: appDtl.customerDtls.loanDtls?.term ?? 'NO DATA',
+                    product: appDtl.customerDtls.loanDtls.product,
+                    //lnValueDate: appDtl.modifyTs?.substring(0, 10).replace(/-/g, '') ?? 'NO DATA',
+                    lnValueDate: date != '' ? date.replaceAll('-', '') : 'NO DATA',
+                    lnMatDate: appDtl.modifyTs?.substring(0, 10).replace(/-/g, '') ?? 'NO DATA',
+                    //interestRate: appDtl.customerDtls.loanDtls?.interestRate ?? 'NO DATA',
+                    interestRate: KendraLoans?.custFetchLoanAppRes?.cbResponse?.resPayload ? parseInt(JSON.parse(KendraLoans
+                        .custFetchLoanAppRes.cbResponse.resPayload).roi) : 'NO DATA',
+                    overduePrincipal: "0.00",
+                    overdueInterest: "0.00",
+                    overDueStatus: "0.00",
+                    outstandingPrincipal: appDtl.amount
+                };
+                const exists = custData.loanDtls.some(l => l.applicationId === maitriLoan.applicationId);
+                const productExists = custData.loanDtls.some(l => l.product === maitriLoan.product);
+                const amountExists = custData.loanDtls.some(l => l.amount === maitriLoan.amount);
+                var insert = true;
+                if(productExists&&amountExists){
+                    insert = false
+                }else{
+                    insert = true
+                }
+                if (!exists && insert ) {
+                    custData.loanDtls.push(maitriLoan);
+                }
+            }
+        });
+    }
+    activeloanDetailsList = [];
+    custData.loanDtls.forEach(function(loan, index) {
+        const detail = {
+            loanId: loan.loanId,
+            applicationId: loan.applicationId,
+            customerId: loan.customerId,
+            amount: parseFloat(loan.amount),
+            approvedAmt: loan.approvedAmt ? parseFloat(loan.approvedAmt) : 'NO DATA',
+            status: loan.status ?? 'NO DATA',
+            frequency: loan.freq ?? 'NO DATA',
+            term: loan.term ? parseInt(loan.term, 10) : 'NO DATA',
+            product: loan.product,
+            productType: apz.app.CustomerDetails.getProductType(loan.product),
+            valueDate: loan.lnValueDate ?? '',
+            maturityDate: loan.lnMatDate ? ApzCOB.dateformatter(ApzCOB.dateStringToDate(loan.lnMatDate), "d/m/Y") : 'NO DATA',
+            date: loan.lnValueDate ? ApzCOB.dateformatter(ApzCOB.dateStringToDate(loan.lnValueDate), "d M y") : 'NO DATA',
+            interestRate: loan.interestRate ? parseFloat(loan.interestRate) : 'NO DATA',
+            overduePrincipal: loan.overduePrincipal ? parseFloat(loan.overduePrincipal) : 'NO DATA',
+            overdueInterest: loan.overdueInterest ? parseFloat(loan.overdueInterest) : 'NO DATA',
+            outstandingPrincipal: loan.outstandingPrincipal ? ApzCOB.fn_FormatAmount(loan.outstandingPrincipal) : 'NO DATA',
+            frequencyDisplay: loan.freq ?? 'NO DATA',
+            isMaitriLoan: loan.loanId === "" && !!loan.applicationId,
+            isActiveLoan: !!loan.loanId
+        };
+        activeloanDetailsList.push(detail);
+    });
+    if (activeloanDetailsList.length > 0) {
+        apz.data.scrdata.Custom__LoanDetails_Res = {};
+        apz.data.scrdata.Custom__LoanDetails_Res.LoanDetailsNode = activeloanDetailsList;
+        apz.data.loadData("LoanDetails", 'Custom');
+        $('#' + CustomerDtlScrId + 'ct_lst_6').removeClass('sno');
+        $('#' + CustomerDtlScrId + 'noFromAccountsRow').addClass('sno');
+        apz.data.scrdata.Custom__LoanDetails_Res.LoanDetailsNode.forEach(function (k,i){
+             if (k.isActiveLoan || k.isMaitriLoan && k.status === 'DISBURSED') {
+                 $('#' + CustomerDtlScrId + 'el_bdg_7_' + i).removeClass('sno');
+             } else {
+                 $('#' + CustomerDtlScrId + 'el_bdg_7_' + i).addClass('sno');
+             }
+        })
+    } else {
+        $('#' + CustomerDtlScrId + 'ct_lst_6').addClass('sno');
+        $('#' + CustomerDtlScrId + 'noFromAccountsRow').removeClass('sno');
+    }
+    setTimeout(() => {
+        activeloanDetailsList.forEach(function(detail, index) {
+            const loanRow = document.querySelectorAll('#Custom__CustomerDetails__sc_row_648_row')[index];
+            const appRow = document.querySelectorAll('#Custom__CustomerDetails__sc_row_737_row')[index];
+            if (detail.isMaitriLoan) {
+                loanRow?.classList.add('sno');
+                appRow?.classList.remove('sno');
+            } else {
+                appRow?.classList.add('sno');
+                loanRow?.classList.remove('sno');
+            }
+        });
+    }, 200);
+};
+apz.app.CustomerDetails.getProductType = function(productId) {
+    const product = KendraApp.ProductResponse.find(item => item.productDtls && item.productDtls.productId === productId);
+    return product ? product.productDtls.productType : productId;
+}
+apz.app.CustomerDetails.getProductDescription = function(productId) {
+    const product = KendraApp.ProductResponse.find(item => item.productDtls && item.productDtls.productId === productId);
+    return product ? product.productDtls.description : productId;
+}
+apz.app.CustomerDetails.onClickViewDetails = function(pthis) {
+    let rowNo = $(pthis).attr("rowno");
+    selectedLoan = apz.data.scrdata.Custom__LoanDetails_Res.LoanDetailsNode[rowNo];
+    selectedLoan.rowSelected = rowNo;
+    $('#' + CustomerDtlScrId + 'gr_row_83').addClass('sno');
+    $('#' + CustomerDtlScrId + 'LoanReportsDocumentsDiv').removeClass('sno');
+    apz.setElmValue(CustomerDtlScrId + "custname", custData.customerName ?? 'NO DATA');
+    $('#' + CustomerDtlScrId + 'profilename').text(custData.customerName.substr(0, 1) || 'A');
+    apz.setElmValue(CustomerDtlScrId + "kendraID", custData.kendraId ?? 'NO DATA');
+    apz.setElmValue(CustomerDtlScrId + "groupId", custData.groupId ?? 'NO DATA');
+    apz.setElmValue(CustomerDtlScrId + "prodName", selectedLoan?.productType ?? 'NO DATA');
+    apz.setElmValue(CustomerDtlScrId + "productAmt", parseFloat(custData.loanDtls[rowNo].amount) ?? 'NO DATA');
+    $('#' + CustomerDtlScrId + 'sanctionLetterDiv').addClass('sno');
+    $('#' + CustomerDtlScrId + 'disbursementKitDiv').addClass('sno');
+    var loan = apz.data.scrdata.Custom__LoanDetails_Res.LoanDetailsNode[rowNo]
+    if (loan.isActiveLoan) {
+        $('#' + CustomerDtlScrId + 'cbReportDiv').addClass('sno');
+        $('#' + CustomerDtlScrId + 'passbookDiv').removeClass('sno');
+    }
+    if (loan.isMaitriLoan) {
+        $('#' + CustomerDtlScrId + 'cbReportDiv').removeClass('sno');
+        if(selectedLoan.status ==='DISBURSED'){
+            $('#' + CustomerDtlScrId + 'passbookDiv').removeClass('sno');
+        }else{
+              $('#' + CustomerDtlScrId + 'passbookDiv').addClass('sno');
+        }
+        var response = dashboardAppList.response;
+        for (var i = 0; i < response.length; i++) {
+            var item = response[i];
+            if (item.applicationId === loan.applicationId && item.wfStatus !== 'REJECTED' && item.wfStatus !== 'SANCTIONINPROGRESS') {
+                $('#' + CustomerDtlScrId + 'disbursementKitDiv').removeClass('sno');
+                $('#' + CustomerDtlScrId + 'sanctionLetterDiv').removeClass('sno');
+            }
+        }
+    }
+    if (apz.deviceType === 'WEB' && ['KM', 'BM', 'DEO'].includes(userRole)) {
+        $('#' + CustomerDtlScrId + 'passbookView').removeClass('sno');
+        $('#' + CustomerDtlScrId + 'passbookDownload_ul').removeClass('sno');
+        $('#' + CustomerDtlScrId + 'sancCol').addClass('sno');
+        $('#' + CustomerDtlScrId + 'disbKitCol').addClass('sno');
+     
+        $('#' + CustomerDtlScrId + 'el_icn_71_ul').removeClass('sno');/*CB report - download icon visible & view button hided*/
+    }
+    if (apz.deviceType === 'ANDROID') {
+        $('#' + CustomerDtlScrId + 'passbookView').removeClass('sno');
+        $('#' + CustomerDtlScrId + 'passbookDownload_ul').addClass('sno');
+        $('#' + CustomerDtlScrId + 'el_icn_73').addClass('sno');
+        $('#' + CustomerDtlScrId + 'el_icn_72').addClass('sno');
+    }
+    if (selectedLoan.productType === 'EL') {
+        $('#' + CustomerDtlScrId + 'passbookDiv').addClass('sno');
+    }
+    passbookLoanId = custData.loanDtls[rowNo].loanId;
+    passbookApplicationId = custData.loanDtls[rowNo].applicationId
+}
+apz.app.CustomerDetails.backnavigation = function() {
+    if (viewPassbook ||viewSanctionRep ||  viewDisbKit || viewCBReport) {
+        viewPassbook = false;
+        viewSanctionRep = false;
+        viewDisbKit = false;
+        viewCBReport = false;
+        $('#' + CustomerDtlScrId + "gr_row_97").removeClass('sno')
+        $('#' + CustomerDtlScrId + "docMianRow").addClass('sno');
+    } else {
+        $('#' + CustomerDtlScrId + 'gr_row_83').removeClass('sno');
+        $('#' + CustomerDtlScrId + 'LoanReportsDocumentsDiv').addClass('sno');
+    }
+}
+apz.app.CustomerDetails.requestparams = function() {
+    var par, frequency, spouseName;
+    if (custData?.selectedApp?.addInfo && JSON.parse(custData.selectedApp.addInfo).APR !== '') {
+        par = JSON.parse(custData.selectedApp.addInfo).APR + '%'
+    } else {
+        par = (KendraLoans?.custFetchLoanAppRes?.cbResponse?.resPayload) ? JSON.parse(KendraLoans.custFetchLoanAppRes.cbResponse.resPayload).eir +
+            '%' : '-'
+    }
+    var kendra = KendraApp.KendraResponse.find(item => item.kendraDtls.kendraId === custData.kendraId);
+    var kendraName = kendra ? kendra.kendraDtls.kendraName.replace(/^'|'$/g, '') : null;
+    if (custData.maritalStatus === "MARRIED") {
+        const relations = custData.memRelation.split(",");
+        const names = custData.depname.split(",");
+        const spouseIndex = relations.indexOf("SPOUSE");
+        if (spouseIndex !== -1 && names[spouseIndex]) {
+            spouseName = names[spouseIndex];
+            console.log(spouseName);
+        } else {
+            console.log("Spouse relation not found or name is missing.");
+        }
+    }
+    frequency = selectedLoan?.frequency ?? '-';
+    var processingFee = selectedLoan?.isMaitriLoan === true ? custData?.selectedApp?.customerDtls?.loanDtls?.chargeAndBreakupDtls
+        ?.aprxLoanCharges : (parseFloat(KendraApp.selectedCustomer.loanDtls[selectedLoan.rowSelected].pf) + parseFloat(KendraApp.selectedCustomer
+            .loanDtls[selectedLoan.rowSelected].gst));
+    var insurancePremiumMember = selectedLoan?.isMaitriLoan === true ? custData?.selectedApp?.customerDtls?.loanDtls?.insurDtls
+        ?.applicant_insurance_amt : (parseFloat(KendraApp.selectedCustomer.loanDtls[selectedLoan.rowSelected].mem_insu));
+    var insurancePremiumSpouse = selectedLoan?.isMaitriLoan === true ? custData?.selectedApp?.customerDtls?.loanDtls?.insurDtls
+        ?.spouse_insurance_amt : (parseFloat(KendraApp.selectedCustomer.loanDtls[selectedLoan.rowSelected].sp_insu));
+    var requestObj = {};
+    requestObj.loanId = passbookLoanId ?? '';
+    requestObj.applicationId = passbookApplicationId ?? '';
+    requestObj.memberId = custData?.customerId ?? '-';
+    requestObj.memberName = custData?.customerName ?? '-';
+    requestObj.kendraName = kendraName ?? '-';
+    requestObj.moratorium = '1 -Installment for Principal';
+    requestObj.spouseName = custData?.maritalStatus === 'MARRIED' ? spouseName : '-';
+    requestObj.phone = custData?.mobileNum ?? '-';
+    requestObj.productName = apz.app.CustomerDetails.getProductDescription(selectedLoan?.product);
+    requestObj.loanPurpose = selectedLoan?.isMaitriLoan === true ? custData?.selectedApp?.customerDtls?.loanDtls?.purpose?.purposeDesc : KendraApp
+        .selectedCustomer.loanDtls[selectedLoan.rowSelected].loanPurpose;
+    requestObj.disbursementDate = selectedLoan?.date ? ApzCOB.dateformatter(selectedLoan?.date, "d M Y") : '-';
+    requestObj.loanAmt = selectedLoan?.amount ? 'Rs ' + selectedLoan?.amount : '-';
+    requestObj.roi = (selectedLoan?.interestRate ? (selectedLoan?.interestRate + '%') : '-') + ' / ' + (selectedLoan?.isMaitriLoan === true ?
+        par : (KendraApp.selectedCustomer.loanDtls[selectedLoan.rowSelected].apr) ? +KendraApp.selectedCustomer.loanDtls[selectedLoan
+            .rowSelected].apr + '%' : '-');
+    requestObj.processingFee = processingFee ? 'Rs ' + processingFee : '-';
+    requestObj.insurancePremiumMember = insurancePremiumMember ? 'Rs ' + insurancePremiumMember : '-';
+    requestObj.insurancePremiumSpouse = insurancePremiumSpouse ? 'Rs ' + insurancePremiumSpouse : '-';
+    requestObj.termOfLoan = (selectedLoan?.term ?? '-') + '(' + frequency + ')';
+    requestObj.type = apz.deviceType === 'WEB' ? 'download' : 'view';
+    return requestObj;
+}
+var passbookType = '',
+    viewPassbook = false;
+apz.app.CustomerDetails.downloadPassbook = function(params) {
+    viewPassbook = true;
+    passbookType = params;
+    // var par,frequency;
+    // var kendra = KendraApp.KendraResponse.find(item => item.kendraDtls.kendraId === custData?.kendraId);
+    // var kendraName = kendra ? kendra.kendraDtls.kendraName.replace(/^'|'$/g, '') : null;
+    // if(custData?.selectedApp?.addInfo && JSON.parse(custData.selectedApp.addInfo).APR !==''){
+    //     par = JSON.parse(custData.selectedApp.addInfo).APR + '%'
+    // }else{
+    //     par = (KendraLoans?.custFetchLoanAppRes?.cbResponse?.resPayload)?JSON.parse(KendraLoans.custFetchLoanAppRes.cbResponse.resPayload).eir + '%':'-'
+    // }
+    // frequency = selectedLoan?.frequency??'-';
+    apz.startLoader();
+    var obj = apz.app.CustomerDetails.requestparams();
+    // var request = {
+    //     "apiRequest": {
+    //         "interfaceName": "GeneratePassbook",
+    //         "appId": "APZCBO",
+    //         "userId": LoggedInUserDetails.userID,
+    //         "requestObj": {
+    //             "loanId": passbookLoanId ?? '-',
+    //             "applicationId": passbookApplicationId ?? '-',
+    //             "memberId": custData?.customerId ?? '-',
+    //             "memberName": custData?.customerName ?? '-',
+    //             "kendraName": custData?.selectedApp?.kendraName ??(kendraName?? '-'),
+    //             "productName": apz.app.CustomerDetails.getProductDescription(selectedLoan?.product),
+    //             "loanPurpose": selectedLoan?.isMaitriLoan === true ? custData?.selectedApp?.customerDtls?.loanDtls?.purpose
+    //                 ?.purposeDesc : (selectedLoan.loanPurpose??'-'),
+    //             "moratorium": '1 -Installment for Principal',
+    //             "disbursementDate": selectedLoan?.date ?ApzCOB.dateformatter(selectedLoan?.date, "d M Y"): '-',
+    //             "spouseName": custData?.maritalStatus === 'MARRIED' ? custData?.depname : '-',
+    //             "loanAmt": selectedLoan?.amount ?'Rs '+selectedLoan?.amount: '-',
+    //             "roi": (selectedLoan?.interestRate ? (selectedLoan?.interestRate + '%'): '-') + ' / ' + (selectedLoan?.isMaitriLoan === true ? par :'-'),
+    //             "phone": custData?.mobileNum ?? '-',
+    //             "processingFee": (custData?.selectedApp?.customerDtls?.loanDtls?.chargeAndBreakupDtls?.aprxLoanCharges)?custData.selectedApp.customerDtls.loanDtls.chargeAndBreakupDtls.aprxLoanCharges:'-',
+    //             "insurancePremiumMember":  selectedLoan?.isMaitriLoan === true ? custData?.selectedApp?.customerDtls?.loanDtls?.insurDtls
+    //             ?.applicant_insurance_amt : (selectedLoan?.mem_insu??'-'),
+    //             "insurancePremiumSpouse":  selectedLoan?.isMaitriLoan === true ? custData?.selectedApp?.customerDtls?.loanDtls?.insurDtls
+    //             ?.spouse_insurance_amt : (selectedLoan?.sp_insu??'-'),
+    //             "termOfLoan": (selectedLoan?.term ?? '-') +'('+frequency+')',
+    //             "type":apz.deviceType === 'WEB'?'download':'view'
+    //         }
+    //     }
+    //}
+    var request = {
+        "apiRequest": {
+            "interfaceName": "GeneratePassbook",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID
+        }
+    }
+    request.apiRequest.requestObj = obj;
+    ApzCOB.serverBuildParam(gAppId, 'GeneratePassbook', 'N', 'N', request, 'Y', apz.app.CustomerDetails.downloadPassbookCB);
+}
+var generatePassbookRes, base64String;
+apz.app.CustomerDetails.downloadPassbookCB = function(params) {
+    apz.stopLoader();
+    console.log(params);
+    try {
+        apz.stopLoader();
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__GeneratePassbook_Res.apiResponse.ResponseHeader.ResponseCode)) {
+                generatePassbookRes = params.res.APZCBO__GeneratePassbook_Res.apiResponse.ResponseBody.responseObj;
+                base64String = generatePassbookRes;
+                if (base64String.length <= 1000) {
+                    ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+                    return;
+                }
+                if (base64String !== '') {
+                    if (passbookType === 'ViewPassbook') {
+                        $('#' + CustomerDtlScrId + "gr_row_97").addClass('sno')
+                        $('#' + CustomerDtlScrId + "docMianRow").removeClass('sno');
+                        var byteCharacters = atob(base64String);
+                        var byteNumbers = new Array(byteCharacters.length);
+                        for (var i = 0; i < byteCharacters.length; i++) {
+                            byteNumbers[i] = byteCharacters.charCodeAt(i);
+                        }
+                        var byteArray = new Uint8Array(byteNumbers);
+                        var blob = new Blob([byteArray], {
+                            type: 'application/pdf'
+                        });
+                        var pdfUrl = URL.createObjectURL(blob);
+                        var pdfContainer = document.getElementById(CustomerDtlScrId + "passBook");
+                        if (!pdfContainer) {
+                            console.error("Error: PDF container element not found!");
+                            return;
+                        }
+                        if (apz.deviceType === 'WEB') {
+                            fetch(pdfUrl).then(response => response.text()).then(html => {
+                                pdfContainer.innerHTML = `<embed 
+                                                    src="${pdfUrl}" 
+                                                    type="application/pdf" 
+                                                    style="width: 100%; height: 600px; overflow: auto;border: none;" />`;
+                            }).catch(error => {
+                                ApzCOB.fnDisplayMsg("Error loading document.", "E");
+                            });
+                        } else {
+                            pdfContainer.style.cssText = `
+                                max-width: 100%;          /* Prevent content from exceeding container */
+                                max-height: 600px;        /* Limit height */
+                                overflow: auto;           /* Enable scrolling */
+                                border: 1px solid #ccc;   /* Optional border for clarity */
+                                padding: 10px;            /* Add some space */
+                                background-color: white;  /* Ensure background */
+                            `;
+                            fetch(pdfUrl).then(response => response.text()).then(html => {
+                                pdfContainer.innerHTML = html;
+                            }).catch(error => {
+                                ApzCOB.fnDisplayMsg("Error loading document.", "E");
+                            });
+                        }
+                    } else if (passbookType === 'DownloadPassbook') {
+                        var byteCharacters = atob(base64String);
+                        var byteNumbers = new Array(byteCharacters.length);
+                        for (var i = 0; i < byteCharacters.length; i++) {
+                            byteNumbers[i] = byteCharacters.charCodeAt(i);
+                        }
+                        var byteArray = new Uint8Array(byteNumbers);
+                        var blob = new Blob([byteArray], {
+                            type: 'application/pdf'
+                        });
+                        var link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        var id = passbookApplicationId ?? passbookLoanId;
+                        link.download = "Passbook_" + id + ".pdf";
+                        link.click();
+                        URL.revokeObjectURL(link.href);
+                    } else {
+                        //
+                    }
+                } else {
+                    ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+                }
+            } else {
+                viewPassbook = false;
+                apz.stopLoader();
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        } else {
+            viewPassbook = false;
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(params.res.APZCBO__GeneratePassbook_Res.apiResponse.ResponseHeader.ResponseMessage, "E");
+        }
+    } catch (e) {
+        viewPassbook = false;
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.CustomerDetails.editCustomerDtls = function() {
+    $('#' + CustomerDtlScrId + 'editDtlsDiv').removeClass('sno');
+    $('#' + CustomerDtlScrId + 'memberDtls').addClass('sno');
+    apz.setElmValue(CustomerDtlScrId + "editMembersDOB", ApzCOB.dateformatter(ApzCOB.dateStringToDate(custData.dob), "d M'y"));
+    apz.setElmValue(CustomerDtlScrId + "editMobilNum", custData.mobileNum ?? 'NO DATA');
+    apz.setElmValue(CustomerDtlScrId + "editKycId", $('#Custom__KycId__o__KycIdNode__id_0').text());
+    apz.setElmValue(CustomerDtlScrId + "editKycType", $('#Custom__KycType__o__KycTypeNode__kycType_0').text());
+    apz.setElmValue(CustomerDtlScrId + "editStatus", $('#Custom__MaritalStatus__o__MaritalStatusNode__status_0').text());
+    apz.setElmValue(CustomerDtlScrId + "editSpouseName", custData.earnings[0] ? custData.earnings[0].name : 'NO DATA');
+    apz.setElmValue(CustomerDtlScrId + "editSpouseDob", custData.earnings[0] ? custData.earnings[0].dob : 'NO DATA');
+    apz.setElmValue(CustomerDtlScrId + "editAccNumber", custData.bankAccNo ?? 'NO DATA');
+    apz.setElmValue(CustomerDtlScrId + "editBank", custData.bankName ?? 'NO DATA');
+    apz.setElmValue(CustomerDtlScrId + "editIfsc", custData.bankIfscCode ?? 'NO DATA');
+}
+apz.app.CustomerDetails.onUpdate = function() {
+    $('#' + CustomerDtlScrId + 'editDtlsDiv').addClass('sno');
+    $('#' + CustomerDtlScrId + 'memberDtls').removeClass('sno');
+    custData.dob = apz.getElmValue(CustomerDtlScrId + "editMembersDOB");
+    custData.mobileNum = apz.getElmValue(CustomerDtlScrId + "editMobilNum");
+    custData.earnings[0].legaldocId = apz.getElmValue(CustomerDtlScrId + "editKycId");
+    custData.earnings[0].legaldocName = apz.getElmValue(CustomerDtlScrId + "editKycType");
+    custData.maritalStatus = apz.getElmValue(CustomerDtlScrId + "editStatus");
+    custData.earnings[0].name = apz.getElmValue(CustomerDtlScrId + "editSpouseName");
+    custData.earnings[0].dob = apz.getElmValue(CustomerDtlScrId + "editSpouseDob");
+    custData.bankAccNo = apz.getElmValue(CustomerDtlScrId + "editAccNumber");
+    custData.bankName = apz.getElmValue(CustomerDtlScrId + "editBank");
+    custData.bankIfscCode = apz.getElmValue(CustomerDtlScrId + "editIfsc");
+    apz.app.CustomerDetails.paintMemberDetails();
+}
+apz.app.CustomerDetails.groupLoans = function() {
+    custData.loanDtls.forEach(function(el, index) {
+        custData.loanDtls[index].loan = custData.loanDtls[index].product;
+        custData.loanDtls[index].year = custData.loanDtls[index].lnValueDate
+        custData.loanDtls[index].amtPending = '20,000'
+        custData.loanDtls[index].totalAmt = custData.loanDtls[0].approvedAmt
+        custData.loanDtls[index].frquency = custData.loanDtls[0].freq
+        groupLoansList.push(custData.loanDtls[index]);
+    })
+    if (customerList.length > 0) {
+        apz.data.scrdata.Custom__GroupLoans_Res = {};
+        apz.data.scrdata.Custom__GroupLoans_Res.GroupLoanNode = groupLoansList;
+        apz.data.loadData("GroupLoans", 'Custom');
+    }
+}
+//Kyc id
+apz.app.CustomerDetails.launchKycIdModal = function(pthis) {
+    //apz.app.CustomerDetails.loadKycId();
+    ApzCOB.toggleModal(CustomerDtlScrId + "KycIdModal");
+}
+var kycIdArr = []
+apz.app.CustomerDetails.loadKycId = function() {
+    kycIdArr = []
+    var kycId = JSON.parse('[{"id":1,"idDesc":"Aadhar"},{"id":2,"idDesc":"Voter ID"}]');
+    kycId.forEach(function(el, i) {
+        var obj = {
+            id: kycId[i].idDesc
+        }
+        kycIdArr.push(obj)
+    });
+    apz.data.scrdata.Custom__KycId_Res = {};
+    apz.data.scrdata.Custom__KycId_Res.KycIdNode = kycIdArr;
+    apz.data.loadData("KycId", 'Custom');
+    $.each(kycIdArr, function(i) {
+        $('#' + CustomerDtlScrId + 'kycIdCheckBox_' + i).prop('disabled', false);
+    });
+}
+apz.app.CustomerDetails.paintKycId = function() {
+    let editKycId = "";
+    $.each(kycIdArr, function(i) {
+        if ($('#' + CustomerDtlScrId + 'kycIdCheckBox_' + i).prop('checked')) {
+            editKycId = $('#Custom__KycId__o__KycIdNode__id_' + i).text();
+            //addLoanDetailsObj.scrDataStep1.repayFrequency = kycIdArr[i];
+        }
+    });
+    apz.setElmValue(CustomerDtlScrId + "editKycId", editKycId);
+    ApzCOB.toggleModal(CustomerDtlScrId + "KycIdModal");
+}
+apz.app.CustomerDetails.onClickKycId = function(pthis) {
+    let rowNo = $(pthis).attr("rowno");
+    $.each(kycIdArr, function(i) {
+        if (parseInt(rowNo) === i) {
+            $('#' + CustomerDtlScrId + 'kycIdCheckBox_' + i).prop('checked', true);
+            $('#' + CustomerDtlScrId + 'kycIdCheckBox_' + i).addClass('active');
+        } else {
+            $('#' + CustomerDtlScrId + 'kycIdCheckBox_' + i).prop('checked', false);
+            $('#' + CustomerDtlScrId + 'kycIdCheckBox_' + i).removeClass('active');
+        }
+    });
+}
+//kyc type
+apz.app.CustomerDetails.launchKycTypeModal = function(pthis) {
+    //apz.app.CustomerDetails.loadKycType();
+    ApzCOB.toggleModal(CustomerDtlScrId + "KycTypeModal");
+}
+var kycTypeArr = []
+apz.app.CustomerDetails.loadKycType = function() {
+    kycTypeArr = []
+    var kycType = JSON.parse('[{"id":1,"idDesc":"Aadhar KYC"},{"id":2,"idDesc":"Physical KYC"}]');
+    kycType.forEach(function(el, i) {
+        var obj = {
+            kycType: kycType[i].idDesc
+        }
+        kycTypeArr.push(obj)
+    })
+    apz.data.scrdata.Custom__KycType_Res = {};
+    apz.data.scrdata.Custom__KycType_Res.KycTypeNode = kycTypeArr;
+    apz.data.loadData("KycType", 'Custom');
+    $.each(kycIdArr, function(i) {
+        $('#' + CustomerDtlScrId + 'kycTypeCheckBox_' + i).prop('disabled', false);
+    });
+}
+apz.app.CustomerDetails.paintKycType = function() {
+    let editKycType = "";
+    $.each(kycTypeArr, function(i) {
+        if ($('#' + CustomerDtlScrId + 'kycTypeCheckBox_' + i).prop('checked')) {
+            editKycType = $('#Custom__KycType__o__KycTypeNode__kycType_' + i).text();
+            //addLoanDetailsObj.scrDataStep1.repayFrequency = repaymentFreqOpt[i];
+        }
+    });
+    apz.setElmValue(CustomerDtlScrId + "editKycType", editKycType);
+    ApzCOB.toggleModal(CustomerDtlScrId + "KycTypeModal");
+}
+apz.app.CustomerDetails.onClickKycType = function(pthis) {
+    let rowNo = $(pthis).attr("rowno");
+    $.each(kycTypeArr, function(i) {
+        if (parseInt(rowNo) === i) {
+            $('#' + CustomerDtlScrId + 'kycTypeCheckBox_' + i).prop('checked', true);
+            $('#' + CustomerDtlScrId + 'kycTypeCheckBox_' + i).addClass('active');
+        } else {
+            $('#' + CustomerDtlScrId + 'kycTypeCheckBox_' + i).prop('checked', false);
+            $('#' + CustomerDtlScrId + 'kycTypeCheckBox_' + i).removeClass('active');
+        }
+    });
+}
+//status
+apz.app.CustomerDetails.launchMaritalStatus = function(pthis) {
+    // apz.app.CustomerDetails.loadMaritalStatus();
+    ApzCOB.toggleModal(CustomerDtlScrId + "MaritalStatusModal");
+}
+var statusArr = []
+apz.app.CustomerDetails.loadMaritalStatus = function() {
+    statusArr = []
+    var maritalStatus = JSON.parse('[{"id":1,"idDesc":"Single"},{"id":2,"idDesc":"Married"}]');
+    maritalStatus.forEach(function(el, i) {
+        var obj = {
+            status: maritalStatus[i].idDesc
+        }
+        statusArr.push(obj)
+    })
+    apz.data.scrdata.Custom__MaritalStatus_Res = {};
+    apz.data.scrdata.Custom__MaritalStatus_Res.MaritalStatusNode = statusArr;
+    apz.data.loadData("MaritalStatus", 'Custom');
+    $.each(kycIdArr, function(i) {
+        $('#' + CustomerDtlScrId + 'statusCheckBox_' + i).prop('disabled', false);
+    });
+}
+apz.app.CustomerDetails.paintMaritalStatus = function() {
+    let editStatus = "";
+    $.each(statusArr, function(i) {
+        if ($('#' + CustomerDtlScrId + 'statusCheckBox_' + i).prop('checked')) {
+            editStatus = $('#Custom__MaritalStatus__o__MaritalStatusNode__status_' + i).text();
+            //addLoanDetailsObj.scrDataStep1.repayFrequency = repaymentFreqOpt[i];
+        }
+    });
+    apz.setElmValue(CustomerDtlScrId + "editStatus", editStatus);
+    ApzCOB.toggleModal(CustomerDtlScrId + "MaritalStatusModal");
+}
+apz.app.CustomerDetails.onClickStatus = function(pthis) {
+    let rowNo = $(pthis).attr("rowno");
+    $.each(statusArr, function(i) {
+        if (parseInt(rowNo) === i) {
+            $('#' + CustomerDtlScrId + 'statusCheckBox_' + i).prop('checked', true);
+            $('#' + CustomerDtlScrId + 'statusCheckBox_' + i).addClass('active');
+        } else {
+            $('#' + CustomerDtlScrId + 'statusCheckBox_' + i).prop('checked', false);
+            $('#' + CustomerDtlScrId + 'statusCheckBox_' + i).removeClass('active');
+        }
+    });
+}
+apz.app.CustomerDetails.onClickInputDate = function() {
+    var date = $('#Custom__CustomerDetails__editSpouseDob').val();
+    //date = date.split('/')
+    var day = parseInt(date.substring(0, 2))
+    var month = parseInt(date.substring(3, 5))
+    var year = parseInt(date.substring(6))
+    var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    var selectDate = day + " " + monthNames[parseInt(month)] + " '" + year;
+    var date2 = ApzCOB.dateformatter(selectDate, "d M'y")
+    apz.setElmValue(CustomerDtlScrId + "editSpouseDob", date2);
+}
+apz.app.CustomerDetails.edit = function(stage) { //Delete scheduled transfer flow
+    stagestep = stage;
+    if (stagestep === 'stage1' && scrName === "AddLoanDetails") {
+        ApzCOB.launchMicroApp("NEWLOA", "AddLoanDetails", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedKendra);
+    } else if (stagestep === 'stage1' && Object.keys(backNavigationData).length === 0) {
+        ApzCOB.launchMicroApp("NEWLOA", "NewLoanApplication", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedKendra);
+    } else if (backNavigationData) {
+        if (backNavigationData.scr === 'GroupsData') {
+            document.getElementById(grpDataScrId + "row_groupsHeader").classList.remove('sno');
+            document.getElementById(grpDataScrId + "row_gorupsDataRow").classList.remove('sno');
+            document.getElementById(grpDataScrId + "groupDataDiv").classList.remove('sno');
+            document.getElementById(grpDataScrId + "row_footerDiv").classList.remove('sno');
+            document.getElementById(grpDataScrId + "groupDataBaseDiv").classList.add('sno');
+            $("#" + kmDashScrId + 'calculatorIcon').removeClass('sno');
+        } else if (backNavigationData.scr === "EditGroupsData") {
+            document.getElementById(EditGrpDataScrId + "row_groupsHeader").classList.remove('sno');
+            document.getElementById(EditGrpDataScrId + "row_gorupsDataRow").classList.remove('sno');
+            document.getElementById(EditGrpDataScrId + "groupDataDiv").classList.remove('sno');
+            document.getElementById(EditGrpDataScrId + "row_footerDiv").classList.remove('sno');
+            document.getElementById(EditGrpDataScrId + "groupDataBaseDiv").classList.add('sno');
+            document.getElementById(EditGrpDataScrId + "btn_calculatorBtn").classList.remove('sno');
+            apz.childScr = "EditGroupsData";
+        } else if (backNavigationData.scr === 'ViewKendraDetails') {
+            $("#" + ViewKendraScrId + "viewKDetails").removeClass('sno');
+            $("#" + ViewKendraScrId + "viewKheaderRow").removeClass('sno');
+            $("#" + ViewKendraScrId + "viewKendraBaseDiv").addClass('sno');
+        } else if (backNavigationData.scr === 'TodaysDueData') {
+            $("#" + TodayDueDataScreenId + "todayDueDetRow").removeClass('sno');
+            $("#" + TodayDueDataScreenId + "todayDueHeaderRow").removeClass('sno');
+            $("#" + TodayDueDataScreenId + "todayDueBaseDiv").addClass('sno');
+        } else if (backNavigationData.scr === 'ParCollectionDetails') {
+            $("#" + ParCollectScreenId + "parColHeaderRow").removeClass('sno');
+            $("#" + ParCollectScreenId + "parColDetRow").removeClass('sno');
+            $("#" + ParCollectScreenId + "parColBaseDiv").addClass('sno');
+        } else if (backNavigationData.scr === 'MarkAttendance') {
+            $("#" + MarkAttendance + "attendance_row").removeClass("sno");
+            $("#" + MarkAttendance + "success_screen").addClass("sno");
+            $("#" + MarkAttendance + "markAttenBaseDiv").addClass("sno");
+            $("#" + MarkAttendance + "row_kmd_launchNextScr").addClass('sno');
+            $("#" + "KenMet__KMDashboard__" + "row_closeMeetingId").addClass('sno');
+        } else if (backNavigationData.scr === 'KMDashboard' && !backSearchFunc) {
+            apz.childScr = "KMDashboard";
+            apz.currAppId = 'KenMet';
+            apz.app.KMDashboard.returnCommonBackNav();
+        } else if (backNavigationData.scr === 'RepeatCollScreen') {
+            $("#" + RepeatCollScreenId + "repeatColHeader").removeClass('sno');
+            $("#" + RepeatCollScreenId + "repeatColDetails").removeClass('sno');
+            $("#" + RepeatCollScreenId + "RepColScreen").addClass('sno');
+        } else if (backNavigationData.scr === 'DashboardSearch') {
+            ApzCOB.launchMicroApp('Widget', 'DashboardSearch', 'APZCBO__BaseScreens__BaseDIV');
+        } else if (backNavigationData.scr === 'DeathIntimationPendingList') {
+            ApzCOB.launchMicroApp("KenMet", "DeathIntimationPendingList", "APZCBO__BaseScreens__BaseDIV", '');
+        } else if (backNavigationData.scr === 'RepeatCollection') {
+            ApzCOB.dashboardAppListAPI();
+        } else if (backNavigationData.scr === 'NonMeetingDayColl') {
+            document.getElementById(nonMetColScrId + 'nonMetBaseDiv').classList.add('sno');
+            if (backNavigationData.nonMetFlow === 'listCust') {
+                document.getElementById(nonMetColScrId + 'custDetails').classList.remove('sno');
+            } else {
+                document.getElementById(nonMetColScrId + "row_gorupsDataRow").classList.remove("sno");
+                document.getElementById(nonMetColScrId + 'row_groupsHeader').classList.remove('sno');
+                document.getElementById(nonMetColScrId + 'launchNextScrDiv').classList.remove('sno');
+            }
+        } else if (backNavigationData.scr === 'kenSuccessScreen') {
+            $("#" + kenMetSucScrId + "succScrMainDiv").removeClass("sno");
+            $("#" + kenMetSucScrId + "kenSuccessScrBaseDiv").addClass("sno");
+        }else if (backNavigationData.scr === 'LoanDisbursementList') {
+            ApzCOB.launchMicroApp("LoanDi", "LoanDisbursementList", "APZCBO__BaseScreens__BaseDIV", disbursementList);
+            window.KendraLoans.scr === 'ViewAll'
+        }else if (backNavigationData.scr === 'Rejected') {
+            ApzCOB.dashboardAppListAPI();
+        }else if (backNavigationData.scr === 'KendraDetails') {
+            isCustomerDtlsToKendraDtls = true;
+            var data =  KendraApp.selectedKendra??selectedKendraFromMyKendra;
+            ApzCOB.launchMicroApp('Kendra', 'KendraDetails', 'APZCBO__BaseScreens__BaseDIV', data);
+        }else if (backNavigationData.scr === 'NewLoanApplication') {
+            //KendraApp.LoanCalculatorObj={};
+           ApzCOB.launchMicroApp("NEWLOA", "NewLoanApplication", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedKendra);
+        }
+        apz.currAppId = backNavigationData.childScrId;
+        apz.childScr = backNavigationData.scr;
+    }
+    KendraLoans.custFetchLoanAppRes = {};
+}
+apz.app.CustomerDetails.editMobile = function() {
+    $('#APZCBO__BaseScreens__BaseDIV').addClass('sno');
+    let data = {
+        selectedCust: KendraApp.selectedCustomer,
+        childScr: 'CustomerDetails'
+    };
+    ApzCOB.launchMicroApp("NEWLOA", "UpdateMobNumber", "APZCBO__BaseScreens__STAGE15", data);
+}
+apz.app.CustomerDetails.onUpdateMobNum = function() {
+    apz.setElmValue(CustomerDtlScrId + "mobilNum", KendraApp.selectedCustomer.mobileNum);
+    // apz.setElmValue(screenId + "confirmMobileNum", KendraApp.selectedCustomer.mobileNum);
+    // apz.app.AddLoanDetails.addMobileNum();
+}
+apz.app.CustomerDetails.onClickOfThreeDots = function() {
+    if (document.getElementById(CustomerDtlScrId + "custPopOver").classList.contains("sno")) {
+        document.getElementById(CustomerDtlScrId + "custPopOver").classList.remove("sno");
+    } else {
+        document.getElementById(CustomerDtlScrId + "custPopOver").classList.add("sno");
+    }
+}
+apz.app.CustomerDetails.onClickPropOverData = function(pthis) {
+    let id = pthis.id;
+    if (CustomerDtlScrId + "deathIntDiv" === id) {
+        let params = {};
+        params.fromFlag = 'customerScr';
+        params.custDts = custData;
+        if (deathIntimationInitatedRec.length > 0) {
+            let isRecPresent = false;
+            let record = {};
+            deathIntimationInitatedRec.forEach(deathRec => {
+                if (custData.customerId === deathRec.customerId) {
+                    isRecPresent = true;
+                    record = deathRec
+                }
+            })
+            if (isRecPresent) {
+                if (record.status === "INPROGRESS") {
+                    ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COL_MSG_PER_DEATH_IPPROGRESS"), "I");
+                } else {
+                    ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COL_MSG_PER_DEATH_APPROVED"), "I");
+                }
+            } else {
+                ApzCOB.launchMicroApp("KenMet", "DeathIntimation", "APZCBO__BaseScreens__BaseDIV", params);
+            }
+        } else {
+            ApzCOB.launchMicroApp("KenMet", "DeathIntimation", "APZCBO__BaseScreens__BaseDIV", params);
+        }
+    } else {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_FEA_COMING_SOON"), "E");
+    }
+}
+apz.app.CustomerDetails.onClickOfMarkCollection = function() {
+    let params = {};
+    params.customerId = KendraApp.selectedCustomer.customerId;
+    params.kendraId = KendraApp.selectedCustomer.kendraId;
+    params.flow = 'customer';
+    if (backNavigationData.baseDiv === "nonMetBaseDiv") {
+        params.backNavDataOfCustDtsScreen = true;
+    }
+    ApzCOB.launchMicroApp('KenMet', 'NonMeetingDayColl', 'APZCBO__BaseScreens__BaseDIV', params);
+}
+apz.app.CustomerDetails.downloadCbReport = function() {
+    viewCBReport = true;
+    apz.startLoader();
+    var request = {
+        "apiRequest": {
+            "appId": "APZCBO",
+            "interfaceName": "CBReportDownload",
+            "serviceName": "bank",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "loanId": KendraApp.selectedCustomer.selectedApp.applicationId
+            }
+        }
+    }
+    if (apz.deviceType !== 'WEB') {
+        apz.app.BaseScreens.UEstartTimer("User CBReport Download", request);
+        apz.app.BaseScreens.UElogevent("User CBReport Download", request);
+    }
+        ApzCOB.serverBuildParam(gAppId, 'CBReportDownload', 'N', 'N', request, 'Y', apz.app.CustomerDetails.downloadCbReportCB);
+    
+}
+apz.app.CustomerDetails.downloadCbReportCB = function(params) {
+    if (apz.deviceType !== 'WEB') {
+        apz.app.BaseScreens.UEstopTimer("User CBReport Download", params.req);
+    }
+    apz.stopLoader();
+    try {
+        //if (ApzCOB.handleServiceCallBacks(params)) {
+        if (!apz.isNull(params.res.APZCBO__CBReportDownload_Res.apiResponse.ResponseBody.responseObj)) {
+            var base64Resp = params.res.APZCBO__CBReportDownload_Res.apiResponse.ResponseBody.responseObj;
+            if (base64Resp.length <= 1000) {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+                return;
+            }
+            if (base64Resp !== '') {
+                if (apz.deviceType === 'WEB') {
+                    var fileName = "CB_Report_" + KendraApp.selectedCustomer.selectedApp.applicationId + ".pdf";
+                    var byteCharacters = atob(base64Resp);
+                    var byteArray = new Uint8Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                        byteArray[i] = byteCharacters.charCodeAt(i);
+                    }
+                    var blob = new Blob([byteArray], {
+                        type: 'application/pdf'
+                    });
+                    var link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = fileName;
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                    return;
+                } else {
+                    //ApzCOB.convertBase64ToFile(base64Resp, "Loan Disbursement Kit");
+                    ApzCOB.base64toSavefile(base64Resp, "CB_Report_" + KendraApp.selectedCustomer.selectedApp.applicationId, "CB Report");
+                }
+            } else {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+    }
+}
+apz.app.CustomerDetails.viewCbReport = function() {
+    viewCBReport = true;
+    apz.startLoader();
+    var request = {
+        "apiRequest": {
+            "appId": "APZCBO",
+            "interfaceName": "CBReportDownload",
+            "serviceName": "bank",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "loanId": KendraApp.selectedCustomer.selectedApp.applicationId
+            }
+        }
+    }
+    if (apz.deviceType !== 'WEB') {
+        apz.app.BaseScreens.UEstartTimer("User CBReport Download", request);
+        apz.app.BaseScreens.UElogevent("User CBReport Download", request);
+    }
+        ApzCOB.serverBuildParam(gAppId, 'CBReportDownload', 'N', 'N', request, 'Y', apz.app.CustomerDetails.viewCbReportCB);
+    
+}
+apz.app.CustomerDetails.viewCbReportCB = function (params) {
+    if (apz.deviceType !== 'WEB') {
+        apz.app.BaseScreens.UEstopTimer("User CBReport Download", params.req);
+    }
+    try {
+        let respObj = params.res.APZCBO__CBReportDownload_Res.apiResponse.ResponseBody.responseObj;
+        if (!apz.isNull(respObj)) {
+            var base64Resp = respObj.replace(/\s/g, ''); // Clean whitespace
+            if (base64Resp.length <= 1000) {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+                apz.stopLoader();
+                return;
+            }
+            console.log("[downloadCbReportCB] ✅ Base64 response length:", base64Resp.length);
+            // --- Decode Base64 to Uint8Array ---
+            var byteCharacters = atob(base64Resp);
+            var byteNumbers = new Array(byteCharacters.length);
+            for (var i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            var byteArray = new Uint8Array(byteNumbers);
+            // --- Create PDF Blob ---
+            var blob = new Blob([byteArray], { type: 'application/pdf' });
+            var pdfUrl = URL.createObjectURL(blob);
+            console.log("[downloadCbReportCB] Blob created. PDF URL:", pdfUrl);
+            // --- Get container ---
+            var pdfContainer = document.getElementById(CustomerDtlScrId + "passBook");
+            if (!pdfContainer) {
+                console.error("[downloadCbReportCB] ❌ PDF container element not found!");
+                apz.stopLoader();
+                return;
+            }
+            console.log("[downloadCbReportCB] ✅ PDF container found:", pdfContainer);
+            // Toggle UI rows
+            $('#' + CustomerDtlScrId + "gr_row_97").addClass('sno');
+            $('#' + CustomerDtlScrId + "docMianRow").removeClass('sno');
+            // Clear container
+            pdfContainer.innerHTML = "";
+            if (apz.deviceType === 'WEB') {
+                // --- For Web: embed viewer ---
+                console.log("[downloadCbReportCB] Web mode → embedding PDF in <embed>");
+                pdfContainer.innerHTML = `<embed 
+                                    src="${pdfUrl}" 
+                                    type="application/pdf" 
+                                    style="width: 100%; height: 600px; overflow: auto; border: none;" />`;
+                                      apz.stopLoader();
+            } else {
+                // --- For Mobile/Tablet: Render with PDF.js ---
+                console.log("[downloadCbReportCB] Mobile/Tab mode → Rendering with PDF.js from blob URL...");
+                pdfContainer.style.cssText = `
+          max-width: 100%;
+          max-height: 600px;
+          overflow-x: auto;   /* ✅ enable horizontal scroll */
+          overflow-y: auto;
+          border: 1px solid #ccc;
+          padding: 10px;
+          background-color: white;
+        `;
+                if (!window['pdfjsLib']) {
+                    console.error("[downloadCbReportCB] ❌ pdf.js library not loaded!");
+                    ApzCOB.fnDisplayMsg("PDF viewer not available.", "E");
+                    apz.stopLoader();
+                    return;
+                }
+                pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+                const loadingTask = pdfjsLib.getDocument(pdfUrl); // use blob URL for safety
+                loadingTask.promise.then(function (pdf) {
+                    console.log("[downloadCbReportCB] ✅ PDF loaded with", pdf.numPages, "pages");
+                    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                        pdf.getPage(pageNum).then(function (page) {
+                            console.log("[downloadCbReportCB] Rendering page", pageNum, "...");
+                            // ✅ Force larger scale for readability
+                            const desiredScale = 2.0; // Increase this (e.g., 2.5 or 3) if still small
+                            let viewport;
+                            try {
+                                viewport = page.getViewport({ scale: desiredScale, rotation: page.rotate || 0 });
+                            } catch (e) {
+                                console.warn("[downloadCbReportCB] v3.x getViewport failed, trying v2.x...");
+                                viewport = page.getViewport(desiredScale); // fallback for v2.x
+                            }
+                            if (!viewport || !viewport.width || !viewport.height ||
+                                isNaN(viewport.width) || isNaN(viewport.height)) {
+                                console.error("[downloadCbReportCB] ❌ Invalid viewport, forcing fallback size.");
+                                viewport = { width: 800, height: 1000, rotation: 0, transform: [1, 0, 0, -1, 0, 1000] };
+                            }
+                            console.log(`[downloadCbReportCB] Viewport for page ${pageNum}: ${viewport.width}x${viewport.height}`);
+                            const pageCanvas = document.createElement("canvas");
+                            const context = pageCanvas.getContext("2d");
+                            pageCanvas.width = Math.floor(viewport.width);
+                            pageCanvas.height = Math.floor(viewport.height);
+                            console.log(`[downloadCbReportCB] Page ${pageNum} canvas buffer: ${pageCanvas.width}x${pageCanvas.height}`);
+                            // ✅ Keep the actual pixel width, not shrinking to 100%
+                            pageCanvas.style.width = pageCanvas.width + "px";
+                            pageCanvas.style.height = pageCanvas.height + "px";
+                            pageCanvas.style.margin = "0 auto 12px auto";
+                            pageCanvas.style.display = "block";
+                            pageCanvas.style.border = "1px solid #ccc";
+                            pageCanvas.style.background = "#fff";
+                            // Add label
+                            const label = document.createElement("div");
+                            label.innerText = `Page ${pageNum} of ${pdf.numPages}`;
+                            label.style.textAlign = "center";
+                            label.style.margin = "6px 0";
+                            label.style.fontSize = "12px";
+                            label.style.color = "#666";
+                            pdfContainer.appendChild(label);
+                            pdfContainer.appendChild(pageCanvas);
+                            const renderTask = page.render({
+                                canvasContext: context,
+                                viewport: viewport
+                            });
+                            renderTask.promise.then(function () {
+                                console.log(`[downloadCbReportCB] ✅ Page ${pageNum} rendered. Final canvas size: ${pageCanvas.width}x${pageCanvas.height}`);
+                                apz.stopLoader();
+                            }).catch(err => {
+                                console.error("[downloadCbReportCB] ❌ Error rendering page", pageNum, err);
+                                  apz.stopLoader();
+                            });
+                        }).catch(err => {
+                            console.error("[downloadCbReportCB] ❌ Error loading page", pageNum, err);
+                              apz.stopLoader();
+                        });
+                    }
+                }).catch(err => {
+                    console.error("[downloadCbReportCB] ❌ Error loading PDF:", err);
+                    ApzCOB.fnDisplayMsg("Error loading document.", "E");
+                      apz.stopLoader();
+                });
+            }
+        } else {
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+              apz.stopLoader();
+        }
+    } catch (e) {
+        apz.stopLoader();
+        console.error("Exception in downloadCbReportCB:", e);
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+    }
+}
+
+// apz.app.CustomerDetails.eligibleProduct = function() {
+//     custData.eligibleLoan.forEach(function(el, index) {
+//         custData[index].product = custData.loanDtls[0].product;
+//         custData[index].year = custData.loanDtls[0].lnValueDate
+//         custData[index].amtPending = '20,000'
+//         custData[index].totalAmt = custData.loanDtls[0].approvedAmt
+//         custData[index].frquency = custData.loanDtls[0].freq
+//         groupLoansList.push(custData[index]);
+//     })
+//     if (customerList.length > 0) {
+//         apz.data.scrdata.Custom__GroupLoans_Res = {};
+//         apz.data.scrdata.Custom__GroupLoans_Res.GroupLoanNode = groupLoansList;
+//         apz.data.loadData("GroupLoans", 'LoanDi');
+//     }
+// }
+apz.app.CustomerDetails.downloadDBKit = function() {
+    ApzCOB.downloadLoanDBKitReport(KendraLoans.custFetchLoanAppRes.applicationdtls[0].applicationId);
+}
+apz.app.CustomerDetails.downLoadSanctionLetter = function() {
+     ApzCOB.downloadSanctionReport(KendraLoans.custFetchLoanAppRes.applicationdtls[0].applicationId);
+}
+apz.app.CustomerDetails.viewDBKits = function () {
+    viewDisbKit = true;
+    apz.startLoader();
+    var request = {
+        "apiRequest": {
+            "appId": gAppId,
+            "interfaceName": "FetchDBKitReport",
+            "requestObj": {
+                "appId": gAppId,
+                "applicationId": KendraLoans.custFetchLoanAppRes.applicationdtls[0].applicationId,
+                "versionNum": "1"
+            }
+        }
+    }
+    if (apz.deviceType !== 'WEB') {
+        apz.app.BaseScreens.UEstartTimer("Disbursement Kit Report", request);
+        apz.app.BaseScreens.UElogevent("Disbursement Kit Report", request);
+    }
+    ApzCOB.serverBuildParam(gAppId, 'FetchDBKitReport', 'N', 'N', request, 'Y', apz.app.CustomerDetails.viewDBKitsCB);
+}
+
+apz.app.CustomerDetails.viewDBKitsCB = function (params) {
+    apz.stopLoader();
+    if (apz.deviceType !== 'WEB') {
+        apz.app.BaseScreens.UEstopTimer("Disbursement Kit Report", params.req);
+    }
+    try {
+        var base64Resp = params.res?.APZCBO__FetchDBKitReport_Res?.apiResponse?.ResponseBody?.responseObj;
+        if (!apz.isNull(base64Resp) && base64Resp.length > 1000) {
+            var byteCharacters = atob(base64Resp);
+            var byteNumbers = new Array(byteCharacters.length);
+            for (var i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            var byteArray = new Uint8Array(byteNumbers);
+            var blob = new Blob([byteArray], { type: 'application/pdf' });
+            var appId = KendraLoans.custFetchLoanAppRes.applicationdtls[0].applicationId;
+            var pdfUrl = URL.createObjectURL(blob);
+            var container = document.getElementById(CustomerDtlScrId + "passBook");
+            if (!container) {
+                console.error("Disbursement kit container not found.");
+                ApzCOB.fnDisplayMsg("Unable to display document.", "E");
+                return;
+            }
+            $('#' + CustomerDtlScrId + "gr_row_97").addClass('sno');
+            $('#' + CustomerDtlScrId + "docMianRow").removeClass('sno');
+            if (apz.deviceType === 'WEB') {
+                container.innerHTML = `<embed src="${pdfUrl}" type="application/pdf" style="width:100%; height:600px; border:none;" />`;
+            } else {
+                container.style.cssText = `
+                    max-width: 100%;
+                    max-height: 600px;
+                    overflow: auto;
+                    border: 1px solid #ccc;
+                    padding: 10px;
+                    background-color: white;
+                `;
+                fetch(pdfUrl).then(response => response.text()).then(html => {
+                    container.innerHTML = html;
+                }).catch(error => {
+                    ApzCOB.fnDisplayMsg("Error loading document.", "E");
+                });
+            }
+        } else {
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+            viewDisbKit = false;
+        }
+    } catch (e) {
+        viewDisbKit = false;
+        apz.stopLoader();
+        console.error("Exception in viewDBKitsCB:", e);
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+    }
+}
+apz.app.CustomerDetails.viewSanctionKits = function () {
+    viewSanctionRep = true;
+      apz.startLoader();
+	            var request = {
+	                "apiRequest": {
+	                    "appId": gAppId,
+	                    "interfaceName": "FetchSanctionReport",
+	                    "requestObj": {
+	                        "appId": gAppId,
+	                        "applicationId": KendraLoans.custFetchLoanAppRes.applicationdtls[0].applicationId,
+	                        "versionNum": "1"
+	                    }
+	                }
+	            }
+	            if (apz.deviceType !== 'WEB') {
+	                apz.app.BaseScreens.UEstartTimer("Sanction Report", request);
+	                apz.app.BaseScreens.UElogevent("Sanction Report", request);
+	            }
+	            ApzCOB.serverBuildParam(gAppId, 'FetchSanctionReport', 'N', 'N', request, 'Y', apz.app.CustomerDetails.viewSanctionKitsCB);
+}
+
+apz.app.CustomerDetails.viewSanctionKitsCB = function(params) {
+    apz.stopLoader();
+    if (apz.deviceType !== 'WEB') {
+        apz.app.BaseScreens.UEstopTimer("Disbursement Kit Report", params.req);
+    }
+    try {
+        if (!apz.isNull(params.res.APZCBO__FetchSanctionReport_Res.apiResponse.ResponseBody.responseObj)) {
+            var base64Resp = params.res.APZCBO__FetchSanctionReport_Res.apiResponse.ResponseBody.responseObj;
+            if (!apz.isNull(base64Resp) && base64Resp.length > 1000) {
+                base64Resp = base64Resp.replace(/\s/g, '');
+                var byteCharacters = atob(base64Resp);
+                console.log("Decoded PDF starts with:", byteCharacters.substring(0, 20));
+                var byteNumbers = new Array(byteCharacters.length);
+                for (var i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                var byteArray = new Uint8Array(byteNumbers);
+                var blob = new Blob([byteArray], {
+                    type: 'application/pdf'
+                });
+                var pdfUrl = URL.createObjectURL(blob);
+                var container = document.getElementById(CustomerDtlScrId + "passBook");
+                if (!container) {
+                    console.error("Disbursement kit container not found.");
+                    ApzCOB.fnDisplayMsg("Unable to display document.", "E");
+                    return;
+                }
+                $('#' + CustomerDtlScrId + "gr_row_97").addClass('sno');
+                $('#' + CustomerDtlScrId + "docMianRow").removeClass('sno');
+                container.innerHTML = "";
+                if (apz.deviceType === 'WEB') {
+                    // Embed PDF in browser
+                    container.innerHTML = `<embed 
+                    src="${pdfUrl}" 
+                    type="application/pdf" 
+                    style="width: 100%; height: 600px; overflow: auto; border: none;" />`;
+                } else {
+                   container.style.cssText = `
+                    max-width: 100%;
+                    max-height: 600px;
+                    overflow: auto;
+                    border: 1px solid #ccc;
+                    padding: 10px;
+                    background-color: white;
+                `;
+                fetch(pdfUrl).then(response => response.text()).then(html => {
+                    container.innerHTML = html;
+                }).catch(error => {
+                    ApzCOB.fnDisplayMsg("Error loading document.", "E");
+                });
+                }
+            }
+        } else {
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+                viewSanctionRep = false;
+        }
+    } catch (e) {
+        viewSanctionRep = false;
+        apz.stopLoader();
+        console.error("Exception in viewDBKitsCB:", e);
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+    }
+};
+apz.app.CustomerDetails.launchCalculator = function() {
+    // if (Object.keys(KendraApp.LoanCalculatorObj).length === 0) {
+    //     ApzCOB.launchMicroApp('Calcu', 'LoanEmiCalculator', 'APZCBO__BaseScreens__BaseDIV', 'CustomerDetails');
+    // }
+    // if (!KendraApp.LoanCalculatorObj || Object.keys(KendraApp.LoanCalculatorObj).length === 0) {
+    // ApzCOB.launchMicroApp('Calcu', 'LoanEmiCalculator', 'APZCBO__BaseScreens__BaseDIV', 'CustomerDetails');
+    // }
+    var obj={
+        scr:'CustomerDetails',
+        data:backNavigationData
+    }
+    ApzCOB.launchMicroApp('Calcu', 'LoanEmiCalculator', 'APZCBO__BaseScreens__BaseDIV', obj);
+}

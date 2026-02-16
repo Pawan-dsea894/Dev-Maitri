@@ -1,0 +1,472 @@
+var MarkAttendance = 'KenMet__MarkAttendance__';
+var data = [];
+var isAllSelected = false;
+var presentCount = 0;
+var absentCount = 0;
+var leaveCount = 0;
+var percentCount = 0;
+var totalCount = 0;
+var selRecordRow = 0;
+window.markCollectionFlow = true;
+var selectedKenId = '';
+var markDeathData = false;
+apz.app.onShown_MarkAttendance = function(kendraId) {
+    // ApzCOB.fetchDeathIntimationBMDetails();
+    selectedKenId = kendraId;
+    $("#" + kmDashScrId + 'calculatorIcon').addClass('sno')
+    $("#" + kmDashScrId + "collDetail").addClass("sno");
+    $('#' + MarkAttendance + 'submit_btn').prop('disabled', true);
+    $("#" + MarkAttendance + "success_screen").addClass("sno");
+    // apz.app.MarkAttendance.loadGroupsData(kendraId);
+    // apz.app.MarkAttendance.iconMap();
+    // apz.app.MarkAttendance.findRowNoUsingKendraId(kendraId);
+    // apz.app.MarkAttendance.markAbentForDeathIntimationRec();
+    apz.stopLoader();
+    //added below code by Sathish
+    //to check whether person is considered as deceased
+    //added on 05/02/2025
+    ApzCOB.fetchDeathIntimationBMDetails('approvalSuccessScr');
+};
+apz.app.MarkAttendance.findRowNoUsingKendraId = function(kenId) {
+    for (let i = 0; i < collectionKendraData.length; i++) {
+        if (collectionKendraData[i].kendraId === kenId) {
+            selRecordRow = i;
+        }
+    }
+}
+apz.app.MarkAttendance.iconMap = function() {
+    let iconIdIndex = 0;
+    kendraDetails.kendraDet.colldtls.groups.forEach((icon, j) => {
+        icon.members.forEach((i, n) => {
+            var cname = i.name;
+            var cName = cname.charAt(0);
+            $("#" + MarkAttendance + 'iconId_' + iconIdIndex + '_txtcnt').text(cName);
+            iconIdIndex++;
+        });
+    });
+}
+apz.app.MarkAttendance.loadGroupsData = function(kendraId) {
+    var groupsDetails = [];
+    var segregatedGroupDet = [];
+    segregatedGroupDet.groupDetails = [];
+    kendraDetails.kendraDet.colldtls.groups.forEach(group => {
+        group.members.forEach(member => {
+            segregatedGroupDet.groupDetails.push({
+                groupId: group.id,
+                customerName: member.name,
+                member: member.depname,
+                memberId: member.id,
+                attend: member.attend
+            });
+        });
+    });
+    apz.data.scrdata.KenMet__IPaintMarkAttendance_Res = [];
+    apz.data.scrdata.KenMet__IPaintMarkAttendance_Res = segregatedGroupDet;
+    apz.data.loadData('IPaintMarkAttendance', 'KenMet');
+    data = apz.data.scrdata.KenMet__IPaintMarkAttendance_Res;
+    totalCount = data.groupDetails.length;
+    segregatedGroupDet.groupDetails.forEach((row, j) => {
+        $('#' + MarkAttendance + 'radio_btn_' + j + '_option_One').prop('disabled', false);
+        $('#' + MarkAttendance + 'radio_btn_' + j + '_option_Two').prop('disabled', false);
+        $('#' + MarkAttendance + 'radio_btn_' + j + '_option_Three').prop('disabled', false);
+        $('#' + MarkAttendance + 'radio_btn_' + j + '_option_Four').prop('disabled', false);
+        $('#' + MarkAttendance + 'radio_btn_' + j + '_option_Five').prop('disabled', false);
+        $('#' + MarkAttendance + 'radio_btn_' + j + '_option_Five_span_' + j).addClass('mr0');
+        $('#' + MarkAttendance + 'radio_btn_' + j + '_option_Six').prop('disabled', false);
+        $('#' + MarkAttendance + 'radio_btn_' + j + '_option_Two_span_' + j).addClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + j + '_option_Four_span_' + j).addClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + j + '_option_Six_span_' + j).addClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + j).addClass('flx-end');
+        if (deathIntimationInitatedRec.length > 0) {
+            deathIntimationInitatedRec.forEach(deathRec => {
+                if (deathRec.customerId === row.memberId) {
+                    $('#' + MarkAttendance + 'txt_deathClaimMsgTxt_' + j).closest('.srb').removeClass('sno');
+                    $('#' + MarkAttendance + 'radio_btn_' + j).closest('.srb').addClass('sno');
+                } else {
+                    $('#' + MarkAttendance + 'txt_deathClaimMsgTxt_' + j).closest('.srb').addClass('sno');
+                    $('#' + MarkAttendance + 'radio_btn_' + j).closest('.srb').removeClass('sno');
+                }
+            })
+        }
+    });
+    var firstId = '';
+    var secondId = '';
+    segregatedGroupDet.groupDetails.forEach((group, i) => {
+        if (i === 0) {
+            firstId = '';
+        } else {
+            firstId = segregatedGroupDet.groupDetails[i - 1].groupId;
+        }
+        secondId = group.groupId;
+        if (firstId === secondId) {
+            $('#KenMet__IPaintMarkAttendance__o__groupDetails__groupId_' + i).closest('.srb').addClass('sno')
+        } else {
+            $('#KenMet__IPaintMarkAttendance__o__groupDetails__groupId_' + i).closest('.srb').removeClass('sno')
+        }
+    });
+    if (isEdit) {
+        apz.app.MarkAttendance.loadEditData();
+        $("#" + MarkAttendance + "submit_btn").addClass("sno");
+        $("#" + MarkAttendance + "update_row").removeClass("sno");
+    }
+};
+apz.app.MarkAttendance.loadEditData = function() {
+    let totPresCnt = 0;
+    apz.data.scrdata.KenMet__IPaintMarkAttendance_Res.groupDetails.forEach((obj, i) => {
+        if (obj.hasOwnProperty('attend')) {
+            if (obj.attend === "P") {
+                $('#KenMet__MarkAttendance__radio_btn_' + i + '_option_Five').click();
+                totPresCnt++;
+            } else if (obj.attend === "A") {
+                $('#KenMet__MarkAttendance__radio_btn_' + i + '_option_Three').click();
+            } else if (obj.attend === "L") {
+                $('#KenMet__MarkAttendance__radio_btn_' + i + '_option_One').click();
+            }
+        }
+        $('#KenMet__MarkAttendance__radio_btn_' + i).parent().removeClass('flx-end');
+    })
+    if (totPresCnt === apz.data.scrdata.KenMet__IPaintMarkAttendance_Res.groupDetails.length) {
+        $("#" + MarkAttendance + "allPbtn").prop("checked", true);
+    }
+};
+apz.app.MarkAttendance.storeAtt = function() {
+    apz.data.scrdata.KenMet__IPaintMarkAttendance_Res.groupDetails.forEach((obj, i) => {
+        kendraDetails.kendraDet.colldtls.groups.forEach((grp, j) => {
+            if (grp.id === obj.groupId) {
+                grp.members.forEach((mem, k) => {
+                    if (mem.id === obj.memberId) {
+                        //mem.attend = obj.attend
+                        if ($('#KenMet__MarkAttendance__radio_btn_' + i + '_option_Six').is(':checked')) {
+                            mem.attend = "P"
+                        } else if ($('#KenMet__MarkAttendance__radio_btn_' + i + '_option_Four').is(':checked')) {
+                            mem.attend = "A"
+                        } else if ($('#KenMet__MarkAttendance__radio_btn_' + i + '_option_Two').is(':checked')) {
+                            mem.attend = "L"
+                        } else {
+                            mem.attend = "A"
+                        }
+                    }
+                })
+            }
+        })
+    })
+};
+apz.app.MarkAttendance.selectAttendance = function(pthis) {
+    var rowNo = '';
+    var value = '';
+    if (markDeathData) {
+        rowNo = pthis.rowNo;
+        value = pthis.value;
+        markDeathData = false;
+    } else {
+        rowNo = $("#" + pthis.id).parent().attr("rowno")
+        value = $("#" + pthis.id).attr("value")
+    }
+    var allPresentCheck = $("#KenMet__MarkAttendance__allPbtn").prop("checked");
+    if (value === "One") {
+        $("#KenMet__MarkAttendance__allPbtn").prop("checked", false)
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_One_span_' + rowNo).addClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Two_span_' + rowNo).removeClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Two').parent().addClass('leav')
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Three_span_' + rowNo).removeClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Four_span_' + rowNo).addClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Four_span_' + rowNo).parent().removeClass('absnt')
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Five_span_' + rowNo).removeClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Six_span_' + rowNo).addClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Six_span_' + rowNo).parent().removeClass('prsnt')
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Two').click()
+    } else if (value === "Three") {
+        $("#KenMet__MarkAttendance__allPbtn").prop("checked", false)
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_One_span_' + rowNo).removeClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Two_span_' + rowNo).addClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Two_span_' + rowNo).parent().removeClass('leav')
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Three_span_' + rowNo).addClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Four_span_' + rowNo).removeClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Four').parent().addClass('absnt')
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Four').click()
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Five_span_' + rowNo).removeClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Six_span_' + rowNo).addClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Six_span_' + rowNo).parent().removeClass('prsnt')
+    } else if (value === "Five") {
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_One_span_' + rowNo).removeClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Two_span_' + rowNo).addClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Two_span_' + rowNo).parent().removeClass('leav')
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Three_span_' + rowNo).removeClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Four_span_' + rowNo).addClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Four_span_' + rowNo).parent().removeClass('absnt')
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Five_span_' + rowNo).addClass('sno');
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Six_span_' + rowNo).removeClass('sno')
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Six').parent().addClass('prsnt')
+        $('#' + MarkAttendance + 'radio_btn_' + rowNo + '_option_Six').click()
+    }
+    isAllSelected = true;
+    presentCount = 0;
+    absentCount = 0;
+    leaveCount = 0;
+    data.groupDetails.forEach((row, j) => {
+        if (!$(`#KenMet__MarkAttendance__radio_btn_${j} input[type="radio"]`).is(':checked')) {
+            isAllSelected = false
+        } else {
+            apz.app.MarkAttendance.calculateCount(j);
+        }
+        if (allPresentCheck) {
+            $('#' + MarkAttendance + 'radio_btn_' + j).addClass('flx-end');
+        } else {
+            $('#' + MarkAttendance + 'radio_btn_' + j).removeClass('flx-end');
+        }
+    })
+    if (presentCount === data.groupDetails.length) {
+        $("#" + MarkAttendance + "allPbtn").prop("checked",true);
+    } else {
+        $("#" + MarkAttendance + "allPbtn").prop("checked",false);
+    }
+    if (isAllSelected) {
+        $('#' + MarkAttendance + 'submit_btn').prop('disabled', false);
+    }
+    let totalMarkedCust = presentCount + absentCount + leaveCount;
+    if (totalMarkedCust === data.groupDetails.length) {
+        $('#' + MarkAttendance + 'submit_btn').prop('disabled', false);
+        $('#' + MarkAttendance + 'update_btn').prop('disabled', false);
+    } else {
+        $('#' + MarkAttendance + 'submit_btn').prop('disabled', true);
+        $('#' + MarkAttendance + 'update_btn').prop('disabled', true);
+    }
+    if (allPresentCheck) {
+        apz.app.MarkAttendance.markAbentForDeathIntimationRec();
+    }
+    //apz.app.MarkAttendance.storeAtt();
+};
+apz.app.MarkAttendance.allPresent = function(pthis) {
+    apz.startLoader();
+    var checkbox = $("#KenMet__MarkAttendance__allPbtn").prop("checked");
+    data.groupDetails.forEach((row, k) => {
+        if (checkbox) {
+            $('#' + MarkAttendance + 'radio_btn_' + k + '_option_One_span_' + k).removeClass('sno');
+            $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Two_span_' + k).addClass('sno');
+            $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Two_span_' + k).parent().removeClass('leav')
+            $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Three_span_' + k).removeClass('sno');
+            $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Four_span_' + k).addClass('sno');
+            $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Four_span_' + k).parent().removeClass('absnt')
+            $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Five_span_' + k).addClass('sno');
+            $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Six_span_' + k).removeClass('sno');
+            $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Six').parent().addClass('prsnt')
+            if ($('#' + MarkAttendance + 'txt_deathClaimMsgTxt_' + k).is(':visible')) {
+                $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Four').click()
+            } else {
+                $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Six').click()
+            }
+            $("#" + kmDashScrId + "down_arrow").addClass("sno");
+            $('#' + kmDashScrId + 'updSucc').prop('disabled', false);
+            // $('#' + MarkAttendance + 'radio_btn_' + k).removeClass('flx-end');
+        } else {
+            $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Six').prop('checked', false);
+            $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Six_span_' + k).addClass('sno');
+            $('#' + MarkAttendance + 'radio_btn_' + k + '_option_One_span_' + k).removeClass('sno');
+            $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Two_span_' + k).addClass('sno');
+            $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Three_span_' + k).removeClass('sno');
+            $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Four_span_' + k).addClass('sno');
+            $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Five_span_' + k).removeClass('sno');
+            $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Two').parent().removeClass('leav')
+            $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Four').parent().removeClass('absnt')
+            $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Six').parent().removeClass('prsnt');
+            if ($('#' + MarkAttendance + 'txt_deathClaimMsgTxt_' + k).is(':visible')) {
+                $('#' + MarkAttendance + 'radio_btn_' + k + '_option_Four').click()
+            }
+            $('#' + MarkAttendance + 'submit_btn').prop('disabled', true);
+            $("#" + kmDashScrId + "down_arrow").removeClass("sno");
+            // $('#' + MarkAttendance + 'radio_btn_' + k).addClass('flx-end');
+            $('#' + MarkAttendance + 'updSucc').prop('disabled', true);
+        }
+        $('#' + MarkAttendance + 'radio_btn_' + k).addClass('flx-end');
+    });
+    setTimeout(() => {
+        apz.stopLoader()
+    }, 0)
+    if (!checkbox) {
+        $('#' + MarkAttendance + 'submit_btn').prop('disabled', true);
+        $('#' + MarkAttendance + 'update_btn').prop('disabled', true);
+    } else {
+        $('#' + MarkAttendance + 'submit_btn').prop('disabled', false);
+        $('#' + MarkAttendance + 'update_btn').prop('disabled', false);
+    }
+};
+apz.app.MarkAttendance.backNavigation = function() {
+    if (isEdit) {
+        isEdit = false;
+    }
+    $("#" + MarkAttendance + "attendance_row").addClass("sno");
+    $("#" + kmDashScrId + "collDetail").removeClass("sno");
+    document.getElementById(kmDashScrId + 'row_doNextSteps').classList.remove('sno');
+    document.getElementById(kmDashScrId + 'row_groupDetailsRow').classList.remove('sno');
+    document.getElementById(kmDashScrId + 'row_kendraDataRow').classList.remove('sno');
+    document.getElementById(kmDashScrId + 'loanAppDetRow').classList.remove('sno');
+    document.getElementById(kmDashScrId + 'kmPopoverDetails').classList.add('sno')
+    $("#" + kmDashScrId + "details").removeClass("sno");
+    $('#KenMet__MarkAttendance__row_kmd_launchNextScr').addClass('sno')
+    $("#" + kmDashScrId + 'calculatorIcon').removeClass('sno');
+    if (isCloseMeetingDone || atleastOneCollLeft) {
+        document.getElementById(kmDashScrId + 'row_newLoanAplnId').classList.add('sno');
+        document.getElementById(kmDashScrId + 'row_closeMeetingId').classList.add('sno');
+    } else {
+        document.getElementById(kmDashScrId + 'row_newLoanAplnId').classList.remove('sno');
+        document.getElementById(kmDashScrId + 'row_closeMeetingId').classList.remove('sno');
+    }
+    if (apz.data.scrdata.KenMet__IPaintMarkAttendance_Res.groupDetails.length === 0) {
+        document.getElementById(kmDashScrId + 'row_newLoanAplnId').classList.add('sno');
+        document.getElementById(kmDashScrId + 'row_closeMeetingId').classList.add('sno');
+    }
+}
+apz.app.MarkAttendance.backNavigationDone = function() {
+    $("#" + kmDashScrId + 'arrow_row').addClass('sno')
+    $("#" + kmDashScrId + 'calculatorIcon').removeClass('sno')
+    if (presentCount > 0) {
+        percentCount = parseInt((presentCount / totalCount * 100));
+    } else {
+        percentCount = 0;
+    }
+    $("#" + kmDashScrId + "details").removeClass("sno");
+    $("#" + MarkAttendance + "success_screen").addClass("sno");
+    $("#" + kmDashScrId + "collDetail").removeClass("sno");
+    document.getElementById(kmDashScrId + 'row_doNextSteps').classList.remove('sno');
+    document.getElementById(kmDashScrId + 'row_groupDetailsRow').classList.remove('sno');
+    document.getElementById(kmDashScrId + 'row_kendraDataRow').classList.remove('sno');
+    document.getElementById(kmDashScrId + 'loanAppDetRow').classList.remove('sno');
+    $("#" + kmDashScrId + "markAtt_btn").closest('li').addClass('sno');
+    $("#" + kmDashScrId + "edit_Button").closest('li').removeClass('sno');
+    $("#" + kmDashScrId + "edit_Button").closest('li').addClass('active');
+    $("#" + kmDashScrId + "percent").text(percentCount + '% Present');
+    $('#' + kmDashScrId + 'edit_Button').prop('disabled', false);
+    if (percentCount === 100) {
+        $("#" + kmDashScrId + "down_icon").addClass("sno");
+    } else {
+        $("#" + kmDashScrId + "down_icon").removeClass("sno");
+    }
+    if (atleastOneCollLeft) {
+        document.getElementById(kmDashScrId + 'row_newLoanAplnId').classList.add('sno');
+        document.getElementById(kmDashScrId + 'row_closeMeetingId').classList.add('sno');
+    } else {
+        document.getElementById(kmDashScrId + 'row_newLoanAplnId').classList.remove('sno');
+        document.getElementById(kmDashScrId + 'row_closeMeetingId').classList.remove('sno');
+    }
+    apz.childScr = "KMDashboard";
+    apz.app.KMDashboard.loadGroupsData(kendraDetails.kendraId);
+}
+apz.app.MarkAttendance.clickMoreOptionsBtn = function() {
+    if (document.getElementById(MarkAttendance + "moreDetailsDiv").classList.contains("sno")) {
+        document.getElementById(MarkAttendance + "moreDetailsDiv").classList.remove("sno");
+        $("#" + MarkAttendance + 'dropIcon').addClass('active')
+        $("#" + MarkAttendance + "leaveId").text(leaveCount);
+        $("#" + MarkAttendance + "absentId").text(absentCount);
+        $("#" + MarkAttendance + "presentId").text(presentCount);
+        $("#" + MarkAttendance + "totalId").text(totalCount);
+    } else {
+        document.getElementById(MarkAttendance + "moreDetailsDiv").classList.add("sno");
+        $("#" + MarkAttendance + 'dropIcon').removeClass('active')
+    }
+}
+var kendraName;
+var kenId;
+kendraName = kendraDetails.kendraDet.kendraName
+kenId = kendraDetails.kendraDet.kendraId
+apz.app.MarkAttendance.updateAttendance = function(pthis) {
+    ApzCOB.toggleModal(BaseScrId + 'confirmationModel');
+    markAtten = false;
+    apz.app.MarkAttendance.storeAtt();
+    apz.app.MarkAttendance.storeInCollectionData();
+    $("#" + kmDashScrId + "details").addClass("sno");
+    $("#" + MarkAttendance + "attendance_row").addClass("sno");
+    $("#" + MarkAttendance + "success_screen").removeClass("sno");
+    $("#" + MarkAttendance + "kenName").text(kendraName);
+    $("#" + MarkAttendance + "kenId").text(kenId);
+    let kenDetWithStage = {};
+    kenDetWithStage.kendraDet = kendraDetails.kendraDet;
+    kenDetWithStage.currStage = "Mark Attendance";
+    isCashierSubmission = false;
+    // CollectionsCommon.storeKendDetSQLLite(kendraDetails.kendraDet);
+    CollectionsCommon.insertIntoAppSQLLite(kenDetWithStage);
+    // CollectionsCommon.insertCollAppWFSQLLite(kendraDetails);
+    if (isEdit) {
+        isCloseMeetingDone = false;
+        markAtten = false;
+        $("#" + MarkAttendance + "updSucc").removeClass("sno");
+        $("#" + MarkAttendance + "cross_icon").removeClass("sno");
+        $("#" + MarkAttendance + "succ_Lbl").addClass("sno");
+    }
+}
+apz.app.MarkAttendance.onClickUpdateAttendance = function() {
+    var previousValues = apz.data.scrdata.KenMet__IPaintMarkAttendance_Res.groupDetails.map((val) => val.attend);
+    var attendValues = [];
+    attendValues = [];
+    apz.data.scrdata.KenMet__IPaintMarkAttendance_Res.groupDetails.forEach((d, i) => {
+        if ($('#KenMet__MarkAttendance__radio_btn_' + i + '_option_Six').is(':checked')) {
+            attendValues.push("P")
+        } else if ($('#KenMet__MarkAttendance__radio_btn_' + i + '_option_Four').is(':checked')) {
+            attendValues.push("A")
+        } else if ($('#KenMet__MarkAttendance__radio_btn_' + i + '_option_Two').is(':checked')) {
+            attendValues.push("L")
+        }
+    })
+    if (isEdit) {
+        isEdit = false;
+        if (ApzCOB.functionTocompareValues(previousValues, attendValues)) {
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COL_MSG_NOCHANGES"));
+            return;
+        } else {
+            ApzCOB.toogleConformationModel(ApzCOB.getDescfromLitCode("LIT_COL_LBL_WARNINGMSG"), "apz.app.MarkAttendance.updateAttendance");
+        }
+    }
+}
+apz.app.MarkAttendance.calculateCount = function(idNo) {
+    if ($('#KenMet__MarkAttendance__radio_btn_' + idNo + '_option_Two').is(':checked')) {
+        leaveCount++;
+    } else if ($('#KenMet__MarkAttendance__radio_btn_' + idNo + '_option_Four').is(':checked')) {
+        absentCount++;
+    } else {
+        presentCount++;
+    }
+}
+apz.app.MarkAttendance.storeInCollectionData = function() {
+    let colKendRec = collectionKendraData[selRecordRow];
+    let rowNo = 0;
+    colKendRec.colldtls.groups.forEach(group => {
+        group.members.forEach(member => {
+            if ($('#KenMet__MarkAttendance__radio_btn_' + rowNo + '_option_Six').is(':checked')) {
+                member.colMemAttend = "P";
+            } else if ($('#KenMet__MarkAttendance__radio_btn_' + rowNo + '_option_Four').is(':checked')) {
+                member.colMemAttend = "A";
+            } else if ($('#KenMet__MarkAttendance__radio_btn_' + rowNo + '_option_Two').is(':checked')) {
+                member.colMemAttend = "L";
+            } else {
+                member.colMemAttend = "A";
+            }
+            rowNo++;
+        });
+    });
+    // CollectionsCommon.storeSQLLite(collectionKendraData);
+};
+apz.app.MarkAttendance.onclickCustDet = function(pthis) {
+    let backNavData = {};
+    backNavData.childScrId = 'KenMet'
+    backNavData.scr = 'MarkAttendance';
+    backNavData.screenId = MarkAttendance;
+    backNavData.baseDiv = 'markAttenBaseDiv';
+    backNavData.data = JSON.parse(JSON.stringify(selectedKenId));
+    let selRow = pthis.id.split("_").at(-1);
+    backNavData.selCustId = apz.data.scrdata.KenMet__IPaintMarkAttendance_Res.groupDetails[selRow].memberId;
+    ApzCOB.customerDetNavigationFunc(backNavData);
+}
+apz.app.MarkAttendance.markAbentForDeathIntimationRec = function() {
+    if (window.deathIntimationInitatedRec && window.deathIntimationInitatedRec.length !== 0) {
+        window.deathIntimationInitatedRec.forEach((deathIntD, idex) => {
+            apz.data.scrdata.KenMet__IPaintMarkAttendance_Res.groupDetails.forEach((d, i) => {
+                if (d.memberId === deathIntD.customerId && deathIntD.status === 'APPROVED') {
+                    markDeathData = true;
+                    let data = {};
+                    data.rowNo = i;
+                    data.value = "Three";
+                    apz.app.MarkAttendance.selectAttendance(data);
+                }
+            })
+        })
+    }
+}

@@ -1,0 +1,331 @@
+var data = [];
+var deathIntimationAllData = [];
+var deathIntPenScrId = "KenMet__DeathIntimationPendingList__";
+var deathIntPenIntfId = 'KenMet__IPaintDeathIntimationPendingList__o__';
+var stage = '';
+apz.app.onLoad_DeathIntimationPendingList = function(params) {
+    //ApzCOB.FetchLov("DEATHINTIMATIONSTATUS");
+    apz.data.scrdata.KenMet__IPaintDeathIntimationPendingList_Res = {};
+    apz.app.DeathIntimationPendingList.modifyDataOnShow(window.deathIntimationData);
+}
+apz.app.onShown_DeathIntimationPendingList = function(params) {
+    $('#header').addClass('sno');
+    $('#footer').addClass('sno');
+    apz.app.DeathIntimationPendingList.loadFilterData();
+    //apz.app.DeathIntimationPendingList.loadDeathIntimationPendingListScreen();
+    let data = deathIntimationAllData.filter((d) => d.status !== "Completed");
+    apz.app.DeathIntimationPendingList.loadDeathIntimationPendingListScreen(data);
+}
+apz.app.DeathIntimationPendingList.loadFilterData = function() {
+    stage = 'SATAGE1';
+    let filterValues = ['All', 'Draft', 'Under Progress', 'Rejected', 'Completed'];
+    let paintData = filterValues.map((d) => ({
+        filter: d
+    }));
+    apz.data.scrdata.KenMet__IPaintDeathIntimationPendingList_Res.filterOptions = paintData;
+    apz.data.loadData('IPaintDeathIntimationPendingList', 'KenMet');
+    paintData.forEach((d, i) => {
+        $("#" + deathIntPenIntfId + "filterOptions__filter_" + i).removeClass('active');
+    });
+    $("#" + deathIntPenIntfId + "filterOptions__filter_0").addClass('active');
+}
+apz.app.DeathIntimationPendingList.loadDeathIntimationPendingListScreen = function(params) {
+    if (params.length === 0) {
+        $("#" + deathIntPenScrId + 'noRecDiv').removeClass('sno');
+        $("#" + deathIntPenScrId + 'dataDiv').addClass('sno');
+        apz.data.scrdata.KenMet__IPaintDeathIntimationPendingList_Res.deathIntimationPendingList = [];
+        apz.data.loadData('IPaintDeathIntimationPendingList', 'KenMet');
+    } else {
+        $("#" + deathIntPenScrId + 'noRecDiv').addClass('sno');
+        $("#" + deathIntPenScrId + 'dataDiv').removeClass('sno');
+        params = apz.app.DeathIntimationPendingList.sortDataByDate(params);
+        params = apz.app.DeathIntimationPendingList.removeDuplicates(params);
+        //deathIntimationAllData = params;
+        apz.data.scrdata.KenMet__IPaintDeathIntimationPendingList_Res.deathIntimationPendingList = params;
+        apz.data.loadData('IPaintDeathIntimationPendingList', 'KenMet');
+        apz.app.DeathIntimationPendingList.hideAndshowDate(params);
+        params.forEach((d, i) => {
+            if (d.status === "Under Progress") {
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.add('bg-err');
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.remove("bg-info");
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.remove("bg-green");
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.remove("bg-dark-err");
+            } else if (d.status === "Draft") {
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.remove('bg-err');
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.add("bg-info");
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.remove("bg-green");
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.remove("bg-dark-err");
+            } else if (d.status === "Completed") {
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.remove("bg-err");
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.remove("bg-info");
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.add("bg-green");
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.remove("bg-dark-err");
+            } else if (d.status === "Rejected") {
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.remove("bg-err");
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.remove("bg-info");
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.remove("bg-green");
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.add("bg-dark-err");
+            } else {
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.remove("bg-err");
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.remove("bg-info");
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.remove("bg-green");
+                document.getElementById(deathIntPenIntfId + "deathIntimationPendingList__status_" + i).classList.remove("bg-dark-err");
+            }
+        })
+    }
+}
+apz.app.DeathIntimationPendingList.onClickOfFilterOptions = function(pthis) {
+    let rowId = pthis.id.split("_").at(-1);
+    let record = apz.data.scrdata.KenMet__IPaintDeathIntimationPendingList_Res.filterOptions;
+    let value = record[rowId].filter;
+    record.forEach((d, i) => {
+        $("#" + deathIntPenIntfId + "filterOptions__filter_" + i).removeClass('active');
+    });
+    $("#" + deathIntPenIntfId + "filterOptions__filter_" + rowId).addClass('active');
+    if (value !== 'All') {
+        let paintData = deathIntimationAllData.filter((d) => d.status === value);
+        apz.app.DeathIntimationPendingList.loadDeathIntimationPendingListScreen(paintData);
+        apz.app.DeathIntimationPendingList.hideAndshowDate(paintData);
+    } else {
+        let data = deathIntimationAllData.filter((d) => d.status !== "Completed");
+        apz.app.DeathIntimationPendingList.loadDeathIntimationPendingListScreen(data);
+        apz.app.DeathIntimationPendingList.hideAndshowDate(data);
+    }
+}
+apz.app.DeathIntimationPendingList.onClickOfNext = function() {
+    let rowNo = pthis.id.split("_").at(-1);
+    let selectedRec = apz.data.scrdata.KenMet__IPaintDeathIntimationPendingList_Res.deathIntimationPendingList[rowNo].status;
+    if (selectedRec === "Draft") {
+        let params = {};
+        params.fromFlag = 'draftDetails';
+        ApzCOB.launchMicroApp("KenMet", "DeathIntimation", "APZCBO__BaseScreens__BaseDIV", params);
+    }
+}
+apz.app.DeathIntimationPendingList.modifyDataOnShow = function(data) {
+    let lovData = JSON.parse(gLovs.lovDtls);
+    let paintArr = [];
+    let kendraName = '';
+    if (Array.isArray(data) && data.length !== 0) {
+        data.forEach((d, i) => {
+            let kendraDetails = collectionKendraData.find((collDta) => collDta.kendraId === d.KENDRAID);
+            kendraName = kendraDetails.kendraName;
+            d.PAYLOAD.paylod.forEach((custData, index) => {
+                let obj = {};
+                if (custData.deathIntimationStatus === 'Draft') {
+                    obj.customerName = custData.customerName ? custData.customerName : apz.app.DeathIntimationPendingList
+                        .findCustomerName(custData.id);
+                    obj.customerId = custData.id
+                    obj.custInfo = custData.id + " | " + kendraName;
+                    obj.status = custData.deathIntimationStatus
+                    obj.date = apz.app.DeathIntimationPendingList.formatDate(custData.createdDate);
+                    obj.deathIntimationRec = d;
+                    obj.custRowValue = index;
+                    paintArr.push(obj);
+                }
+            })
+        });
+    }
+    if (Array.isArray(window.deathIntimationInitatedRec) && window.deathIntimationInitatedRec.length !== 0) {
+        window.deathIntimationInitatedRec.forEach((d, i) => {
+            let obj = {};
+            let kendraDetails = collectionKendraData.find((collDta) => collDta.kendraId === d.kendraId);
+            kendraName = kendraDetails ? kendraDetails.kendraName : " ";
+            obj.customerName = d.customerName;
+            obj.customerId = d.customerId;
+            obj.custInfo = kendraDetails ? d.customerId + " | " + kendraDetails?.kendraName : d.customerId;
+            obj.status = d.status === 'INPROGRESS' ? 'Under Progress' : d.status === 'APPROVED' ? 'Completed' : 'Rejected';
+            obj.date = apz.app.DeathIntimationPendingList.formatDate(d.createTs);
+            obj.deathIntimationRec = d;
+            paintArr.push(obj);
+        });
+    }
+    deathIntimationAllData = apz.app.DeathIntimationPendingList.removeDuplicates(paintArr);
+}
+apz.app.DeathIntimationPendingList.formatDate = function(input) {
+    let date;
+    if (typeof input === 'string') {
+        let [day, month, year] = input.split('/').map(Number);
+        date = new Date(year, month - 1, day);
+    } else {
+        date = new Date(input);
+    }
+    const options = {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    };
+    return date.toLocaleDateString('en-GB', options);
+};
+apz.app.DeathIntimationPendingList.onClickOfDescriptionRecord = function(pthis) {
+    let rowNo = pthis.id.split("_").at(-1);
+    let selRecData = apz.data.scrdata.KenMet__IPaintDeathIntimationPendingList_Res.deathIntimationPendingList[rowNo];
+    if (selRecData.status === "Draft") {
+        stage = 'SATAGE_DEATH_INT';
+        $("#" + deathIntPenScrId + 'fabKendraDiv').removeClass('sno');
+        $("#" + deathIntPenScrId + 'pendingBmRecDiv').addClass('sno');
+        let params = {};
+        params.fromFlag = 'draftRecord';
+        params.customerId = selRecData.customerId;
+        params.customerName = selRecData.customerName;
+        params.kmName = selRecData.kendraName;
+        params.deathDraftRec = {};
+        params.deathDraftRec.comData = selRecData.deathIntimationRec;
+        params.deathDraftRec.rowSel = selRecData.custRowValue;
+        ApzCOB.launchMicroApp("KenMet", "DeathIntimation", "APZCBO__BaseScreens__BaseDIV", params);
+    } else {
+        stage = 'SATAGE_DISPLAY_REC'
+        $("#" + deathIntPenScrId + 'fabKendraDiv').addClass('sno');
+        $("#" + deathIntPenScrId + 'pendingBmRecDiv').removeClass('sno');
+        let deathIntimationData;
+        if (typeof selRecData.deathIntimationRec.payload === 'string') {
+            deathIntimationData = {
+                ...selRecData.deathIntimationRec,
+                payload: JSON.parse(selRecData.deathIntimationRec.payload),
+            };
+        } else {
+            deathIntimationData = selRecData.deathIntimationRec;
+        }
+        let customerName = apz.app.DeathIntimationPendingList.findCustomerName(deathIntimationData.customerId);
+        document.getElementById(deathIntPenScrId + "memberName").innerText = customerName;
+        if (deathIntimationData.payload.hasOwnProperty("sNomineName") && deathIntimationData.payload.hasOwnProperty("mNomineName")) {
+            $("#" + deathIntPenScrId + 'spoDiv').removeClass('sno');
+            $("#" + deathIntPenScrId + 'memDiv').removeClass('sno');
+            document.getElementById(deathIntPenScrId + "memDeathSts").textContent = "Member and spouse deceased";
+            document.getElementById(deathIntPenScrId + "spoDod").textContent = deathIntimationData.payload.sdod;
+            document.getElementById(deathIntPenScrId + "spoNomName").textContent = deathIntimationData.payload.sNomineName;
+            document.getElementById(deathIntPenScrId + "spoNomMob").textContent = deathIntimationData.payload.sNomineNo;
+            document.getElementById(deathIntPenScrId + "spoRelation").textContent = deathIntimationData.payload.sNomineRealtion;
+        } else if (deathIntimationData.payload.hasOwnProperty("sNomineName")) {
+            $("#" + deathIntPenScrId + 'spoDiv').removeClass('sno');
+            $("#" + deathIntPenScrId + 'memDiv').addClass('sno');
+            document.getElementById(deathIntPenScrId + "memDeathSts").textContent = "Spouse deceased";
+            document.getElementById(deathIntPenScrId + "spoDod").textContent = deathIntimationData.payload.sdod;
+            document.getElementById(deathIntPenScrId + "spoNomName").textContent = deathIntimationData.payload.sNomineName;
+            document.getElementById(deathIntPenScrId + "spoNomMob").textContent = deathIntimationData.payload.sNomineNo;
+            document.getElementById(deathIntPenScrId + "spoRelation").textContent = deathIntimationData.payload.sNomineRealtion;
+        } else if (deathIntimationData.payload.hasOwnProperty("mNomineName")) {
+            $("#" + deathIntPenScrId + 'spoDiv').addClass('sno');
+            $("#" + deathIntPenScrId + 'memDiv').removeClass('sno');
+            document.getElementById(deathIntPenScrId + "memDeathSts").textContent = "Member deceased";
+            document.getElementById(deathIntPenScrId + "memDod").textContent = deathIntimationData.payload.mdod;
+            document.getElementById(deathIntPenScrId + "memNomName").textContent = deathIntimationData.payload.mNomineName;
+            document.getElementById(deathIntPenScrId + "memNomMob").textContent = deathIntimationData.payload.mNomineNo;
+            document.getElementById(deathIntPenScrId + "memRelation").textContent = deathIntimationData.payload.mNomineRealtion;
+        }
+    }
+}
+apz.app.DeathIntimationPendingList.findCustomerName = function(custmerId) {
+    let customerName = '';
+    collectionKendraData.forEach((collDta) => {
+        collDta.colldtls.groups.forEach((groupDta) => {
+            groupDta.members.forEach((mem) => {
+                if (mem.id === custmerId) {
+                    customerName = mem.name;
+                }
+            });
+        });
+    });
+    return customerName;
+}
+apz.app.DeathIntimationPendingList.sortDataByDate = function(array) {
+    let today = new Date();
+    return array.sort((a, b) => {
+        let dateA = apz.app.DeathIntimationPendingList.parseDate(a.date);
+        let dateB = apz.app.DeathIntimationPendingList.parseDate(b.date);
+        let isTodayA = apz.app.DeathIntimationPendingList.isSameDay(dateA, today);
+        let isTodayB = apz.app.DeathIntimationPendingList.isSameDay(dateB, today);
+        if (isTodayA && !isTodayB) return -1;
+        if (!isTodayA && isTodayB) return 1;
+        return dateB - dateA;
+    });
+}
+apz.app.DeathIntimationPendingList.isSameDay = function(date1, date2) {
+    return (date1.getDate() === date2.getDate() && date1.getMonth() === date2.getMonth() && date1.getFullYear() === date2.getFullYear());
+}
+apz.app.DeathIntimationPendingList.parseDate = function(dateString) {
+    const [day, month, year] = dateString.split('/').map(Number);
+    return new Date(year, month - 1, day);
+}
+apz.app.DeathIntimationPendingList.hideAndshowDate = function(paintData) {
+    paintData.forEach((d, i) => {
+        let listDivId = document.querySelector("#" + deathIntPenScrId + 'death_int_pend_list_row_' + i);
+        listDivId.querySelector('#' + deathIntPenScrId + 'deathIntPenDateDiv_row').classList.add('sno');
+    });
+    paintData.forEach((d, i) => {
+        if (i === 0) {
+            displayedRec = d.date;
+            apz.app.DeathIntimationPendingList.hideHeaderDate(i);
+        } else {
+            if (displayedRec !== d.date) {
+                displayedRec = d.date;
+                apz.app.DeathIntimationPendingList.hideHeaderDate(i);
+            } else {
+                displayedRec = d.date;
+            }
+        }
+    })
+}
+apz.app.DeathIntimationPendingList.hideHeaderDate = function(i) {
+    let listDivId = document.querySelector("#" + deathIntPenScrId + 'death_int_pend_list_row_' + i);
+    listDivId.querySelector('#' + deathIntPenScrId + 'deathIntPenDateDiv_row').classList.remove('sno');
+}
+apz.app.DeathIntimationPendingList.deathIntimationBackNav = function() {
+    if (stage === 'SATAGE1') {
+        ApzCOB.launchMicroApp("Income", "PendingTask", 'APZCBO__BaseScreens__BaseDIV', '');
+    } else if (stage === 'SATAGE_DISPLAY_REC') {
+        $("#" + deathIntPenScrId + 'fabKendraDiv').removeClass('sno');
+        $("#" + deathIntPenScrId + 'pendingBmRecDiv').addClass('sno');
+        stage = 'SATAGE1';
+    } else if (stage === 'SATAGE_DEATH_INT') {
+        ApzCOB.launchMicroApp("KenMet", "DeathIntimationPendingList", "APZCBO__BaseScreens__BaseDIV", '');
+    } else {
+        ApzCOB.backNavigation();
+    }
+}
+apz.app.DeathIntimationPendingList.removeDuplicates = function(data) {
+    let filteredData = data.reduce((acc, current) => {
+        let existing = acc.find(item => item.customerId === current.customerId);
+        if (!existing) {
+            acc.push(current);
+        } else if (existing.status === "Draft" && current.status !== "Draft") {
+            acc[acc.indexOf(existing)] = current;
+        }
+        return acc;
+    }, []);
+    return filteredData;
+}
+apz.app.DeathIntimationPendingList.onClickOfCustomerLink = function(pthis) {
+    let rowId = pthis.id.split("_").at(-1);
+    let backNavData = {}
+    backNavData.childScrId = 'KenMet'
+    backNavData.scr = 'DeathIntimationPendingList';
+    backNavData.screenId = "KenMet__DeathIntimationPendingList__";
+    backNavData.baseDiv = 'pendingListBaseDiv';
+    backNavData.selCustId = apz.data.scrdata.KenMet__IPaintDeathIntimationPendingList_Res.deathIntimationPendingList[rowId].customerId;
+    ApzCOB.customerDetNavigationFunc(backNavData);
+}
+apz.app.DeathIntimationPendingList.onKeyupofSearchFilter = function(pthis) {
+    let val = $("#" + pthis.id).val().toLowerCase().trim();
+    let paintData = [];
+    if (apz.isNull(val)) {
+        let selctedIndex = '';
+        apz.data.scrdata.KenMet__IPaintDeathIntimationPendingList_Res.filterOptions.forEach((d, i) => {
+            if (document.getElementById(deathIntPenIntfId + "filterOptions__filter_" + i).classList.contains("active")) {
+                selctedIndex = i;
+            }
+        });
+        let value = {};
+        value.id = "KenMet__IPaintDeathIntimationPendingList__o__filterOptions__filter_" + selctedIndex;
+        apz.app.DeathIntimationPendingList.onClickOfFilterOptions(value);
+    } else {
+        apz.data.scrdata.KenMet__IPaintDeathIntimationPendingList_Res.deathIntimationPendingList.forEach((d, i) => {
+            let memberId = d.custInfo.split("|")[0].trim();
+            let kendraName = d.custInfo.split("|")[1] ? d.custInfo.split("|")[1].toLowerCase().trim() : "";
+            let memberName = d.customerName.toLowerCase().trim();
+            if (memberId.includes(val) || kendraName.includes(val) || memberName.includes(val)) {
+                paintData.push(d);
+            }
+        });
+        apz.app.DeathIntimationPendingList.loadDeathIntimationPendingListScreen(paintData);
+    }
+}

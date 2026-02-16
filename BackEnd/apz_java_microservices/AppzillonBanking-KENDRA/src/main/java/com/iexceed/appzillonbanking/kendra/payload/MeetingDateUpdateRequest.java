@@ -1,0 +1,30 @@
+package com.iexceed.appzillonbanking.kendra.payload;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class MeetingDateUpdateRequest {
+
+	@JsonProperty("interfaceName")
+	private String interfaceName;
+	
+	@JsonProperty("serviceName")
+	private String serviceName;
+	
+	@JsonProperty("appId")
+	private String appId;
+	
+	@JsonProperty("userId")
+	private String userId;
+	
+	@JsonProperty("requestObj")	
+	private MeetingDateUpdateRequestFields requestObj;
+}

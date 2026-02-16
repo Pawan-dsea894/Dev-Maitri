@@ -1,0 +1,101 @@
+var TodayDueDataScreenId = "KenMet__TodaysDueData__";
+var totalDueData = '';
+var groupData = '';
+var SelectedData = '';
+var memberDetails = [];
+apz.app.onLoad_TodaysDueData = function(params) {
+    // Initialization logic if needed
+};
+//ApzCOB.launchMicroApp('KenMet', 'TodaysDueData', 'APZCBO__BaseScreens__BaseDIV', '');
+apz.app.onShown_TodaysDueData = function(params) {
+    $('#header').addClass('sno');
+    $('#footer').addClass('sno');
+    SelectedData = params;
+    totalDueData = JSON.parse(JSON.stringify(SelectedData.kendraDet));
+    // var newPaintDataToday = [];
+    var groupData = [];
+    //var SelectedGroup = [];
+    if (totalDueData.hasOwnProperty('colldtls')) {
+        totalDueData.colldtls.groups
+        if (totalDueData.colldtls.hasOwnProperty('groups')) {
+            var GroupData = totalDueData.colldtls.groups
+            for (i = 0; i < GroupData.length; i++) {
+                for (j = 0; j < GroupData[i].members.length; j++) {
+                    GroupData[i].members[j]['totalAdv'] = apz.isNull(GroupData[i].members[j]['totalAdv']) ? "-" : ApzCOB.fn_FormatAmount(
+                        GroupData[i].members[j]['totalAdv']);
+                    /*GroupData[i].members[j]['totalDue'] = apz.isNull(GroupData[i].members[j]['totalDue']) ? "-" : ApzCOB.fn_FormatAmount(
+                        GroupData[i].members[j]['totalDue']);*/
+                    // GroupData[i].members[j]['parAmt'] = ApzCOB.fn_FormatAmount(GroupData[i].members[j].loans.map(g => g.parAmt).reduce((acc,
+                    //     curValue) => acc + curValue, 0));
+                    GroupData[i].members[j]['totalOs'] = ApzCOB.fn_FormatAmount(GroupData[i].members[j].loans.map(exp => exp.osAmt).reduce((acc,
+                        curValue) => acc + curValue, 0));
+                    // let ttlDueAmt = ApzCOB.fn_FormatAmount(GroupData[i].members[j].loans.map(exp => exp.dueAmt).reduce((
+                    //     acc, curValue) => acc + curValue, 0) + GroupData[i].members[j].loans.map(g => g.parAmt).reduce((acc,
+                    //     curValue) => acc + curValue, 0));
+                    let ttlDueAmt = ApzCOB.fn_FormatAmount(GroupData[i].members[j].loans.map(exp => exp.dueAmt).reduce((
+                        acc, curValue) => acc + curValue, 0));
+                    GroupData[i].members[j]['totalDueAmt'] = ApzCOB.fn_FormatAmount(ttlDueAmt);
+                    GroupData[i].members[j]['groupid'] = 'Group ' + GroupData[i].id;
+                    GroupData[i].members[j]['totalDue'] = ApzCOB.fn_FormatAmount(GroupData[i].totalDue);
+                    memberDetails.push(GroupData[i].members[j])
+                }
+            }
+        }
+    }
+    var totalGroupAmount = totalDueData.colldtls.groups.map(g => g.totalDue).reduce((acc, curValue) => acc + curValue, 0);
+    $("#" + TodayDueDataScreenId + "todayAmount").text("₹" + ApzCOB.fn_FormatAmount(totalGroupAmount));
+    if (memberDetails.length > 0) {
+        $("#" + TodayDueDataScreenId + "NoRecordRow").addClass('sno');
+        $("#" + TodayDueDataScreenId + "CustomerDataListRow").removeClass('sno');
+        $("#" + TodayDueDataScreenId + "totalAmtRow").removeClass('sno');
+        apz.data.scrdata.KenMet__IPaintTodayDueData_Res = {};
+        apz.data.scrdata.KenMet__IPaintTodayDueData_Res.GroupDetails = {};
+        apz.data.scrdata.KenMet__IPaintTodayDueData_Res.GroupDetails = memberDetails;
+        apz.data.loadData("IPaintTodayDueData", 'KenMet');
+        const seenGroupIds = new Set();
+        var count = 0;
+        memberDetails.forEach((item, index) => {
+            let groupid = item.groupid;
+            //$("#" + "KenMet__IPaintTodayDueData__o__GroupDetails__groupid_" + index).text('Group ' + groupid);
+            if (seenGroupIds.has(groupid)) {
+                $("#" + TodayDueDataScreenId + "CustomerDataList_row_" + index + "> * > :first-child").addClass('sno');
+                if (item.parFlg === "Y") {
+                    $("#" + TodayDueDataScreenId + "parCustomer_" + index).removeClass('sno');
+                    $("#" + TodayDueDataScreenId + 'parCustomer_' + index).addClass('bg-dark-err');
+                } else {
+                    $("#" + TodayDueDataScreenId + "parCustomer_" + index).addClass('sno');
+                    $("#" + TodayDueDataScreenId + 'parCustomer_' + index).removeClass('bg-dark-err');
+                    $("#KenMet__IPaintTodayDueData__o__GroupDetails__parAmt_" + index).parents().eq(1).addClass('sno');
+                }
+            } else {
+                seenGroupIds.add(groupid);
+                count += 1;
+                if (item.parFlg === "Y") {
+                    $("#" + TodayDueDataScreenId + "parCustomer_" + index).removeClass('sno');
+                } else {
+                    $("#" + TodayDueDataScreenId + "parCustomer_" + index).addClass('sno');
+                    $("#KenMet__IPaintTodayDueData__o__GroupDetails__parAmt_" + index).parents().eq(1).addClass('sno');
+                }
+            }
+        });
+    } else {
+        $("#" + TodayDueDataScreenId + "NoRecordRow").removeClass('sno');
+        $("#" + TodayDueDataScreenId + "CustomerDataListRow").addClass('sno');
+        $("#" + TodayDueDataScreenId + "totalAmtRow").addClass('sno');
+    }
+}
+apz.app.TodaysDueData.backNavigation = function() {
+    startTimerFunc = true;
+    ApzCOB.launchMicroApp("KenMet", "KMDashboard", "APZCBO__BaseScreens__BaseDIV", SelectedData);
+}
+apz.app.TodaysDueData.onclickCustomerDet = function(pthis) {
+    let backNavData = {};
+    backNavData.childScrId = 'KenMet'
+    backNavData.scr = 'TodaysDueData';
+    backNavData.screenId = TodayDueDataScreenId;
+    backNavData.baseDiv = 'todayDueBaseDiv';
+    backNavData.data = JSON.parse(JSON.stringify(SelectedData));
+    let selRow = pthis.id.split("_").at(-1);
+    backNavData.selCustId = apz.data.scrdata.KenMet__IPaintTodayDueData_Res.GroupDetails[selRow].id;
+    ApzCOB.customerDetNavigationFunc(backNavData);
+}

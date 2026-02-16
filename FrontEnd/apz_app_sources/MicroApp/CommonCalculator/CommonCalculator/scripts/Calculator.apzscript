@@ -1,0 +1,166 @@
+var CalculatorScreenId = "Common__Calculator__";
+var CurrencyList = [{
+    'CurVal': '500'
+}, {
+    'CurVal': '200'
+}, {
+    'CurVal': '100'
+}, {
+    'CurVal': '50'
+}, {
+    'CurVal': '20'
+}, {
+    'CurVal': '10'
+}, {
+    'CurVal': 'Coins'
+// }, {
+//     'CurVal': '2'
+// }, {
+//     'CurVal': '1'
+}];
+var fromScreenDet = '';
+apz.app.onLoad_Calculator = function(params) {
+    // Initialization logic if needed
+    fromScreenDet = params;
+};
+apz.app.onShown_Calculator = function(params) {
+    $('#header').addClass('sno');
+    $('#footer').addClass('sno');
+    $("#" + 'APZCBO__BaseScreens__BaseDIV').addClass('sno');
+    $("#" + 'APZCBO__BaseScreens__STAGE1').removeClass('sno');
+    apz.data.scrdata.Common__IPaintCurrencyList_Res = {};
+    apz.data.scrdata.Common__IPaintCurrencyList_Res = CurrencyList;
+    apz.data.loadData("IPaintCurrencyList", 'Common');
+    $("#" + CalculatorScreenId + "TotalRupeeIcon").removeClass('sno');
+    $("#" + CalculatorScreenId + "totalAmount").removeClass('sno');
+    $("#" + CalculatorScreenId + "totalAmount").text('0');
+    for (i = 0; i < apz.data.scrdata.Common__IPaintCurrencyList_Res.length; i++) {
+        document.getElementById(CalculatorScreenId + "minusIcon_" + i).style.pointerEvents = 'none';
+        document.getElementById(CalculatorScreenId + "minusIcon_" + i).style.opacity = '0.5';
+        if (CurrencyList[i].CurVal === "Coins") {
+            document.getElementById(CalculatorScreenId + "minusIcon_" + i).classList.add('sno');
+            document.getElementById(CalculatorScreenId + "plusIcon_" + i).classList.add('sno');
+            document.getElementById(CalculatorScreenId + "txt_cal_curValRupeeSym_" + i).classList.add('sno');
+        }
+    }
+}
+apz.app.Calculator.addingAmount = function(pthis) {
+    let prowno = $(pthis).attr("rowno");
+    var AmtInput = document.getElementById(CalculatorScreenId + "inputBoxAmt_" + prowno);
+    if (apz.isNull(AmtInput.value)) {
+        AmtInput.value = '00';
+        document.getElementById(CalculatorScreenId + "minusIcon_" + prowno).style.pointerEvents = 'none';
+        document.getElementById(CalculatorScreenId + "minusIcon_" + prowno).style.opacity = '0.5';
+    }
+    if (!apz.isNull(AmtInput.value)) {
+        var currentValue = parseInt(AmtInput.value) + 1;
+        var currentAmount = currentValue.toString().padStart(2, '0');
+        $("#" + CalculatorScreenId + "inputBoxAmt_" + prowno).val(currentAmount);
+        var SelectedCurr = $("#Common__IPaintCurrencyList__o__Common__IPaintCurrencyList_Res__CurVal_" + prowno).text();
+        // var SelectedCurr = $("#" + CalculatorScreenId + "SelectedCurrency" + prowno).text();
+        var finalamt = parseInt(SelectedCurr) * parseInt(currentAmount);
+        $("#" + CalculatorScreenId + "calculatedAmt_" + prowno).text(ApzCOB.fn_FormatAmount(finalamt));
+        $("#" + CalculatorScreenId + "RupeeIcon_" + prowno).removeClass('sno');
+        $("#" + CalculatorScreenId + "calculatedAmt_" + prowno).removeClass('sno');
+        document.getElementById(CalculatorScreenId + "minusIcon_" + prowno).style.pointerEvents = 'auto';
+        $("#" + CalculatorScreenId + "minusIcon_" + prowno).css('opacity', '1');
+        // $("#" + CalculatorScreenId + "calculatedAmt" + "totalAmount").text();
+        apz.app.Calculator.CalculateTotalAmt();
+    }
+}
+apz.app.Calculator.SubtractingAmount = function(pthis) {
+    let prowno = $(pthis).attr("rowno");
+    var AmtInput = document.getElementById(CalculatorScreenId + "inputBoxAmt_" + prowno);
+    if (apz.isNull(AmtInput.value)) {
+        AmtInput.value = '00';
+        document.getElementById(CalculatorScreenId + "minusIcon_" + prowno).style.pointerEvents = 'none';
+        document.getElementById(CalculatorScreenId + "minusIcon_" + prowno).style.opacity = '0.5';
+    }
+    if (!apz.isNull(AmtInput.value)) {
+        var currentValue = parseInt(AmtInput.value) - 1;
+        var currentAmount = currentValue.toString().padStart(2, '0');
+        $("#" + CalculatorScreenId + "inputBoxAmt_" + prowno).val(currentAmount);
+        var SelectedCurr = $("#Common__IPaintCurrencyList__o__Common__IPaintCurrencyList_Res__CurVal_" + prowno).text();
+        var finalamt = parseInt(SelectedCurr) * parseInt(currentAmount);
+        $("#" + CalculatorScreenId + "calculatedAmt_" + prowno).text(ApzCOB.fn_FormatAmount(finalamt));
+        if (currentValue === 0) {
+            $("#" + CalculatorScreenId + "inputBoxAmt_" + prowno).val('');
+            $("#" + CalculatorScreenId + "calculatedAmt_" + prowno).addClass('sno');
+            $("#" + CalculatorScreenId + "RupeeIcon_" + prowno).addClass('sno');
+            document.getElementById(CalculatorScreenId + "minusIcon_" + prowno).style.pointerEvents = 'none';
+            document.getElementById(CalculatorScreenId + "minusIcon_" + prowno).style.opacity = '0.5';
+        }
+        apz.app.Calculator.CalculateTotalAmt();
+    }
+}
+apz.app.Calculator.clearFunc = function() {
+    var TotalAmtLength = apz.data.scrdata.Common__IPaintCurrencyList_Res.length;
+    for (i = 0; i < TotalAmtLength; i++) {
+        $("#" + CalculatorScreenId + "calculatedAmt_" + i).text('');
+        $("#" + CalculatorScreenId + "RupeeIcon_" + i).addClass('sno');
+        $("#" + CalculatorScreenId + "inputBoxAmt_" + i).val('');
+        document.getElementById(CalculatorScreenId + "minusIcon_" + i).style.pointerEvents = 'none';
+        document.getElementById(CalculatorScreenId + "minusIcon_" + i).style.opacity = '0.5';
+        $("#" + CalculatorScreenId + "TotalRupeeIcon").removeClass('sno');
+        $("#" + CalculatorScreenId + "totalAmount").removeClass('sno');
+        $("#" + CalculatorScreenId + "totalAmount").text('0');
+    }
+}
+apz.app.Calculator.CalcOnBlurFunc = function(pthis) {
+    let prowno = $(pthis).attr("rowno");
+    var AmtInput = document.getElementById(CalculatorScreenId + "inputBoxAmt_" + prowno);
+    if (apz.isNull(AmtInput.value)) {
+        AmtInput.value = '00';
+        document.getElementById(CalculatorScreenId + "minusIcon_" + prowno).style.pointerEvents = 'none';
+        document.getElementById(CalculatorScreenId + "minusIcon_" + prowno).style.opacity = '0.5';
+    }
+    if (!apz.isNull(AmtInput.value)) {
+        var currentValue = parseInt(AmtInput.value);
+        var SelectedCurr = $("#Common__IPaintCurrencyList__o__Common__IPaintCurrencyList_Res__CurVal_" + prowno).text();
+        SelectedCurr = SelectedCurr === "Coins" ? 1 : SelectedCurr;
+        var currentAmount = currentValue.toString().padStart(2, '0');
+        var finalamt = parseInt(SelectedCurr) * parseInt(currentAmount);
+        $("#" + CalculatorScreenId + "RupeeIcon_" + prowno).removeClass('sno');
+        $("#" + CalculatorScreenId + "calculatedAmt_" + prowno).text(ApzCOB.fn_FormatAmount(finalamt));
+        if (currentValue === 0) {
+            $("#" + CalculatorScreenId + "inputBoxAmt_" + prowno).val('');
+            $("#" + CalculatorScreenId + "RupeeIcon_" + prowno).addClass('sno');
+            $("#" + CalculatorScreenId + "calculatedAmt_" + prowno).addClass('sno');
+            document.getElementById(CalculatorScreenId + "minusIcon_" + prowno).style.pointerEvents = 'none';
+            document.getElementById(CalculatorScreenId + "minusIcon_" + prowno).style.opacity = '0.5';
+        } else {
+            document.getElementById(CalculatorScreenId + "minusIcon_" + prowno).style.pointerEvents = 'auto';
+            document.getElementById(CalculatorScreenId + "minusIcon_" + prowno).style.opacity = '1';
+            $("#" + CalculatorScreenId + "calculatedAmt_" + prowno).removeClass('sno');
+            $("#" + CalculatorScreenId + "RupeeIcon_" + prowno).removeClass('sno');
+        }
+        apz.app.Calculator.CalculateTotalAmt();
+    }
+}
+apz.app.Calculator.CalculateTotalAmt = function() {
+    var temp = [];
+    var TotalAmtLength = apz.data.scrdata.Common__IPaintCurrencyList_Res.length;
+    for (i = 0; i < TotalAmtLength; i++) {
+        var calAmt = ApzCOB.fn_unFormatAmount($("#Common__Calculator__calculatedAmt_" + i).text());
+        if (!apz.isNull(calAmt)) {
+            temp.push(calAmt);
+        }
+    }
+    temp = temp.reduce((acc, curValue) => acc + parseInt(curValue), 0);
+    $("#" + CalculatorScreenId + "totalAmount").text(ApzCOB.fn_FormatAmount(temp));
+    $("#" + CalculatorScreenId + "TotalRupeeIcon").removeClass('sno');
+    $("#" + CalculatorScreenId + "totalAmount").removeClass('sno');
+    /* if (temp === 0) {
+         $("#" + CalculatorScreenId + "totalAmount").addClass('sno');
+         $("#" + CalculatorScreenId + "TotalRupeeIcon").addClass('sno');
+     }*/
+}
+apz.app.Calculator.backNavigation = function() {
+    $("#" + 'APZCBO__BaseScreens__BaseDIV').removeClass('sno');
+    $("#" + 'APZCBO__BaseScreens__STAGE1').addClass('sno');
+    if (fromScreenDet.fromScreen === "KMDashboard") {
+        document.getElementById('KenMet__KMDashboard__' + 'kmPopoverDetails').classList.add('sno')
+    }
+    apz.childScr = fromScreenDet.fromScreen;
+    apz.currAppId = fromScreenDet.fromCurrApp;
+}

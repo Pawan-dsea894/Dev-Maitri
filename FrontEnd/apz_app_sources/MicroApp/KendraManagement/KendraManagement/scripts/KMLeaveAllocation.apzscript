@@ -1,0 +1,67 @@
+var KdScrId = 'Kendra__KMLeaveAllocation__';
+var baseScrId = 'APZCBO__BaseScreens__'
+apz.data.scrdata.Kendra__IPaintKMLeaveAllocation_Res = {};
+apz.app.onLoad_KMLeaveAllocation = function() {}
+apz.app.onShown_KMLeaveAllocation = function() {
+    $("#" + baseScrId + "sidebarController").addClass("sno");
+    apz.app.KMLeaveAllocation.loadKendraDetails();
+}
+apz.app.KMLeaveAllocation.onClickKMDatKendraNeedAllocate = function() {
+    ApzCOB.toggleModal(KdScrId + "kmDetailsModel");
+    apz.app.KMLeaveAllocation.IPaintKMPaintCompleteData();
+}
+apz.app.KMLeaveAllocation.onSearchOfKMData = function(pthis) {
+    let searchText = $("#" + pthis.id).val();
+    let searchResult = [];
+    searchResult = KendraApp.KendraResponse.filter(function(e, i) {
+        return ((e.kendraDtls.kendraName.toUpperCase().indexOf(searchText.toUpperCase()) !== -1) || (e.kendraDtls.kendraId.toString()
+            .indexOf(searchText) !== -1))
+    });
+    apz.app.KMLeaveAllocation.loadLeaveAllocationMainScreen(searchResult);
+}
+apz.app.KMLeaveAllocation.loadLeaveAllocationMainScreen = function(data) {
+    let uploadData = [];
+    data.map((d) => {
+        let newObj = {};
+        newObj.kendraName = d.kendraDtls.kendraName;
+        newObj.kendraId = d.kendraDtls.kendraId;
+        uploadData.push(newObj);
+    })
+    apz.data.scrdata.Kendra__IPaintKMLeaveAllocation_Res.KMNameIDData = uploadData;
+    apz.data.loadData("IPaintKMLeaveAllocation", apz.currAppId);
+}
+apz.app.KMLeaveAllocation.loadKendraDetails = function() {
+    let uploadData = [];
+    KendraApp.KendraResponse.map((data) => {
+        let newObj = {};
+        newObj.kendraName = data.kendraDtls.kendraName;
+        newObj.kendraId = data.kendraDtls.kendraId;
+        uploadData.push(newObj);
+    });
+    apz.data.scrdata.Kendra__IPaintKMLeaveAllocation_Res.KMNameIDData = uploadData;
+    apz.data.loadData("IPaintKMLeaveAllocation", apz.currAppId);
+}
+apz.app.KMLeaveAllocation.IPaintKMPaintCompleteData = function() {
+    let uploadData = [];
+    KendraApp.KendraResponse.map((data) => {
+        let newObj = {};
+        newObj.kendraName = data.kendraDtls.kendraName;
+        newObj.kendraId = data.kendraDtls.kendraId;
+        newObj.time = data.kendraDtls.time;
+        newObj.custCount = data.kendraDtls.custCount;
+        newObj.newApplication = data.kendraDtls.newApplication;
+        newObj.meetingFrequency = data.kendraDtls.meetingFrequency;
+        uploadData.push(newObj);
+    });
+    apz.data.scrdata.Kendra__IPaintKMLeaveAllocation_Res.KMPaintCompleteData = uploadData;
+    apz.data.loadData("IPaintKMLeaveAllocation", apz.currAppId);
+}
+apz.app.KMLeaveAllocation.onClickKendraAllocation = function() {
+    ApzCOB.launchMicroApp('Kendra', 'KendraAllocationJourney', 'APZCBO__BaseScreens__BaseDIV', "");
+}
+apz.app.KMLeaveAllocation.onClickOfBack = function() {
+    window.myKendraFlow = false;
+    $('#APZCBO__BaseScreens__sc_col_199').addClass('active');
+    $('#APZCBO__BaseScreens__sc_col_201').removeClass('active');
+    ApzCOB.backNavigation();
+}

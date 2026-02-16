@@ -1,0 +1,68 @@
+var ParMemberOvwScrId = "Custom__ParMemberOverview__";
+var customerDtls = [];
+apz.app.onLoad_ParMemberOverview = function(params) {
+    customerDtls = params.customerDetails;
+}
+apz.app.onShown_ParMemberOverview = function(params) {
+    apz.app.ParMemberOverview.paintDetails();
+    apz.app.ParMemberOverview.paintMemberDetails();
+    $("#Custom__ParMemberOverview__sc_row_123").addClass("sno");
+    $("#Custom__ParMemberOverview__sc_row_124").addClass("sno");
+    $("#Custom__ParMemberOverview__groupLoans_li").addClass("sno");
+    $("#Custom__ParMemberOverview__rfLoans_li").addClass("sno");
+    $("#Custom__ParMemberOverview__pastRepayments_li").addClass("sno");
+    $("#Custom__ParMemberOverview__schedule_li").addClass("sno");
+    $("#Custom__ParMemberOverview__attendance_li").addClass("sno");
+    $("#Custom__ParMemberOverview__elgblProduct_li").addClass("sno");
+    $("#Custom__ParMemberOverview__mtrtyProducts_li").addClass("sno");
+    $("#Custom__ParMemberOverview__otherProducts_li").addClass("sno");
+}
+apz.app.ParMemberOverview.paintDetails = function() {
+    apz.setElmValue(ParMemberOvwScrId + "profileName", customerDtls.customerName.substr(0, 1) ?? 'NO DATA');
+    apz.setElmValue(ParMemberOvwScrId + "custName", customerDtls.customerName ?? 'NO DATA');
+    apz.setElmValue(ParMemberOvwScrId + "kendraId", customerDtls.kendraId ?? 'NO DATA');
+    var joinedDate = customerDtls.activationDate ? ApzCOB.confDateFormatter(ApzCOB.dateStringToDate(customerDtls.activationDate), "dd/mm/yyyy") :
+        'NO DATA';
+    apz.setElmValue(ParMemberOvwScrId + "joinedDate", joinedDate);
+    let totalAmt = [];
+    customerDtls.loanDtls.forEach(function(el, i) {
+        totalAmt.push(parseInt(customerDtls.loanDtls[i].amount))
+    })
+    let pendingLoanAmt = 0;
+    totalAmt.forEach(amt => {
+        pendingLoanAmt += amt;
+    });
+    apz.setElmValue(ParMemberOvwScrId + "pendingLoanAmt", ApzCOB.fn_FormatAmount(pendingLoanAmt));
+}
+apz.app.ParMemberOverview.paintMemberDetails = function() {
+    var dob = customerDtls.earnings[0] ? ApzCOB.dateformatter(ApzCOB.dateStringToDate(customerDtls.earnings[0].dob), "d/m/Y") : 'NO DATA';
+    apz.setElmValue(ParMemberOvwScrId + "membersDOB", ApzCOB.dateformatter(ApzCOB.dateStringToDate(customerDtls.dob), "d/m/Y"));
+    apz.setElmValue(ParMemberOvwScrId + "mobilNum", customerDtls.mobileNum ?? 'NO DATA');
+    apz.setElmValue(ParMemberOvwScrId + "kycId", customerDtls.primaryId ?? 'NO DATA');
+    apz.setElmValue(ParMemberOvwScrId + "kycType", customerDtls.primaryType ?? 'NO DATA');
+    apz.setElmValue(ParMemberOvwScrId + "maritalStatus", customerDtls.maritalStatus ?? 'NO DATA');
+    if (customerDtls.maritalStatus !== "") {
+        if ((customerDtls.maritalStatus === "SINGLE") || (customerDtls.maritalStatus === "SEPARATED") || (customerDtls.maritalStatus ===
+                "WIDOWED") || (customerDtls.maritalStatus === "DIVORCED")) {
+            $("#Custom__ParMemberOverview__spouseDetailsRow").addClass("sno");
+        } else {
+            $("#Custom__ParMemberOverview__spouseDetailsRow").removeClass("sno");
+        }
+    } else {
+        $("#Custom__ParMemberOverview__spouseDetailsRow").addClass("sno");
+    }
+    apz.setElmValue(ParMemberOvwScrId + "spouseNameDob", (customerDtls.depname ? customerDtls.depname : 'NO DATA') + ', ' + (customerDtls.depDob ?
+        ApzCOB.dateformatter(ApzCOB.dateStringToDate(customerDtls.depDob), "d/m/Y") : 'NO DATA'));
+    apz.setElmValue(ParMemberOvwScrId + "accNumber", customerDtls.bankAccNo ?? 'NO DATA');
+    apz.setElmValue(ParMemberOvwScrId + "ifsc", (customerDtls.bankName ?? 'NO DATA') + ',' + customerDtls.bankIfscCode ?? 'NO DATA');
+    if (customerDtls.maritalStatus == 'MARRIED') {
+        $('#' + ParMemberOvwScrId + 'spouseDetailsRow').removeClass('sno');
+    } else {
+        $('#' + ParMemberOvwScrId + 'spouseDetailsRow').addClass('sno');
+    }
+}
+apz.app.ParMemberOverview.backToParMemberDetailsScr = function() {
+    event.preventDefault();
+    event.stopPropagation();
+    ApzCOB.launchMicroApp("Custom", "ParMemberDetails", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedKendra)
+}

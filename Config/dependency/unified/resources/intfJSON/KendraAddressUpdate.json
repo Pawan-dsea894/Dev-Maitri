@@ -1,0 +1,39 @@
+{
+	"apiURL": "${URL}",
+	"servicetype": "HTTP",
+	"methodType": "POST",
+	"contentType": "application/json",
+	"headers": {
+		"Content-Type": "application/json",
+		"Accept": "*/*",
+		"Apikey": "Y2FsZ2xpbnRlcmZhY2Vlc2I=",
+		"companyId": "{REQUEST~apiRequest.requestObj.branchId}"
+	},
+	"requestDef": {
+		"header": {
+			"companyId": "${REQUEST~apiRequest.requestObj.branchId}"
+		},
+		"body": {
+			"kendraStatus": "${REQUEST~apiRequest.requestObj.kendraStatus}",
+			"kendraAddress~@JSONARRAY@": [
+				{
+					"address": "${REQUEST~apiRequest.requestObj.kendraAddress[].address}"
+				}
+			],
+			"stateId": "${REQUEST~apiRequest.requestObj.stateId}",
+			"districtId": "${REQUEST~apiRequest.requestObj.districtId}",
+			"village": "${REQUEST~apiRequest.requestObj.village}",
+			"pinCode": "${REQUEST~apiRequest.requestObj.pinCode}",
+			"areaType": "${REQUEST~apiRequest.requestObj.areaType}",
+			"taluk": "${REQUEST~apiRequest.requestObj.taluk}",
+			"distance": "${REQUEST~apiRequest.requestObj.distance}"
+		}
+	},
+	"responseDef": "",
+	"logging": {
+		"logRequired": "Y",
+		"logType": "BOTH",
+		"externalAPILogRequired": "N",
+		"externalAPILogType": "NONE"
+	}
+}

@@ -1,0 +1,236 @@
+var CollectionDepositScreenId = 'Collec__CollectionDeposit__';
+var selDepValue = '';
+var Base64 = '';
+var CashDepDataCol = [];
+var fromDepositCol = false;
+/*var DepositProduct = [{
+    "val": "Airtel Payment Point"
+}, {
+    "val": "Pay Nearby"
+}, {
+    "val": "Rama Communications"
+}, {
+    "val": "Deposit Point4"
+}]*/
+apz.app.onLoad_CollectionDeposit = function(params) {
+    // Initialization logic if needed
+};
+apz.app.onShown_CollectionDeposit = function(params) {
+    $('#header').addClass('sno');
+    $('#footer').addClass('sno');
+    $('#' + CollectionDepositScreenId + 'cameraColumn').attr('onclick', 'apz.app.CollectionDeposit.onClickUpload("camera");');
+    $('#' + CollectionDepositScreenId + 'galleryColumn').attr('onclick', 'apz.app.CollectionDeposit.onClickUpload("photo");');
+    $('#' + CollectionDepositScreenId + "DepositModal_close").attr('onclick', 'apz.app.CollectionDeposit.radioButton()');
+    $('#' + CollectionDepositScreenId + "amountDepositedInp").attr('onblur', '');
+    $('#' + CollectionDepositScreenId + "referenceNumInp").attr('onblur', '');
+    document.getElementById('Collec__CollectionDeposit__photoReceiptInp').style.textDecoration = 'none';
+    if (collecSubPaintRecords.length > 0) {
+        $("#" + CollectionDepositScreenId + "submitBtn").prop('disabled', false);
+    } else {
+        $("#" + CollectionDepositScreenId + "submitBtn").prop('disabled', true);
+    }
+    ApzCOB.FetchLov("DEPOSITPOINTS");
+    // CollectionsCommon.fetchFromCashDepositSQLLite();
+}
+apz.app.CollectionDeposit.LaunchDepositModal = function() {
+    apz.data.scrdata.Collec__IPaintDepositList_Res = {};
+    apz.data.scrdata.Collec__IPaintDepositList_Res = DepositProduct;
+    apz.data.loadData("IPaintDepositList", 'Collec');
+    ApzCOB.toggleModal(CollectionDepositScreenId + "DepositModal");
+}
+apz.app.CollectionDeposit.paintDepositValue = function() {
+    var selDepValue = '';
+    $("#" + CollectionDepositScreenId + "depositPointsList ul li").each(function(i) {
+        if ($("#" + CollectionDepositScreenId + "depPointCheckbox_" + i).is(':checked')) {
+            selDepValue = apz.data.scrdata.Collec__IPaintDepositList_Res[i].val;
+        }
+    })
+    $("#" + CollectionDepositScreenId + "depPointsInp").val(selDepValue);
+    if ($('#' + CollectionDepositScreenId + 'errorText' + '1' + '_ul').is(':visible')) {
+        $('#' + CollectionDepositScreenId + 'errorText' + '1' + '_ul').addClass('sno');
+    }
+    ApzCOB.toggleModal(CollectionDepositScreenId + "DepositModal");
+}
+apz.app.CollectionDeposit.radioButton = function() {
+    var selValue = $("#" + CollectionDepositScreenId + "depPointsInp").val();
+    if (apz.isNull(selValue)) {
+        $("#" + CollectionDepositScreenId + "depositPointsList ul li").each(function(i) {
+            $("#" + CollectionDepositScreenId + "depPointCheckbox_" + i).prop('checked', false);
+        });
+    }
+}
+apz.app.CollectionDeposit.ValidationOnSubmit = function() {
+    var form = document.getElementById(CollectionDepositScreenId + "DepForm");
+    var inputs = form.querySelectorAll('input, textarea, select');
+    var valid = true;
+    for (i = 0; i < inputs.length; i++) {
+        // Skip fields that are not required
+        if (apz.isNull(inputs[i].value.trim())) {
+            let j = i + 1;
+            valid = false; // Found an empty required field
+            $('#' + CollectionDepositScreenId + 'errorText' + j + '_ul').removeClass('sno');
+        }
+    }
+    /* if ($("#" + CollectionDepositScreenId + "amountDepositedInp").val() === '0') {
+         valid = false
+         $("#" + CollectionDepositScreenId + "amountValidation").removeClass('sno');
+     }*/
+    let amtValidation = apz.app.CollectionDeposit.AmtFieldValidation();
+    let refValidation = apz.app.CollectionDeposit.refNoValidation();
+    if (amtValidation && refValidation && valid) {
+        ApzCOB.toggleModal(CollectionDepositScreenId + "confModal");
+    }
+}
+apz.app.CollectionDeposit.onClickSubmit = function() {
+    ApzCOB.toggleModal(CollectionDepositScreenId + "confModal");
+    var data = '';
+    var SuccesData = {};
+    SuccesData = {
+        depPoints: $("#" + CollectionDepositScreenId + "depPointsInp").val(),
+        refNo: $("#" + CollectionDepositScreenId + "referenceNumInp").val(),
+        base64Value: Base64
+    }
+    SuccesData.fromScreen = apz.childScr;
+    var data = {
+        DepositAmount: $("#" + CollectionDepositScreenId + "amountDepositedInp").val(),
+        DepositPointRefno: $("#" + CollectionDepositScreenId + "referenceNumInp").val(),
+        DepositReceipt: $("#" + CollectionDepositScreenId + "photoReceiptInp").val(),
+    }
+    SuccesData.data = data;
+    CashDepDataCol.push(SuccesData);
+    CollectionsCommon.storeCashDepositSQLLite(CashDepDataCol);
+    fromCollWidget = true;
+    //fromDepositCol = true;
+    ApzCOB.launchMicroApp('Collec', 'SuccessScreen', 'APZCBO__BaseScreens__BaseDIV', SuccesData);
+}
+apz.app.CollectionDeposit.onSelectRadioButton = function(pthis) {
+    var prowno = $(pthis).attr('rowno');
+    $("#" + CollectionDepositScreenId + "depositPointsList ul li").each(function(i) {
+        if (parseInt(prowno) !== i) {
+            $("#" + CollectionDepositScreenId + "depPointCheckbox_" + i).prop('checked', false);
+        }
+    })
+}
+apz.app.CollectionDeposit.onClickUpload = function(source) {
+    if (source === 'camera' || source === 'photo') {
+        var cameraObj = {
+            "crop": "Y", //Y or N
+            "flash": "N",
+            "action": "base64_Save", // save,base64
+            "fileName": 'b',
+            "encodingType": "JPG",
+            "sourceType": source // photo / camera
+        };
+        cameraObj.id = "CAMERA_ID";
+        cameraObj.callBack = apz.app.CollectionDeposit.UploadedDataCB;
+        apz.ns.openCamera(cameraObj);
+    }
+}
+apz.app.CollectionDeposit.UploadedDataCB = function(params) {
+    if (params.status) {
+        var filename = params.path.split('/')[params.path.split('/').length - 1];
+        var filetype = params.path.split('/')[params.path.split('/').length - 1].split('.').pop();
+        var fileTypes = ["png", "jpeg", "jpg"];
+        var FileSize = params.encodedImage.length / 1000;
+        Base64 = params.encodedImage;
+        if (FileSize < 300000) {
+            if (fileTypes.indexOf(filetype.toLowerCase()) !== -1) {
+                $("#" + CollectionDepositScreenId + "photoReceiptInp").val(filename);
+                $('#' + CollectionDepositScreenId + 'errorText4' + '_ul').addClass('sno');
+                $('#' + CollectionDepositScreenId + "photoReceiptInp_ul").next().addClass('sno');
+                document.getElementById('Collec__CollectionDeposit__photoReceiptInp').style.textDecoration = 'underline';
+                ApzCOB.toggleModal(CollectionDepositScreenId + "photoUploadModal");
+                if (CashDepFlow.length > 0) {
+                    for (i = 0; i < CashDepFlow.length; i++) {
+                        if (CashDepFlow[i].depReceipt === $("#" + CollectionDepositScreenId + "photoReceiptInp").val()) {
+                            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_ERRORPHOTONAME"), "E");
+                            $("#" + CollectionDepositScreenId + "photoReceiptInp").val('');
+                            document.getElementById('Collec__CollectionDeposit__photoReceiptInp').style.textDecoration = 'none';
+                        } else {
+                            //do nothing
+                        }
+                    }
+                }
+            } else {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COL_MSG_VALIDIMGTYPES"), "E");
+            }
+        } else {
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COL_MSG_FILESIZE"), "E");
+        }
+    }
+}
+apz.app.CollectionDeposit.onInputValidation = function() {
+    var form = document.getElementById(CollectionDepositScreenId + "DepForm");
+    var inputs = form.querySelectorAll('input, textarea, select');
+    var valid = true;
+    for (let input of inputs) {
+        if (apz.isNull(input.value.trim())) {
+            valid = false;
+        }
+    }
+    if (valid) {
+        $("#" + CollectionDepositScreenId + "submitBtn").prop('disabled', false);
+    } else {
+        $("#" + CollectionDepositScreenId + "submitBtn").prop('disabled', true);
+    }
+}
+apz.app.CollectionDeposit.AmtFieldValidation = function() {
+    let valid = true;
+    var totalDepAmt = 0;
+    var totalCashDep = 0;
+    var totCollAmt = 0;
+    if (collecSubPaintRecords.length > 0) {
+        /*for (i = 0; i < collecSubPaintRecords.length; i++) {
+            let GroupData = collecSubPaintRecords[i].colldtls.groups;
+            totalDepAmt = totalDepAmt + GroupData.map(g => g.totCollAmt).reduce((acc, sum) => acc + sum);
+        }*/
+        for (let i = 0; i < collectionKendraData.length; i++) {
+            let obj = collectionKendraData[i];
+            if (obj.colldtls.hasOwnProperty('totCollAmt')) {
+                for (let k = 0; k < obj.colldtls.groups.length; k++) {
+                    let grp = obj.colldtls.groups[k];
+                    totCollAmt = totCollAmt + grp.totCollAmt;
+                }
+            }
+            totalDepAmt = totCollAmt;
+        }
+        if (CashDepFlow.length > 0 && !CashSubmittedAlready) {
+            totalCashDep = CashDepFlow.map(val => parseInt(ApzCOB.fn_unFormatAmount(val.depAmt))).reduce((acc, sum) => acc + sum);
+            totalDepAmt = totalDepAmt - parseInt(totalCashDep)
+            // let totalAmt = totCollAmt + parseInt(totalCashDep);
+            //totalDepAmt = totalAmt - totalCashDep;
+        }
+        if (CashSubmittedAlready) {
+            totalCashDep = CashDepFlow.map(val => parseInt(ApzCOB.fn_unFormatAmount(val.depAmt))).reduce((acc, sum) => acc + sum);
+            let a = Math.max(totalDepAmt, totalCashDep);
+            let b = Math.min(totalDepAmt, totalCashDep);
+            totalDepAmt = a - b;
+        }
+        //let totalColAmount = totalAmountCollected;
+        if ($("#" + CollectionDepositScreenId + "amountDepositedInp").val() > totalDepAmt) {
+            //$("#" + CollectionDepositScreenId + 'errorText2').text('Please enter amount less than or equal to the Collected Amount');
+            $("#" + CollectionDepositScreenId + 'ErrorCollectedAmt_ul').removeClass('sno');
+            valid = false;
+        } else {
+            $("#" + CollectionDepositScreenId + 'ErrorCollectedAmt_ul').addClass('sno');
+        }
+    } else {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COL_MSG_AMOUNTTODEP"), "E");
+    }
+    return valid;
+}
+apz.app.CollectionDeposit.refNoValidation = function() {
+    let valid = true;
+    if (CashDepFlow.length > 0) {
+        for (i = 0; i < CashDepFlow.length; i++) {
+            if (CashDepFlow[i].depPointRefNo === $("#" + CollectionDepositScreenId + "referenceNumInp").val()) {
+                //$("#" + CollectionDepositScreenId + 'errorText3').text('Entered ReferenceNo is already submitted');
+                $("#" + CollectionDepositScreenId + 'ErrorRefNo_ul').removeClass('sno');
+                valid = false;
+            } else {
+                $("#" + CollectionDepositScreenId + 'ErrorRefNo_ul').addClass('sno');
+            }
+        }
+    }
+    return valid;
+}

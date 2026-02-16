@@ -1,0 +1,57 @@
+var ParMemberDtlScrId = "Custom__ParMemberDetails__";
+var customersWithOverdueLoans = [];
+apz.app.onLoad_ParMemberDetails = function(params) {}
+apz.app.onShown_ParMemberDetails = function(params) {
+    $("#header").addClass("sno");
+    $("#footer").addClass("sno");
+    let parCust = params.customerDtls;
+    apz.app.ParMemberDetails.loadData(parCust);
+}
+apz.app.ParMemberDetails.loadData = function(parCust) {
+    let tempArray = [];
+    parCust.forEach(parObj => {
+        let parCustNew = parObj.loanDtls;
+        let parNew = parCustNew.filter(item => item.overduePrincipal !== "0.00");
+        if (parNew.length > 0) {
+            customersWithOverdueLoans.push({
+                customerDetails: parObj
+            });
+        }
+    })
+    customersWithOverdueLoans.forEach(function(j, k) {
+        let Obj = {
+            "profileName": customersWithOverdueLoans[k].customerDetails.customerName.substr(0, 1),
+            "customerName": customersWithOverdueLoans[k].customerDetails.customerName,
+            "customerId": customersWithOverdueLoans[k].customerDetails.customerId,
+            "spouseName": customersWithOverdueLoans[k].customerDetails.depname
+        }
+        tempArray.push(Obj);
+    });
+    apz.data.scrdata.Custom__ParMemberDetails_Res = {};
+    apz.data.scrdata.Custom__ParMemberDetails_Res.ParMemeberDtls = tempArray;
+    apz.data.loadData("ParMemberDetails", 'Custom');
+}
+apz.app.ParMemberDetails.closeApp = function() {
+    event.preventDefault();
+    event.stopPropagation();
+    ApzCOB.launchMicroApp('Dashbo', 'dashboard', 'APZCBO__BaseScreens__BaseDIV', KendraApp.selectedKendra);
+}
+apz.app.ParMemberDetails.memberDtls = function(pthis) {
+    event.preventDefault();
+    event.stopPropagation();
+    isParDetailsClciked = true;
+    let rowNo = $(pthis).attr('rowno');
+    KendraApp.selectedCustomer = JSON.parse(JSON.stringify(customersWithOverdueLoans[rowNo]));
+    ApzCOB.launchMicroApp("Custom", "CustomerDetails", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedCustomer);
+}
+apz.app.ParMemberDetails.customerDtls = function(pthis) {
+    event.preventDefault();
+    event.stopPropagation();
+    let rowNo = $(pthis).attr('rowno');
+    KendraApp.selectedCustomer = JSON.parse(JSON.stringify(customersWithOverdueLoans[rowNo]));
+    ApzCOB.launchMicroApp("Custom", "ParMemberOverview", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedCustomer);
+}
+// to be moved to new
+// apz.app.ParMemberDetails.edit = function() { 
+//         ApzCOB.launchMicroApp("Custom", "CustomerDetails", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedKendra)
+// }

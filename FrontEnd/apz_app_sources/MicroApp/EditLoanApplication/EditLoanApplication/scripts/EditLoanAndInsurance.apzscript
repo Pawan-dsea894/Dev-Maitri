@@ -1,0 +1,1456 @@
+var editLoanAndInsScrId = 'EDITLA__EditLoanAndInsurance__',
+    rowNo = "",
+    intRateFlag = false,
+    tempPurposeResponse = [],
+    tempSubPurposeResponse = [],
+    searchData = [],
+    selectedProductDetails = [],
+    minAmount = "",
+    maxAmount = "",
+    caglMaxAmount = "",
+    defAmt = "",
+    term = "",
+    termDisp = "",
+    insurAmt = 0,
+    minAmountArr = [],
+    maxAmountArr = [],
+    termArr = [],
+    defAmtArr = [],
+    insFlag = false,
+    totalAmt = 0,
+    tempArray = [],
+    selLoanProdDesc = "";
+    var custAgeLimit,spouseAgeLimit,custEligibleWeeks,spouseEligibleWeeks;
+apz.app.onLoad_EditLoanAndInsurance = function(params) {
+    gApzCOB.insurDetails = ApzCOB.GetCommonCodes("GLFEES").Fees
+};
+apz.app.onShown_EditLoanAndInsurance = function(params) {
+    custAgeLimit = ApzCOB.GetCommonCodes("AGELIMIT").agelimit.custAgeLimit
+    spouseAgeLimit = ApzCOB.GetCommonCodes("AGELIMIT").agelimit.spouseAgeLimit
+    $('#header').addClass('sno');
+    $('#footer').addClass('sno');
+    if (accntDetails.customerDtls.loanDtls.productId !== undefined) {
+        selectedProductDetails = KendraApp.ProductList.filter(val => (val.productDtls.productId === accntDetails.customerDtls.loanDtls
+            .productId))[0];
+        defAmtArr = selectedProductDetails.productDtls.amountDefault.split(',');
+        maxAmountArr = selectedProductDetails.productDtls.amountMax.split(',');
+        minAmountArr = selectedProductDetails.productDtls.amountMin.split(',');
+        termArr = selectedProductDetails.productDtls.term.split(',');
+        if (apz.isNull(selectedProductDetails.productDtls.intRate) || selectedProductDetails.productDtls.intRate === undefined) {
+            selectedProductDetails.productDtls.intRate = 23;
+        }
+        if (maxAmountArr.length > 0) {
+            maxAmount = parseInt(maxAmountArr[maxAmountArr.length - 1]);
+        }
+        if (minAmountArr.length > 0) {
+            minAmount = parseInt(minAmountArr[0]);
+        }
+        if (defAmtArr.length > 0) {
+            defAmt = parseInt(defAmtArr[0], 10);
+        }
+        /*if (termArr.length > 0) {
+            term = parseInt(termArr[0].slice(0, -1));
+        }*/
+        if (isNaN(accntDetails.customerDtls.loanDtls.term)) {
+            term = parseInt(accntDetails.customerDtls.loanDtls.term.slice(0, -1));
+        } else {
+            term = parseInt(accntDetails.customerDtls.loanDtls.term);
+        }
+    }
+     if (apz.deviceType === 'WEB' && userRole === 'BM') {
+        let element = document.getElementById('EDITLA__EditLoanAndInsurance__gr_row_77');
+        if (element) {
+            element.classList.add('web-loan-det');
+        }
+    }
+        if (selectedProductDetails.productDtls.productType === "EL") {
+            $('#EDITLA__EditLoanAndInsurance__sc_col_393').addClass("sno");
+            $('#EDITLA__EditLoanAndInsurance__sc_col_382').addClass("sno");
+        } else {
+            $('#EDITLA__EditLoanAndInsurance__sc_col_393').removeClass("sno");
+            $('#EDITLA__EditLoanAndInsurance__sc_col_382').removeClass("sno");
+        }
+    accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.aprxLoanAmt = accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.aprxLoanAmt.toString();
+    accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.aprxLoanCharges = accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.aprxLoanCharges
+        .toString();   
+    apz.app.EditLoanAndInsurance.paintLoanAndInsDetails();
+    if (selectedProductDetails.productDtls.productType === "EL") {
+        $('#EDITLA__EditLoanAndInsurance__editPurpAndSubpurp').prop('disabled', true);
+        $('#EDITLA__EditLoanAndInsurance__repayFreq').prop('disabled', true);
+    } else {
+        $('#EDITLA__EditLoanAndInsurance__editPurpAndSubpurp').prop('disabled', false);
+        $('#EDITLA__EditLoanAndInsurance__repayFreq').prop('disabled', false);
+    }
+    KendraApp.selectedKendra='';
+    KendraApp.KendraResponse.forEach(function(m, n) {
+           if(m.kendraDtls.kendraName===accntDetails.kendraName){
+               KendraApp.selectedKendra=m.kendraDtls;
+           }
+        });
+    if (insurArr.length != 0) {
+        totalAmt = insurArr[0].Spouse_Insurance + insurArr[0].Borrower_Insurance;
+    } else {
+        totalAmt = 0;
+    }
+   if (totalAmt === 0) {
+       $('#EDITLA__EditLoanAndInsurance__memCheckBox').prop('checked', false);
+       $('#EDITLA__EditLoanAndInsurance__memCheckBox').prop('disabled', true);
+       $('#EDITLA__EditLoanAndInsurance__spouseCheckBox').prop('checked', false);
+       $('#EDITLA__EditLoanAndInsurance__gr_row_91').addClass('sno');
+       insFlag = true;
+   } else {
+       $('#EDITLA__EditLoanAndInsurance__gr_row_91').removeClass('sno');
+       $('#EDITLA__EditLoanAndInsurance__memCheckBox').prop('disabled', false);
+       setTimeout(function() {
+           if (accntDetails.customerDtls.loanDtls.insurDtls.member == 'Y') {
+               $('#EDITLA__EditLoanAndInsurance__memCheckBox').prop('disabled', true);
+           } else {
+               $('#EDITLA__EditLoanAndInsurance__memCheckBox').prop('disabled', false);
+           }
+           if (accntDetails.customerDtls.loanDtls.insurDtls.Spouse == 'Y') {
+               $('#EDITLA__EditLoanAndInsurance__spouseCheckBox').prop('disabled', true);
+           } else {
+               $('#EDITLA__EditLoanAndInsurance__spouseCheckBox').prop('disabled', false);
+           }
+       }, 400);
+       
+   }
+   
+};
+apz.app.EditLoanAndInsurance.paintLoanAndInsDetails = function() {
+    apz.app.EditLoanAndInsurance.loadInsuranceDetails();
+    apz.app.EditLoanAndInsurance.loadNomRelationDetails();
+    apz.app.EditLoanAndInsurance.loadPuposeDetails();
+    caglMaxAmount = accntDetails.amount;
+    if (isNaN(accntDetails.customerDtls.loanDtls.term)) {
+        termDisp = parseInt(accntDetails.customerDtls.loanDtls.term.slice(0, -1));
+    } else {
+        termDisp = parseInt(accntDetails.customerDtls.loanDtls.term);
+    }
+    //termDisp = parseInt(accntDetails.customerDtls.loanDtls.term.slice(0, -1));
+    $('#' + editLoanAndInsScrId + "editCustNme").text(accntDetails.customerName || "");
+    $('#' + editLoanAndInsScrId + "editProfileName").text(accntDetails.customerName.substr(0, 1) || '');
+    $('#' + editLoanAndInsScrId + "editCustID").text(`${accntDetails.customerId || ""}`);
+    $('#' + editLoanAndInsScrId + "editAmount").text(`₹${ApzCOB.fn_FormatAmount(accntDetails.customerDtls.loanDtls.cbAmt) || ""}`);
+    $('#' + editLoanAndInsScrId + "editAddress").text(accntDetails.kendraName || "");
+    $('#' + editLoanAndInsScrId + "editLoanLimit").text("Product Loan Limit");
+    let productDescriptions = {};
+    for (var i = 0; i < window.KendraApp.ProductResponse.length; i++) {
+        if (window.KendraApp.ProductResponse[i].productDtls.shortDesc === accntDetails.customerDtls.loanDtls.productType) {
+            matchedProduct = window.KendraApp.ProductResponse[i].productDtls;
+            break;
+        }
+    }
+    window.feeCharge = +matchedProduct.feeCharge;
+    window.gstValue = +matchedProduct.gst;
+    window.memInsurance = matchedProduct.memInsurance;
+    KendraApp.ProductResponse.forEach(product => {
+        let productDtls = product.productDtls;
+        productDescriptions[productDtls.shortDesc] = productDtls.description;
+    });
+    let shortDesc = accntDetails.customerDtls.loanDtls.shortDesc;
+    let description = productDescriptions[shortDesc] || shortDesc;  // Fallback to shortDesc if description is not found
+    selLoanProdDesc = description
+    if (description) {
+        $('#' + editLoanAndInsScrId + "selecteLoanProd").val(description);
+        $('#' + editLoanAndInsScrId + "editLoanAmt").val(accntDetails.amount);
+    }
+    // if (accntDetails.customerDtls.loanDtls.shortDesc) {
+    //     $('#' + editLoanAndInsScrId + "selecteLoanProd").val(accntDetails.customerDtls.loanDtls.shortDesc);
+    //     $('#' + editLoanAndInsScrId + "editLoanAmt").val(accntDetails.customerDtls.loanDtls.caglAmt);
+    // }
+    /*if (accntDetails.customerDtls.kycDtls.maritalStatus === 'MARRIED') {
+        $('#' + editLoanAndInsScrId + "sc_col_386").removeClass("sno");
+    } else {
+        $('#' + editLoanAndInsScrId + "sc_col_386").addClass("sno");
+    }*/
+    let purpose = accntDetails.customerDtls.loanDtls.purpose.purposeDesc || "";
+    let subPurpose = accntDetails.customerDtls.loanDtls.purpose.productSubPurpose || "";
+    if (purpose !== "" && apz.data.scrdata.EDITLA__Purpose_Res !== undefined && apz.data.scrdata.EDITLA__Purpose_Res.purposeNode.length > 0) {
+        let tempPurposeArray = [];
+        let tempSubPurposeArray = [];
+        tempPurposeArray = apz.data.scrdata.EDITLA__Purpose_Res.purposeNode;
+        tempPurposeArray.forEach(function(m, n) {
+            if (purpose === m.purposeIdDesc) {
+                $('#' + editLoanAndInsScrId + 'purposeList_row_' + n).addClass('active');
+            } else {
+                $('#' + editLoanAndInsScrId + 'purposeList_row_' + n).removeClass('active');
+            }
+        });
+        if (subPurpose !== "") {
+            tempSubPurposeResponse = tempPurposeResponse.filter(val => (val.purposeDesc === purpose))[0].productSubPurpose;
+            if (tempSubPurposeResponse.length > 0) {
+                tempSubPurposeResponse.forEach(function(e) {
+                    let tempSubPurposeObj = {
+                        "subPurposeId": e,
+                        "subPurposeIdDesc": e
+                    }
+                    tempSubPurposeArray.push(tempSubPurposeObj);
+                });
+                apz.data.scrdata.EDITLA__SubPurpose_Res = {};
+                apz.data.scrdata.EDITLA__SubPurpose_Res.SubPurposeNode = tempSubPurposeArray;
+                searchData = apz.data.scrdata.EDITLA__SubPurpose_Res.SubPurposeNode;
+                if (tempSubPurposeArray.length > 4) {
+                    //apz.setElmValue(editLoanAndInsScrId + 'searchData', '');
+                    $("#" + editLoanAndInsScrId + "searchRow").removeClass('sno');
+                } else {
+                    $("#" + editLoanAndInsScrId + "searchRow").addClass('sno');
+                }
+                $("#" + editLoanAndInsScrId + 'subPurposeList').removeClass('sno');
+                $("#" + editLoanAndInsScrId + 'noRecDiv').addClass('sno');
+                apz.data.loadData("SubPurpose", 'EDITLA');
+                $.each(tempSubPurposeResponse, function(i) {
+                    $('#' + editLoanAndInsScrId + 'subPurposeCheckbox_' + i).prop('disabled', false);
+                });
+                if (apz.data.scrdata.EDITLA__SubPurpose_Res.SubPurposeNode.length > 0) {
+                    tempArray = [];
+                    tempArray = apz.data.scrdata.EDITLA__SubPurpose_Res.SubPurposeNode;
+                    tempArray.forEach(function(m, n) {
+                        if (subPurpose === m.subPurposeIdDesc) {
+                            $('#' + editLoanAndInsScrId + 'subPurposeCheckbox_' + n).prop('checked', true);
+                            $('#' + editLoanAndInsScrId + 'subPurposeList_row_' + n).addClass('active');
+                        } else {
+                            $('#' + editLoanAndInsScrId + 'subPurposeCheckbox_' + n).prop('checked', false);
+                            $('#' + editLoanAndInsScrId + 'subPurposeList_row_' + n).removeClass('active');
+                        }
+                    });
+                }
+            }
+        } else {
+            apz.app.EditLoanAndInsurance.clearSubPurposeData();
+        }
+    }
+    $('#' + editLoanAndInsScrId + "editPurpAndSubpurp").val(`${purpose} : ${subPurpose}`);
+    $('#' + editLoanAndInsScrId + "repayFreq").val(accntDetails.customerDtls.loanDtls.repayFrequency.idDesc || "");
+    $('#' + editLoanAndInsScrId + "disbMode").val(accntDetails.customerDtls.loanDtls.disburseMode.idDesc || "");
+    $('#' + editLoanAndInsScrId + "insuranceCompanyVal").val(accntDetails.customerDtls.loanDtls.insurDtls.insuranceProvider || "");
+    if (apz.data.scrdata.EDITLA__InsuranceCompany_Res !== undefined && apz.data.scrdata.EDITLA__InsuranceCompany_Res.insuranceCompanyNode.length >
+        0) {
+        tempArray = [];
+        tempArray = apz.data.scrdata.EDITLA__InsuranceCompany_Res.insuranceCompanyNode;
+        tempArray.forEach(function(m, n) {
+            if (accntDetails.customerDtls.loanDtls.insurDtls.insuranceProvider === m.desc) {
+                apz.setElmValue(editLoanAndInsScrId + "insuranceCompanyVal", m.desc);
+                $('#' + editLoanAndInsScrId + 'insCmpnyCheckbox_' + n).prop('checked', true);
+                $('#' + editLoanAndInsScrId + 'insCompanyList_row_' + n).addClass('active');
+            }
+        });
+    }
+    $('#' + editLoanAndInsScrId + "insurCharges").text(`₹${ApzCOB.fn_FormatAmount(accntDetails.customerDtls.loanDtls.insurDtls.insurCharges) || ""}`);
+    $('#' + editLoanAndInsScrId + "memberInsCharges").text(`₹${ApzCOB.fn_FormatAmount(accntDetails.customerDtls.loanDtls.insurDtls.applicant_insurance_amt || "0")}`);
+    $('#' + editLoanAndInsScrId + "spouseInsCharges").text(`₹${ApzCOB.fn_FormatAmount(accntDetails.customerDtls.loanDtls.insurDtls.spouse_insurance_amt || "0")}`);
+    $('#' + editLoanAndInsScrId + "nomineeName").val(accntDetails.customerDtls.loanDtls.nomineeDtls.nomineeName || "");
+    $('#' + editLoanAndInsScrId + "nomineeRelationVal").val(accntDetails.customerDtls.loanDtls.nomineeDtls.relationWithMember || "");
+    if (apz.data.scrdata.EDITLA__NomineeRelation_Res !== undefined && apz.data.scrdata.EDITLA__NomineeRelation_Res.nomineeRelationNode.length >
+        0) {
+        tempArray = [];
+        tempArray = apz.data.scrdata.EDITLA__NomineeRelation_Res.nomineeRelationNode;
+        tempArray.forEach(function(m, n) {
+            if (accntDetails.customerDtls.loanDtls.nomineeDtls.relationWithMember === m.desc) {
+                apz.setElmValue(editLoanAndInsScrId + "nomineeRelationVal", m.desc);
+                $('#' + editLoanAndInsScrId + 'nomRelCheckbox_' + n).prop('checked', true);
+                $('#' + editLoanAndInsScrId + 'nomRelationList_row_' + n).addClass('active');
+            }
+        });
+    }
+    /*$('#' + editLoanAndInsScrId + "loanProcessFee").text(
+        `₹${ApzCOB.fn_FormatAmount(accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.loanProcessingFee.replaceAll(/[^a-zA-Z0-9 .]/g, '')) || ""}`
+        );*/
+    $('#' + editLoanAndInsScrId + "gstAmt").text(
+        '₹'+accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.GST);
+    $('#' + editLoanAndInsScrId + "loanProcessFee").text(
+        '₹'+accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.loanProcessingFee);
+    $('#' + editLoanAndInsScrId + "approxWeeklyInstall").text(
+        `₹${ApzCOB.fn_FormatAmount((String(accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.aprxLoanAmt ?? '')).replaceAll(/[^a-zA-Z0-9 .]/g, '')) || ""}`
+        );
+    $('#' + editLoanAndInsScrId + "intRate").text(KendraLoans.cbResponse.roi + "%" || "");
+    $('#' + editLoanAndInsScrId + "tenure").text(termDisp + " Weeks" || "");
+    if (selectedProductDetails.productDtls.spouseInsurance === 'YES' && accntDetails.customerDtls.kycDtls.maritalStatus === 'MARRIED') {
+        $('#' + editLoanAndInsScrId + 'sc_col_386').removeClass('sno');
+    } else {
+        let age = ApzCOB.ageCalculator(accntDetails.customerDtls.kycDtls.dob);
+        if (!apz.isNull(selectedProductDetails.productDtls.insLnamount)) {
+            if ((parseInt(selectedProductDetails.productDtls.insLnamount) <= parseInt(caglMaxAmount)) && accntDetails.customerDtls.kycDtls.maritalStatus ===
+                'MARRIED' && (age < 65 && age > 18)) {
+                $('#' + editLoanAndInsScrId + 'sc_col_386').removeClass('sno');
+            } else {
+                $('#EDITLA__EditLoanAndInsurance__spouseCheckBox').prop('checked', false);
+                $('#' + editLoanAndInsScrId + "sc_col_386").addClass("sno");
+            }
+        } else {
+            $('#EDITLA__EditLoanAndInsurance__spouseCheckBox').prop('checked', false);
+            $('#' + editLoanAndInsScrId + "sc_col_386").addClass("sno");
+        }
+    }
+    let Spouse = accntDetails.customerDtls.loanDtls.insurDtls.Spouse;
+    if (Spouse === 'Y' || Spouse === 'YES') {
+        $('#' + editLoanAndInsScrId + 'spouseCheckBox').prop('checked', true);
+    } else {
+        $('#' + editLoanAndInsScrId + 'spouseCheckBox').prop('checked', false);
+    }
+    let member = accntDetails.customerDtls.loanDtls.insurDtls.member;
+    if (member === 'Y' || member === 'YES') {
+        $('#' + editLoanAndInsScrId + 'memCheckBox').prop('checked', true);
+    } else {
+        $('#' + editLoanAndInsScrId + 'memCheckBox').prop('checked', false);
+        $("#" + editLoanAndInsScrId + 'insuranceInfoDiv').addClass('sno');
+    }
+    //RS
+    insurArr = gApzCOB.insurDetails.filter(arr => (arr.Loan_Amount === parseInt(accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.loanAmt) && (termDisp + 'W') === arr.Tenure));
+    if (insurArr.length > 0) {
+        if ((member === 'Y' || member === 'YES') && (Spouse === 'Y' || Spouse === 'YES')) {
+            insurAmt = insurArr[0].Spouse_Insurance + insurArr[0].Borrower_Insurance;
+            apz.setElmValue(editLoanAndInsScrId + "insurCharges", "₹ " + ApzCOB.fn_FormatAmount(insurAmt));
+            apz.setElmValue(editLoanAndInsScrId + "memberInsCharges",  "₹" + ApzCOB.fn_FormatAmount(insurArr[0].Borrower_Insurance|| "0"));
+            apz.setElmValue(editLoanAndInsScrId + "spouseInsCharges",  "₹" + ApzCOB.fn_FormatAmount(insurArr[0].Spouse_Insurance || "0"));
+        } else if (member === 'Y' || member === 'YES') {
+            insurAmt = insurArr[0].Borrower_Insurance;
+            apz.setElmValue(editLoanAndInsScrId + "insurCharges", "₹ " + ApzCOB.fn_FormatAmount(insurAmt));
+            apz.setElmValue(editLoanAndInsScrId + "memberInsCharges",  "₹" + ApzCOB.fn_FormatAmount(insurArr[0].Borrower_Insurance|| "0"));
+        } else if (Spouse === 'Y' || Spouse === 'YES') {
+            insurAmt = insurArr[0].Spouse_Insurance;
+            apz.setElmValue(editLoanAndInsScrId + "insurCharges", "₹ " + ApzCOB.fn_FormatAmount(insurAmt));
+            apz.setElmValue(editLoanAndInsScrId + "spouseInsCharges",  "₹" + ApzCOB.fn_FormatAmount(insurArr[0].Spouse_Insurance || "0"));
+        } else {
+            insurAmt = 0;
+            apz.setElmValue(editLoanAndInsScrId + "insurCharges", "NA");
+            apz.setElmValue(editLoanAndInsScrId + "memberInsCharges",  "₹" , "0");
+            apz.setElmValue(editLoanAndInsScrId + "spouseInsCharges",  "₹"  , "0");
+        }
+    } else {
+        insurAmt = 0;
+        apz.setElmValue(editLoanAndInsScrId + "insurCharges", "NA");
+        apz.setElmValue(editLoanAndInsScrId + "memberInsCharges",  "₹" , "0");
+        apz.setElmValue(editLoanAndInsScrId + "spouseInsCharges",  "₹" , "0");
+    }
+    if (window.memInsurance === 'NO') {
+        $('#EDITLA__EditLoanAndInsurance__sc_col_382').addClass('sno');
+    }
+    $('#' + editLoanAndInsScrId + "loanAmt").text(
+        `₹${ApzCOB.fn_FormatAmount(accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.loanAmt) || ""}`);
+    /*$('#' + editLoanAndInsScrId + "approxLoanCharges").text(
+        `(-) ₹ ${ApzCOB.fn_FormatAmount(accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.aprxLoanCharges.replaceAll(/[^a-zA-Z0-9 .]/g, '')) || ""}`
+        );*/
+    $('#' + editLoanAndInsScrId + "approxLoanCharges").text(
+        `(-) ₹ ${ApzCOB.fn_FormatAmount((+ApzCOB.calGSTAmount(parseInt(accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.loanAmt),window.gstValue,window.feeCharge) + +ApzCOB.calProcessingFees(parseInt(accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.loanAmt),window.feeCharge) + insurAmt).toString()) || ""}`
+        );
+    if (selectedProductDetails.productDtls.productId === 'GL.IGL.PRGTI.RESTR.1Y' || KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.productId === 'GL.IGL.PRGTI.RESTR.1Y' || selectedProductDetails.productDtls.description === 'IGL Pragati Restructure 1y' || KendraLoans.custFetchLoanAppRes.applicationdtls.productType === 'IGLPR1Y') {
+        insurAmt = 0;
+        apz.setElmValue(editLoanAndInsScrId + "insurCharges", "NA");
+        $('#' + editLoanAndInsScrId + "approxLoanCharges").text(
+        `(-) ₹ ${ApzCOB.fn_FormatAmount((+ApzCOB.calGSTAmount(parseInt(accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.loanAmt),window.gstValue,window.feeCharge) + +ApzCOB.calProcessingFees(parseInt(accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.loanAmt),window.feeCharge) + insurAmt).toString()) || ""}`
+        );
+    }
+    $('#' + editLoanAndInsScrId + "approxLoanAmt").text(
+        `₹${ApzCOB.fn_FormatAmount(accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.aprxLoanAmt.replaceAll(/[^a-zA-Z0-9 .]/g, '')) || ""}`
+        );
+    document.getElementById("EDITLA__EditLoanAndInsurance__addIcon").style.pointerEvents = 'none';
+    document.getElementById("EDITLA__EditLoanAndInsurance__addIcon").style.opacity = '0.5';
+    var addinfo = accntDetails.addInfo;
+    if (typeof addinfo == 'string') {
+        addinfo = JSON.parse(addinfo)
+    }  
+    if (selectedProductDetails.productDtls.productType === "EL") {
+        document.getElementById('EDITLA__EditLoanAndInsurance__el_txt_233_txtcnt').innerText = 'Upfront Charges (Including GST)';
+        document.getElementById('EDITLA__EditLoanAndInsurance__el_txt_258_txtcnt').innerText = 'Approx Installment Amount';
+        $('#' + editLoanAndInsScrId + "loanProcessFee").text('₹' + accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.upfront_Fee);
+        if (accntDetails.customerDtls.loanDtls.repayFrequency.idDesc === "WEEKLY" && accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.loanAmt ===
+            "2000") {
+            $('#' + editLoanAndInsScrId + "gstAmt").text('₹' + "100");
+        } else if (accntDetails.customerDtls.loanDtls.repayFrequency.idDesc === "WEEKLY" && accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls
+            .loanAmt === "1000") {
+            $('#' + editLoanAndInsScrId + "gstAmt").text('₹' + "100");
+        } else if ((accntDetails.customerDtls.loanDtls.repayFrequency.idDesc === "BI-WEEKLY" || accntDetails.customerDtls.loanDtls.repayFrequency
+                .idDesc === "BIWEEKLY") && accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.loanAmt === "1000") {
+            $('#' + editLoanAndInsScrId + "gstAmt").text('₹' + "200");
+        } else if ((accntDetails.customerDtls.loanDtls.repayFrequency.idDesc === "BI-WEEKLY" || accntDetails.customerDtls.loanDtls.repayFrequency
+                .idDesc === "BIWEEKLY") && accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.loanAmt === "2000") {
+            $('#' + editLoanAndInsScrId + "gstAmt").text('₹' + "200");
+        }
+        $('#' + editLoanAndInsScrId + "approxLoanCharges").text('(-)₹' + +accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.upfront_Fee);
+        $('#EDITLA__EditLoanAndInsurance__editPurpAndSubpurp_button').prop('disabled', true);
+        $('#EDITLA__EditLoanAndInsurance__editPurpAndSubpurp').prop('disabled', true);
+        $('#EDITLA__EditLoanAndInsurance__repayFreq_button').prop('disabled', true);
+        $('#EDITLA__EditLoanAndInsurance__repayFreq').prop('disabled', true);
+    }
+    setTimeout(function() {
+        window.isApprovedCRT = false;
+        if (!apz.isNull(addinfo.isApprovedCRT)) {
+            if (addinfo.isApprovedCRT) {
+                var crtEdit = ApzCOB.GetCommonCodes("LOANEDIT").loanEdit;
+                if(!crtEdit.CRT.Edit){
+                 if (!crtEdit.CRT.amountEdit) {
+                    $('#EDITLA__EditLoanAndInsurance__editLoanAmt').prop('disabled', true)
+                }
+                //$('#EDITLA__EditLoanAndInsurance__editLoanAmt').prop('disabled', true)
+                $('#EDITLA__EditLoanAndInsurance__subtractIcon').prop('onclick', '');
+                $('#EDITLA__EditLoanAndInsurance__addIcon').prop('onclick', '')
+                $('#EDITLA__EditLoanAndInsurance__repayFreq').prop('disabled', true)
+                $('#EDITLA__EditLoanAndInsurance__selecteLoanProd').prop('disabled', true)
+                $('#EDITLA__EditLoanAndInsurance__insuranceCompanyVal').prop('disabled', true)
+                $('#EDITLA__EditLoanAndInsurance__memCheckBox').prop('disabled', true)
+                $('#EDITLA__EditLoanAndInsurance__spouseCheckBox').prop('disabled', true)
+                }
+                $('#EDITLA__EditLoanAndInsurance__crtFlagDet_ul').removeClass('sno');
+                $('#EDITLA__EditLoanAndInsurance__crtFlagDet').removeClass('sno');
+                window.isApprovedCRT = true;   
+            }
+        }
+    }, 200);
+    
+}
+apz.app.EditLoanAndInsurance.addSubtLoanAmount = function(pthis) {
+    let id = pthis.id;
+    caglMaxAmount = accntDetails.amount;
+    let loanAmtInput = document.getElementById("EDITLA__EditLoanAndInsurance__editLoanAmt");
+    let loanAmount = parseInt(loanAmtInput.value.replace(/,/g, ''), 10);
+    if (id === 'EDITLA__EditLoanAndInsurance__addIcon') {
+        loanAmount += 1000
+        if (loanAmount >= maxAmount) {
+            loanAmount = maxAmount;
+            document.getElementById("EDITLA__EditLoanAndInsurance__addIcon").style.pointerEvents = 'none';
+            document.getElementById("EDITLA__EditLoanAndInsurance__addIcon").style.opacity = '0.5';
+        }
+    } else if (id === 'EDITLA__EditLoanAndInsurance__subtractIcon') {
+        loanAmount -= 1000
+        if (loanAmount <= minAmount) {
+            loanAmount = minAmount;
+            document.getElementById("EDITLA__EditLoanAndInsurance__subtractIcon").style.pointerEvents = 'none';
+            document.getElementById("EDITLA__EditLoanAndInsurance__subtractIcon").style.opacity = '0.5';
+        }
+    }
+    apz.setElmValue("EDITLA__EditLoanAndInsurance__editLoanAmt", ApzCOB.fn_FormatAmount(loanAmount));
+    if (loanAmount < maxAmount) {
+        if (loanAmount >= caglMaxAmount) {
+            document.getElementById("EDITLA__EditLoanAndInsurance__addIcon").style.pointerEvents = 'none';
+            document.getElementById("EDITLA__EditLoanAndInsurance__addIcon").style.opacity = '0.5';
+        } else if (loanAmount < caglMaxAmount) {
+            document.getElementById("EDITLA__EditLoanAndInsurance__addIcon").style.pointerEvents = 'auto';
+            document.getElementById("EDITLA__EditLoanAndInsurance__addIcon").style.opacity = '1';
+        }
+    }
+    if (loanAmount > minAmount) {
+        document.getElementById("EDITLA__EditLoanAndInsurance__subtractIcon").style.pointerEvents = 'auto';
+        document.getElementById("EDITLA__EditLoanAndInsurance__subtractIcon").style.opacity = '1';
+    }
+    apz.app.EditLoanAndInsurance.updateLoanAmount();
+};
+
+var loanamtEl;
+var approxLoanAmt;
+apz.app.EditLoanAndInsurance.updateLoanAmount = function() {
+    let lnAmtInput = document.getElementById("EDITLA__EditLoanAndInsurance__editLoanAmt");
+    let lnAmount = parseInt(lnAmtInput.value.replace(/[₹,]/g, ''));
+    apz.app.EditLoanAndInsurance.updatecheckBox(lnAmount);
+    memCheckBox = $('#' + editLoanAndInsScrId + 'memCheckBox').is(":checked")
+    spouseCheckBox = $('#' + editLoanAndInsScrId + 'spouseCheckBox').is(":checked")
+    if (defAmtArr.length > 1) {
+        switch (defAmtArr.length) {
+            case 5:
+                if (lnAmount <= defAmtArr[0]) {
+                    term = parseInt(termArr[0].slice(0, -1));
+                } else if (lnAmount <= defAmtArr[1]) {
+                    term = parseInt(termArr[1].slice(0, -1));
+                } else if (lnAmount <= defAmtArr[2]) {
+                    term = parseInt(termArr[2].slice(0, -1));
+                } else if (lnAmount <= defAmtArr[3]) {
+                    term = parseInt(termArr[3].slice(0, -1));
+                } else if (lnAmount <= defAmtArr[4]) {
+                    term = parseInt(termArr[4].slice(0, -1));
+                }
+                break;
+            case 4:
+                if (lnAmount <= defAmtArr[0]) {
+                    term = parseInt(termArr[0].slice(0, -1));
+                } else if (lnAmount <= defAmtArr[1]) {
+                    term = parseInt(termArr[1].slice(0, -1));
+                } else if (lnAmount <= defAmtArr[2]) {
+                    term = parseInt(termArr[2].slice(0, -1));
+                } else if (lnAmount <= defAmtArr[3]) {
+                    term = parseInt(termArr[3].slice(0, -1));
+                }
+                break;
+            case 3:
+                if (lnAmount <= defAmtArr[0]) {
+                    term = parseInt(termArr[0].slice(0, -1));
+                } else if (lnAmount <= defAmtArr[1]) {
+                    term = parseInt(termArr[1].slice(0, -1));
+                } else if (lnAmount <= defAmtArr[2]) {
+                    term = parseInt(termArr[2].slice(0, -1));
+                }
+                break;
+            case 2:
+                if (lnAmount <= defAmtArr[0]) {
+                    term = parseInt(termArr[0].slice(0, -1));
+                } else if (lnAmount <= defAmtArr[1]) {
+                    term = parseInt(termArr[1].slice(0, -1));
+                }
+                break;
+        }
+    }
+    
+    window.feeCharge = +selectedProductDetails.productDtls.feeCharge
+    window.gstValue = +selectedProductDetails.productDtls.gst;
+    window.memInsurance = selectedProductDetails.productDtls.memInsurance;
+    
+    apz.setElmValue(editLoanAndInsScrId + "tenure", term + " Weeks");
+    apz.setElmValue(editLoanAndInsScrId + "intRate", selectedProductDetails.productDtls.intRate + "%");
+    apz.setElmValue(editLoanAndInsScrId + "loanProcessFee", "₹ " + ApzCOB.calProcessingFees(lnAmount,window.feeCharge));
+    apz.setElmValue(editLoanAndInsScrId + "gstAmt", "₹ " + ApzCOB.calGSTAmount(lnAmount,window.gstValue,window.feeCharge));
+    //apz.setElmValue(editLoanAndInsScrId + "gstAmt", "₹ " + ApzCOB.calGSTAmount(lnAmount));
+    apz.setElmValue(editLoanAndInsScrId + "approxWeeklyInstall", "₹ " + ApzCOB.fn_FormatAmount(ApzCOB.calApproxWeekInstallment(
+        selectedProductDetails.productDtls.intRate, defAmt, (term / apz.app.EditLoanAndInsurance.fetchFrequncyVal(apz.getElmValue(
+            editLoanAndInsScrId + "repayFreq"))))));
+    if (window.memInsurance === "YES") {
+        $('#EDITLA__EditLoanAndInsurance__gr_row_91').removeClass('sno');
+        $('#EDITLA__EditLoanAndInsurance__memCheckBox').prop('disabled', false);
+        if(memCheckBox){
+             $('#EDITLA__EditLoanAndInsurance__memCheckBox').prop('checked', true);
+        }
+    }        
+   // var loanAmt = parseInt(ApzCOB.fn_unFormatAmount(apz.getElmValue(screenId + "loanAmount")));
+    var week = term.toString().match(/\d+/g);
+    term = week[0];
+    insurArr = gApzCOB.insurDetails.filter(arr => (arr.Loan_Amount === lnAmount && (term + 'W') === arr.Tenure));
+    if (KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.productType === 'IGLPR1Y' || KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.productId === 'GL.IGL.PRGTI.RESTR.1Y') {
+        insurAmt = 0;
+        apz.setElmValue(editLoanAndInsScrId + "insurCharges", "NA");
+    } else {
+        if (insurArr.length > 0) {
+            if (memCheckBox && spouseCheckBox) {
+                insurAmt = insurArr[0].Spouse_Insurance + insurArr[0].Borrower_Insurance;
+                apz.setElmValue(editLoanAndInsScrId + "insurCharges", "₹ " + ApzCOB.fn_FormatAmount(insurAmt));
+                apz.setElmValue(editLoanAndInsScrId + "spouseInsCharges", "₹ " + ApzCOB.fn_FormatAmount(insurArr[0].Spouse_Insurance || "0"));
+                apz.setElmValue(editLoanAndInsScrId + "memberInsCharges", "₹ " + ApzCOB.fn_FormatAmount(insurArr[0].Borrower_Insurance));
+                //$('#EDITLA__EditLoanAndInsurance__memCheckBox').prop('disabled', false);
+            } else if (memCheckBox) {
+                insurAmt = insurArr[0].Borrower_Insurance;
+                apz.setElmValue(editLoanAndInsScrId + "insurCharges", "₹ " + ApzCOB.fn_FormatAmount(insurAmt));
+                apz.setElmValue(editLoanAndInsScrId + "memberInsCharges", "₹ " + ApzCOB.fn_FormatAmount(insurArr[0].Borrower_Insurance));
+                if(!spouseCheckBox){
+                    apz.setElmValue(editLoanAndInsScrId + "spouseInsCharges", "₹ " +  "0");
+                }
+                //$('#EDITLA__EditLoanAndInsurance__memCheckBox').prop('disabled', false);
+            } else if (spouseCheckBox) {
+                insurAmt = insurArr[0].Spouse_Insurance;
+                apz.setElmValue(editLoanAndInsScrId + "insurCharges", "₹ " + ApzCOB.fn_FormatAmount(insurAmt));
+                apz.setElmValue(editLoanAndInsScrId + "spouseInsCharges", "₹ " + ApzCOB.fn_FormatAmount(insurArr[0].Spouse_Insurance || "0"));
+                if(!memCheckBox){
+                    apz.setElmValue(editLoanAndInsScrId + "memberInsCharges", "₹ " + "0");
+                }
+            } else {
+                insurAmt = 0;
+                apz.setElmValue(editLoanAndInsScrId + "insurCharges", "NA");
+            }
+            totalAmt = insurArr[0].Spouse_Insurance + insurArr[0].Borrower_Insurance;
+
+        } else {
+            insurAmt = 0;
+            apz.setElmValue(editLoanAndInsScrId + "insurCharges", "NA");
+        }
+    }
+     if (totalAmt > 0) {
+         $('#EDITLA__EditLoanAndInsurance__gr_row_91').removeClass('sno');
+         $('#EDITLA__EditLoanAndInsurance__memCheckBox').prop('disabled', false);
+         if(memCheckBox){
+             $('#EDITLA__EditLoanAndInsurance__memCheckBox').prop('checked', true);
+         }
+     } else {
+         $('#EDITLA__EditLoanAndInsurance__memCheckBox').prop('checked', false);
+         $('#EDITLA__EditLoanAndInsurance__spouseCheckBox').prop('checked', false);
+         $('#EDITLA__EditLoanAndInsurance__gr_row_91').addClass('sno');
+     }
+     if (accntDetails.customerDtls.loanDtls.insurDtls.member == 'Y') {
+         $('#EDITLA__EditLoanAndInsurance__memCheckBox').prop('disabled', true);
+     } else {
+         $('#EDITLA__EditLoanAndInsurance__memCheckBox').prop('disabled', false);
+     }
+     if (accntDetails.customerDtls.loanDtls.insurDtls.Spouse == 'Y') {
+         $('#EDITLA__EditLoanAndInsurance__spouseCheckBox').prop('disabled', true);
+     } else {
+         $('#EDITLA__EditLoanAndInsurance__spouseCheckBox').prop('disabled', false);
+     }
+    let axLnAmt = lnAmount - (+ApzCOB.calGSTAmount(lnAmount,window.gstValue,window.feeCharge) + +ApzCOB.calProcessingFees(lnAmount,window.feeCharge) + insurAmt);
+    apz.setElmValue(editLoanAndInsScrId + "loanAmt", "₹ " + ApzCOB.fn_FormatAmount(lnAmount));
+    apz.setElmValue(editLoanAndInsScrId + "approxLoanCharges", "(-) ₹ " + ApzCOB.fn_FormatAmount((+ApzCOB.calGSTAmount(lnAmount,window.gstValue,window.feeCharge) + +ApzCOB
+        .calProcessingFees(lnAmount,window.feeCharge) + insurAmt).toString()));
+    apz.setElmValue(editLoanAndInsScrId + "approxLoanAmt", "₹ " + ApzCOB.fn_FormatAmount(axLnAmt.toString()));
+    if (selectedProductDetails.productDtls.productType === "EL") {
+        var repayFreq = accntDetails.customerDtls.loanDtls.repayFrequency.idDesc;
+        var lnAmtInputEL = document.getElementById("EDITLA__EditLoanAndInsurance__editLoanAmt");
+        //var lnAmount = parseInt(lnAmtInput.value.replace(/,/g, ''), 10);
+        loanamtEl = parseInt(lnAmtInputEL.value.replace(/[₹,]/g, ''));
+        if (repayFreq === 'WEEKLY' && loanamtEl === 1000) {
+            document.getElementById('EDITLA__EditLoanAndInsurance__loanProcessFee').innerText = '₹ 28';
+        } else if ((repayFreq === 'BIWEEKLY' || repayFreq === 'BI-WEEKLY') && loanamtEl === 1000) {
+            document.getElementById('EDITLA__EditLoanAndInsurance__loanProcessFee').innerText = '₹ 33';
+        } else if (repayFreq === 'WEEKLY' && loanamtEl === 2000) {
+            document.getElementById('EDITLA__EditLoanAndInsurance__loanProcessFee').innerText = '₹ 91';
+        } else if ((repayFreq === 'BI-WEEKLY' || repayFreq === 'BIWEEKLY') && loanamtEl === 2000) {
+            document.getElementById('EDITLA__EditLoanAndInsurance__loanProcessFee').innerText = '₹ 101';
+        }
+        /* document.getElementById('EDITLA__EditLoanAndInsurance__el_txt_233_txtcnt').innerText = 'Upfront Charges (Including GST)';
+        document.getElementById('EDITLA__EditLoanAndInsurance__el_txt_258_txtcnt').innerText = 'Approx Installment Amount';
+        $('#' + editLoanAndInsScrId + "loanProcessFee").text('₹' + accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.aprxLoanCharges);
+        if (accntDetails.customerDtls.loanDtls.repayFrequency.idDesc === "WEEKLY" && accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls
+            .loanAmt === "2000") {
+            $('#' + editLoanAndInsScrId + "gstAmt").text('₹' + "100");
+           
+        } else if (accntDetails.customerDtls.loanDtls.repayFrequency.idDesc === "WEEKLY" && accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls
+            .loanAmt === "1000") {
+            $('#' + editLoanAndInsScrId + "gstAmt").text('₹' + "100");
+        } else if ((accntDetails.customerDtls.loanDtls.repayFrequency.idDesc === "BI-WEEKLY" || accntDetails.customerDtls.loanDtls.repayFrequency
+                .idDesc === "BIWEEKLY") && accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.loanAmt === "1000") {
+            $('#' + editLoanAndInsScrId + "gstAmt").text('₹' + "200");
+        } else if ((accntDetails.customerDtls.loanDtls.repayFrequency.idDesc === "BI-WEEKLY" || accntDetails.customerDtls.loanDtls.repayFrequency
+                .idDesc === "BIWEEKLY") && accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.loanAmt === "2000") {
+            $('#' + editLoanAndInsScrId + "gstAmt").text('₹' + "200");
+        }
+        $('#' + editLoanAndInsScrId + "approxLoanCharges").text('(-)₹' + +accntDetails.customerDtls.loanDtls.chargeAndBreakupDtls.aprxLoanCharges);
+    }*/
+        var UpFrontFeeCharge;
+        var InterestRate;
+        if (loanamtEl === 1000 && repayFreq === 'WEEKLY') {
+            UpFrontFeeCharge = UpfrontCharges[0].upfrontFee;
+            InterestRate = UpfrontCharges[0].interest_Fee;
+            apz.setElmValue(editLoanAndInsScrId + "approxLoanCharges", "(-) ₹ " + UpFrontFeeCharge);
+            apz.setElmValue(editLoanAndInsScrId + "gstAmt", "₹ " + (UpFrontFeeCharge - InterestRate));
+            let aprxLnAmt = loanamtEl - (UpFrontFeeCharge + insurAmt);
+            apz.setElmValue(editLoanAndInsScrId + "approxLoanAmt", "₹ " + ApzCOB.fn_FormatAmount(aprxLnAmt.toString()));
+            apz.setElmValue(editLoanAndInsScrId + "loanAmt", "₹ " + ApzCOB.fn_FormatAmount(loanamtEl));
+        } else if (loanamtEl === 1000 && (repayFreq === 'BI-WEEKLY' || repayFreq === 'BIWEEKLY')) {
+            UpFrontFeeCharge = UpfrontCharges[1].upfrontFee;
+            InterestRate = UpfrontCharges[1].interest_Fee;
+            apz.setElmValue(editLoanAndInsScrId + "approxLoanCharges", "(-) ₹ " + UpFrontFeeCharge);
+            apz.setElmValue(editLoanAndInsScrId + "gstAmt", "₹ " + (UpFrontFeeCharge - InterestRate));
+            let aprxLnAmt = loanamtEl - (UpFrontFeeCharge + insurAmt);
+            apz.setElmValue(editLoanAndInsScrId + "approxLoanAmt", "₹ " + ApzCOB.fn_FormatAmount(aprxLnAmt.toString()));
+            apz.setElmValue(editLoanAndInsScrId + "loanAmt", "₹ " + ApzCOB.fn_FormatAmount(loanamtEl));
+        } else if (loanamtEl === 2000 && repayFreq === 'WEEKLY') {
+            UpFrontFeeCharge = UpfrontCharges[2].upfrontFee;
+            InterestRate = UpfrontCharges[2].interest_Fee;
+            apz.setElmValue(editLoanAndInsScrId + "approxLoanCharges", "(-) ₹ " + UpFrontFeeCharge);
+            apz.setElmValue(editLoanAndInsScrId + "gstAmt", "₹ " + (UpFrontFeeCharge - InterestRate));
+            let aprxLnAmt = loanamtEl - (UpFrontFeeCharge + insurAmt);
+            apz.setElmValue(editLoanAndInsScrId + "approxLoanAmt", "₹ " + ApzCOB.fn_FormatAmount(aprxLnAmt.toString()));
+            apz.setElmValue(editLoanAndInsScrId + "loanAmt", "₹ " + ApzCOB.fn_FormatAmount(loanamtEl));
+        } else if (loanamtEl === 2000 && (repayFreq === 'BI-WEEKLY' || repayFreq === 'BIWEEKLY')) {
+            UpFrontFeeCharge = UpfrontCharges[3].upfrontFee;
+            InterestRate = UpfrontCharges[3].interest_Fee;
+            apz.setElmValue(editLoanAndInsScrId + "approxLoanCharges", "(-) ₹ " + UpFrontFeeCharge);
+            apz.setElmValue(editLoanAndInsScrId + "gstAmt", "₹ " + (UpFrontFeeCharge - InterestRate));
+            let aprxLnAmt = loanamtEl - (UpFrontFeeCharge + insurAmt);
+            apz.setElmValue(editLoanAndInsScrId + "approxLoanAmt", "₹ " + ApzCOB.fn_FormatAmount(aprxLnAmt.toString()));
+            apz.setElmValue(editLoanAndInsScrId + "loanAmt", "₹ " + ApzCOB.fn_FormatAmount(loanamtEl));
+        }
+        
+        window.upfrontCharges = UpFrontFeeCharge;
+        window.loanAmtEL = loanamtEl;
+        
+        if (repayFreq === "WEEKLY") {
+            document.getElementById('EDITLA__EditLoanAndInsurance__gstAmt').innerText = '₹ 100';
+        } else if (repayFreq === 'BIWEEKLY' || repayFreq === 'BI-WEEKLY') {
+            document.getElementById('EDITLA__EditLoanAndInsurance__gstAmt').innerText = '₹ 200';
+        }
+        
+    }
+}
+apz.app.EditLoanAndInsurance.fetchFrequncyVal = function(freqDesc) {
+    if (!apz.isNull(freqDesc)) {
+        switch (freqDesc) {
+            case "FOUR.WEEKLY":
+                return 4;
+            case "BIWEEKLY":
+                return 2;
+            default:
+                return 1;
+        }
+    }
+}
+apz.app.EditLoanAndInsurance.backNavigate = function() {
+    let data = {};
+    var scrId = "",
+        microappId = "";
+    if (KendraLoans.scr === "LoanSanction" || (KendraLoans.scr === "dashboard" && KendraLoans.selectedLoanSanctionAccnt !== undefined)) {
+        scrId = "DetailedScreen";
+        microappId = "LoanSa";
+        data = {
+            selectedCust: window.KendraLoans.selectedLoanSanctionAccnt,
+            matchingCustomer: window.KendraLoans.custFetchLoanAppRes
+        };
+    } else if (KendraLoans.scr === "dashboardDisbursement" || window.KendraLoans.scr == 'LoanDisbursementList') {
+        scrId = "LoanDisbursementList";
+        microappId = "LoanDi";
+        data = {
+            selectedCust: KendraApp.selectedDisbursement,
+            matchingCustomer: window.KendraLoans.custFetchLoanAppRes.applicationdtls[0]
+        };
+    }
+    ApzCOB.launchMicroApp(microappId, scrId, 'APZCBO__BaseScreens__BaseDIV', data);
+}
+apz.app.EditLoanAndInsurance.updateDataFn = function() {
+    let loanAmount = $('#' + editLoanAndInsScrId + "editLoanAmt").val();
+    loanAmount=parseInt(loanAmount.replaceAll(",", ""));
+    //KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.caglAmt = loanAmount;
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].amount = parseInt(loanAmount);
+    memCheckBox = $('#' + editLoanAndInsScrId + 'memCheckBox').is(":checked")
+    spouseCheckBox = $('#' + editLoanAndInsScrId + 'spouseCheckBox').is(":checked")
+    insurArr = gApzCOB.insurDetails.filter(arr => (arr.Loan_Amount === loanAmount && (term + 'W') === arr.Tenure));
+    if (insurArr.length > 0) {
+        if (memCheckBox && spouseCheckBox) {
+            insurAmt = insurArr[0].Spouse_Insurance + insurArr[0].Borrower_Insurance;
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.applicant_insurance_amt = insurArr[0].Borrower_Insurance;
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.spouse_insurance_amt = insurArr[0].Spouse_Insurance;
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.member = 'Y';
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.Spouse = 'Y';
+        } else if (memCheckBox) {
+            insurAmt = insurArr[0].Borrower_Insurance;
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.applicant_insurance_amt = insurArr[0].Borrower_Insurance;
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.spouse_insurance_amt = 0;
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.member = 'Y';
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.Spouse = 'N';
+        } else {
+            insurAmt = 0;
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.applicant_insurance_amt = 0;
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.spouse_insurance_amt = 0;
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.member = 'N';
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.Spouse = 'N';
+        }
+    } else {
+        insurAmt = 0;
+        KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.applicant_insurance_amt = 0;
+        KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.spouse_insurance_amt = 0;
+        KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.member = 'N';
+        KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.Spouse = 'N';
+    }
+     /*var addinfo = '';
+     if (typeof KendraLoans.custFetchLoanAppRes.applicationdtls[0].addInfo == "string") {
+         addinfo = JSON.parse(KendraLoans.custFetchLoanAppRes.applicationdtls[0].addInfo);
+     } else {
+         addinfo = KendraLoans.custFetchLoanAppRes.applicationdtls[0].addInfo;
+     }
+    addinfo.caglAmt=KendraLoans.custFetchLoanAppRes.applicationdtls[0].amount;
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].addInfo=addinfo;*/
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.insurCharges=insurAmt;
+     var aprxloanamount;
+     var aprxloancharges;
+     var totalAmount
+     if (KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.productType === 'EL') {
+         aprxloanamount = window.loanAmtEL
+         aprxloancharges = window.upfrontCharges;
+         totalAmount = aprxloanamount - aprxloancharges
+     } else {
+         aprxloancharges = ApzCOB.fn_FormatAmount((+ApzCOB.calGSTAmount(loanAmount,window.gstValue,window.feeCharge) + +ApzCOB.calProcessingFees(loanAmount,window.feeCharge)));
+         aprxloanamount = (parseInt(ApzCOB.fn_unFormatAmount(ApzCOB.fn_FormatAmount(loanAmount))) - (+ApzCOB.calGSTAmount(loanAmount,window.gstValue,window.feeCharge) + +ApzCOB.calProcessingFees(loanAmount,window.feeCharge) + insurAmt)).toString();
+         totalAmount = aprxloanamount;
+     }
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanAmount=parseInt(ApzCOB.fn_unFormatAmount(ApzCOB.fn_FormatAmount(loanAmount)));
+    KendraLoans.cbResponse.Approved_Loan_Amount=KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanAmount;
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.chargeAndBreakupDtls = {
+            "loanAmt": parseInt(ApzCOB.fn_unFormatAmount(ApzCOB.fn_FormatAmount(loanAmount))),
+            "GST":ApzCOB.calGSTAmount(loanAmount,window.gstValue,window.feeCharge),
+            "addInfo1":  parseFloat(ApzCOB.calGSTAmount(loanAmount,window.gstValue,window.feeCharge)) + + parseFloat(ApzCOB.calProcessingFees(loanAmount,window.feeCharge)) +  parseFloat((insurAmt)),
+            "aprxLoanCharges":aprxloancharges ,
+            "loanProcessingFee":ApzCOB.calProcessingFees(loanAmount,window.feeCharge),
+            "aprxLoanAmt": totalAmount,
+            "aprxInstallmentAmt": ""
+        }
+    if (KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.productType === 'IGLPR1Y'|| KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.productId === 'GL.IGL.PRGTI.RESTR.1Y') {
+        KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.chargeAndBreakupDtls.addInfo1 = 0;
+    }
+    window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.chargeAndBreakupDtls.iscbUpdated = false;
+     if (selectedProductDetails.productDtls.productType === "EL") {
+         KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.nomineeDtls.nomineeName = ""
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.nomineeDtls.relationWithMember = ""
+   // KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.insuranceProvider = ""
+         
+     }  
+        else {
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.insuranceProvider = $('#' + editLoanAndInsScrId +
+        "insuranceCompanyVal").val();
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.nomineeDtls.nomineeName = $('#' + editLoanAndInsScrId +
+        "nomineeName").val();
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.nomineeDtls.relationWithMember = $('#' + editLoanAndInsScrId +
+        "nomineeRelationVal").val();
+        }
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.repayFrequency.idDesc = $('#' + editLoanAndInsScrId + "repayFreq")
+        .val();
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.disburseMode.idDesc = $('#' + editLoanAndInsScrId + "disbMode")
+.val();
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.term = term + 'W';
+    /*KendraLoans.custFetchLoanAppRes.applicationdtls[0] = {
+        "amount": parseInt(loanAmount.replaceAll(",", "")),
+        "customerDtls": {
+            "loanDtls": {
+                "caglAmt": loanAmount,
+                "chargeAndBreakupDtls": {
+                    "loanAmt": loanAmount
+                },
+                "insurDtls": {
+                    "member": $('#' + editLoanAndInsScrId + 'memCheckBox').prop('checked') ? 'YES' : 'NO',
+                    "Spouse": $('#' + editLoanAndInsScrId + 'spouseCheckBox').prop('checked') ? 'YES' : 'NO',
+                    "insuranceProvider": $('#' + editLoanAndInsScrId + "insuranceCompanyVal").val(),
+                    "insurCharges": $('#' + editLoanAndInsScrId + "insurCharges").val()
+                },
+                "nomineeDtls": {
+                    "nomineeName": $('#' + editLoanAndInsScrId + "nomineeName").val(),
+                    "relationWithMember": $('#' + editLoanAndInsScrId + "nomineeRelationVal").val()
+                }
+            }
+        }
+    }*/
+    if (tempPurposeResponse.length > 0 && tempSubPurposeResponse.length > 0) {
+        let purpose = "",
+            purposeId = "",
+            subPurpose = "";
+        $.each(tempPurposeResponse, function(i) {
+            if ($('#' + editLoanAndInsScrId + 'purposeList_row_' + i).hasClass('active')) {
+                purpose = $('#' + editLoanAndInsScrId + "purposeList_row_" + i).text();
+                purposeId = tempPurposeResponse[i].purpose;
+            }
+        });
+        $.each(tempSubPurposeResponse, function(i) {
+            if ($('#' + editLoanAndInsScrId + 'subPurposeCheckbox_' + i).prop('checked')) {
+                subPurpose = $('#EDITLA__SubPurpose__o__SubPurposeNode__subPurposeIdDesc_' + i).text();
+            }
+        });
+        if ("" !== purpose && "" !== subPurpose) {
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.purpose = {
+                "productId": KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.purpose.productId,
+                "purpose": purposeId,
+                "purposeDesc": purpose,
+                "productSubPurpose": subPurpose
+            }
+        }
+    } else {
+        //yet to be decided
+    }
+    KendraApp.currentLoanAppRequest = {
+        applicationdtls: KendraLoans.custFetchLoanAppRes.applicationdtls[0]
+    };
+    if (KendraApp.currentLoanAppRequest.applicationdtls.applicationDate.includes("-")) {
+        var applnDate = KendraApp.currentLoanAppRequest.applicationdtls.applicationDate.split("-");
+        KendraApp.currentLoanAppRequest.applicationdtls.applicationDate = applnDate[1] + "/" + applnDate[2] + "/" + applnDate[0];
+    }
+}
+apz.app.EditLoanAndInsurance.saveData = function() {
+
+    const editedData = {
+        amount: parseInt($("#EDITLA__EditLoanAndInsurance__editLoanAmt").val().replace(/,/g, '')),
+        repayFreq: $("#EDITLA__EditLoanAndInsurance__repayFreq").val(),
+        insuranceCompany: $("#EDITLA__EditLoanAndInsurance__insuranceCompanyVal").val(),
+        nomineeName: $("#EDITLA__EditLoanAndInsurance__nomineeName").val(),
+        nomineeRelation: $("#EDITLA__EditLoanAndInsurance__nomineeRelationVal").val(),
+        member: $('#' + editLoanAndInsScrId + 'memCheckBox').prop('checked') ? 'Y' : 'N',
+        spouse: $('#' + editLoanAndInsScrId + 'spouseCheckBox').prop('checked') ? 'Y' : 'N',
+        purposeSubPurpose: $("#EDITLA__EditLoanAndInsurance__editPurpAndSubpurp").val().split(':')[1].trim()
+    };
+
+    const originalData = {
+        amount: accntDetails.amount,
+        repayFreq: accntDetails.customerDtls.loanDtls.repayFrequency.idDesc,
+        insuranceCompany: accntDetails.customerDtls.loanDtls.insurDtls.insuranceProvider,
+        nomineeName: accntDetails.customerDtls.loanDtls.nomineeDtls.nomineeName,
+        nomineeRelation: accntDetails.customerDtls.loanDtls.nomineeDtls.relationWithMember,
+        member: accntDetails.customerDtls.loanDtls.insurDtls.member,
+        spouse: accntDetails.customerDtls.loanDtls.insurDtls.Spouse,
+        purposeSubPurpose: accntDetails.customerDtls.loanDtls.purpose.productSubPurpose
+    };
+
+    const hasChanges = Object.keys(editedData).some(key => editedData[key] !== originalData[key]);
+
+    if (!hasChanges) {
+        ApzCOB.fnDisplayMsg("No Details Changed", "E");
+    } else {
+        //customer / spouse age Validation 
+        if (KendraApp.updatedCustomer.maritalStatus === 'MARRIED') {
+            custEligibleWeeks = Math.floor(ApzCOB.eligibleWeeks(KendraApp.updatedCustomer.dob, 'customer'));
+            spouseEligibleWeeks = Math.floor(ApzCOB.eligibleWeeks(KendraApp.updatedCustomer.depDob, ''));
+            var spouseChecked = $('#' + editLoanAndInsScrId + 'spouseCheckBox').is(":checked");
+            if (custEligibleWeeks === 0) {
+                ApzCOB.fnDisplayMsg("Age of customer is greater than 65 years", "E");
+                return false;
+            }
+            if (custEligibleWeeks >= term) {
+                if (spouseEligibleWeeks <= term && spouseChecked) {
+                    ApzCOB.fnDisplayMsg("Insurance not valid for spouse age", "E");
+                    return false;
+                }
+            } else {
+                ApzCOB.fnDisplayMsg("Customer age is not eligible for selected tenure, Application can be submitted with lesser tenure", "E");
+                return false;
+            }
+        } else {
+            custEligibleWeeks = Math.floor(ApzCOB.eligibleWeeks(KendraApp.updatedCustomer.dob, 'customer'));
+            if (custEligibleWeeks < term) {
+                ApzCOB.fnDisplayMsg("Customer age is not eligible for selected tenure, Application can be submitted with lesser tenure", "E");
+                return false;
+            }
+        }
+        if (apz.app.EditLoanAndInsurance.checkEmptyField()) {
+            apz.app.EditLoanAndInsurance.updateDataFn();
+            window.KendraApp.remarks='The Loan edited by '+LoggedInUserDetails.userID +' ('+currentUserRole +').';
+            ApzCOB.saveLoan();
+        }
+    }
+};
+apz.app.EditLoanAndInsurance.increaseIntRateFn = function() {
+    apz.app.EditLoanAndInsurance.updateDataFn();
+    ApzCOB.toggleModal(editLoanAndInsScrId + "interesetRateIncModal");
+    window.KendraApp.remarks='The Loan edited by '+LoggedInUserDetails.userID +' ('+currentUserRole +').';
+    ApzCOB.saveLoan();
+}
+apz.app.EditLoanAndInsurance.checkEmptyField = function() {
+    let memCheckBox = $('#' + editLoanAndInsScrId + 'memCheckBox').prop('checked');
+    let spouseCheckBox = $('#' + editLoanAndInsScrId + 'spouseCheckBox').prop('checked');
+    let insCompValue = document.getElementById("EDITLA__EditLoanAndInsurance__insuranceCompanyVal").value;
+    if (selectedProductDetails.productDtls.productType === 'EL') {
+        // no nominee for EL 
+    } else {
+        if ($('#' + editLoanAndInsScrId + "nomineeName").val().trim() === "") {
+            ApzCOB.fnDisplayMsg("Please enter Nominee Name", "E");
+            return false;
+        }
+    }
+    if ((memCheckBox || spouseCheckBox) && insCompValue === '') {
+        if ((!memCheckBox && spouseCheckBox)) {
+            ApzCOB.fnDisplayMsg("Member not selected.", "E");
+            return false;
+        }else{
+            $('#EDITLA__EditLoanAndInsurance__sc_row_282').removeClass('sno');
+            return false;
+        }
+    }
+    if ((!memCheckBox && !spouseCheckBox) && totalAmt > 0) {
+        if (window.memInsurance === 'NO') {
+            apz.app.EditLoanAndInsurance.updateDataFn();
+            window.KendraApp.remarks = 'The Loan edited by ' + LoggedInUserDetails.userID + ' (' + currentUserRole + ').';
+            ApzCOB.saveLoan();
+        } else {
+            ApzCOB.toggleModal(editLoanAndInsScrId + "interesetRateIncModal");
+            return false;
+        }
+    }
+    return true;
+}
+apz.app.EditLoanAndInsurance.launchInsuranceModal = function(pthis) {
+    apz.app.EditLoanAndInsurance.loadInsuranceDetails();
+    ApzCOB.toggleModal(editLoanAndInsScrId + "insuranceModal");
+}
+apz.app.EditLoanAndInsurance.loadInsuranceDetails = function() {
+    tempArray = [];
+    let selProdArray = KendraApp.ProductList.filter(val => (val.productDtls.productId === accntDetails.customerDtls.loanDtls.productId));
+    if (selProdArray.length > 0) {
+        let insurProviderArr = selProdArray[0].productDtls.insuranceProvider;
+        insurProviderArr = insurProviderArr.split(",");
+        $.each(insurProviderArr, function(i, k) {
+            var obj = {};
+            obj.desc = k;
+            obj.val = i;
+            tempArray.push(obj);
+        });
+        apz.data.scrdata.EDITLA__InsuranceCompany_Res = {};
+        apz.data.scrdata.EDITLA__InsuranceCompany_Res.insuranceCompanyNode = tempArray;
+        apz.data.loadData("InsuranceCompany", 'EDITLA');
+    }
+}
+apz.app.EditLoanAndInsurance.launchNomRelationModal = function(pthis) {
+    apz.app.EditLoanAndInsurance.loadNomRelationDetails();
+    ApzCOB.toggleModal(editLoanAndInsScrId + "nomRelationModal");
+}
+apz.app.EditLoanAndInsurance.loadNomRelationDetails = function() {
+    tempArray = [];
+    //tempArray = JSON.parse('[{"val":1,"desc":"Son"},{"val":2,"desc":"Daughter"},{"val":3,"desc":"Guardian"}]');
+    if(!apz.isNull(ApzCOB.GetCommonCodes("LOVLIST"))){
+       window.LOV_LIST = ApzCOB.GetCommonCodes("LOVLIST"); 
+    }
+    window.LOV_LIST = ApzCOB.GetCommonCodes("LOVLIST");
+    tempArray = LOV_LIST.nomineeReation;
+    apz.data.scrdata.EDITLA__NomineeRelation_Res = {};
+    apz.data.scrdata.EDITLA__NomineeRelation_Res.nomineeRelationNode = tempArray;
+    apz.data.loadData("NomineeRelation", 'EDITLA');
+}
+apz.app.EditLoanAndInsurance.paintInsuranceValue = function() {
+    let insuranceVal = "";
+    $.each(apz.data.scrdata.EDITLA__InsuranceCompany_Res.insuranceCompanyNode, function(i) {
+        if ($('#' + editLoanAndInsScrId + 'insCmpnyCheckbox_' + i).prop('checked')) {
+            insuranceVal = $('#EDITLA__InsuranceCompany__o__insuranceCompanyNode__desc_' + i).text();
+        }
+    });
+    apz.setElmValue(editLoanAndInsScrId + "insuranceCompanyVal", insuranceVal);
+    ApzCOB.toggleModal(editLoanAndInsScrId + "insuranceModal");
+}
+apz.app.EditLoanAndInsurance.paintNomRelValue = function() {
+    let nomRelVal = "";
+    $.each(apz.data.scrdata.EDITLA__NomineeRelation_Res.nomineeRelationNode, function(i) {
+        if ($('#' + editLoanAndInsScrId + 'nomRelCheckbox_' + i).prop('checked')) {
+            nomRelVal = $('#EDITLA__NomineeRelation__o__nomineeRelationNode__desc_' + i).text();
+        }
+    });
+    apz.setElmValue(editLoanAndInsScrId + "nomineeRelationVal", nomRelVal);
+    ApzCOB.toggleModal(editLoanAndInsScrId + "nomRelationModal");
+}
+apz.app.EditLoanAndInsurance.onClickInsuranceValues = function(pthis) {
+    rowNo = $(pthis).attr("rowno");
+    $.each(apz.data.scrdata.EDITLA__InsuranceCompany_Res.insuranceCompanyNode, function(m) {
+        if (parseInt(rowNo) === m) {
+            $('#' + editLoanAndInsScrId + 'insCmpnyCheckbox_' + m).prop('checked', true);
+            $('#' + editLoanAndInsScrId + 'insCompanyList_row_' + m).addClass('active');
+        } else {
+            $('#' + editLoanAndInsScrId + 'insCmpnyCheckbox_' + m).prop('checked', false);
+            $('#' + editLoanAndInsScrId + 'insCompanyList_row_' + m).removeClass('active');
+        }
+    });
+}
+apz.app.EditLoanAndInsurance.onClickNomRelationValues = function(pthis) {
+    rowNo = $(pthis).attr("rowno");
+    $.each(apz.data.scrdata.EDITLA__NomineeRelation_Res.nomineeRelationNode, function(m) {
+        if (parseInt(rowNo) === m) {
+            $('#' + editLoanAndInsScrId + 'nomRelCheckbox_' + m).prop('checked', true);
+            $('#' + editLoanAndInsScrId + 'nomRelationList_row_' + m).addClass('active');
+        } else {
+            $('#' + editLoanAndInsScrId + 'nomRelCheckbox_' + m).prop('checked', false);
+            $('#' + editLoanAndInsScrId + 'nomRelationList_row_' + m).removeClass('active');
+        }
+    });
+}
+apz.app.EditLoanAndInsurance.launchPurposeModal = function(pthis) {
+    apz.app.EditLoanAndInsurance.loadPuposeDetails();
+    ApzCOB.toggleModal(editLoanAndInsScrId + "purposeModal");
+}
+apz.app.EditLoanAndInsurance.loadPuposeDetails = function() {
+    var tempPurposeArray = [];
+    tempPurposeResponse = KendraApp.ProductList.filter(val => (val.productDtls.productId === accntDetails.customerDtls.loanDtls.productId))[0]
+        .productDtls.prodPurpose
+    if (tempPurposeResponse.length > 0) {
+        tempPurposeResponse.forEach(function(j, k) {
+            var tempPurposeObj = {
+                "purposeId": j.purpose,
+                "purposeIdDesc": j.purposeDesc
+            }
+            tempPurposeArray.push(tempPurposeObj);
+        });
+        apz.data.scrdata.EDITLA__Purpose_Res = {};
+        apz.data.scrdata.EDITLA__Purpose_Res.purposeNode = tempPurposeArray;
+        apz.data.loadData("Purpose", 'EDITLA');
+    }
+}
+apz.app.EditLoanAndInsurance.clearSubPurposeData = function() {
+    apz.data.scrdata.EDITLA__SubPurpose_Res = {};
+    apz.data.loadData("SubPurpose", 'EDITLA');
+}
+apz.app.EditLoanAndInsurance.onClickPupose = function(pthis) {
+    apz.setElmValue(editLoanAndInsScrId + 'searchData', '');
+    apz.app.EditLoanAndInsurance.clearSubPurposeData();
+    let rowNo = $(pthis).attr("rowno");
+    let selPurposeDesc = $('#' + editLoanAndInsScrId + 'purposeList_row_' + rowNo).text();
+    let tempSubPurposeArray = [];
+    tempPurposeResponse = KendraApp.ProductList.filter(val => (val.productDtls.productId === accntDetails.customerDtls.loanDtls.productId))[0]
+        .productDtls.prodPurpose
+    tempSubPurposeResponse = tempPurposeResponse.filter(val => (val.purposeDesc === selPurposeDesc))[0].productSubPurpose;
+    $.each(tempPurposeResponse, function(i) {
+        if (parseInt(rowNo) === i) {
+            $('#' + editLoanAndInsScrId + 'purposeList_row_' + i).addClass('active');
+        } else {
+            $('#' + editLoanAndInsScrId + 'purposeList_row_' + i).removeClass('active');
+        }
+    });
+    if (tempSubPurposeResponse.length > 1) {
+            ApzCOB.shuffleArr(tempSubPurposeResponse);
+    }
+    if (tempSubPurposeResponse.length > 0) {
+        tempSubPurposeResponse.forEach(function(e) {
+            let tempSubPurposeObj = {
+                "subPurposeId": e,
+                "subPurposeIdDesc": e
+            }
+            tempSubPurposeArray.push(tempSubPurposeObj);
+        });
+        apz.data.scrdata.EDITLA__SubPurpose_Res = {};
+        apz.data.scrdata.EDITLA__SubPurpose_Res.SubPurposeNode = tempSubPurposeArray;
+        searchData = apz.data.scrdata.EDITLA__SubPurpose_Res.SubPurposeNode;
+        if (tempSubPurposeArray.length > 4) {
+            apz.setElmValue(editLoanAndInsScrId + 'searchData', '');
+            $("#" + editLoanAndInsScrId + "searchRow").removeClass('sno');
+        } else {
+            $("#" + editLoanAndInsScrId + "searchRow").addClass('sno');
+        }
+        $("#" + editLoanAndInsScrId + 'subPurposeList').removeClass('sno');
+        $("#" + editLoanAndInsScrId + 'noRecDiv').addClass('sno')
+        apz.data.loadData("SubPurpose", 'EDITLA');
+        $.each(tempSubPurposeResponse, function(i) {
+            $('#' + editLoanAndInsScrId + 'subPurposeCheckbox_' + i).prop('disabled', false);
+        });
+    }
+}
+apz.app.EditLoanAndInsurance.onClickSubPupose = function(pthis) {
+    let rowNo = $(pthis).attr("rowno");
+    $.each(tempSubPurposeResponse, function(i) {
+        if (parseInt(rowNo) === i) {
+            $('#' + editLoanAndInsScrId + 'subPurposeCheckbox_' + i).prop('checked', true);
+        } else {
+            $('#' + editLoanAndInsScrId + 'subPurposeCheckbox_' + i).prop('checked', false);
+        }
+    });
+}
+apz.app.EditLoanAndInsurance.launchFrequencyModal = function(pthis) {
+    apz.app.EditLoanAndInsurance.loadRepaymentFrequency();
+        ApzCOB.toggleModal(editLoanAndInsScrId + "frequencyModal");
+}
+apz.app.EditLoanAndInsurance.loadRepaymentFrequency = function() {
+    var tempRepaymentFreqArray = [],
+        tempRepaymentFreqResponse = [];
+    tempRepaymentFreqResponse = KendraApp.ProductList.filter(val => (val.productDtls.description === selLoanProdDesc));
+    if (tempRepaymentFreqResponse.length > 0) {
+        var repaymentFreq = tempRepaymentFreqResponse[0].productDtls.freq;
+        repaymentFreqOpt = repaymentFreq.split(",");
+        if (apz.isNull(KendraApp.selectedKendra.meetingFrequency)) {
+            repaymentFreqOpt.forEach(function(f) {
+                let tempPayFreqObj = {
+                    "id": apz.app.EditLoanAndInsurance.fetchFrequncyVal(f),
+                    "idDesc": f
+                }
+                if ((KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.repayFrequency.idDesc == 'BIWEEKLY' ||
+                        KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.repayFrequency.idDesc == 'BI-WEEKLY') &&
+                    tempPayFreqObj.idDesc != 'WEEKLY') {
+                    tempRepaymentFreqArray.push(tempPayFreqObj);
+                } else if ((KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.repayFrequency.idDesc ==
+                        'FOUR.WEEKLY' || KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.repayFrequency.idDesc ==
+                        'FOUR-WEEKLY') && (tempPayFreqObj.idDesc != 'WEEKLY' && tempPayFreqObj.idDesc != 'BIWEEKLY')) {
+                    tempRepaymentFreqArray.push(tempPayFreqObj);
+                } else if (KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.repayFrequency.idDesc == 'WEEKLY') {
+                    tempRepaymentFreqArray.push(tempPayFreqObj);
+                }
+            });
+        } else {
+            repaymentFreqOpt.forEach(function(f) {
+                let tempPayFreqObj = {
+                    "id": apz.app.EditLoanAndInsurance.fetchFrequncyVal(f),
+                    "idDesc": f
+                }
+                if (KendraApp.selectedKendra.meetingFrequency == 'BIWEEKLY' && tempPayFreqObj.idDesc != 'WEEKLY') {
+                    tempRepaymentFreqArray.push(tempPayFreqObj);
+                } else if (KendraApp.selectedKendra.meetingFrequency == 'FOUR.WEEKLY' && (tempPayFreqObj.idDesc != 'WEEKLY' &&
+                        tempPayFreqObj.idDesc != 'BIWEEKLY')) {
+                    tempRepaymentFreqArray.push(tempPayFreqObj);
+                } else if (KendraApp.selectedKendra.meetingFrequency == 'WEEKLY') {
+                    tempRepaymentFreqArray.push(tempPayFreqObj);
+                }
+            })
+        }
+        apz.data.scrdata.EDITLA__ModalFieldsIntf_Res = {};
+        apz.data.scrdata.EDITLA__ModalFieldsIntf_Res.repaymentFreqNode = tempRepaymentFreqArray;
+        apz.data.loadData("ModalFieldsIntf", 'EDITLA');
+        repaymentFreqOpt = tempRepaymentFreqArray;
+        selData = apz.getElmValue('EDITLA__EditLoanAndInsurance__repayFreq');
+        apz.data.scrdata.EDITLA__ModalFieldsIntf_Res.repaymentFreqNode.forEach((d, idx) => {
+            if (selData === d.idDesc) {
+                $('#EDITLA__EditLoanAndInsurance__repayFreqCheckbox_' + idx).prop("checked", true);
+            }else{
+               $('#EDITLA__EditLoanAndInsurance__repayFreqCheckbox_' + idx).prop("checked", false); 
+            }
+        })
+    }
+}
+apz.app.EditLoanAndInsurance.onClickRepayFrequency = function(pthis) {
+    let rowNo = 0;
+    if (!apz.isNull(pthis)) {
+        rowNo = $(pthis).attr("rowno");
+    }
+    $.each(repaymentFreqOpt, function(i) {
+        if (parseInt(rowNo) === i) {
+            $('#' + editLoanAndInsScrId + 'repayFreqCheckbox_' + i).prop('checked', true);
+            $('#' + editLoanAndInsScrId + 'repayFreqList_row_' + i).addClass('active');
+        } else {
+            $('#' + editLoanAndInsScrId + 'repayFreqCheckbox_' + i).prop('checked', false);
+            $('#' + editLoanAndInsScrId + 'repayFreqList_row_' + i).removeClass('active');
+        }
+    });
+}
+apz.app.EditLoanAndInsurance.paintRepayFrequency = function() {
+    let repayFreq = "";
+    $.each(repaymentFreqOpt, function(i) {
+        if ($('#' + editLoanAndInsScrId + 'repayFreqCheckbox_' + i).prop('checked')) {
+            repayFreq = $('#EDITLA__ModalFieldsIntf__o__repaymentFreqNode__idDesc_' + i).text();
+            // addLoanDetailsObj.scrDataStep1.repayFrequency = repaymentFreqOpt[i];
+        }
+    });
+    apz.setElmValue(editLoanAndInsScrId + "repayFreq", repayFreq);
+    ApzCOB.toggleModal(editLoanAndInsScrId + "frequencyModal");
+}
+apz.app.EditLoanAndInsurance.searchSubproduct = function(pthis) {
+    var searchResult;
+    var searchText = $("#" + pthis.id).val();
+    if (apz.isNull(searchText)) {
+        searchResult = searchData;
+    } else {
+        searchResult = searchData.filter(function(e, i) {
+            return (e.subPurposeIdDesc.toUpperCase().indexOf(searchText.toUpperCase()) !== -1);
+        });
+    }
+    searchResult.forEach((d, idx) => {
+        $('#' + editLoanAndInsScrId + 'subPurposeCheckbox_' + idx).prop('checked', false);
+    });
+    if (searchResult.length === 0) {
+        $("#" + editLoanAndInsScrId + 'subPurposeList').addClass('sno');
+        $("#" + editLoanAndInsScrId + 'noRecDiv').removeClass('sno')
+    } else {
+        $("#" + editLoanAndInsScrId + 'subPurposeList').removeClass('sno');
+        $("#" + editLoanAndInsScrId + 'noRecDiv').addClass('sno')
+        apz.data.scrdata.EDITLA__SubPurpose_Res.SubPurposeNode = searchResult;
+        apz.data.loadData("SubPurpose", 'EDITLA');
+    }
+}
+apz.app.EditLoanAndInsurance.paintPurposeSubpurpose = function() {
+    let purpose = "",
+        subPurpose = "";
+    $.each(tempPurposeResponse, function(i) {
+        if ($('#' + editLoanAndInsScrId + 'purposeList_row_' + i).hasClass('active')) {
+            purpose = $('#' + editLoanAndInsScrId + "purposeList_row_" + i).text();
+        }
+    });
+    $.each(tempSubPurposeResponse, function(i) {
+        if ($('#' + editLoanAndInsScrId + 'subPurposeCheckbox_' + i).prop('checked')) {
+            subPurpose = $('#EDITLA__SubPurpose__o__SubPurposeNode__subPurposeIdDesc_' + i).text();
+        }
+    });
+    apz.setElmValue(editLoanAndInsScrId + "editPurpAndSubpurp", purpose + " : " + subPurpose);
+    ApzCOB.toggleModal(editLoanAndInsScrId + "purposeModal");
+}
+// bug
+apz.app.EditLoanAndInsurance.memberInsurCheck = function(pthis) {
+    if (pthis) {
+        if ($("#" + pthis.id).prop('checked')) {
+            $("#" + editLoanAndInsScrId + 'insuranceInfoDiv').removeClass('sno');
+            $("#" + editLoanAndInsScrId + 'insuranceCharDiv').addClass('sno');
+        } else {
+            $("#" + editLoanAndInsScrId + 'insuranceInfoDiv').addClass('sno');
+            $("#" + editLoanAndInsScrId + 'insuranceCharDiv').addClass('sno');
+        }
+    }
+    var termMonth=$('#EDITLA__EditLoanAndInsurance__tenure').text();
+    var loanAmt = parseInt(ApzCOB.fn_unFormatAmount(apz.getElmValue(editLoanAndInsScrId + "editLoanAmt")));
+    memCheckBox = $('#' + editLoanAndInsScrId + 'memCheckBox').is(":checked")
+    spouseCheckBox = $('#' + editLoanAndInsScrId + 'spouseCheckBox').is(":checked")
+    insurArr = gApzCOB.insurDetails.filter(arr => (arr.Loan_Amount === loanAmt && (termMonth.split('W')[0].split(' ')[0] + 'W') === arr.Tenure));
+    if (insurArr.length > 0) {
+        if (memCheckBox && spouseCheckBox) {
+            insurAmt = insurArr[0].Spouse_Insurance + insurArr[0].Borrower_Insurance;
+            apz.setElmValue(editLoanAndInsScrId + "insurCharges", "₹ " + ApzCOB.fn_FormatAmount(insurAmt));
+            $('#' + editLoanAndInsScrId + 'memCheckBox').prop('disabled', false);
+        } else if (memCheckBox) {
+            insurAmt = insurArr[0].Borrower_Insurance;
+            apz.setElmValue(editLoanAndInsScrId + "insurCharges", "₹ " + ApzCOB.fn_FormatAmount(insurAmt));
+            apz.setElmValue(editLoanAndInsScrId + "memberInsCharges", "₹ " + ApzCOB.fn_FormatAmount(insurArr[0].Borrower_Insurance || "0"));
+            $('#' + editLoanAndInsScrId + 'memCheckBox').prop('disabled', false);
+        } else if (spouseCheckBox) {
+            insurAmt = insurArr[0].Spouse_Insurance;
+            apz.setElmValue(editLoanAndInsScrId + "insurCharges", "₹ " + ApzCOB.fn_FormatAmount(insurAmt));
+            apz.setElmValue(editLoanAndInsScrId + "spouseInsCharges", "₹ " + ApzCOB.fn_FormatAmount(insurArr[0].Spouse_Insurance || "0"));
+            apz.setElmValue(editLoanAndInsScrId + "memberInsCharges", "â‚¹ " + "0");
+        } else {
+            insurAmt = 0;
+            apz.setElmValue(editLoanAndInsScrId + "insurCharges", "NA");
+            apz.setElmValue(editLoanAndInsScrId + "memberInsCharges", "₹ " + "0");
+            apz.setElmValue(editLoanAndInsScrId + "spouseInsCharges", "₹ " + "0");
+        }
+    } else {
+        insurAmt = 0;
+        apz.setElmValue(editLoanAndInsScrId + "insurCharges", "NA");
+        apz.setElmValue(editLoanAndInsScrId + "memberInsCharges", "₹ " + "0");
+        apz.setElmValue(editLoanAndInsScrId + "spouseInsCharges", "₹ " + "0");
+    }
+    let aprxLnAmt = loanAmt - (+ApzCOB.calGSTAmount(loanAmt,window.gstValue,window.feeCharge) + +ApzCOB.calProcessingFees(loanAmt,window.feeCharge) + insurAmt);
+    apz.setElmValue(editLoanAndInsScrId + "approxLoanCharges", "(-) ₹ " + ApzCOB.fn_FormatAmount((+ApzCOB.calGSTAmount(loanAmt,window.gstValue,window.feeCharge) + +ApzCOB.calProcessingFees(
+        loanAmt,window.feeCharge) + insurAmt).toString()));
+    apz.setElmValue(editLoanAndInsScrId + "approxLoanAmt", "₹ " + ApzCOB.fn_FormatAmount(aprxLnAmt.toString()));
+}
+apz.app.EditLoanAndInsurance.spouseInsurCheck = function (pthis) {
+    var loanAmt = parseInt(ApzCOB.fn_unFormatAmount(apz.getElmValue(editLoanAndInsScrId + "editLoanAmt")));
+    spouseCheckBox = $('#' + editLoanAndInsScrId + 'spouseCheckBox').is(":checked")
+    memCheckBox = $('#' + editLoanAndInsScrId + 'memCheckBox').is(":checked")
+    insurArr = gApzCOB.insurDetails.filter(arr => (arr.Loan_Amount === loanAmt && (term + 'W') === arr.Tenure));
+    if (insurArr.length > 0) {
+        if (memCheckBox && spouseCheckBox) {
+            insurAmt = insurArr[0].Spouse_Insurance + insurArr[0].Borrower_Insurance;
+            apz.setElmValue(editLoanAndInsScrId + "insurCharges", "₹ " + ApzCOB.fn_FormatAmount(insurAmt));
+             apz.setElmValue(editLoanAndInsScrId + "memberInsCharges", "₹ " + ApzCOB.fn_FormatAmount(insurArr[0].Borrower_Insurance || "0"));
+            apz.setElmValue(editLoanAndInsScrId + "spouseInsCharges", "₹ " + ApzCOB.fn_FormatAmount(insurArr[0].Spouse_Insurance || "0"));
+            $('#' + editLoanAndInsScrId + 'memCheckBox').prop('disabled', true);
+        } else if (memCheckBox) {
+            insurAmt = insurArr[0].Borrower_Insurance;
+            apz.setElmValue(editLoanAndInsScrId + "insurCharges", "₹ " + ApzCOB.fn_FormatAmount(insurAmt));
+            apz.setElmValue(editLoanAndInsScrId + "memberInsCharges", "₹ " + ApzCOB.fn_FormatAmount(insurArr[0].Borrower_Insurance || "0"));
+            if(!spouseCheckBox){
+                apz.setElmValue(editLoanAndInsScrId + "spouseInsCharges", "₹ " + "0");
+            }
+            $('#' + editLoanAndInsScrId + 'memCheckBox').prop('disabled', false);
+        } else if (spouseCheckBox) {
+            if (!memCheckBox) {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_MEM_NOT_SEL"), "E");
+                $('#' + editLoanAndInsScrId + 'spouseCheckBox').prop('checked', false);
+                return;
+            }
+            apz.setElmValue(editLoanAndInsScrId + "insurCharges", "₹ " + ApzCOB.fn_FormatAmount(insurAmt));
+            apz.setElmValue(editLoanAndInsScrId + "spouseInsCharges", "₹ " + ApzCOB.fn_FormatAmount(insurArr[0].Spouse_Insurance || "0"));
+            $('#EDITLA__EditLoanAndInsurance__memCheckBox').prop('disabled', true);
+        } else {
+            insurAmt = 0;
+            $('#' + editLoanAndInsScrId + 'memCheckBox').prop('disabled', false);
+            apz.setElmValue(editLoanAndInsScrId + "insurCharges", "NA");
+            apz.setElmValue(editLoanAndInsScrId + "spouseInsCharges", "₹ " + "0");
+            apz.setElmValue(editLoanAndInsScrId + "memberInsCharges", "₹ " +  "0");
+        }
+    } else {
+        insurAmt = 0;
+        $('#' + editLoanAndInsScrId + 'memCheckBox').prop('disabled', false);
+        apz.setElmValue(editLoanAndInsScrId + "insurCharges", "NA");
+        apz.setElmValue(editLoanAndInsScrId + "spouseInsCharges", "₹ " + "0");
+        apz.setElmValue(editLoanAndInsScrId + "memberInsCharges", "₹ " +  "0");
+    }
+	if (accntDetails.customerDtls.loanDtls.insurDtls.member == 'Y') {
+               $('#EDITLA__EditLoanAndInsurance__memCheckBox').prop('disabled', true);
+           } else {
+               $('#EDITLA__EditLoanAndInsurance__memCheckBox').prop('disabled', false);
+           }
+           if (accntDetails.customerDtls.loanDtls.insurDtls.Spouse == 'Y') {
+               $('#EDITLA__EditLoanAndInsurance__spouseCheckBox').prop('disabled', true);
+           } else {
+               $('#EDITLA__EditLoanAndInsurance__spouseCheckBox').prop('disabled', false);
+           }
+    let aprxLnAmt = loanAmt - (+ApzCOB.calGSTAmount(loanAmt,window.gstValue,window.feeCharge) + +ApzCOB.calProcessingFees(loanAmt,window.feeCharge) + insurAmt);
+    apz.setElmValue(editLoanAndInsScrId + "approxLoanCharges", "(-) ₹ " + ApzCOB.fn_FormatAmount((+ApzCOB.calGSTAmount(loanAmt,window.gstValue,window.feeCharge) + +ApzCOB.calProcessingFees(
+        loanAmt,window.feeCharge) + insurAmt).toString()));
+    apz.setElmValue(editLoanAndInsScrId + "approxLoanAmt", "₹ " + ApzCOB.fn_FormatAmount(aprxLnAmt.toString()));
+}
+apz.app.EditLoanAndInsurance.onblurLoanAmount = function(pthis) {
+    var id = $("#" + pthis.id).val();
+    var loanAmt = parseInt(id.replace(/[₹,]/g, ''));
+    let originalLoanAmount = parseInt(defAmt, 10);
+    if (loanAmt > caglMaxAmount) {
+        ApzCOB.fnDisplayMsg("loan amount is more than applied amount", 'I');
+    } else if (loanAmt < minAmount) {
+        ApzCOB.fnDisplayMsg("loan amount is less than minimum amount", 'I');
+    }
+    if (loanAmt % 1000 === 0) {
+        if (loanAmt >= minAmount && loanAmt <= caglMaxAmount) {
+            apz.setElmValue("EDITLA__EditLoanAndInsurance__editLoanAmt", ApzCOB.fn_FormatAmount(loanAmt));
+        } else {
+            apz.setElmValue("EDITLA__EditLoanAndInsurance__editLoanAmt", ApzCOB.fn_FormatAmount(caglMaxAmount));
+        }
+    } else {
+        apz.setElmValue("EDITLA__EditLoanAndInsurance__editLoanAmt", ApzCOB.fn_FormatAmount(caglMaxAmount));
+    }
+    apz.app.EditLoanAndInsurance.updateLoanAmount();
+}
+apz.app.EditLoanAndInsurance.CBcheckCB = function(cbRespOnEdit) {
+    apz.setElmValue(editLoanAndInsScrId + "sucProductName", KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.shortDesc.toUpperCase());
+    apz.setElmValue(editLoanAndInsScrId + "sucAppliedAmt", ApzCOB.fn_FormatAmount(KendraLoans.custFetchLoanAppRes.applicationdtls[0].amount));
+    apz.app.EditLoanAndInsurance.setAttributeValues("attrOne", cbRespOnEdit.Derived_Attribute_1);
+    apz.app.EditLoanAndInsurance.setAttributeValues("attrTwo", cbRespOnEdit.Derived_Attribute_2);
+    apz.app.EditLoanAndInsurance.setAttributeValues("attrThree", cbRespOnEdit.Derived_Attribute_3);
+    apz.app.EditLoanAndInsurance.setAttributeValues("attrFour", cbRespOnEdit.Derived_Attribute_4);
+    /*apz.setElmValue(screenId + "sucElAmt", ApzCOB.fn_FormatAmount(KendraApp.selectedCustomer.addLoanDetailsObj.scrDataStep1.chargeAndBreakupDtls
+        .loanAmt));*/
+    //apz.setElmValue(screenId + "sucRefId", "#" + KendraApp.AppCreateResObj.applicationId);
+    $('#' + editLoanAndInsScrId + 'gr_row_77').addClass('sno');
+    $('#' + editLoanAndInsScrId + 'gr_row_94').removeClass('sno');
+}
+apz.app.EditLoanAndInsurance.setAttributeValues = function(attributeName, derivedAttribute) {
+    if (derivedAttribute) {
+        let attrValAndDesc = derivedAttribute.split(":");
+        if (attrValAndDesc.length > 0) {
+            apz.setElmValue(editLoanAndInsScrId + attributeName + "Val", attrValAndDesc[0] || '');
+        } else {
+            apz.setElmValue(editLoanAndInsScrId + attributeName + "Val", '');
+        }
+        if (attrValAndDesc.length > 1) {
+            apz.setElmValue(editLoanAndInsScrId + attributeName + "Desc", attrValAndDesc[1] || '');
+        } else {
+            apz.setElmValue(editLoanAndInsScrId + attributeName + "Desc", '');
+        }
+    } else {
+        apz.setElmValue(editLoanAndInsScrId + attributeName + "Val", '');
+        apz.setElmValue(editLoanAndInsScrId + attributeName + "Desc", '');
+    }
+}
+apz.app.EditLoanAndInsurance.closeApp = function() {
+    ApzCOB.dashboardAppListAPI();
+}
+apz.app.EditLoanAndInsurance.rejectApp = function() {
+    ApzCOB.fnDisplayMsg("Do you want to reject the application?", "C", apz.app.EditLoanAndInsurance.rejectApplicationRequest);
+}
+apz.app.EditLoanAndInsurance.rejectApplicationRequest = function(params) {
+    if (params.choice === true) {
+        apz.app.EditLoanAndInsurance.onClickRejectAppication();
+    } else {
+        return;
+    }
+}
+apz.app.EditLoanAndInsurance.onClickRejectAppication = function() {
+    var workflow = {};
+    if (userRole == "BM" && window.KendraLoans.scr == 'LoanSanction') {
+        workflow = {
+            "currentRole": userRole,
+            "action": "REJECT",
+            "workflowId": "BMINPUT",
+            "stage": "BMQUEUE",
+            "remarks": ""
+        }
+    } else if (userRole == "KM" && window.KendraLoans.scr == 'LoanDisbursementList') {
+        workflow = {
+            "currentRole": userRole,
+            "action": "REJECT",
+            "workflowId": "SANCTION",
+            "stage": "SANCTIONED",
+            "remarks": ""
+        }
+    } else if (userRole == "BM" && window.KendraLoans.scr == 'LoanDisbursementList') {   
+        workflow = {
+            "currentRole": userRole,
+            "action": "REJECT",
+            "workflowId": "DISBURSE", 
+            "stage": "DISBURSEMENT", 
+            "remarks": ""
+        }
+    }
+    window.KendraLoans.data = {
+        selectedCust: window.KendraLoans.selectedLoanSanctionAccnt,
+        matchingCustomer: '',
+        onceRejected: true,
+        rejectionReason: "Rejected by BM Edit Flow"
+    }
+    window.KendraLoans.editRejected=true;
+    ApzCOB.updateAppication(workflow);
+}
+apz.app.EditLoanAndInsurance.proceedWithAppliedAmt = function() {
+    $('#' + editLoanAndInsScrId + 'gr_row_77').removeClass('sno');
+    $('#' + editLoanAndInsScrId + 'gr_row_94').addClass('sno');
+    apz.setElmValue(editLoanAndInsScrId + "editLoanAmt", ApzCOB.fn_FormatAmount(cbResponse.Approved_Loan_Amount - cbResponse.Approved_Loan_Amount%1000));
+    $("#" + editLoanAndInsScrId + 'editLoanAmt').blur();
+}
+apz.app.EditLoanAndInsurance.upgradeWithEligAmt = function() {
+    $('#' + editLoanAndInsScrId + 'gr_row_77').removeClass('sno');
+    $('#' + editLoanAndInsScrId + 'gr_row_94').addClass('sno');
+    apz.setElmValue(editLoanAndInsScrId + "editLoanAmt", ApzCOB.fn_FormatAmount(cbResponse.Approved_Loan_Amount - cbResponse.Approved_Loan_Amount%1000));
+    $("#" + editLoanAndInsScrId + 'editLoanAmt').blur();
+}
+apz.app.EditLoanAndInsurance.updatecheckBox = function(ploanAmt) {
+    let age = ApzCOB.ageCalculator(accntDetails.customerDtls.kycDtls.dob);
+    if (selectedProductDetails.productDtls.spouseInsurance === "YES" && accntDetails.customerDtls.kycDtls.maritalStatus === 'MARRIED' && (age < 65 && age > 18)) {
+        $("#EDITLA__EditLoanAndInsurance__sc_col_386").removeClass("sno");
+    } else {
+        if ((parseInt(selectedProductDetails.productDtls.insLnamount)  <= parseInt(ploanAmt)) && accntDetails.customerDtls.kycDtls.maritalStatus === 'MARRIED' && (age < 65 && age > 18)) {
+            $("#EDITLA__EditLoanAndInsurance__sc_col_386").removeClass("sno");
+             if(accntDetails.customerDtls.loanDtls.insurDtls.Spouse=='Y'){
+               $('#EDITLA__EditLoanAndInsurance__spouseCheckBox').prop('checked', true); 
+            }
+        } else {
+            if(accntDetails.customerDtls.loanDtls.insurDtls.Spouse=='Y'){
+               $('#EDITLA__EditLoanAndInsurance__spouseCheckBox').prop('checked', false); 
+            }
+            //
+            $("#EDITLA__EditLoanAndInsurance__sc_col_386").addClass("sno");
+        }
+    }
+}

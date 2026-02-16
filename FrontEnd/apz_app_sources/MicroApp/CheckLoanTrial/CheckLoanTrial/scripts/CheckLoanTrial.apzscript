@@ -1,0 +1,15 @@
+var screenId = "";
+apz.app.onLoad_CheckLoanTrial = function(params) {
+  
+}
+apz.app.onShown_CheckLoanTrial = function() {
+    $("#header").addClass("sno");
+    $("#footer").addClass("sno");
+}
+apz.app.CheckLoanTrial.BackNavigate = function (){
+    ApzCOB.dashboardAppListAPI(); 
+}
+apz.app.CheckLoanTrial.fetchRowDetails = function(pthis){
+    let rowNo = $(pthis).attr('rowno');
+    ApzCOB.launchMicroApp("CHECKL", "DetailsPage", "APZCBO__BaseScreens__BaseDIV", "");
+}

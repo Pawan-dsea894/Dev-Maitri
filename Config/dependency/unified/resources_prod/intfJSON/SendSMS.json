@@ -1,0 +1,27 @@
+{
+  "apiURL": "${URL}",
+  "servicetype": "HTTP",
+  "methodType": "POST",
+  "contentType": "application/json",
+  "headers": {
+    "Content-Type": "application/json",
+    "Accept": "*/*",
+    "Authorization": "${REQUEST~apiRequest.requestObj.authToken}"
+  },
+  "requestDef": {
+    "id": "${REQUEST~apiRequest.requestObj.id}",
+    "gkv": "${REQUEST~apiRequest.requestObj.gkv}",
+    "method": "${REQUEST~apiRequest.requestObj.method}",
+    "typesrch": "${REQUEST~apiRequest.requestObj.typesrch}",
+    "param": {
+      "id": "${REQUEST~apiRequest.requestObj.mobileNo}"
+    }
+  },
+  "responseDef": "",
+  "logging": {
+    "logRequired": "Y",
+    "logType": "BOTH",
+	  "externalAPILogRequired":"N",
+	  "externalAPILogType":"NONE"
+  }
+}

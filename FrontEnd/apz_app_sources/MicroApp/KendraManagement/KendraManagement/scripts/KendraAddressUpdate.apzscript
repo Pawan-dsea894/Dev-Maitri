@@ -1,0 +1,584 @@
+var AddressUpdateScrId = 'Kendra__KendraAddressUpdate__';
+var KendraDetails = apz.data.scrdata.Kendra__IPaintKendraDetails_Res.kendraDetailsResponse;
+var StateListKendraUpdate = {};
+var DistrictListKendraUpdate = {};
+var kendraAddress;
+window.address1 = "";
+window.address2 = "";
+window.address3 = "";
+window.address4 = "";
+var village;
+var taluk;
+var areatype;
+var state, stateArray = [];
+var district, districtArray = [];
+var pincode, selectedValue;
+var mandFields = [AddressUpdateScrId + "kendraaddr1", AddressUpdateScrId + "kendravillage", AddressUpdateScrId + "kendrataluk", AddressUpdateScrId +
+    "kendrapincode", AddressUpdateScrId + "kendrastate", AddressUpdateScrId + "kendradistrict", AddressUpdateScrId + "kendraarea"
+]
+var addressLengthValidation = true;
+var areaType = [{
+    val: '-1',
+    desc: 'PLEASESELECT'
+}, {
+    val: 'URBAN',
+    desc: 'URBAN'
+}, {
+    val: 'RURAL',
+    desc: 'RURAL'
+}]
+apz.app.onLoad_KendraAddressUpdate = function(params) {
+    // No Onload
+};
+apz.app.onShown_KendraAddressUpdate = function(params) {
+    selectedValue = params
+    if (selectedValue.func === 'edit') {
+        apz.app.KendraAddressUpdate.fetchStates();
+        apz.setElmValue("Kendra__KendraAddressUpdate__el_txt_40_txtcnt", KendraDetails[0].kendraName);
+        apz.setElmValue(AddressUpdateScrId + "RefId", KendraDetails[0].kendraId);
+        apz.setElmValue(AddressUpdateScrId + "kendrataluk", KendraDetails[0].taluk);
+        apz.setElmValue(AddressUpdateScrId + "kendravillage", KendraDetails[0].village);
+        apz.setElmValue(AddressUpdateScrId + "kendrapincode", KendraDetails[0].pincode);
+        areaType.forEach(function(k, i) {
+            if (areaType[i].desc === KendraDetails[0].areaType) {
+                $("#Kendra__KendraAddressUpdate__kendraarea").val(areaType[i].desc);
+                $('#Kendra__KendraAddressUpdate__kendraarea_option_' + areaType[i].desc).addClass('is-selected hilt')
+            } else {
+                $('#Kendra__KendraAddressUpdate__kendraarea_option_' + areaType[i].desc).removeClass('is-selected hilt')
+            }
+        })
+        //$("#Kendra__KendraAddressUpdate__kendraarea").val(KendraDetails[0].areaType);
+        kendraAddress = KendraDetails[0].kendraAddr;
+        var addr = [];
+        if (kendraAddress.length > 35) {
+            /*address1 = kendraAddress.slice(0, 35);
+            var remainingAddr = kendraAddress.slice(35);
+            if (remainingAddr.length > 35) {
+                address2 = remainingAddr.slice(0, 35);
+                address3 = remainingAddr.slice(35);
+            } else {
+                address2 = remainingAddr;
+            }*/
+            addr = apz.app.KendraAddressUpdate.splitAddress(kendraAddress);
+        } else {
+            //address1 = kendraAddress;
+            addr.push(kendraAddress);
+        }
+        addr.forEach(function(k, i) {
+            apz.setElmValue(AddressUpdateScrId + "kendraaddr" + (i + 1), k);
+            window["address" + (i + 1)] = k;
+        })
+        /*apz.setElmValue(AddressUpdateScrId + "kendraaddr2", address2);
+        apz.setElmValue(AddressUpdateScrId + "kendraaddr3", address3);
+        apz.setElmValue(AddressUpdateScrId + "kendraaddr4", address3);*/
+    } else {
+        apz.app.KendraAddressUpdate.fetchStates();
+        //$("#Kendra__KendraAddressUpdate__kendrastate").val(stateArray[0].desc);
+    }
+    //apz.setElmValue(AddressUpdateScrId + "kendraaddr4", address3);
+    // apz.app.KendraAddressUpdate.fetchStates();
+    // apz.app.KendraAddressUpdate.AreaType();
+};
+//Split address
+apz.app.KendraAddressUpdate.splitAddress = function(address) {
+    let maxLength = 35;
+    let result = [];
+    let words = address.split(' ');
+    let currentLine = '';
+    for (let word of words) {
+        if ((currentLine + word).length <= maxLength) {
+            currentLine += (currentLine ? ' ' : '') + word;
+        } else {
+            result.push(currentLine);
+            currentLine = word;
+        }
+    }
+    if (currentLine) result.push(currentLine);
+    return result;
+}
+// Fetching States
+apz.app.KendraAddressUpdate.fetchStates = function() {
+    var req = {
+        "apiRequest": {
+            "interfaceName": "FetchKendraStates",
+            "requestObj": {
+                "code": "",
+                "keyvalue": "",
+                "description": ""
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, 'FetchKendraStates', 'N', 'N', req, 'Y', apz.app.KendraAddressUpdate.fetchStatesCB);
+}
+apz.app.KendraAddressUpdate.fetchStatesCB = function(params) {
+    stateArray = [];
+    if (ApzCOB.handleServiceCallBacks(params)) {
+        if (params.res.APZCBO__FetchKendraStates_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+            if (params.res.APZCBO__FetchKendraStates_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                StateListKendraUpdate.response = JSON.parse(params.res.APZCBO__FetchKendraStates_Res.apiResponse.ResponseBody.responseObj);
+                var states = [];
+                var stateCodes = [];
+                StateListKendraUpdate.response["States List"].forEach(item => {
+                    var [state, code] = item.split(",");
+                    states.push(state);
+                    stateCodes.push(code);
+                });
+                //apz.app.KendraAddressUpdate.populateDropdown();
+                var dropdown = document.getElementById(AddressUpdateScrId + "kendrastate");
+                var states = StateListKendraUpdate.response["States List"];
+                states.forEach(function(state) {
+                    var parts = state.split(",");
+                    var obj = {}
+                    obj.val = parts[1];
+                    obj.desc = parts[0];
+                    stateArray.push(obj);
+                });
+                stateArray.unshift({
+                    "val": '-1',
+                    "desc": 'PLEASESELECT'
+                });
+                apz.populateDropdown(document.getElementById(AddressUpdateScrId + "kendrastate"), stateArray);
+                var code;
+                stateArray.forEach(function(k, i) {
+                    if (stateArray[i].desc === KendraDetails[0].state) {
+                        if (selectedValue.func === 'add') {
+                            code = stateArray[0].val
+                            $("#Kendra__KendraAddressUpdate__kendrastate").val(stateArray[0].desc);
+                            $('#Kendra__KendraAddressUpdate__kendrastate_option_' + stateArray[0].desc).addClass('is-selected hilt')
+                        } else {
+                            code = stateArray[i].val
+                            $("#Kendra__KendraAddressUpdate__kendrastate").val(stateArray[i].desc);
+                            $('#Kendra__KendraAddressUpdate__kendrastate_option_' + stateArray[i].desc).addClass('is-selected hilt')
+                        }
+                    }
+                })
+                apz.app.KendraAddressUpdate.fetchDistrict(code)
+            }
+        }
+    }
+    apz.stopLoader();
+}
+apz.app.KendraAddressUpdate.populateDropdownDist = function(pthis) {
+    state = apz.getElmValue(AddressUpdateScrId + "kendrastate");
+    //var selectedStateCode = "";
+    // document.getElementById(AddressUpdateScrId + "kendrastate").addEventListener("change", function () {
+    //     selectedStateCode = this.value;
+    // })
+    apz.app.KendraAddressUpdate.fetchDistrict(state);
+}
+apz.app.KendraAddressUpdate.fetchDistrict = function(value) {
+    var req = {
+        "apiRequest": {
+            "interfaceName": "FetchKendraStates",
+            "requestObj": {
+                "code": value,
+                "keyvalue": "",
+                "description": ""
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, 'FetchKendraStates', 'N', 'N', req, 'Y', apz.app.KendraAddressUpdate.fetchDistrictCB);
+}
+apz.app.KendraAddressUpdate.fetchDistrictCB = function(params) {
+    districtArray = [];
+    if (ApzCOB.handleServiceCallBacks(params)) {
+        if (params.res.APZCBO__FetchKendraStates_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+            if (params.res.APZCBO__FetchKendraStates_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                DistrictListKendraUpdate.response = JSON.parse(params.res.APZCBO__FetchKendraStates_Res.apiResponse.ResponseBody.responseObj);
+                var dropdown = document.getElementById(AddressUpdateScrId + "kendradistrict");
+                var Districts = DistrictListKendraUpdate.response["District List"];
+                Districts.forEach(function(district) {
+                    var obj = {};
+                    obj.val = district;
+                    obj.desc = district;
+                    districtArray.push(obj);
+                });
+                districtArray.unshift({
+                    "val": '-1',
+                    "desc": 'PLEASESELECT'
+                });
+                apz.populateDropdown(document.getElementById(AddressUpdateScrId + "kendradistrict"), districtArray);
+                districtArray.forEach(function(k, i) {
+                    if (districtArray[i].desc === KendraDetails[0].district) {
+                        $("#Kendra__KendraAddressUpdate__kendradistrict").val(districtArray[i].desc);
+                        $('#Kendra__KendraAddressUpdate__kendradistrict_option_' + districtArray[i].desc).addClass('is-selected hilt')
+                    }
+                })
+            }
+        }
+    }
+    apz.stopLoader();
+}
+/*apz.app.KendraAddressUpdate.AreaType = function() {
+    let AreaTypeArr = 'Urban,Rural';
+    AreaTypeArr = AreaTypeArr.split(",");
+    let AreaType = [];
+    $.each(AreaTypeArr, function(i, k) {
+        var obj = {};
+        obj.desc = k;
+        obj.val = i;
+        AreaType.push(obj);
+    });
+    AreaType.unshift({
+        "val": '-1',
+        "desc": ApzCOB.getDescfromLitCode("LIT_COMM_MSG_PLEASE_SELECT")
+    });
+    apz.populateDropdown(document.getElementById(AddressUpdateScrId + "kendraarea"), AreaType);
+};*/
+apz.app.KendraAddressUpdate.clickMoreOptionsBtn = function() {
+    if ($("#" + AddressUpdateScrId + "kendUpdateDiv").hasClass("sno")) {
+        $("#" + AddressUpdateScrId + "kendUpdateDiv").removeClass("sno");
+    } else {
+        $("#" + AddressUpdateScrId + "kendUpdateDiv").addClass("sno");
+    }
+}
+apz.app.KendraAddressUpdate.closeApp = function() {
+    window.KendraApp.KendraResponse = JSON.parse(JSON.stringify(window.KendraApp.KendraResponsenew))
+    if (userRoleIfDeoAvailable.includes("DEO") && apz.deviceType === "WEB") {
+        ApzCOB.fetchKendraDetailsDeoRole(window.LoggedInUserDetails.userID, window.ChangeRole);
+    } else {
+        ApzCOB.dashboardAppListAPI();
+    }
+}
+apz.app.KendraAddressUpdate.proceedKendraUpdateScenario = function() {
+    if (ApzCOB.customeValidateFields(mandFields)) {
+        var val = (apz.getElmValue(AddressUpdateScrId + "kendrapincode"))
+        if ($('#' + AddressUpdateScrId + "kendravillage").val().trim() === "") {
+            ApzCOB.fnDisplayMsg("Please enter Village Name", "E");
+            return false;
+        } else if ($('#' + AddressUpdateScrId + "kendrastate").val().trim() === "" || $('#' + AddressUpdateScrId + "kendrastate").val().trim() ===
+            'Please Select') {
+            ApzCOB.fnDisplayMsg("Please select State", "E");
+            return false;
+        } else if ($('#' + AddressUpdateScrId + "kendradistrict").val().trim() === "" || $('#' + AddressUpdateScrId + "kendradistrict").val()
+            .trim() === 'Please Select') {
+            ApzCOB.fnDisplayMsg("Please select District", "E");
+            return false;
+        } else if ($('#' + AddressUpdateScrId + "kendrapincode").val().trim() === "") {
+            ApzCOB.fnDisplayMsg("Please enter Pincode", "E");
+            return false;
+        } else if ($('#' + AddressUpdateScrId + "kendraarea").val().trim() === "" || $('#' + AddressUpdateScrId + "kendraarea").val().trim() ===
+            "Please Select") {
+            ApzCOB.fnDisplayMsg("Please select Area Type", "E");
+            return false;
+        } else if ($('#' + AddressUpdateScrId + "kendraaddr1").val().trim() === "") {
+            ApzCOB.fnDisplayMsg("Please enter Address line 1", "E");
+            return false;
+        } else if (val.length < 6) {
+            ApzCOB.fnDisplayMsg("Please enter Pincode should be 6 digits", "E");
+            return false;
+        } else if (addressLengthValidation === false) {
+            ApzCOB.fnDisplayMsg("Address Should be greater than 10 characters", "E");
+            return false;
+        } else {
+            apz.app.KendraAddressUpdate.proceedKendraUpdate();
+        }
+    }
+}
+apz.app.KendraAddressUpdate.fnValidatealphanumericSpace = function(pthis) {
+    var regex = /^[a-zA-Z0-9]+(?: [a-zA-Z0-9]+)*$/; // Alphanumeric with single space
+    var currentValue = pthis.value;
+    if (!regex.test(currentValue)) {
+        pthis.value = currentValue.replace(/[^a-zA-Z0-9 ]| {2,}/g, '');
+    }
+    if (pthis.value.length > 35) {
+        ApzCOB.fnDisplayMsg("Address Should not be greater than 35 characters", "E");
+        return;
+    }
+}
+apz.app.KendraAddressUpdate.fnValidateTextSpace = function(pthis) {
+    var regex = /^[a-zA-Z0-9]+(?: [a-zA-Z0-9]+)*$/; // Alphanumeric with single space
+    var currentValue = pthis.value;
+    if (!regex.test(currentValue)) {
+        pthis.value = currentValue.replace(/[^a-zA-Z0-9 ]| {2,}/g, '');
+    }
+}
+apz.app.KendraAddressUpdate.proceedKendraUpdate = function() {
+    const editedData = {
+        address1: ($("#Kendra__KendraAddressUpdate__kendraaddr1").val().replace(/,/g, '')),
+        address2: $("#Kendra__KendraAddressUpdate__kendraaddr2").val(),
+        address3: $("#Kendra__KendraAddressUpdate__kendraaddr3").val(),
+        address4: $("#Kendra__KendraAddressUpdate__kendraaddr4").val(),
+        village: $("#Kendra__KendraAddressUpdate__kendravillage").val(),
+        taluk: $("#Kendra__KendraAddressUpdate__kendrataluk").val(),
+        state: $("#Kendra__KendraAddressUpdate__kendrastate").val(),
+        district: $("#Kendra__KendraAddressUpdate__kendradistrict").val(),
+        areatype: $("#Kendra__KendraAddressUpdate__kendraarea").val(),
+        pincode: $("#Kendra__KendraAddressUpdate__kendrapincode").val()
+    };
+    const originalData = {
+        address1: address1.replace(/,/g, ''),
+        address2: address2,
+        address3: address3,
+        address4: address4,
+        village: KendraDetails[0].village,
+        taluk: KendraDetails[0].village,
+        state: KendraDetails[0].state,
+        district: KendraDetails[0].district,
+        areatype: KendraDetails[0].areaType,
+        pincode: KendraDetails[0].pincode
+    };
+    const hasChanges = Object.keys(editedData).some(key => editedData[key] !== originalData[key]);
+    if (!hasChanges) {
+        ApzCOB.fnDisplayMsg("No Details Changed", "E");
+    } else {
+        if (apz.app.KendraAddressUpdate.checkEmptyField()) {
+            apz.app.KendraAddressUpdate.updateKendraDataModel();
+            // ApzCOB.saveLoan();
+        } else {
+            ApzCOB.fnDisplayMsg("Please enter all the mandatory fields", "E");
+            return false;
+        }
+    }
+}
+apz.app.KendraAddressUpdate.ValidateInputAddr = function(pthis) {
+    var Addr = $("#" + pthis.id).val();
+    if (Addr.length < 10) {
+        ApzCOB.fnDisplayMsg("Address Should be greater than 10 characters", "E");
+        addressLengthValidation = false;
+        return false;
+    } else {
+        //address1 = $("#Kendra__KendraAddressUpdate__kendraaddr1").val()
+        addressLengthValidation = true;
+    }
+    //var inputValue = document.getElementById('address').value;
+    var forbiddenChars = ['/', '#', '.'];
+    for (var i = 0; i < forbiddenChars.length; i++) {
+        if (Addr.includes(forbiddenChars[i])) {
+            ApzCOB.fnDisplayMsg("special characters like ‘/’, ‘#’ & ‘.’ are not allowed", "E");
+            document.getElementById('address').value = '';
+            return false;
+        } else {
+            return true;
+        }
+    }
+}
+apz.app.KendraAddressUpdate.ValidateInputTaluk = function(pthis) {
+    var val = $("#" + pthis.id).val();
+    var forbiddenChars = ['/', '#', '.'];
+    for (var i = 0; i < forbiddenChars.length; i++) {
+        if (val.includes(forbiddenChars[i])) {
+            ApzCOB.fnDisplayMsg("special characters like ‘/’, ‘#’ & ‘.’ are not allowed", "E");
+            document.getElementById('address').value = '';
+            return false;
+        } else {
+            return true;
+        }
+    }
+}
+apz.app.KendraAddressUpdate.validatePincode = function(pthis) {
+    var pincodeValue = $("#" + pthis.id).val();
+    if (pincodeValue.startsWith('0') || pincodeValue.startsWith('1')) {
+        ApzCOB.fnDisplayMsg("Pincode cannot start with 0 or 1", "E");
+        //document.getElementById('pincode').value = '';
+        apz.setElmValue(AddressUpdateScrId + "kendrapincode", '');
+        return false;
+    } else {
+        return true;
+    }
+}
+apz.app.KendraAddressUpdate.backNavigationOnHeader = function() {
+    var data = selectedValue.selectedKendra;
+    ApzCOB.launchMicroApp('Kendra', 'KendraDetails', 'APZCBO__BaseScreens__BaseDIV', data);
+}
+apz.app.KendraAddressUpdate.checkEmptyField = function() {
+    if (address1 === "" || undefined) {
+        ApzCOB.fnDisplayMsg("Address Line 1 is required", "E");
+        return false;
+    } else if ($("#Kendra__KendraAddressUpdate__kendravillage").val() === "" || undefined) {
+        ApzCOB.fnDisplayMsg("Village is required", "E");
+        return false;
+    } else if ($("#Kendra__KendraAddressUpdate__kendrataluk").val() === "" || undefined) {
+        ApzCOB.fnDisplayMsg("Taluk is required", "E");
+        return false;
+    } else if ($("#Kendra__KendraAddressUpdate__kendraarea").val() === "" || undefined) {
+        ApzCOB.fnDisplayMsg("Area type is required", "E");
+        return false;
+    } else if ($("#Kendra__KendraAddressUpdate__kendrastate").val() === "" || undefined) {
+        ApzCOB.fnDisplayMsg("State is required", "E");
+        return false;
+    } else if ($("#Kendra__KendraAddressUpdate__kendradistrict").val() === "" || undefined) {
+        ApzCOB.fnDisplayMsg("District is required", "E");
+        return false;
+    } else if ($("#Kendra__KendraAddressUpdate__kendrapincode").val() === "" || undefined) {
+        ApzCOB.fnDisplayMsg("Pincode is required", "E");
+        return false;
+    } else {
+        return true;
+    }
+}
+apz.app.KendraAddressUpdate.updateKendraDataModel = function() {
+    ApzCOB.toggleModal(AddressUpdateScrId + "kendraupdatemodel");
+}
+var sucKendraAddr;
+apz.app.KendraAddressUpdate.kendraSucdetails = function() {
+    var now = new Date();
+    var day = String(now.getDate()).padStart(2, '0');
+    var month = String(now.getMonth() + 1).padStart(2, '0');
+    var year = now.getFullYear();
+    let hours = now.getHours();
+    let minutes = String(now.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // Handle the case for 12 AM
+    var time = `${hours}:${minutes} ${ampm}`;
+    var formattedDate = `${day}/${month}/${year}`;
+    sucKendraAddr = apz.getElmValue(AddressUpdateScrId + "kendraaddr1") + ' ' + apz.getElmValue(AddressUpdateScrId + "kendraaddr2") + ' ' + apz
+        .getElmValue(AddressUpdateScrId + "kendraaddr3") + ' ' + apz.getElmValue(AddressUpdateScrId + "kendraaddr4") + ', ' + $(
+            "#Kendra__KendraAddressUpdate__kendraarea").val() + ', ' + apz.getElmValue(AddressUpdateScrId + "kendravillage") + ', ' + apz
+        .getElmValue(AddressUpdateScrId + "kendrataluk") + ', ' + $("#Kendra__KendraAddressUpdate__kendradistrict").val() + ', ' + $(
+            "#Kendra__KendraAddressUpdate__kendrastate").val() + ' ' + '(' + $("#Kendra__KendraAddressUpdate__kendrapincode").val() + ')'
+    apz.setElmValue(AddressUpdateScrId + "sucKendraName", KendraDetails[0].kendraName);
+    apz.setElmValue(AddressUpdateScrId + "sucKendraId", KendraDetails[0].kendraId);
+    apz.setElmValue(AddressUpdateScrId + "sucDate", formattedDate);
+    apz.setElmValue(AddressUpdateScrId + "sucTime", time);
+    apz.setElmValue(AddressUpdateScrId + "sucKmName", KendraDetails[0].kmName + '(KM)');
+    apz.setElmValue(AddressUpdateScrId + "sucKendraAddr", sucKendraAddr);
+}
+apz.app.KendraAddressUpdate.kendradetailsUpdate = function() {
+    var address = []
+    if (!apz.isNull(apz.getElmValue(AddressUpdateScrId + "kendraaddr1"))) {
+        var addr = {
+            'address': apz.getElmValue(AddressUpdateScrId + "kendraaddr1")
+        }
+        address.push(addr)
+    }
+    if (!apz.isNull(apz.getElmValue(AddressUpdateScrId + "kendraaddr2"))) {
+        var addr = {
+            'address': apz.getElmValue(AddressUpdateScrId + "kendraaddr2")
+        }
+        address.push(addr)
+    }
+    if (!apz.isNull(apz.getElmValue(AddressUpdateScrId + "kendraaddr3"))) {
+        var addr = {
+            'address': apz.getElmValue(AddressUpdateScrId + "kendraaddr3")
+        }
+        address.push(addr)
+    }
+    if (!apz.isNull(apz.getElmValue(AddressUpdateScrId + "kendraaddr4"))) {
+        var addr = {
+            'address': apz.getElmValue(AddressUpdateScrId + "kendraaddr4")
+        }
+        address.push(addr)
+    }
+    var req = {
+        "apiRequest": {
+            "interfaceName": "KendraUpdate",
+            "requestObj": {
+                "kendraName": KendraDetails[0].kendraName,
+                "kendraId": KendraDetails[0].kendraId,
+                "kendraStatus": 'ACTIVE',
+                "kendraAddress": address,
+                "branchId": KendraDetails[0].branchId,
+                "branch": KendraDetails[0].branchId,
+                "stateId": $("#Kendra__KendraAddressUpdate__kendrastate").val(),
+                "districtId": $("#Kendra__KendraAddressUpdate__kendradistrict").val(),
+                "village": apz.getElmValue(AddressUpdateScrId + "kendravillage"),
+                "pinCode": apz.getElmValue(AddressUpdateScrId + "kendrapincode"),
+                "meetingPlace": KendraDetails[0].meetingPlace,
+                "meetingTimeFrom": KendraDetails[0].meetingStartTime,
+                "meetingTimeTo": KendraDetails[0].endingTime,
+                "kendraManager": KendraDetails[0].kmId,
+                "areaType": ($("#Kendra__KendraAddressUpdate__kendraarea").val()).toUpperCase(),
+                "meetingFrequency": KendraDetails[0].meetingFrequency,
+                "firstMeetingDate": KendraDetails[0].firstMeetingDate.replace(/-/g, ''),
+                "taluk": $("#Kendra__KendraAddressUpdate__kendrataluk").val(),
+                // "gpsLatitude": "89.89",
+                //"gpsLongitude": "3098",
+                "distance": KendraDetails[0].distance,
+                "villageType": KendraDetails[0].villageType,
+                "surveyDate": ApzCOB.dateYYYYMMDDformat().replace(/-/g, ''),
+                "surveyOfficer": KendraDetails[0].updatedBy,
+                "leader": KendraDetails[0].leader,
+                "secretary": KendraDetails[0].secretary
+                // "projectionMeetingDate": "20240330",
+                //"projectMeetingOfficer": "GK29369",
+                //"referenceId": "066"
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, 'KendraUpdate', 'N', 'N', req, 'Y', apz.app.KendraAddressUpdate.fetchKendraCB);
+}
+var kendraUpdateRes;
+apz.app.KendraAddressUpdate.fetchKendraCB = function(params) {
+    try {
+        apz.stopLoader();
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__KendraUpdate_Res.apiResponse.ResponseBody.responseObj)) {
+                kendraUpdateRes = JSON.parse(params.res.APZCBO__KendraUpdate_Res.apiResponse.ResponseBody.responseObj);
+                if (kendraUpdateRes.header.status === 'success') {
+                    apz.stopLoader();
+                    ApzCOB.toggleModal(AddressUpdateScrId + "kendraupdatemodel");
+                    apz.app.KendraAddressUpdate.kendraSucdetails();
+                    $('#Kendra__KendraAddressUpdate__addrUpdate').removeClass('sno');
+                    if (selectedValue.func === 'edit') {
+                        $('#Kendra__KendraAddressUpdate__updatedSucc').removeClass('sno');
+                        $('#Kendra__KendraAddressUpdate__addedSuc').addClass('sno');
+                    } else {
+                        $('#Kendra__KendraAddressUpdate__updatedSucc').addClass('sno');
+                        $('#Kendra__KendraAddressUpdate__addedSuc').removeClass('sno');
+                    }
+                    $('#Kendra__KendraAddressUpdate__addressUpdateRow').addClass('sno');
+                    $('#Kendra__KendraAddressUpdate__addrUpHeader').addClass('sno');
+                    var res = params.req.apiRequest.requestObj
+                    var kendraAddress = apz.getElmValue(AddressUpdateScrId + "kendraaddr1") + ' ' + apz.getElmValue(AddressUpdateScrId +
+                        "kendraaddr2") + ' ' + apz.getElmValue(AddressUpdateScrId + "kendraaddr3") + ' ' + apz.getElmValue(
+                        AddressUpdateScrId + "kendraaddr4")
+                    KendraApp.KendraResponse.forEach(function(k, i) {
+                        if (KendraApp.KendraResponse[i].kendraDtls.kendraId === KendraDetails[0].kendraId) {
+                            KendraApp.KendraResponse[i].kendraDtls.kendraAddr = kendraAddress
+                            KendraApp.KendraResponse[i].kendraDtls.state = res.stateId
+                            KendraApp.KendraResponse[i].kendraDtls.district = res.districtId
+                            KendraApp.KendraResponse[i].kendraDtls.areaType = res.areaType
+                            KendraApp.KendraResponse[i].kendraDtls.pincode = res.pinCode
+                            KendraApp.KendraResponse[i].kendraDtls.village = res.village
+                            KendraApp.KendraResponse[i].kendraDtls.taluk = res.taluk
+                        }
+                    })
+                    KendraApp.KendraResponsenew.forEach(function(k, i) {
+                        if (KendraApp.KendraResponsenew[i].kendraDtls.kendraId === KendraDetails[0].kendraId) {
+                            KendraApp.KendraResponsenew[i].kendraDtls.kendraAddr = kendraAddress
+                            KendraApp.KendraResponsenew[i].kendraDtls.state = res.stateId
+                            KendraApp.KendraResponsenew[i].kendraDtls.state = res.stateId
+                            KendraApp.KendraResponsenew[i].kendraDtls.district = res.districtId
+                            KendraApp.KendraResponsenew[i].kendraDtls.areaType = res.areaType
+                            KendraApp.KendraResponsenew[i].kendraDtls.pincode = res.pinCode
+                            KendraApp.KendraResponsenew[i].kendraDtls.village = res.village
+                            KendraApp.KendraResponsenew[i].kendraDtls.taluk = res.taluk
+                        }
+                    })
+                    setTimeout(function() {
+                        $('#Kendra__KendraAddressUpdate__successadressUpdate').removeClass('sno');
+                        $('#Kendra__KendraAddressUpdate__sc_row_69').removeClass('sno');
+                    }, 3000);
+                    if ($('body').hasClass('modal-open')) {
+                        $('body').removeClass('modal-open');
+                    }
+                } else if (kendraUpdateRes.header.status === 'failed') {
+                    apz.stopLoader();
+                    if (kendraUpdateRes.error.errorDetails[0].message === 'Record Not Changed') {
+                        ApzCOB.fnDisplayMsg(kendraUpdateRes.error.errorDetails[0].message, "E");
+                        ApzCOB.toggleModal(AddressUpdateScrId + "kendraupdatemodel");
+                        if ($('body').hasClass('modal-open')) {
+                            $('body').removeClass('modal-open');
+                        }
+                    } else {
+                        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+                    }
+                } else {
+                    apz.stopLoader();
+                    ApzCOB.fnDisplayMsg(kendraUpdateRes.error.errorDetails[0].message, "E");
+                }
+            } else {
+                apz.stopLoader();
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}

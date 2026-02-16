@@ -1,0 +1,1348 @@
+var deathIntScrId = 'KenMet__DeathIntimation__';
+var selKendraData = {};
+var dealthInfoItf = 'KenMet__IPaintDeathIntimation__o__IPaintKendraDetails__'
+var selCustRecRow = '';
+var initDetChkSelRow = '';
+var deathIntiDet = {};
+var stage = 1;
+var selDropDownId = '';
+var flow = '';
+var editFlow = false;
+var deathFlowFrom = '';
+var selectedKendraId;
+var selKendraRowNo;
+var deathIntDraftRec;
+var draftFlowRecordDts;
+var kendraDeatilsData = [];
+var draftData;
+var custFlowDts;
+var sqlData = {};
+var customerSubData = {};
+var checkboxSel;
+var ALLOWONLYNUMDECIMALS = /[^0-9 .]/g
+apz.app.onLoad_DeathIntimation = function(params) {
+    $('#footer').addClass('sno');
+    $("#header").addClass('sno');
+    apz.data.scrdata.KenMet__IPaintDeathIntimation_Res = [];
+    ApzCOB.fetchDeathIntimationBMDetails();
+    ApzCOB.FetchLov("DEATHINTIMATIONSTATUS");
+}
+apz.app.onShown_DeathIntimation = function(params) {
+    document.getElementById(deathIntScrId + 'subBtn').disabled = true;
+    if (params.fromFlag && params.fromFlag === 'zeroCollection') {
+        fabBtnFlow = 'zeroCollection';
+        selKendraData = kendraResponse.find(d => d.kendraDtls.kendraId == params.kendraId);
+        selKendraData = selKendraData.kendraDtls;
+        apz.app.DeathIntimation.fromZeroCollectionFlow(params.kendraId, params.customerId);
+        flow = 'zeroCollection';
+    } else if (params.fromFlag && params.fromFlag === 'fabBtnFlow') {
+        ApzCOB.fetchDeathIntimationBMDetails();
+        deathFlowFrom = 'fabBtnFlow';
+        apz.app.DeathIntimation.fabBtnonShow();
+    } else if (params.fromFlag && params.fromFlag === 'draftRecord') {
+        deathFlowFrom = 'draftRecordFlow';
+        apz.app.DeathIntimation.showDraftValue(params);
+    } else if (params.fromFlag && params.fromFlag === 'customerScr') {
+        flow = 'customerScr';
+        apz.app.DeathIntimation.deathClaimFormCustFlow(params.custDts);
+    } else {
+        apz.app.DeathIntimation.threeDotFlow(params);
+    }
+    // apz.app.DeathIntimation.fillDropDownValue();
+    apz.app.DeathIntimation.setFeildValidation();
+    document.querySelector("body").classList.remove("modal-open");
+}
+apz.app.DeathIntimation.threeDotFlow = function(kendraId) {
+    apz.startLoader();
+    CollectionsCommon.fetchFromDeathIntimationSQLLite("deathIntimationCreationFlow");
+    collectionKendraData.forEach((d, i) => {
+        if (d.kendraId === kendraId) {
+            selKendraRowNo = i;
+        }
+    })
+    selectedKendraId = kendraId;
+    selKendraData = kendraResponse.find(d => d.kendraDtls.kendraId == kendraId);
+    selKendraData = selKendraData.kendraDtls;
+    apz.setElmValue(deathIntScrId + 'headerKendraName', selKendraData.kendraName);
+    apz.app.DeathIntimation.PaintKendraDetails();
+}
+apz.app.DeathIntimation.PaintKendraDetails = function() {
+    let paintData = [];
+    let groupMap = {};
+    let groupCounter = 1;
+    selKendraData.customerDtls.map(item => {
+        let obj = {};
+        obj.customerName = item.customerName;
+        obj.customerId = item.customerId;
+        obj.kmName = selKendraData.kmName;
+        obj.kmId = selKendraData.kmId;
+        if (!groupMap[item.groupId]) {
+            groupMap[item.groupId] = `Group${groupCounter++}`;
+        }
+        obj.groupId = groupMap[item.groupId];
+        paintData.push(obj);
+    });
+    let sortedData = paintData.sort((a, b) => a.groupId.localeCompare(b.groupId));
+    apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.IPaintKendraDetails = sortedData;
+    apz.data.loadData('IPaintDeathIntimation', 'KenMet');
+    apz.app.DeathIntimation.removeGroupNameBasedOnCondition();
+}
+apz.app.DeathIntimation.removeGroupNameBasedOnCondition = function() {
+    let paintData = '';
+    apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.IPaintKendraDetails.forEach((data, idx) => {
+        if (idx === 0 || paintData !== data.groupId) {
+            $("#" + dealthInfoItf + 'groupId_' + idx).removeClass('sno');
+            paintData = data.groupId;
+        } else {
+            $("#" + dealthInfoItf + 'groupId_' + idx).addClass('sno');
+        }
+    });
+}
+apz.app.DeathIntimation.onClickOfSelectRec = function(pthis) {
+    editFlow = false;
+    stage = 2;
+    $("#" + deathIntScrId + 'submitClaimDiv').removeClass('sno');
+    let selRowNo = $(pthis).attr("rowno");
+    apz.app.DeathIntimation.deathIntimationDetailsRec(selRowNo);
+    apz.app.DeathIntimation.calculateCustomerOsAmt();
+}
+apz.app.DeathIntimation.deathIntimationDetailsRec = function(selRowNo) {
+    let selRec = apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.IPaintKendraDetails[selRowNo];
+    selCustRecRow = selRowNo;
+    $("#" + deathIntScrId + 'deathIntDetailsDiv').removeClass('sno');
+    $("#" + deathIntScrId + 'deathKendraDash').addClass('sno');
+    apz.setElmValue(deathIntScrId + 'selCustName', selRec.customerName);
+    apz.setElmValue(deathIntScrId + 'selCustId', '#' + selRec.customerId);
+    apz.setElmValue(deathIntScrId + 'kendraMangerName', selRec.kmName);
+    //apz.app.DeathIntimation.showDeathIntimationDetailsScr(selRec);
+    document.getElementById(deathIntScrId + 'deathClaimSubBtn').disabled = true;
+    apz.app.DeathIntimation.clearAllDeathIntimationFeilds();
+}
+apz.app.DeathIntimation.clearAllDeathIntimationFeilds = function() {
+    let memIpFeild = ['mem_dateOfDeath', 'mem_nomineeName', 'mem_mobileNo', 'mem_memberRelation', 'mem_assignedKnedraDropDown', 'spo_dob',
+        'spo_nom', 'spo_nomMobileNo', 'spo_memRel', 'memSpo_dateOfDeath', 'memSpo_nomineeName', 'memSpo_mobileNo', 'memSpo_memberRelation',
+        'memSpo_assignedKnedraDropDown', 'memSpo_dob', 'memSpo_nom', 'memSpo_nomMobileNo', 'memSpo_memRel'
+    ];
+    let descId = ['deathDetails_row', 'deathSpoDet_row', 'deathMemAndSpoDet_row'];
+    for (let i = 0; i < 3; i++) {
+        document.getElementById(deathIntScrId + 'resChkBox_' + i).disabled = false;
+        $('#' + deathIntScrId + 'resChkBox_' + i).prop('checked', false);
+        $('#' + deathIntScrId + descId[i]).addClass('sno');
+        $('#' + deathIntScrId + "resChkBoxDiv_" + i + "_row").removeClass('active');
+    }
+    memIpFeild.forEach((d, i) => {
+        apz.setElmValue(deathIntScrId + d, '');
+    })
+}
+apz.app.DeathIntimation.setDeathIntimationHeader = function(firstHead, secHead) {
+    apz.setElmValue(deathIntScrId + 'deathIntHeaderTxt', firstHead);
+    apz.setElmValue(deathIntScrId + 'headerKendraName', secHead);
+}
+apz.app.DeathIntimation.setSubmitButtonText = function(text) {
+    apz.setElmValue(deathIntScrId + 'timeChangesRequest', text);
+}
+apz.app.DeathIntimation.clearAllInputBox = function() {
+    let memIpFeild = ['mem_dateOfDeath', 'mem_nomineeName', 'mem_mobileNo', 'mem_memberRelation', 'mem_assignedKnedraDropDown', 'spo_dob',
+        'spo_nom', 'spo_nomMobileNo', 'spo_memRel', 'memSpo_dateOfDeath', 'memSpo_nomineeName', 'memSpo_mobileNo', 'memSpo_memberRelation',
+        'memSpo_assignedKnedraDropDown', 'memSpo_dob', 'memSpo_nom', 'memSpo_nomMobileNo', 'memSpo_memRel'
+    ];
+    memIpFeild.forEach((d, i) => {
+        apz.setElmValue(deathIntScrId + d, '');
+    })
+}
+apz.app.DeathIntimation.checkValidationOfCheckBox = function(pthis) {
+    checkboxSel = pthis;
+    let checked = false;
+    let rowSel = parseInt(pthis.id.split("_").at(-1));
+    for (let j = 0; j < 3; j++) {
+        if (parseInt(rowSel) === j) {
+            continue;
+        } else if ($('#' + deathIntScrId + 'resChkBox_' + j).prop('checked')) {
+            checked = true;
+        }
+    }
+    if (checked) {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COLL_LBL_SEL_DIFF_OPTIONS"), "C", apz.app.DeathIntimation.onClickOfResData);
+    } else {
+        let params = {};
+        params.choice = true;
+        apz.app.DeathIntimation.onClickOfResData(params)
+    }
+}
+apz.app.DeathIntimation.onClickOfResData = function(params) {
+    if (params.choice) {
+        let rowSel = parseInt(checkboxSel.id.split("_").at(-1));
+        for (let j = 0; j < 3; j++) {
+            if (parseInt(rowSel) === j) {
+                document.getElementById(deathIntScrId + 'resChkBox_' + j).disabled = true;
+            } else {
+                document.getElementById(deathIntScrId + 'resChkBox_' + j).disabled = false;
+            }
+        }
+        if ($('#' + checkboxSel.id).prop("checked")) {
+            if (rowSel === 0) {
+                $("#" + deathIntScrId + 'deathDetails_row').removeClass('sno');
+                $("#" + deathIntScrId + 'deathSpoDet_row').addClass('sno');
+                $("#" + deathIntScrId + 'deathMemAndSpoDet_row').addClass('sno');
+                $('#' + deathIntScrId + 'resChkBox_1').prop('checked', false);
+                $('#' + deathIntScrId + 'resChkBox_2').prop('checked', false);
+                $("#" + deathIntScrId + 'resChkBoxDiv_0_row').addClass('active');
+                $("#" + deathIntScrId + 'resChkBoxDiv_1_row').removeClass('active');
+                $("#" + deathIntScrId + 'resChkBoxDiv_2_row').removeClass('active');
+                initDetChkSelRow = 0;
+            } else if (rowSel === 1) {
+                $("#" + deathIntScrId + 'deathDetails_row').addClass('sno');
+                $("#" + deathIntScrId + 'deathSpoDet_row').removeClass('sno');
+                $("#" + deathIntScrId + 'deathMemAndSpoDet_row').addClass('sno');
+                $('#' + deathIntScrId + 'resChkBox_0').prop('checked', false);
+                $('#' + deathIntScrId + 'resChkBox_2').prop('checked', false);
+                $("#" + deathIntScrId + 'resChkBoxDiv_0_row').removeClass('active');
+                $("#" + deathIntScrId + 'resChkBoxDiv_1_row').addClass('active');
+                $("#" + deathIntScrId + 'resChkBoxDiv_2_row').removeClass('active');
+                initDetChkSelRow = 1;
+            } else {
+                $("#" + deathIntScrId + 'deathDetails_row').addClass('sno');
+                $("#" + deathIntScrId + 'deathSpoDet_row').addClass('sno');
+                $("#" + deathIntScrId + 'deathMemAndSpoDet_row').removeClass('sno');
+                $('#' + deathIntScrId + 'resChkBox_0').prop('checked', false);
+                $('#' + deathIntScrId + 'resChkBox_1').prop('checked', false);
+                $("#" + deathIntScrId + 'resChkBoxDiv_0_row').removeClass('active');
+                $("#" + deathIntScrId + 'resChkBoxDiv_1_row').removeClass('active');
+                $("#" + deathIntScrId + 'resChkBoxDiv_2_row').addClass('active');
+                initDetChkSelRow = 2;
+            }
+        } else {
+            if (rowSel === 0) {
+                $("#" + deathIntScrId + 'deathDetails_row').addClass('sno');
+                $("#" + deathIntScrId + 'resChkBoxDiv_0_row').removeClass('active');
+            } else if (rowSel === 1) {
+                $("#" + deathIntScrId + 'deathSpoDet_row').addClass('sno');
+                $("#" + deathIntScrId + 'resChkBoxDiv_1_row').removeClass('active');
+            } else {
+                $("#" + deathIntScrId + 'deathMemAndSpoDet_row').addClass('sno');
+                $("#" + deathIntScrId + 'resChkBoxDiv_2_row').removeClass('active');
+            }
+        }
+        apz.app.DeathIntimation.clearAllInputBox();
+    } else {
+        $('#' + checkboxSel.id).prop("checked", false);
+    }
+}
+apz.app.DeathIntimation.onClickOfDeathIntimationDesc = function(pthis) {
+    let rowNo = pthis.id.split("_").at(-1);
+    let selLiDiv = document.getElementById(deathIntScrId + 'cusDetaialsLst_row_' + rowNo);
+    let custClaimRow = selLiDiv.querySelector("#" + deathIntScrId + 'custClaimDet_row');
+    if (custClaimRow.classList.contains('sno')) {
+        document.getElementById(deathIntScrId + 'editBtn_' + rowNo).classList.remove("sno");
+        document.getElementById(deathIntScrId + 'showMemDetBtn_' + rowNo).classList.remove("sno");
+        document.getElementById(deathIntScrId + 'showMemDetBtn_' + rowNo).classList.add("sno");
+        document.getElementById(deathIntScrId + 'dropDownArr_' + rowNo).classList.remove("sno");
+        custClaimRow.classList.remove('sno');
+        selLiDiv.querySelector("#" + deathIntScrId + 'arrowDiv_row').classList.add('sno');
+        selLiDiv.querySelector("#" + deathIntScrId + 'showDetailsDiv_row').classList.remove('sno');
+        let rowData = document.querySelector('#KenMet__DeathIntimation__cusDetaialsLst_row_' + rowNo);
+        let detailsDiv, fields;
+        if (deathIntiDet[rowNo].type === "MemberDetails") {
+            detailsDiv = apz.app.DeathIntimation.toggleDetails(rowData, 'editDeathMemDetComDiv', 'editDeathSpoDetComDiv');
+            fields = ['selDeathDate', 'selNomieeName', 'selNomineNo', 'selNomiRelation'];
+            apz.app.DeathIntimation.populateFields(detailsDiv, fields, rowNo, deathIntiDet[rowNo], {
+                selDeathDate: 'dateOfDeath',
+                selNomieeName: 'nomineeName',
+                selNomineNo: 'mobileNo',
+                selNomiRelation: 'memberRelation'
+            });
+        } else if (deathIntiDet[rowNo].type === "SpouseDeath") {
+            detailsDiv = apz.app.DeathIntimation.toggleDetails(rowData, 'editDeathSpoDetComDiv', 'editDeathMemDetComDiv');
+            fields = ['spoDeath', 'spoNomName', 'spoNomNo', 'spoNomRel'];
+            apz.app.DeathIntimation.populateFields(detailsDiv, fields, rowNo, deathIntiDet[rowNo], {
+                spoDeath: 'dob',
+                spoNomName: 'nom',
+                spoNomNo: 'nomMobileNo',
+                spoNomRel: 'memRel'
+            });
+        } else {
+            detailsDiv = apz.app.DeathIntimation.toggleDetails(rowData, 'editDeathMemDetComDiv', 'editDeathSpoDetComDiv', true);
+            fields = ['selDeathDate', 'selNomieeName', 'selNomineNo', 'selNomiRelation'];
+            apz.app.DeathIntimation.populateFields(detailsDiv, fields, rowNo, deathIntiDet[rowNo], {
+                selDeathDate: 'dateOfDeath',
+                selNomieeName: 'nomineeName',
+                selNomineNo: 'mobileNo',
+                selNomiRelation: 'memberRelation'
+            });
+            detailsDiv = apz.app.DeathIntimation.toggleDetails(rowData, 'editDeathSpoDetComDiv', 'editDeathMemDetComDiv', true);
+            fields = ['spoDeath', 'spoNomName', 'spoNomNo', 'spoNomRel'];
+            apz.app.DeathIntimation.populateFields(detailsDiv, fields, rowNo, deathIntiDet[rowNo], {
+                spoDeath: 'dob',
+                spoNomName: 'nom',
+                spoNomNo: 'nomMobileNo',
+                spoNomRel: 'memRel'
+            });
+        }
+    } else {
+        custClaimRow.classList.add('sno');
+        document.getElementById(deathIntScrId + 'dropDownArr_' + rowNo).classList.add("sno");
+        document.getElementById(deathIntScrId + 'editBtn_' + rowNo).classList.add("sno");
+        document.getElementById(deathIntScrId + 'showMemDetBtn_' + rowNo).classList.add("sno");
+        document.getElementById(deathIntScrId + 'showMemDetBtn_' + rowNo).classList.remove("sno");
+    }
+}
+apz.app.DeathIntimation.toggleDetails = function(rowData, showDivId, hideDivId, showBoth = false) {
+    let showDiv = rowData.querySelector("#" + deathIntScrId + showDivId + '_row');
+    let hideDiv = rowData.querySelector("#" + deathIntScrId + hideDivId + '_row');
+    showDiv.classList.remove('sno');
+    hideDiv.classList[showBoth ? 'remove' : 'add']('sno');
+    return showDiv;
+}
+apz.app.DeathIntimation.populateFields = function(detailsDiv, fields, rowNo, data, map) {
+    fields.forEach(field => {
+        let fieldValue = data[map[field]];
+        if (fieldValue) {
+            detailsDiv.querySelector("#" + deathIntScrId + field + "_" + rowNo + "_txtcnt").innerText = fieldValue;
+        }
+    });
+}
+apz.app.DeathIntimation.validateMobile = function() {
+    let mpno = '';
+    let spno = '';
+    let returnValue;
+    if (initDetChkSelRow == 0) {
+        mpno = apz.getElmValue(deathIntScrId + "mem_mobileNo");
+        returnValue = mpno.length === 10 ? true : false;
+    } else if (initDetChkSelRow == 1) {
+        spno = apz.getElmValue(deathIntScrId + "spo_nomMobileNo");
+        returnValue = spno.length === 10 ? true : false;
+    } else {
+        mpno = apz.getElmValue(deathIntScrId + "memSpo_mobileNo");
+        spno = apz.getElmValue(deathIntScrId + "memSpo_nomMobileNo");
+        returnValue = (mpno.length === 10 && spno.length === 10) ? true : false;
+    }
+    return returnValue;
+}
+apz.app.DeathIntimation.onClickSumitClaim = function() {
+    document.getElementById(deathIntScrId + 'subBtn').disabled = false;
+    let rowData = {}
+    if (apz.isNull(initDetChkSelRow)) {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    } else if (!apz.app.DeathIntimation.validateMobile()) {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COLL_MSG_VALID_PHONE_NO"), "E");
+    } else {
+        let memIpFeild = ['dateOfDeath', 'nomineeName', 'mobileNo', 'memberRelation', 'assignedKnedraDropDown'];
+        let spoIpFeild = ['dob', 'nom', 'nomMobileNo', 'memRel'];
+        let prefix = initDetChkSelRow == 0 ? 'mem_' : (initDetChkSelRow == 1 ? 'spo_' : 'memSpo_');
+        let inputFeilds = initDetChkSelRow == 0 ? memIpFeild : (initDetChkSelRow == 1 ? spoIpFeild : memIpFeild.concat(spoIpFeild));
+        let selType = initDetChkSelRow == 0 ? 'MemberDetails' : (initDetChkSelRow == 1) ? 'SpouseDeath' : 'MemberAndSpouseDeath';
+        let inputBoxFilled = true;
+        inputFeilds.forEach(d => {
+            if (apz.isNull(apz.getElmValue(deathIntScrId + prefix + d))) {
+                inputBoxFilled = false;
+            } else {
+                rowData[d] = apz.getElmValue(deathIntScrId + prefix + d);
+            }
+        });
+        rowData.type = selType;
+        if (editFlow) {
+            if (ApzCOB.functionTocompareValues(deathIntiDet[selCustRecRow], rowData)) {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COL_MSG_NOCHANGES"), "E");
+                return;
+            }
+        }
+        if (!inputBoxFilled) {
+            //ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            ApzCOB.fnDisplayMsg("Please fill the details to continue", "E");
+        } else if (flow === 'zeroCollection') {
+            //launch zero collection micro app and screen using rowData 
+            apz.app.GroupsData.fromDeathIntFLow();
+        } else if (deathFlowFrom === 'draftRecordFlow') {
+            rowData.type = initDetChkSelRow == 0 ? 'MemberDetails' : (initDetChkSelRow == 1) ? 'SpouseDeath' : 'MemberAndSpouseDeath';
+            rowData = apz.app.DeathIntimation.formatInputBoxValues(rowData);
+            apz.app.DeathIntimation.submitDraftRecord(rowData);
+            draftData = rowData;
+        } else if (flow === 'customerScr') {
+            rowData.type = initDetChkSelRow == 0 ? 'MemberDetails' : (initDetChkSelRow == 1) ? 'SpouseDeath' : 'MemberAndSpouseDeath';
+            rowData = apz.app.DeathIntimation.formatInputBoxValues(rowData);
+            apz.app.DeathIntimation.customerFlowAPICall(rowData);
+        } else {
+            rowData.kendraId = selectedKendraId;
+            rowData.customerId = apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.IPaintKendraDetails[selCustRecRow].customerId;
+            stage = 3;
+            deathIntiDet[selCustRecRow] = rowData;
+            //deathIntiDet[selCustRecRow].customerId = apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.IPaintKendraDetails[selCustRecRow].customerId;
+            $("#" + deathIntScrId + 'deathKendraDash').removeClass('sno');
+            $("#" + deathIntScrId + 'deathIntDetailsDiv').addClass('sno');
+            apz.app.DeathIntimation.showDetailsAndHideArrow();
+            Object.keys(deathIntiDet).forEach((d, i) => {
+                if (deathIntiDet[d].type === 'MemberDetails') {
+                    apz.setElmValue(deathIntScrId + 'showMemDetBtn_' + d, "MEMBER DECEASED");
+                } else if (deathIntiDet[d].type === 'SpouseDeath') {
+                    apz.setElmValue(deathIntScrId + 'showMemDetBtn_' + d, "SPOUSE DECEASED");
+                } else {
+                    apz.setElmValue(deathIntScrId + 'showMemDetBtn_' + d, "MEMBER & SPOUSE DECEASED");
+                }
+            });
+            editFlow = false;
+        }
+    }
+}
+apz.app.DeathIntimation.showDetailsAndHideArrow = function() {
+    for (let rowNo in deathIntiDet) {
+        let selLiDiv = document.getElementById(deathIntScrId + 'cusDetaialsLst_row_' + rowNo);
+        selLiDiv.querySelector('#' + deathIntScrId + 'custClaimDet_row').classList.add('sno');
+        selLiDiv.querySelector("#" + deathIntScrId + 'arrowDiv_row').classList.add('sno');
+        selLiDiv.querySelector("#" + deathIntScrId + 'showDetailsDiv_row').classList.remove('sno');
+        selLiDiv.querySelector("#" + deathIntScrId + 'deathCalimFormDetail_row').classList.add('chkd');
+        selLiDiv.querySelector("#" + deathIntScrId + 'deathDataColDiv_li').classList.add('txt-inl');
+        document.getElementById(deathIntScrId + "enteredRec_" + rowNo).classList.remove("sno");
+    }
+}
+apz.app.DeathIntimation.confirmationPop = function() {
+    ApzCOB.toogleConformationModel(ApzCOB.getDescfromLitCode("LIT_COL_LBL_WARNINGMSG"), "apz.app.DeathIntimation.onClickSumit");
+}
+apz.app.DeathIntimation.onClickSumit = function() {
+    try {
+        ApzCOB.toggleModal(BaseScrId + 'confirmationModel');
+        //$("#" + deathIntScrId + 'deathIntMainDiv').addClass('sno');
+        apz.app.DeathIntimation.deathIntimationApiCall();
+        //$("#" + deathIntScrId + 'successDiv').removeClass('sno');
+    } catch (e) {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.DeathIntimation.paintSucessScreen = function(fromFlow) {
+    let paintArr = [];
+    apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.IPaintSucessRes = [];
+    // document.getElementById(deathIntScrId + 'col_kendraDetailsColDI').style = "display: flex;flex-direction: column;"
+    if (fromFlow === "draftFlow") {
+        let collData = collectionKendraData.find((d) => d.kendraId === deathIntDraftRec.deathDraftRec.comData.KENDRAID);
+        let kendraName = collData.kendraName + " | #" + collData.kendraId;
+        apz.setElmValue(deathIntScrId + 'kendraName', kendraName);
+        apz.setElmValue(deathIntScrId + 'KmdetailsFrom', apz.app.DeathIntimation.formatCustomerDetails(deathIntDraftRec.deathDraftRec.comData
+            .PAYLOAD.paylod));
+        $("#" + deathIntScrId + 'deathIntMainDiv').addClass('sno');
+        $("#" + deathIntScrId + 'successDiv').removeClass('sno');
+        let paintData = draftData;
+        let type = paintData.hasOwnProperty("mdod") && paintData.hasOwnProperty("sdod") ? 'MemberAndSpouseDeath' : paintData.hasOwnProperty(
+            "mdod") ? 'MemberDetails' : 'SpouseDeath';
+        let dateKey = type === "SpouseDeath" ? paintData.sdod : paintData.mdod;
+        let nomineeInfo = type === "SpouseDeath" ? `${paintData.sNomineRealtion} (${paintData.sNomineRealtion})` :
+            `${paintData.mNomineName} (${paintData.mNomineRealtion})`;
+        paintArr.push({
+            key: 'Date of Death',
+            info: dateKey
+        }, {
+            key: 'Nominee Name and Relation',
+            info: nomineeInfo
+        });
+    } else if (flow === 'customerScr') {
+        apz.setElmValue(deathIntScrId + 'kendraName', custData.kendraName);
+        apz.setElmValue(deathIntScrId + 'KmdetailsFrom', apz.app.DeathIntimation.formatCustomerDetails(customerSubData));
+        $("#" + deathIntScrId + 'deathIntMainDiv').addClass('sno');
+        $("#" + deathIntScrId + 'successDiv').removeClass('sno');
+        let type = custFlowDts.enteredDts.hasOwnProperty("mdod") && custFlowDts.enteredDts.hasOwnProperty("sdod") ? 'MemberAndSpouseDeath' :
+            custFlowDts.enteredDts.hasOwnProperty("mdod") ? 'MemberDetails' : 'SpouseDeath';
+        let dateKey = type === "SpouseDeath" ? custFlowDts.enteredDts.sdod : custFlowDts.enteredDts.mdod;
+        let nomineeInfo = type === "SpouseDeath" ? `${custFlowDts.enteredDts.sNomineRealtion} (${custFlowDts.enteredDts.sNomineRealtion})` :
+            `${custFlowDts.enteredDts.mNomineName} (${custFlowDts.enteredDts.mNomineRealtion})`;
+        paintArr.push({
+            key: 'Date of Death',
+            info: dateKey
+        }, {
+            key: 'Nominee Name and Relation',
+            info: nomineeInfo
+        });
+    } else {
+        apz.setElmValue(deathIntScrId + 'kendraName', collectionKendraData[selKendraRowNo].kendraName + " | #" + collectionKendraData[
+            selKendraRowNo].kendraId);
+        apz.setElmValue(deathIntScrId + 'KmdetailsFrom', apz.app.DeathIntimation.formatCustomerDetails(sqlData.paylod));
+        Object.values(deathIntiDet).forEach((d) => {
+            let dateKey = d.type === "SpouseDeath" ? d.dob : d.dateOfDeath;
+            let nomineeInfo = d.type === "SpouseDeath" ? `${d.nom} (${d.memRel})` : `${d.nomineeName} (${d.memberRelation})`;
+            paintArr.push({
+                key: 'Date of Death',
+                info: dateKey
+            }, {
+                key: 'Nominee Name and Relation',
+                info: nomineeInfo
+            });
+        });
+    }
+    apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.IPaintSucessRes = paintArr;
+    apz.data.loadData('IPaintDeathIntimation', 'KenMet');
+}
+apz.app.DeathIntimation.formatCustomerDetails = function(payload) {
+    if (!Array.isArray(payload) || payload.length === 0) {
+        return '';
+    }
+    const formattedEntries = payload.map(item => {
+        const name = item.customerName || item.custName || 'Unknown';
+        const id = item.id || item.custId || 'N/A';
+        return `'${name}' (#${id})`;
+    });
+    return `For ${formattedEntries.join(', ')}`;
+}
+apz.app.DeathIntimation.onClickMoreptions = function() {
+    if (document.getElementById(deathIntScrId + "moreDetailsDiv").classList.contains("sno")) {
+        document.getElementById(deathIntScrId + "moreDetailsDiv").classList.remove("sno");
+    } else {
+        document.getElementById(deathIntScrId + "moreDetailsDiv").classList.add("sno");
+    }
+}
+apz.app.DeathIntimation.deathIntimationApiCall = function() {
+    // let deathIntimationRecord = [];
+    // let sqlData = {};
+    // let today = new Date();
+    // let dd = String(today.getDate()).padStart(2, '0'); // Day with leading zero
+    // let mm = String(today.getMonth() + 1).padStart(2, '0'); // Month with leading zero
+    // let yyyy = today.getFullYear();
+    // Object.values(deathIntiDet).forEach((ed) => {
+    //     let deathObj = {};
+    //     deathObj.custId = ed.customerId;
+    //     deathObj.customerName = apz.app.DeathIntimation.findCustomerName(ed.customerId);
+    //     deathObj.type = ed.type;
+    //     deathObj.payload = {};
+    //     //deathObj.deathIntimationStatus = "Pending By BM";
+    //     if (ed.type === "MemberDetails") {
+    //         deathObj.payload.mNomineRealtion = ed.memberRelation;
+    //         deathObj.payload.mdod = ed.dateOfDeath;
+    //         deathObj.payload.mNomineName = ed.nomineeName;
+    //         deathObj.payload.mAssignedKm = ed.assignedKnedraDropDown;
+    //         deathObj.payload.memAssignedKMId = ''
+    //         deathObj.payload.mNomineNo = ed.mobileNo;
+    //         deathObj.payload.createdDate = `${dd}/${mm}/${yyyy}`;
+    //     } else if (ed.type === "SpouseDeath") {
+    //         deathObj.payload.sNomineRealtion = ed.memRel;
+    //         deathObj.payload.sdod = ed.dob;
+    //         deathObj.payload.sNomineName = ed.nom;
+    //         deathObj.payload.sNomineNo = ed.nomMobileNo;
+    //         deathObj.payload.createdDate = `${dd}/${mm}/${yyyy}`;
+    //     } else {
+    //         deathObj.payload.mNomineRealtion = ed.memberRelation;
+    //         deathObj.payload.mdod = ed.dateOfDeath;
+    //         deathObj.payload.mNomineName = ed.nomineeName;
+    //         deathObj.payload.mAssignedKm = ed.assignedKnedraDropDown;
+    //         deathObj.payload.memAssignedKMId = ''
+    //         deathObj.payload.mNomineNo = ed.mobileNo;
+    //         deathObj.payload.sdod = ed.dob;
+    //         deathObj.payload.sNomineName = ed.nom;
+    //         deathObj.payload.sNomineNo = ed.nomMobileNo;
+    //         deathObj.payload.sNomineRealtion = ed.memRel;
+    //         deathObj.payload.createdDate = `${dd}/${mm}/${yyyy}`;
+    //     }
+    //     deathIntimationRecord.push(JSON.stringify(deathObj));
+    // });
+    // sqlData.branchId = collectionKendraData[selKendraRowNo].branchId;
+    // sqlData.kmId = collectionKendraData[selKendraRowNo].kmId;
+    // sqlData.kendraId = collectionKendraData[selKendraRowNo].kendraId;
+    // sqlData.meetingDate = collectionKendraData[selKendraRowNo].meetingDate;
+    // sqlData.paylod = deathIntimationRecord;
+    // let req = {};
+    // req.interfaceName = "DeathIntimation";
+    // req.appId = apz.appId;
+    // req.userId = sqlData.kmId;
+    // req.requestObj = {};
+    // req.requestObj.appId = apz.appId;
+    // req.requestObj.applicationId = CollectionsCommon.returnDeathIntmationApplicationId(sqlData);
+    // req.requestObj.versionNo = "1";
+    // req.requestObj.kendraId = sqlData.kendraId;
+    // req.requestObj.kmId = sqlData.kmId;
+    // req.requestObj.kmUserRole= LoggedInUserDetails.loginResponse.userDet.name
+    // req.requestObj.branchId = sqlData.branchId;
+    // req.requestObj.deathIntimation = sqlData.paylod;
+    // request = {};
+    // request.apiRequest = req;
+    let deathIntimationRecord = [];
+    sqlData = {};
+    let today = new Date();
+    let formattedDate = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+    let createPayload = (ed, type) => {
+        let basePayload = {
+            mNomineRealtion: ed.memberRelation,
+            mdod: ed.dateOfDeath,
+            mNomineName: ed.nomineeName,
+            mAssignedKm: ed.assignedKnedraDropDown,
+            memAssignedKMId: '',
+            mNomineNo: ed.mobileNo,
+            createdDate: formattedDate,
+        };
+        if (type === "SpouseDeath") {
+            return {
+                sNomineRealtion: ed.memRel,
+                sdod: ed.dob,
+                sNomineName: ed.nom,
+                sNomineNo: ed.nomMobileNo,
+                createdDate: formattedDate,
+            };
+        } else if (type === "MemberAndSpouseDeath") {
+            return {
+                ...basePayload,
+                sdod: ed.dob,
+                sNomineName: ed.nom,
+                sNomineNo: ed.nomMobileNo,
+                sNomineRealtion: ed.memRel,
+                mdod: ed.dateOfDeath,
+                mNomineName: ed.nomineeName,
+                mNomineNo: ed.mobileNo,
+                mNomineRealtion: ed.memberRelation,
+                mAssignedKm: ed.assignedKnedraDropDown,
+            };
+        } else if (type === "MemberDeath") {
+            return {
+                ...basePayload,
+                mdod: ed.dateOfDeath,
+                mNomineName: ed.nomineeName,
+                mNomineNo: ed.mobileNo,
+                mNomineRealtion: ed.memberRelation,
+                mAssignedKm: ed.assignedKnedraDropDown,
+            };
+        }
+        return basePayload;
+    };
+    let selectedKendraData = collectionKendraData[selKendraRowNo];
+    Object.values(deathIntiDet).forEach((ed) => {
+        let deathObj = {
+            custId: ed.customerId,
+            custName: apz.app.DeathIntimation.findCustomerName(ed.customerId),
+            type: ed.type,
+            payload: JSON.stringify(createPayload(ed, ed.type)),
+            kendraId: selectedKendraData.kendraId,
+            kendraName: selectedKendraData.kendraName
+        };
+        deathIntimationRecord.push(deathObj);
+    });
+    sqlData = {
+        branchId: selectedKendraData.branchId,
+        kmId: selectedKendraData.kmId,
+        kendraId: selectedKendraData.kendraId,
+        kendraName: selectedKendraData.kendraName,
+        meetingDate: selectedKendraData.meetingDate,
+        paylod: deathIntimationRecord,
+    };
+    let req = {
+        interfaceName: "CreateDeathIntimation",
+        appId: apz.appId,
+        userId: sqlData.kmId,
+        requestObj: {
+            appId: apz.appId,
+            //applicationId: CollectionsCommon.returnDeathIntmationApplicationId(sqlData),
+            //versionNo: "1",
+            //kendraId: sqlData.kendraId,
+            kmId: sqlData.kmId,
+            kmUserRole: "KM",
+            branchId: sqlData.branchId,
+            deathIntimation: sqlData.paylod,
+        },
+    };
+    let request = {
+        apiRequest: req
+    };
+    apz.startLoader()
+    ApzCOB.serverBuildParam(gAppId, 'CreateDeathIntimationReq', 'N', 'N', request, 'Y', apz.app.DeathIntimation.deathIntimationApiCallCB);
+}
+apz.app.DeathIntimation.deathIntimationApiCallCB = function(params) {
+    try {
+        apz.stopLoader();
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__CreateDeathIntimationReq_Res.apiResponse.ResponseBody)) {
+                if (params.res.APZCBO__CreateDeathIntimationReq_Res.apiResponse.ResponseHeader.ResponseCode === '0') {
+                    $("#" + deathIntScrId + 'deathIntMainDiv').addClass('sno');
+                    $("#" + deathIntScrId + 'successDiv').removeClass('sno');
+                    apz.app.DeathIntimation.paintSucessScreen();
+                }
+            }
+        } else {
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.DeathIntimation.checkClaimCanBeDisable = function(pthis) {
+    if (pthis) {
+        selDropDownId = pthis.id;
+        let val = pthis.id.split('_').at(-1);
+        let dropDownId = ['memberRelation', 'assignedKnedraDropDown', 'memRel'];
+        apz.app.DeathIntimation.fillDropDownValue();
+        if (dropDownId.includes(val)) {
+            if (val === 'memberRelation' || val === 'memRel') {
+                ApzCOB.toggleModal(deathIntScrId + "relationsModel");
+                if (apz.isNull(apz.getElmValue(selDropDownId))) {
+                    apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.relationsMem.forEach((d, i) => {
+                        $("#" + deathIntScrId + "relationVal_" + i).prop('checked', false);
+                        document.getElementById(deathIntScrId + "relationVal_" + i).disabled = false;
+                    });
+                }
+            } else {
+                ApzCOB.toggleModal(deathIntScrId + "kendraMangerModel");
+                if (apz.isNull(apz.getElmValue(selDropDownId))) {
+                    apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.assignedKM.forEach((d, i) => {
+                        $("#" + deathIntScrId + "kmVal_" + i).prop('checked', false);
+                    });
+                }
+                apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.assignedKM.forEach((d, i) => {
+                    document.getElementById(deathIntScrId + "kmVal_" + i).disabled = false;
+                });
+            }
+        }
+        if (selDropDownId.split("_").at(-1) === 'assignedKnedraDropDown') {
+            let assignedKM = [{
+                "val": LoggedInUserDetails.userID,
+                "kmName": LoggedInUserDetails.loginResponse.userDet.name
+            }];
+            apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.assignedKM = assignedKM;
+            apz.data.loadData('IPaintDeathIntimation', 'KenMet');
+        }
+    } else {
+        let memIpFeild = ['dateOfDeath', 'nomineeName', 'mobileNo', 'memberRelation', 'assignedKnedraDropDown'];
+        let spoIpFeild = ['dob', 'nom', 'nomMobileNo', 'memRel'];
+        let prefix = initDetChkSelRow == 0 ? 'mem_' : (initDetChkSelRow == 1 ? 'spo_' : 'memSpo_');
+        let inputFeilds = initDetChkSelRow == 0 ? memIpFeild : (initDetChkSelRow == 1 ? spoIpFeild : memIpFeild.concat(spoIpFeild));
+        let inputBoxFilled = true;
+        inputFeilds.forEach(d => {
+            if (apz.isNull(apz.getElmValue(deathIntScrId + prefix + d))) {
+                inputBoxFilled = false;
+            }
+        });
+        if (inputBoxFilled) {
+            document.getElementById(deathIntScrId + 'deathClaimSubBtn').disabled = false;
+        } else {
+            document.getElementById(deathIntScrId + 'deathClaimSubBtn').disabled = true;
+        }
+    }
+}
+apz.app.DeathIntimation.handleBackNavigation = function() {
+    if (deathFlowFrom === 'draftRecordFlow') {
+        ApzCOB.launchMicroApp("KenMet", "DeathIntimationPendingList", "APZCBO__BaseScreens__BaseDIV", '');
+    } else if (flow === 'customerScr') {
+        let selKendraDt = kendraResponse.find(d => d.kendraDtls.kendraId == custData.kendraId);
+        let data = selKendraDt.kendraDtls.customerDtls.find(d => d.customerId == custData.customerId);
+        KendraApp.selectedCustomer = data;
+        let selectedData = {};
+        selectedData.scr = 'DashboardSearch'
+        selectedData.childScrId = 'DashboardSearch';
+        ApzCOB.launchMicroApp('Custom', 'CustomerDetails', 'APZCBO__BaseScreens__BaseDIV', selectedData);
+    } else if (stage == 2) {
+        $("#" + deathIntScrId + 'deathIntDetailsDiv').addClass('sno');
+        $("#" + deathIntScrId + 'deathKendraDash').removeClass('sno');
+    } else if (stage == 3) {
+        $("#" + deathIntScrId + 'deathIntDetailsDiv').removeClass('sno');
+        $("#" + deathIntScrId + 'deathKendraDash').addClass('sno');
+    } else {
+        ApzCOB.backNavigation();
+    }
+}
+apz.app.DeathIntimation.onClickOfEdit = function(pthis) {
+    editFlow = true;
+    let rowNo = pthis.id.split("_").at(-1);
+    $("#" + deathIntScrId + 'submitClaimDiv').removeClass('sno');
+    let selRec = apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.IPaintKendraDetails[rowNo];
+    selCustRecRow = rowNo;
+    apz.app.DeathIntimation.showDeathIntimationDetailsScr(selRec);
+    document.getElementById(deathIntScrId + 'deathClaimSubBtn').disabled = true;
+    apz.app.DeathIntimation.setDropDownValues();
+}
+apz.app.DeathIntimation.fillDropDownValue = function() {
+    apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.relationsMem = LOV_LIST.nomineeReation;
+    let assignedKM = [{
+        "val": selKendraData.kmId,
+        "kmName": selKendraData.kmName,
+    }];
+    apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.assignedKM = assignedKM;
+    apz.data.loadData('IPaintDeathIntimation', 'KenMet');
+}
+apz.app.DeathIntimation.onClickOfConfirmInMemRel = function() {
+    let selRealtion = '';
+    apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.relationsMem.forEach((d, i) => {
+        if ($("#" + deathIntScrId + 'relationVal_' + i).prop('checked')) {
+            selRealtion = d.desc;
+        }
+    });
+    if (!apz.isNull(selRealtion)) {
+        apz.setElmValue(selDropDownId, selRealtion);
+    }
+    ApzCOB.toggleModal(deathIntScrId + "relationsModel");
+    apz.app.DeathIntimation.checkClaimCanBeDisable();
+}
+apz.app.DeathIntimation.onClickOfConfirmKendraList = function() {
+    let selKendraVal = '';
+    apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.assignedKM.forEach((d, i) => {
+        if ($("#" + deathIntScrId + 'kmVal_' + i).prop('checked')) {
+            selKendraVal = d.kmName;
+        }
+    });
+    if (!apz.isNull(selKendraVal)) {
+        apz.setElmValue(selDropDownId, selKendraVal);
+    }
+    ApzCOB.toggleModal(deathIntScrId + "kendraMangerModel");
+    apz.app.DeathIntimation.checkClaimCanBeDisable();
+}
+apz.app.DeathIntimation.onClickRelationsCheckbox = function(pthis) {
+    let assignedKM = [{
+        "val": LoggedInUserDetails.userID,
+        "kmName": LoggedInUserDetails.loginResponse.userDet.name
+    }];
+    apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.assignedKM = assignedKM;
+    apz.data.loadData('IPaintDeathIntimation', 'KenMet');
+    let row = parseInt(pthis.id.split("_").at(-1));
+    apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.relationsMem.forEach((d, i) => {
+        if (row === i) {
+            document.getElementById(deathIntScrId + "relationVal_" + i).disabled = true;
+        } else {
+            document.getElementById(deathIntScrId + "relationVal_" + i).disabled = false;
+        }
+        if (row !== i && $("#" + deathIntScrId + 'relationVal_' + i).prop('checked')) {
+            $("#" + deathIntScrId + 'relationVal_' + i).prop('checked', false);
+        }
+    })
+}
+apz.app.DeathIntimation.onClickKendraMangerCheckbox = function(pthis) {
+    let row = parseInt(pthis.id.split("_").at(-1));
+    apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.assignedKM.forEach((d, i) => {
+        if (row !== i && $("#" + deathIntScrId + 'kmVal_' + i).prop('checked')) {
+            $("#" + deathIntScrId + 'kmVal_' + i).prop('checked', false);
+        }
+        if (row === i) {
+            document.getElementById(deathIntScrId + "kmVal_" + i).disabled = true;
+        } else {
+            document.getElementById(deathIntScrId + "kmVal_" + i).disabled = false;
+        }
+    })
+}
+apz.app.DeathIntimation.resetAllInputBox = function() {
+    let memIpFeild = ['dateOfDeath', 'nomineeName', 'mobileNo', 'memberRelation', 'assignedKnedraDropDown'];
+    let spoIpFeild = ['dob', 'nom', 'nomMobileNo', 'memRel'];
+    let mepSpoFeild = ['dateOfDeath', 'nomineeName', 'mobileNo', 'memberRelation', 'assignedKnedraDropDown', 'dob', 'nom', 'nomMobileNo',
+        'memRel'];
+    let preFix = ['mem_', 'spo_', 'memSpo_'];
+    for (let i = 0; i < preFix.length; i++) {
+        $("#" + deathIntScrId + 'resChkBox_' + i).prop('checked', false);
+        if (preFix[i] === 'mem_') {
+            for (let j = 0; j < memIpFeild.length; j++) {
+                apz.setElmValue(deathIntScrId + preFix[i] + memIpFeild[j], '');
+            }
+        } else if (preFix[i] === 'spo_') {
+            for (let j = 0; j < spoIpFeild.length; j++) {
+                apz.setElmValue(deathIntScrId + preFix[i] + spoIpFeild[j], '');
+            }
+        } else {
+            for (let j = 0; j < mepSpoFeild.length; j++) {
+                apz.setElmValue(deathIntScrId + preFix[i] + mepSpoFeild[j], '');
+            }
+        }
+    }
+    $("#" + deathIntScrId + 'deathDetails_row').addClass('sno');
+    $("#" + deathIntScrId + 'deathSpoDet_row').addClass('sno');
+    $("#" + deathIntScrId + 'deathMemAndSpoDet_row').addClass('sno');
+}
+apz.app.DeathIntimation.fromZeroCollectionFlow = function(kendraId = 32076, customerId) {
+    let kendraData = kendraResponse.find(d => d.kendraDtls.kendraId == kendraId);
+    let custSel = kendraData.kendraDtls.customerDtls.find(d => d.customerId == customerId);
+    $("#" + deathIntScrId + 'deathIntDetailsDiv').removeClass('sno');
+    $("#" + deathIntScrId + 'deathKendraDash').addClass('sno');
+    apz.setElmValue(deathIntScrId + 'selCustName', custSel.customerName);
+    apz.setElmValue(deathIntScrId + 'selCustId', '#' + custSel.customerId);
+    apz.setElmValue(deathIntScrId + 'kendraMangerName', kendraData.kendraDtls.kmName);
+    document.getElementById(deathIntScrId + 'deathClaimSubBtn').disabled = true;
+}
+apz.app.DeathIntimation.setFeildValidation = function() {
+    //below code is for date validation
+    let dateFeilds = ['mem_dateOfDeath', 'spo_dob', 'memSpo_dateOfDeath', 'memSpo_dob'];
+    let today = new Date();
+    let newDate = new Date(today);
+    newDate.setMonth(newDate.getMonth() - 2);
+    dateFeilds.forEach((d) => {
+        $('#' + deathIntScrId + d).datepicker("option", "minDate", newDate);
+        $('#' + deathIntScrId + d).datepicker("option", "maxDate", today);
+    });
+    //below code is for setting phone number input as number
+    let noFeilds = ['mem_mobileNo', 'spo_nomMobileNo', 'memSpo_mobileNo', 'memSpo_nomMobileNo'];
+    noFeilds.forEach((d) => {
+        document.getElementById(deathIntScrId + d).type = 'number'
+    });
+}
+apz.app.DeathIntimation.settingFieldLength = function(pthis, val) {
+    apz.setElmValue(pthis.id, $('#' + pthis.id).val().substr(0, val))
+}
+apz.app.DeathIntimation.validNumberDecimal = function(pthis) {
+    pthis.value = pthis.value.replace(ALLOWONLYNUMDECIMALS, '');
+    if (pthis.value.includes('.')) {
+        pthis.value = pthis.value.split('.')[0] + '.' + pthis.value.split('.')[1].substring(0, 2);
+    }
+};
+apz.app.DeathIntimation.validPhoneNumber = function(pthis) {
+    pthis.value = pthis.value.replace(ALLOWONLYNUMDECIMALS, '');
+    if (pthis.value.includes('.')) {
+        let [integerPart, decimalPart] = pthis.value.split('.');
+        pthis.value = `${integerPart}.${decimalPart.substring(0, 2)}`;
+    }
+    if (pthis.value && pthis.value.length >= 1) {
+        let firstDigit = pthis.value[0];
+        if (['9', '8', '7', '6'].includes(firstDigit)) {
+            return;
+        } else {
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COLL_MSG_VALID_PHONE_NO"), "E");
+            apz.setElmValue(pthis.id, '');
+        }
+    }
+};
+apz.app.DeathIntimation.onClickOfEditOption = function(pthis) {
+    editFlow = true;
+    stage = 2;
+    $("#" + deathIntScrId + 'submitClaimDiv').removeClass('sno');
+    let selRowNo = $(pthis).attr("rowno");
+    selCustRecRow = selRowNo;
+    apz.app.DeathIntimation.deathIntimationDetailsRec(selRowNo);
+    apz.app.DeathIntimation.loadDeathIntimationRecord(selRowNo);
+    document.getElementById(deathIntScrId + 'deathClaimSubBtn').disabled = false;
+}
+apz.app.DeathIntimation.loadDeathIntimationRecord = function(selRowNo) {
+    let memIpFeild = ['dateOfDeath', 'nomineeName', 'mobileNo', 'memberRelation', 'assignedKnedraDropDown'];
+    let spoIpFeild = ['dob', 'nom', 'nomMobileNo', 'memRel'];
+    let mepSpoFeild = ['dateOfDeath', 'nomineeName', 'mobileNo', 'memberRelation', 'assignedKnedraDropDown', 'dob', 'nom', 'nomMobileNo',
+        'memRel'];
+    let preFix = ['mem_', 'spo_', 'memSpo_'];
+    if (deathIntiDet[selRowNo].type === "SpouseDeath") {
+        initDetChkSelRow = 1;
+        $("#" + deathIntScrId + 'resChkBox_1').prop('checked', true);
+        $("#" + deathIntScrId + 'deathSpoDet_row').removeClass('sno');
+        $("#" + deathIntScrId + 'resChkBox_0').addClass('active');
+        $("#" + deathIntScrId + 'resChkBoxDiv_1_row').addClass('active');
+        spoIpFeild.forEach((d, i) => {
+            apz.setElmValue(deathIntScrId + 'spo_' + d, deathIntiDet[selRowNo][d])
+        })
+    } else if (deathIntiDet[selRowNo].type === "MemberDetails") {
+        initDetChkSelRow = 0;
+        $("#" + deathIntScrId + 'resChkBox_1').addClass('active');
+        $("#" + deathIntScrId + 'deathDetails_row').removeClass('sno');
+        $("#" + deathIntScrId + 'resChkBox_0').prop('checked', true);
+        $("#" + deathIntScrId + 'resChkBoxDiv_0_row').addClass('active');
+        memIpFeild.forEach((d, i) => {
+            apz.setElmValue(deathIntScrId + 'mem_' + d, deathIntiDet[selRowNo][d])
+        })
+    } else {
+        initDetChkSelRow = 2;
+        $("#" + deathIntScrId + 'resChkBox_2').prop('checked', true);
+        $("#" + deathIntScrId + 'resChkBox_2').addClass('active');
+        $("#" + deathIntScrId + 'deathMemAndSpoDet_row').removeClass('sno');
+        $("#" + deathIntScrId + 'resChkBoxDiv_2_row').addClass('active');
+        mepSpoFeild.forEach((d, i) => {
+            apz.setElmValue(deathIntScrId + 'memSpo_' + d, deathIntiDet[selRowNo][d])
+        })
+    }
+}
+apz.app.DeathIntimation.fabBtnonShow = function() {
+    $("#" + deathIntScrId + 'deathIntMainDiv').addClass('sno');
+    $("#" + deathIntScrId + 'fabKendraDiv').removeClass('sno');
+    apz.app.DeathIntimation.loadDaysForFabFlow();
+    apz.app.DeathIntimation.loadKendraDataForFabFlow();
+    //apz.app.DeathIntimation.fillDropDownValue();
+}
+apz.app.DeathIntimation.loadDaysForFabFlow = function() {
+    let valuesArray = ['All', 'Monday', 'Tuesday', 'Wednesday', 'Thrusday', 'Friday'];
+    let dayList = valuesArray.map(day => ({
+        day
+    }));
+    apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.DayListNode = dayList;
+    apz.data.loadData('IPaintDeathIntimation', 'KenMet');
+    $("#KenMet__IPaintDeathIntimation__o__DayListNode__day_0").addClass('active');
+}
+apz.app.DeathIntimation.paintKendraDataBasedOndata = function(updatedData) {
+    if (updatedData && updatedData.length > 0) {
+        $("#" + deathIntScrId + 'noRecDiv').addClass('sno');
+        $("#" + deathIntScrId + 'dataDiv').removeClass('sno');
+        let paintData = [];
+        updatedData.forEach((d) => {
+            let obj = {};
+            obj.meetingFullDay = d.meetingDay ? apz.app.DeathIntimation.getFullDayName(d.meetingDay) : d.meetingFullDay,
+                obj.kendraName = d.kendraName,
+                obj.kendraId = obj.kendraId = d.kendraId.startsWith('Kendra') ? d.kendraId : 'Kendra Id #' + d.kendraId,
+                obj.kenId = d.kenId ? d.kenId : d.kendraId
+            paintData.push(obj);
+        });
+        let sortedData = paintData.sort((a, b) => {
+            let daysOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+            return daysOrder.indexOf(a.meetingFullDay) - daysOrder.indexOf(b.meetingFullDay);
+        });
+        apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.KendraDtlListNode = sortedData;
+        apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.KendraDtlListNode = paintData;
+        apz.data.loadData('IPaintDeathIntimation', 'KenMet');
+        paintData.forEach((d, i) => {
+            if (i === 0) {
+                displayedRec = d.meetingFullDay;
+                apz.app.DeathIntimation.hideHeaderKendraData(i)
+            } else {
+                if (displayedRec !== d.meetingFullDay) {
+                    displayedRec = d.meetingFullDay;
+                    apz.app.DeathIntimation.hideHeaderKendraData(i);
+                } else {
+                    displayedRec = d.meetingFullDay;
+                }
+            }
+        })
+    } else {
+        $("#" + deathIntScrId + 'noRecDiv').removeClass('sno');
+        $("#" + deathIntScrId + 'dataDiv').addClass('sno');
+    }
+}
+apz.app.DeathIntimation.loadKendraDataForFabFlow = function() {
+    let updatedData = JSON.parse(JSON.stringify(collectionKendraData));
+    //updatedData = apz.app.DeathIntimation.sortBasedOnDays(updatedData);
+    apz.app.DeathIntimation.paintKendraDataBasedOndata(updatedData);
+    apz.app.DeathIntimation.fillDropDownValue();
+    kendraDeatilsData = apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.KendraDtlListNode;
+}
+apz.app.DeathIntimation.hideHeaderKendraData = function(i) {
+    let listDivId = document.querySelector("#" + deathIntScrId + 'kendraList_row_' + i);
+    listDivId.querySelector('#' + deathIntScrId + 'displayDayRow_row').classList.remove('sno');
+}
+apz.app.DeathIntimation.getFullDayName = function(dayAbbreviation) {
+    let days = {
+        MON: "Monday",
+        TUE: "Tuesday",
+        WED: "Wednesday",
+        THU: "Thursday",
+        FRI: "Friday",
+        SAT: "Saturday",
+        SUN: "Sunday"
+    };
+    return days[dayAbbreviation.toUpperCase()] || "0";
+}
+apz.app.DeathIntimation.sortBasedOnDays = function(data) {
+    let dayOrder = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+    data.sort((a, b) => {
+        let dayA = a.meetingDay;
+        let dayB = b.meetingDay;
+        return dayOrder.indexOf(dayA) - dayOrder.indexOf(dayB);
+    });
+    return data;
+}
+apz.app.DeathIntimation.onClickOfNextBtnInKendraFabScr = function(pthis) {
+    let rowNo = pthis.id.split("_").at(-1);
+    let kendraDetails = apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.KendraDtlListNode[rowNo];
+    selectedKendraRow = rowNo
+    apz.app.DeathIntimation.threeDotFlow(kendraDetails.kenId);
+    $("#" + deathIntScrId + 'deathIntMainDiv').removeClass('sno');
+    $("#" + deathIntScrId + 'fabKendraDiv').addClass('sno');
+}
+apz.app.DeathIntimation.paintKendraDtlsBasedOnDay = function(pthis) {
+    apz.setElmValue(deathIntScrId + 'searchInputBox', '');
+    let rowSel = pthis.id.split("_").at(-1);
+    let daySel = apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.DayListNode[rowSel];
+    apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.DayListNode.forEach((d, i) => {
+        $("#KenMet__IPaintDeathIntimation__o__DayListNode__day_" + i).removeClass('active');
+    })
+    $("#KenMet__IPaintDeathIntimation__o__DayListNode__day_" + rowSel).addClass('active');
+    let day = daySel.day;
+    if (day !== 'All') {
+        let paintData = collectionKendraData.filter((d) => d.meetingDay === day.slice(0, 3).toUpperCase());
+        apz.app.DeathIntimation.paintKendraDataBasedOndata(paintData);
+    } else {
+        apz.app.DeathIntimation.paintKendraDataBasedOndata(collectionKendraData);
+    }
+}
+apz.app.DeathIntimation.onClickOfSearch = function(pthis) {
+    var searchText = $("#" + pthis.id).val();
+    let searchRec = [];
+    kendraDeatilsData.forEach((d, i) => {
+        if (d.kendraName.includes(searchText) || d.kenId.includes(searchText)) {
+            searchRec.push(d);
+        }
+    })
+    apz.app.DeathIntimation.paintKendraDataBasedOndata(searchRec);
+}
+apz.app.DeathIntimation.onClickOfBackNavCustScr = function() {
+    if (deathFlowFrom && deathFlowFrom === 'fabBtnFlow') {
+        apz.app.DeathIntimation.fabBtnonShow();
+    } else {
+        ApzCOB.launchMicroApp("KenMet", "KMDashboard", "APZCBO__BaseScreens__BaseDIV", selectedKendra);
+    }
+}
+apz.app.DeathIntimation.validName = function(pthis) {
+    pthis.value = pthis.value.replace(/[^a-zA-Z ]/g, '');
+};
+apz.app.DeathIntimation.showDraftValue = function(record) {
+    deathIntDraftRec = record;
+    $("#" + deathIntScrId + 'deathIntDetailsDiv').removeClass('sno');
+    $("#" + deathIntScrId + 'deathKendraDash').addClass('sno');
+    apz.setElmValue(deathIntScrId + 'selCustName', record.customerName);
+    apz.setElmValue(deathIntScrId + 'selCustId', '#' + record.customerId);
+    apz.setElmValue(deathIntScrId + 'kendraMangerName', record.kmName);
+    document.getElementById(deathIntScrId + 'deathClaimSubBtn').disabled = true;
+    apz.app.DeathIntimation.clearAllDeathIntimationFeilds();
+    apz.app.DeathIntimation.paintDeathIntimationDraftRecord();
+}
+apz.app.DeathIntimation.paintDeathIntimationDraftRecord = function() {
+    checkboxSel = {};
+    let record = deathIntDraftRec.deathDraftRec.comData.PAYLOAD.paylod[deathIntDraftRec.deathDraftRec.rowSel];
+    if (record.type === 'Member Deceased') {
+        $('#' + deathIntScrId + 'resChkBox_0').prop('checked', true);
+        let rec = {};
+        rec.id = deathIntScrId + 'resChkBox_0';
+        checkboxSel.id = deathIntScrId + 'resChkBox_0';
+        rec.choice = true;
+        apz.app.DeathIntimation.onClickOfResData(rec);
+        apz.setElmValue(deathIntScrId + 'mem_nomineeName', record.familyMemName);
+        apz.setElmValue(deathIntScrId + 'mem_mobileNo', record.familyMemMobNo);
+    } else if (record.type === 'Spouse Deceased') {
+        $('#' + deathIntScrId + 'resChkBox_1').prop('checked', true);
+        let rec = {};
+        rec.id = deathIntScrId + 'resChkBox_1';
+        checkboxSel.id = deathIntScrId + 'resChkBox_1';
+        rec.choice = true;
+        apz.app.DeathIntimation.onClickOfResData(rec);
+        apz.setElmValue(deathIntScrId + 'spo_nom', record.familyMemName);
+        apz.setElmValue(deathIntScrId + 'spo_nomMobileNo', record.familyMemMobNo);
+    } else {
+        $('#' + deathIntScrId + 'resChkBox_2').prop('checked', true);
+        let rec = {};
+        rec.id = deathIntScrId + 'resChkBox_2';
+        checkboxSel.id = deathIntScrId + 'resChkBox_2';
+        rec.choice = true;
+        apz.app.DeathIntimation.onClickOfResData(rec);
+        apz.setElmValue(deathIntScrId + 'memSpo_nomineeName', record.familyMemName);
+        apz.setElmValue(deathIntScrId + 'memSpo_mobileNo', record.familyMemMobNo);
+        apz.setElmValue(deathIntScrId + 'memSpo_nom', record.familyMemName);
+        apz.setElmValue(deathIntScrId + 'memSpo_nomMobileNo', record.familyMemMobNo);
+    }
+    let assignedKM = [{
+        "val": LoggedInUserDetails.userID,
+        "kmName": LoggedInUserDetails.loginResponse.userDet.name
+    }];
+    apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.assignedKM = assignedKM;
+    apz.data.loadData('IPaintDeathIntimation', 'KenMet');
+}
+apz.app.DeathIntimation.submitDraftRecord = function(recz) {
+    let payloadData = deathIntDraftRec.deathDraftRec.comData.PAYLOAD;
+    let selectedRow = payloadData.paylod[deathIntDraftRec.deathDraftRec.rowSel];
+    let updatedData = {
+        deathIntimationStatus: 'Draft Submitted',
+        id: selectedRow.id,
+        payload: recz,
+        kmId: payloadData.kmId,
+        branchId: payloadData.branchId,
+        kmUserRole: "KM",
+        kendraId: payloadData.kendraId,
+        kendraName: payloadData.kendraName,
+        custName: selectedRow.customerName,
+        type: initDetChkSelRow == 0 ? 'MemberDetails' : (initDetChkSelRow == 1) ? 'SpouseDeath' : 'MemberAndSpouseDeath',
+        appId: payloadData.appId,
+    };
+    let request = {
+        apiRequest: {
+            interfaceName: "CreateDeathIntimation",
+            appId: apz.appId,
+            userId: updatedData.kmId,
+            requestObj: {
+                appId: apz.appId,
+                kmId: updatedData.kmId,
+                kmUserRole: updatedData.kmUserRole,
+                branchId: updatedData.branchId,
+                deathIntimation: [{
+                    kendraId: updatedData.kendraId,
+                    kendraName: updatedData.kendraName,
+                    custId: updatedData.id,
+                    custName: updatedData.custName,
+                    type: updatedData.type,
+                    payload: JSON.stringify(updatedData.payload),
+                }, ],
+            },
+        },
+    };
+    apz.startLoader()
+    ApzCOB.serverBuildParam(gAppId, 'CreateDeathIntimationReq', 'N', 'N', request, 'Y', apz.app.DeathIntimation.submitDraftRecordCB);
+}
+apz.app.DeathIntimation.submitDraftRecordCB = function(params) {
+    try {
+        apz.stopLoader()
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__CreateDeathIntimationReq_Res.apiResponse.ResponseBody)) {
+                if (params.res.APZCBO__CreateDeathIntimationReq_Res.apiResponse.ResponseHeader.ResponseCode === '0') {
+                    $("#" + deathIntScrId + 'deathIntMainDiv').addClass('sno');
+                    $("#" + deathIntScrId + 'successDiv').removeClass('sno');
+                    apz.app.DeathIntimation.paintSucessScreen("draftFlow");
+                }
+            }
+        } else {
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E", ApzCOB.dashboardAppListAPI);
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E", ApzCOB.dashboardAppListAPI);
+    }
+}
+apz.app.DeathIntimation.modifyExistingSqliteAndInsert = function(data) {
+    CollectionsCommon.encryptDeathIntimationRecordOldRecord(data);
+}
+apz.app.DeathIntimation.formatInputBoxValues = function(data) {
+    let inputObj = {};
+    if (data.type === "SpouseDeath") {
+        inputObj.sNomineName = data.nom;
+        inputObj.sNomineNo = data.nomMobileNo;
+        inputObj.sdod = data.dob;
+        inputObj.sNomineRealtion = data.memRel;
+    } else if (data.type === "MemberDetails") {
+        inputObj.mdod = data.dateOfDeath;
+        inputObj.mNomineName = data.nomineeName;
+        inputObj.mNomineNo = data.mobileNo;
+        inputObj.mNomineRealtion = data.memberRelation;
+        inputObj.mAssignedKm = data.assignedKnedraDropDown;
+    } else {
+        inputObj.sNomineName = data.nom;
+        inputObj.sNomineNo = data.nomMobileNo;
+        inputObj.sdod = data.dob;
+        inputObj.sNomineRealtion = data.memRel;
+        inputObj.mdod = data.dateOfDeath;
+        inputObj.mNomineName = data.nomineeName;
+        inputObj.mNomineNo = data.mobileNo;
+        inputObj.mNomineRealtion = data.memberRelation;
+        inputObj.mAssignedKm = data.assignedKnedraDropDown;
+    }
+    return inputObj;
+}
+apz.app.DeathIntimation.findCustomerName = function(custmerId) {
+    let customerName = '';
+    collectionKendraData.forEach((collDta) => {
+        collDta.colldtls.groups.forEach((groupDta) => {
+            groupDta.members.forEach((mem) => {
+                if (mem.id === custmerId) {
+                    customerName = mem.name;
+                }
+            });
+        });
+    });
+    return customerName;
+}
+apz.app.DeathIntimation.restrictDeathIntimationFlow = function() {
+    apz.startLoader();
+    setTimeout(() => {
+        let draftData = Array.isArray(window.deathIntimationData) ? window.deathIntimationData : [];
+        let dbData = window.deathIntimationInitatedRec ? window.deathIntimationInitatedRec : [];
+        let dbRecord = [];
+        if (Array.isArray(draftData) && draftData.length !== 0) {
+            draftData.forEach((data) => {
+                data.PAYLOAD.paylod.forEach((customerData) => {
+                    let recObj = {};
+                    recObj.custId = customerData.id;
+                    recObj.status = 'Draft'
+                    dbRecord.push(recObj);
+                });
+            });
+        }
+        let lovData = JSON.parse(gLovs.lovDtls);
+        if (Array.isArray(dbData) && dbData.length !== 0) {
+            dbData.forEach((d) => {
+                let recObj = {};
+                recObj.custId = d.customerId;
+                let statusData = window.deathIntimationStatusLov.find((lovData) => d.status === lovData.key);
+                recObj.status = statusData?.value;
+                if (recObj.custId && recObj.status) {
+                    dbRecord.push(recObj);
+                }
+            });
+        }
+        dbRecord = apz.app.DeathIntimation.removeDuplicates(dbRecord);
+        dbRecord.forEach((custData) => {
+            apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.IPaintKendraDetails.forEach((d, i) => {
+                if (d.customerId === custData.custId) {
+                    mainDiv = document.querySelector("#" + deathIntScrId + "cusDetaialsLst_row_" + i);
+                    mainDiv.querySelector("#" + deathIntScrId + "CompletedDiv_row").classList.remove('sno');
+                    mainDiv.querySelector("#" + deathIntScrId + "arrowDiv_row").classList.add('sno');
+                    apz.setElmValue(deathIntScrId + "completedStats_" + i, custData.status);
+                    if (custData.status === lovData.find((d) => d.key === 'INPROGRESS').value) {
+                        document.getElementById(deathIntScrId + "completedStats_" + i).classList.add('bg-err');
+                        document.getElementById(deathIntScrId + "completedStats_" + i).classList.remove('bg-green');
+                        document.getElementById(deathIntScrId + "completedStats_" + i).classList.remove('bg-info');
+                    } else if (custData.status === 'Draft') {
+                        document.getElementById(deathIntScrId + "completedStats_" + i).classList.remove('bg-err');
+                        document.getElementById(deathIntScrId + "completedStats_" + i).classList.remove('bg-green');
+                        document.getElementById(deathIntScrId + "completedStats_" + i).classList.add('bg-info');
+                    } else {
+                        document.getElementById(deathIntScrId + "completedStats_" + i).classList.remove('bg-err');
+                        document.getElementById(deathIntScrId + "completedStats_" + i).classList.add('bg-green');
+                        document.getElementById(deathIntScrId + "completedStats_" + i).classList.remove('bg-info');
+                    }
+                }
+            })
+        });
+        apz.stopLoader();
+    }, 1000);
+}
+apz.app.DeathIntimation.removeDuplicates = function(data) {
+    let rejectedIds = new Set();
+    data.forEach(item => {
+        if (item.status.toLowerCase() === "rejected") {
+            rejectedIds.add(item.custId);
+        }
+    });
+    let filteredData = data.reduce((acc, current) => {
+        if (rejectedIds.has(current.custId)) {
+            return acc;
+        }
+        let existing = acc.find(item => item.custId === current.custId);
+        if (!existing) {
+            acc.push(current);
+        } else if (existing.status === "Draft" && current.status !== "Draft") {
+            acc[acc.indexOf(existing)] = current;
+        }
+        return acc;
+    }, []);
+    return filteredData;
+};
+apz.app.DeathIntimation.calculateCustomerOsAmt = function() {
+    let customerId = apz.data.scrdata.KenMet__IPaintDeathIntimation_Res.IPaintKendraDetails[selCustRecRow].customerId;
+    let osAmount = 0;
+    osAmount = collectionKendraData.flatMap(coll => coll.colldtls.groups).flatMap(grp => grp.members).filter(mem => mem.id == customerId).flatMap(
+        mem => mem.loans).reduce((sum, loan) => sum + parseInt(loan.osAmt), 0);
+    apz.setElmValue(deathIntScrId + 'memberOsAmt', "₹ " + osAmount);
+}
+apz.app.DeathIntimation.deathClaimFormCustFlow = function(custDetails) {
+    stage = 2;
+    $("#" + deathIntScrId + 'submitClaimDiv').removeClass('sno');
+    $("#" + deathIntScrId + 'deathIntDetailsDiv').removeClass('sno');
+    $("#" + deathIntScrId + 'deathKendraDash').addClass('sno');
+    apz.setElmValue(deathIntScrId + 'selCustName', custDetails.customerName);
+    apz.setElmValue(deathIntScrId + 'selCustId', '#' + custDetails.customerId);
+    let kendraDts = kendraResponse.find((d) => d.kendraDtls.kendraId == custDetails.kendraId);
+    apz.setElmValue(deathIntScrId + 'kendraMangerName', kendraDts ? kendraDts.kendraDtls.kmName : '');
+    document.getElementById(deathIntScrId + 'deathClaimSubBtn').disabled = true;
+    apz.app.DeathIntimation.clearAllDeathIntimationFeilds();
+    let osAmount = 0;
+    custData.loanDtls.forEach((d) => {
+        osAmount += parseInt(d.outstandingPrincipal) + parseInt(d.overdueInterest) + parseInt(d.overduePrincipal);
+    });
+    apz.setElmValue(deathIntScrId + 'memberOsAmt', "₹ " + osAmount);
+    custFlowDts = custDetails;
+    custFlowDts.kmName = kendraDts ? kendraDts.kendraDtls.kmName : '';
+    custFlowDts.kmId = kendraDts ? kendraDts.kendraDtls.kmId : '';
+    custFlowDts.kendraName = kendraDts ? kendraDts.kendraDtls.kendraName : '';
+}
+apz.app.DeathIntimation.customerFlowAPICall = function(enteredDts) {
+    custFlowDts.enteredDts = enteredDts;
+    let data = [];
+    let obj = {};
+    obj.custId = custFlowDts.customerId
+    obj.custName = custFlowDts.customerName
+    obj.type = custFlowDts.enteredDts.hasOwnProperty("mdod") && custFlowDts.enteredDts.hasOwnProperty("sdod") ? 'MemberAndSpouseDeath' :
+        custFlowDts.enteredDts.hasOwnProperty("mdod") ? 'MemberDetails' : 'SpouseDeath';
+    obj.kendraId = custFlowDts.kendraId;
+    obj.kendraName = custFlowDts.kendraName;
+    obj.payload = JSON.stringify(custFlowDts.enteredDts);
+    data.push(obj);
+    let req = {
+        interfaceName: "CreateDeathIntimation",
+        appId: apz.appId,
+        userId: LoggedInUserDetails.userID,
+        requestObj: {
+            appId: apz.appId,
+            kmId: custFlowDts.kmId,
+            kmUserRole: "KM",
+            branchId: LoggedInUserDetails.loginResponse.addInfo2,
+            deathIntimation: data,
+        },
+    };
+    let request = {
+        apiRequest: req
+    };
+    customerSubData = request.apiRequest.requestObj.deathIntimation;
+    apz.startLoader()
+    ApzCOB.serverBuildParam(gAppId, 'CreateDeathIntimationReq', 'N', 'N', request, 'Y', apz.app.DeathIntimation.deathIntimationApiCallCB);
+}

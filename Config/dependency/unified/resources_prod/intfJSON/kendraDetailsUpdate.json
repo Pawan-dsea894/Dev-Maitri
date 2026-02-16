@@ -1,0 +1,39 @@
+{
+  "apiURL": "${URL}",
+  "servicetype": "HTTP",
+  "methodType": "POST",
+  "contentType": "application/json",
+  "headers": {
+    "Content-Type": "application/json",
+    "Accept": "*/*",
+    "Apikey": "Z3JhbWVlbmtvb3RhcHJvZA",
+    "companyId": "{REQUEST~apiRequest.branchId}"
+  },
+  "requestDef": {
+    "header": {
+      "companyId": "${REQUEST~apiRequest.branchId}"
+    },
+    "body": {
+      "fromBranch": "${REQUEST~apiRequest.fromBranch}",
+      "kendraIndicator": "${REQUEST~apiRequest.kendraIndicator}",
+      "toKM": "${REQUEST~apiRequest.toKM}",
+      "Reason": "${REQUEST~apiRequest.Reason}",
+      "KendraList~@JSONARRAY@":[
+        {
+          "kendraId~@JSONARRAY@": [
+               "${REQUEST~apiRequest.kendraIds[].kendraId}"
+          ],
+          "fromKM": "${REQUEST~apiRequest.fromKM}"
+        }
+      ]
+    }
+  },
+  "responseDef": "",
+  "logging": {
+    "logRequired": "Y",
+    "logType": "BOTH",
+    "externalAPILogRequired":"N",
+    "externalAPILogType":"NONE"
+  }
+}
+ 

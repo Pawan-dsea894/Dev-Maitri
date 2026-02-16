@@ -1,0 +1,1208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.23" id="1">
+    <property name="createdBy">Eclipse BIRT Designer Version 4.16.0.v202406131946</property>
+    <property name="units">in</property>
+    <property name="iconFile">/templates/blank_report.gif</property>
+    <property name="bidiLayoutOrientation">ltr</property>
+    <property name="imageDPI">96</property>
+    <parameters>
+        <scalar-parameter name="memberName" id="311">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="loanAmt" id="316">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="pdtName" id="315">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="purpose" id="314">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="frequency" id="323">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="spouseInsurance" id="322">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="installmentAmt" id="321">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="memberId" id="320">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="kendraId" id="319">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="bmName" id="357">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="pfGstAmt" id="359">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="sanctionedDate" id="360">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="interestRate" id="363">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="amountApproved" id="366">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="bmId" id="398">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="memInsurance" id="400">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+    </parameters>
+    <page-setup>
+        <simple-master-page name="Simple MasterPage" id="2">
+            <property name="type">a4</property>
+            <property name="headerHeight">0.7cm</property>
+            <page-header>
+                <label id="91185">
+                    <property name="textAlign">right</property>
+                    <text-property name="text">Customer Copy</text-property>
+                </label>
+            </page-header>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <text id="4">
+            <property name="fontSize">9pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="marginBottom">2pt</property>
+            <property name="textAlign">center</property>
+            <property name="contentType">auto</property>
+            <text-property name="content"><![CDATA[మంజూరు లేఖ]]></text-property>
+        </text>
+        <grid id="185">
+            <column id="186"/>
+            <column id="195"/>
+            <row id="196">
+                <property name="borderBottomStyle">none</property>
+                <property name="borderLeftStyle">none</property>
+                <property name="borderRightStyle">none</property>
+                <property name="borderTopStyle">none</property>
+                <property name="textAlign">center</property>
+                <cell id="197">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="198">
+                        <property name="fontSize">9pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[సభ్యుని పేరు: <VALUE-OF>params["memberName"]</VALUE-OF>]]></text-property>
+                    </text>
+                </cell>
+                <cell id="215">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="216">
+                        <property name="fontSize">9pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[సభ్యుని ID: <VALUE-OF>params["memberId"]</VALUE-OF>]]></text-property>
+                    </text>
+                </cell>
+            </row>
+        </grid>
+        <grid id="66">
+            <property name="marginTop">2pt</property>
+            <property name="height">1.2152777777777777in</property>
+            <property name="width">7.951388888888889in</property>
+            <column id="67">
+                <property name="width">1.7083333333333333in</property>
+            </column>
+            <column id="68">
+                <property name="width">0.6736111111111112in</property>
+            </column>
+            <column id="69">
+                <property name="width">0.5069444444444444in</property>
+            </column>
+            <column id="70">
+                <property name="width">0.6319444444444444in</property>
+            </column>
+            <column id="71">
+                <property name="width">0.6527777777777778in</property>
+            </column>
+            <column id="72">
+                <property name="width">0.7708333333333334in</property>
+            </column>
+            <column id="73">
+                <property name="width">0.8333333333333334in</property>
+            </column>
+            <column id="74">
+                <property name="width">0.7708333333333334in</property>
+            </column>
+            <column id="75">
+                <property name="width">0.8263888888888888in</property>
+            </column>
+            <column id="76">
+                <property name="width">0.5763888888888888in</property>
+            </column>
+            <row id="77">
+                <property name="fontWeight">bold</property>
+                <property name="borderBottomStyle">none</property>
+                <property name="borderLeftStyle">none</property>
+                <property name="borderRightStyle">none</property>
+                <property name="borderTopStyle">none</property>
+                <property name="textAlign">center</property>
+                <cell id="78">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="105">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ఉత్పత్తి పేరు]]></text-property>
+                    </text>
+                </cell>
+                <cell id="79">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="106">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ప్రయోజనం]]></text-property>
+                    </text>
+                </cell>
+                <cell id="80">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="107">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[రుణ మొత్తం]]></text-property>
+                    </text>
+                </cell>
+                <cell id="81">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="108">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[వడ్డీ రేటు #]]></text-property>
+                    </text>
+                </cell>
+                <cell id="82">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="110">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[PF+GST]]></text-property>
+                    </text>
+                </cell>
+                <cell id="83">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="111">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[కాలవ్యవధి (వారాల్లో)]]></text-property>
+                    </text>
+                </cell>
+                <cell id="84">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="112">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[తిరిగి చెల్లింపు
+తరచుదనం]]></text-property>
+                    </text>
+                </cell>
+                <cell id="85">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="113">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ వాయిదా మొత్తం]]></text-property>
+                    </text>
+                </cell>
+                <cell id="86">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="114">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[బీమా మొత్తం]]></text-property>
+                    </text>
+                </cell>
+                <cell id="87">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="115">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[హామీ ఇవ్వబడిన మొత్తం]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="88">
+                <property name="height">0.7083333333333334in</property>
+                <cell id="89">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="355">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<div style="word-wrap: break-word; white-space: pre-wrap;">
+    <VALUE-OF>params["pdtName"]</VALUE-OF>
+</div>]]></text-property>
+                    </text>
+                </cell>
+                <cell id="90">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="356">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[<div style="word-wrap: break-word; white-space: pre-wrap;">
+    <VALUE-OF>params["purpose"]</VALUE-OF>
+</div>]]></text-property>
+                    </text>
+                </cell>
+                <cell id="91">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="368">
+                        <property name="fontSize">9pt</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">loanAmt</property>
+                                <expression name="expression" type="javascript">params["loanAmt"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">loanAmt</property>
+                    </data>
+                </cell>
+                <cell id="92">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="364">
+                        <property name="fontSize">9pt</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">interestRate</property>
+                                <expression name="expression" type="javascript">params["interestRate"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">interestRate</property>
+                    </data>
+                </cell>
+                <cell id="93">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="361">
+                        <property name="fontSize">9pt</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">pfGstAmt</property>
+                                <expression name="expression" type="javascript">params["pfGstAmt"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">pfGstAmt</property>
+                    </data>
+                </cell>
+                <cell id="94">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="328">
+                        <property name="fontSize">9pt</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">tenure</property>
+                                <expression name="expression" type="javascript">params["tenure"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">tenure</property>
+                    </data>
+                </cell>
+                <cell id="95">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="369">
+                        <property name="fontSize">9pt</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">frequency</property>
+                                <expression name="expression" type="javascript">params["frequency"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">frequency</property>
+                    </data>
+                </cell>
+                <cell id="96">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="332">
+                        <property name="fontSize">9pt</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">installmentAmt</property>
+                                <expression name="expression" type="javascript">params["installmentAmt"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">installmentAmt</property>
+                    </data>
+                </cell>
+                <cell id="97">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <text id="333">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[సభ్యుడు: <VALUE-OF>params["memInsurance"]</VALUE-OF>]]></text-property>
+                    </text>
+                    <text id="334">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">html</property>
+                        <text-property name="content"><![CDATA[జీవిత భాగస్వామి <VALUE-OF>params["spouseInsurance"]</VALUE-OF>]]></text-property>
+                    </text>
+                </cell>
+                <cell id="98">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <property name="borderLeftColor">#808080</property>
+                    <property name="borderLeftStyle">solid</property>
+                    <property name="borderLeftWidth">1px</property>
+                    <property name="borderRightColor">#808080</property>
+                    <property name="borderRightStyle">solid</property>
+                    <property name="borderRightWidth">1px</property>
+                    <property name="borderTopColor">#808080</property>
+                    <property name="borderTopStyle">solid</property>
+                    <property name="borderTopWidth">1px</property>
+                    <data id="371">
+                        <property name="fontSize">9pt</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">loanAmt</property>
+                                <expression name="expression" type="javascript">params["loanAmt"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">loanAmt</property>
+                    </data>
+                </cell>
+            </row>
+        </grid>
+        <text id="116">
+            <property name="fontSize">9pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="marginTop">2pt</property>
+            <property name="contentType">auto</property>
+            <text-property name="content"><![CDATA[*WKLY = ప్రతివారం, #వడ్డీ రేటు అనేది తగ్గే బ్యాలెన్స్ మీద లెక్కించబడుతుంది (కస్టమర్ ఎంచుకున్న తిరిగి చెల్లింపు కాలవ్యవధి ప్రకారం, ప్రతివారం/2 వారాలకు/4 వారాలకు విరామం ఉంటుంది) ]]></text-property>
+        </text>
+        <text id="117">
+            <property name="fontSize">9pt</property>
+            <property name="contentType">auto</property>
+            <text-property name="content"><![CDATA[క్రెడిట్ యాక్సిస్ గ్రామీణ్ లిమిటెడ్ లో చేరిన సంవత్సరం మరియు క్రెడిట్ రిస్క్ అంచనా ఆధారంగా రుణగ్రహీత యొక్క వడ్డీ రేటు మారవచ్చు పేజీకి మరోవైపు పేర్కొన్న నిబంధనలు మరియు షరతుల మేరకు మీ రుణ దరఖాస్తు మంజూరు చేయబడిందని మీకు తెలియజేయడానికి మేము సంతోషిస్తున్నాము. ఈ మంజూరు అనేది మంజూరైన తేదీ నుండి 4 వారాల వ్యవధి వరకు చెల్లుబాటు అవుతుంది. ]]></text-property>
+        </text>
+        <label id="118">
+            <property name="fontWeight">bold</property>
+            <property name="marginTop">15pt</property>
+            <property name="marginBottom">10pt</property>
+            <text-property name="text">మంజూరు నిబంధనలు మరియు షరతులు</text-property>
+        </label>
+        <grid id="217">
+            <property name="width">7.947916666666667in</property>
+            <column id="218">
+                <property name="width">0.46875in</property>
+            </column>
+            <column id="219">
+                <property name="width">7.479166666666667in</property>
+            </column>
+            <row id="220">
+                <cell id="221">
+                    <text id="271">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[1.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="222">
+                    <text id="288">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ తిరిగి చెల్లించే వ్యవధి మరియు తరచుదనానికి అనుగుణంగా, రుణ మొత్తాన్ని వడ్డీతో సహా, వాయిదాల్లో తిరిగి చెల్లించాలి. ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="223">
+                <cell id="224">
+                    <text id="272">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[2.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="225">
+                    <text id="289">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[రుణగ్రహీతకు తెలియజేయడం ద్వారా, వడ్డీ రేటును ఎప్పటికప్పుడు రీసెట్ చేయడానికి CAGL విచక్షణ కలిగి ఉంటుంది. ఆ మేరకు సవరించిన వడ్డీ రేటును భవిష్యత్లో చెల్లించడానికి రుణగ్రహీత బాధ్యత వహిస్తారు*]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="226">
+                <cell id="227">
+                    <text id="273">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[3.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="228">
+                    <text id="290">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[క్రెడిట్ ఆక్స్స్ గ్రామీణ్ లిమిటెడ్ (CAGL) జాయింట్ లయబిలిటీ గ్రూపులో సభ్యురాలిగా రుణ మొత్తం పంపిణీ చేయబడుతుంది.]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="229">
+                <cell id="230">
+                    <text id="274">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[4.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="231">
+                    <text id="291">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[కేంద్ర సమావేశాలు అన్నింటికీ కస్టమర్ హాజరు కావాలి. అంగీకరించిన ప్రయోజనం కోసమే రుణాన్ని ఉపయోగించాలి. రుణ వాయిదాలను క్రమం తప్పకుండా చెల్లించాలి. కేంద్రం సభ్యులు ఏదైనా సమస్యను ఎదుర్కొంటే, వారికి సహాయం చేయాలి మరియు తిరిగి చెల్లించే సామర్థ్యానికి మించి రుణం తీసుకోకూడదు.]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="232">
+                <cell id="233">
+                    <text id="275">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[5.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="234">
+                    <text id="292">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[అంగీకరించిన షెడ్యూల్ ప్రకారం, రుణ మొత్తం మరియు/లేదా వడ్డీ చెల్లించడానికి గ్రూపులోని ఇతర సభ్యులతో పాటు కస్టమర్ కూడా వ్యక్తిగతంగా మరియు ఉమ్మడిగా బాధ్యత వహిస్తారు.]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="235">
+                <cell id="236">
+                    <text id="276">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[6.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="237">
+                    <text id="293">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[రుణ దుర్వినియోగం లేదా రుణ సంబంధిత ఏవైనా షరతులను ఉల్లంఘించిన సందర్భంలో, రుణాన్ని రీకాల్ చేసే హక్కు CAGLకి ఉంటుంది. ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="238">
+                <cell id="239">
+                    <text id="277">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[7.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="240">
+                    <text id="294">
+                        <property name="fontSize">9pt</property>
+                        <property name="fontWeight">normal</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[రుణగ్రహీత గోప్యత గౌరవించబడుతుందని CAGL హామీ ఇస్తుంది. అన్ని రుణాలు క్రెడిట్ బ్యూరో తనిఖీకి లోబడి ఉంటాయి మరియు ఆ కారణంగా, ఆ డేటా అనేది క్రెడిట్ బ్యూరో ఏజెన్సీతో పంచుకోబడుతుంది. ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="241">
+                <cell id="242">
+                    <text id="278">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[8.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="243">
+                    <text id="295">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[రుణం లేదా వాయిదా యొక్క ప్రీ-క్లోజర్ లేదా పాక్షిక చెల్లింపు మీద ఎలాంటి ఛార్జీలు విధించబడవు. ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="244">
+                <cell id="245">
+                    <text id="279">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[9.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="246">
+                    <text id="296">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ప్రతి రుణం మీద ఒక వాయిదాకి (అసలుకి మాత్రమే) మారటోరియం ఇవ్వబడుతుంది.]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="247">
+                <cell id="248">
+                    <text id="280">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[10.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="249">
+                    <text id="297">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ మంజూరు చేయబడే రుణం అనేది CAGL లేదా థర్డ్ పార్టీ అందించే ఏ ఇతర ఉత్పత్తి/సేవలతో లింక్ చేయనిదిగా ఉంటుంది. ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="250">
+                <cell id="251">
+                    <text id="281">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[11.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="252">
+                    <text id="298">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[సిబ్బంది ప్రవర్తనలో ఏదైనా అనుచితాన్ని నిరోధించడానికి మరియు నకాలంలో ఫిర్యాదులు పరిష్కారమయ్యేలా నిర్ధారించడానికి CAGL బాధ్యత వహిస్తుంది. ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="253">
+                <cell id="254">
+                    <text id="282">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[12.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="255">
+                    <text id="299">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[రుణం మీద సెక్యూరిటీ డిపాజిట్ లేదా మార్జిన్ మనీని CAGL సేకరించదు. ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="256">
+                <cell id="257">
+                    <text id="283">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[13.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="258">
+                    <text id="300">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[దరఖాస్తు చేసిన తేదీ నుండి 15 రోజుల లోపు రుణం పంపిణీ చేయని పక్షంలో, ఇంట్లో సంపాదిస్తున్న సభ్యుని CB స్థితిని CAGL మళ్లీ తనిఖీ చేయవచ్చు. ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="259">
+                <cell id="260">
+                    <text id="284">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[14.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="261">
+                    <text id="301">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[కస్టమర్ ఎంచుకున్న తిరిగి చెల్లింపు వ్యవధికి అనుగుణంగా, ప్రతివారం రెండు వారాలు / నాలుగు వారాలు విరామంతో బ్యాలెన్సు తగ్గించుకోవడం మీద వడ్డీ లెక్కించబడుతుంది. ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="262">
+                <cell id="263">
+                    <text id="285">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[15.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="264">
+                    <text id="302">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[రుణం యొక్క వాయిదా తరచుదనం తిరిగి చెల్లించే గడువు తేదీ మరియు అసలు మరియు వడ్డీ విభజన వివరాలు పాస్ పుస్తకంలో అందించబడుతాయి. రుణం యొక్క తిరిగి చెల్లింపు షెడ్యూల్ కోసం రుణం పాస్ పుస్తకాన్ని చూడండి. ]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="265">
+                <cell id="266">
+                    <text id="286">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[16.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="267">
+                    <text id="303">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[16. రుణాల ధర మీద వివరణాత్మక ఫ్యాక్ట్ షీట్ అందించబడుతుంది]]></text-property>
+                    </text>
+                </cell>
+            </row>
+            <row id="268">
+                <cell id="269">
+                    <text id="287">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[17.]]></text-property>
+                    </text>
+                </cell>
+                <cell id="270">
+                    <text id="304">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ రుణ అకౌంట్ అనేది 90 రోజులకు పైగా డీఫాల్టుగా ఉంటే, అటువంటి అకౌంట్ అనేది NPAగా పరిగణించబడుతుంది మరియు క్రెడిట్ బ్యూరోకు నివేదించబడుతుంది.]]></text-property>
+                    </text>
+                </cell>
+            </row>
+        </grid>
+        <text id="307">
+            <property name="fontSize">9pt</property>
+            <property name="fontWeight">bold</property>
+            <property name="marginTop">15pt</property>
+            <property name="marginBottom">2pt</property>
+            <property name="contentType">html</property>
+            <text-property name="content"><![CDATA[మంజూరు తేదీ: <VALUE-OF>params["sanctionedDate"]</VALUE-OF>]]></text-property>
+        </text>
+        <grid id="335">
+            <property name="width">7.947916666666667in</property>
+            <column id="336">
+                <property name="width">0.6979166666666666in</property>
+            </column>
+            <column id="337">
+                <property name="width">1.9583333333333333in</property>
+            </column>
+            <column id="338">
+                <property name="width">0.53125in</property>
+            </column>
+            <column id="339">
+                <property name="width">2.1145833333333335in</property>
+            </column>
+            <column id="340">
+                <property name="width">0.6979166666666666in</property>
+            </column>
+            <column id="341">
+                <property name="width">1.9479166666666667in</property>
+            </column>
+            <row id="342">
+                <cell id="343">
+                    <text id="349">
+                        <property name="fontSize">9pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">right</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[BM పేరు:]]></text-property>
+                    </text>
+                </cell>
+                <cell id="344">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <data id="358">
+                        <property name="fontSize">9pt</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">bmName</property>
+                                <expression name="expression" type="javascript">params["bmName"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">bmName</property>
+                    </data>
+                </cell>
+                <cell id="345">
+                    <text id="350">
+                        <property name="fontSize">9pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">right</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[BM ID:]]></text-property>
+                    </text>
+                </cell>
+                <cell id="346">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                    <data id="399">
+                        <property name="fontSize">9pt</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">bmId</property>
+                                <expression name="expression" type="javascript">params["bmId"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">bmId</property>
+                    </data>
+                </cell>
+                <cell id="347">
+                    <text id="351">
+                        <property name="fontSize">9pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="paddingTop">0pt</property>
+                        <property name="paddingLeft">0pt</property>
+                        <property name="paddingBottom">0pt</property>
+                        <property name="paddingRight">0pt</property>
+                        <property name="textAlign">right</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[సంతకం:]]></text-property>
+                    </text>
+                </cell>
+                <cell id="348">
+                    <property name="borderBottomColor">#808080</property>
+                    <property name="borderBottomStyle">solid</property>
+                    <property name="borderBottomWidth">1px</property>
+                </cell>
+            </row>
+        </grid>
+    </body>
+</report>

@@ -1,0 +1,366 @@
+var selKendraDetails;
+var allocationScrId = 'Kendra__AllocationHistory__';
+var filterIntData = 'Kendra__IPaintPaintKMBMDetails__o__PaintFilterData__filter_';
+var selDataForApproveOrReject;
+var kendraData;
+var allocationHistoryRec;
+var selRecord;
+var dateRequest = {};
+var stage = 'STAGE1';
+apz.app.onLoad_AllocationHistory = function(params) {
+    $("#APZCBO__BaseScreens__sidebarController").addClass('sno');
+    $('#footer').addClass('sno');
+    apz.app.AllocationHistory.fetchAllocationHistory();
+    apz.data.scrdata.Kendra__IPaintKendraAllocation_Res = {}
+}
+apz.app.onShown_AllocationHistory = function(params) {
+    apz.toggleSidebar();
+    apz.app.AllocationHistory.paintFilterData();
+    apz.app.AllocationHistory.setDateForTemporary();
+}
+apz.app.AllocationHistory.setDateForTemporary = function() {
+    let today = new Date();
+    let newDate = new Date(today);
+    newDate.setMonth(newDate.getMonth() + 2);
+    $('#Kendra__AllocationHistory__startDateNew').datepicker("option", "maxDate", newDate);
+    $('#Kendra__AllocationHistory__endDateNew').datepicker("option", "maxDate", newDate);
+}
+apz.app.AllocationHistory.paintFilterData = function() {
+    let data = ['All', 'Temporary', 'Pernament'];
+    let paintData = data.map(data => ({
+        filter: data
+    }));
+    apz.data.scrdata.Kendra__IPaintKendraAllocation_Res.FilterDatas = paintData;
+    apz.data.loadData("IPaintKendraAllocation", 'Kendra');
+    paintData.forEach((d, idx) => {
+        $("#Kendra__IPaintKendraAllocation__o__FilterDatas__filter_" + idx).removeClass("active");
+    })
+    $("#Kendra__IPaintKendraAllocation__o__FilterDatas__filter_0").addClass("active")
+}
+apz.app.AllocationHistory.fetchAllocationHistory = function() {
+    var req = {
+        "apiRequest": {
+            "interfaceName": "KendraAssignmentFetch",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "branchId": LoggedInUserDetails.loginResponse.addInfo2
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "KendraAssignmentFetch", "N", "N", req, true, apz.app.AllocationHistory.fetchAllocationHistoryCB);
+}
+apz.app.AllocationHistory.fetchAllocationHistoryCB = function(params) {
+    try {
+        apz.stopLoader();
+        if (params.status && apz.isNull(params.errors)) {
+            if (params.res.APZCBO__KendraAssignmentFetch_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+                if (params.res.APZCBO__KendraAssignmentFetch_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                    let allRes = params.res.APZCBO__KendraAssignmentFetch_Res.apiResponse.ResponseBody.responseObj;
+                    allocationHistoryRec = JSON.parse(allRes);
+                    apz.app.AllocationHistory.paintAllocationData(allocationHistoryRec);
+                }
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.AllocationHistory.paintAllocationData = function(data) {
+    if (data.length > 0) {
+        $("#" + allocationScrId + 'filterRow').removeClass("sno");
+        $("#" + allocationScrId + 'noRecDiv').addClass('sno');
+        $("#" + allocationScrId + 'dataRow').removeClass("sno");
+        let uniqueRec = apz.app.AllocationHistory.fetchUniqueBatchRecord(data);
+        let paintData = [];
+        let currentDate = new Date();
+        uniqueRec.forEach(d => {
+            let obj = {};
+            obj.AllocationType = "Kendra's Allocation ( " + d.assignmentType + " )";
+            obj.alloType = d.assignmentType;
+            obj.createdBy = "For " + d.kmName;
+            obj.batchNo = d.batchNo;
+            obj.date = d.createTs.split("T")[0];
+            obj.startDate = d.startDate
+            obj.endDate = d.endDate;
+            obj.kendraId = d.kendraId;
+            if (d.assignmentType === "Permanent") {
+                obj.status = 'Active';
+                paintData.push(obj);
+            } else if (d.assignmentType === "Temporary") {
+                let startDate = new Date(d.startDate);
+                let endDate = new Date(d.endDate);
+                if (currentDate <= endDate) { // currentDate is before endDate or within the range
+                    obj.status = 'Active';
+                    paintData.push(obj);
+                } else {
+                    let timeDifference = currentDate - endDate;
+                    let daysDifference = timeDifference / (1000 * 3600 * 24);
+                    if (daysDifference < 7) {
+                        obj.status = 'Finished';
+                        paintData.push(obj);
+                    }
+                }
+            }
+        });
+        apz.data.scrdata.Kendra__IPaintKendraAllocation_Res.kendraDetalils = apz.app.AllocationHistory.addActiveStatusAtTop(paintData);
+        apz.data.loadData("IPaintKendraAllocation", 'Kendra');
+        stage = 'STAGE1';
+        paintData.forEach((d, i) => {
+            if (d.status === 'Finished') {
+                $("#" + 'Kendra__IPaintKendraAllocation__o__kendraDetalils__status_' + i).addClass("vrfed");
+            } else {
+                $("#" + 'Kendra__IPaintKendraAllocation__o__kendraDetalils__status_' + i).removeClass("vrfed");
+            }
+        })
+    } else {
+        $("#" + allocationScrId + 'noRecDiv').removeClass('sno');
+        $("#" + allocationScrId + 'dataRow').addClass("sno");
+        $("#" + allocationScrId + 'filterRow').addClass("sno");
+    }
+}
+apz.app.AllocationHistory.fetchUniqueBatchRecord = function(data) {
+    let seenBatchNumbers = new Set();
+    return data.filter(item => {
+        if (!seenBatchNumbers.has(item.batchNo)) {
+            seenBatchNumbers.add(item.batchNo);
+            return true;
+        }
+        return false;
+    });
+}
+apz.app.AllocationHistory.onClickNextFromDashbord = function(pthis) {
+    stage = 'STAGE2'
+    let id = pthis.id.split("_").at(-1);
+    selRecord = apz.data.scrdata.Kendra__IPaintKendraAllocation_Res.kendraDetalils[id];
+    let batchNo = selRecord.batchNo;
+    selRecordCompData = allocationHistoryRec.filter(d => (d.batchNo === batchNo));
+    $("#" + allocationScrId + 'AllocationHistoryDashbord').addClass("sno");
+    $("#" + allocationScrId + 'detailsScreen').removeClass("sno");
+    apz.app.AllocationHistory.paintDetails(selRecordCompData);
+}
+apz.app.AllocationHistory.paintDetails = function(data) {
+    let paintData = data[0];
+    apz.setElmValue(allocationScrId + 'allocationType', paintData.assignmentType);
+    dateRequest.startDate = paintData.startDate;
+    dateRequest.endDate = paintData.endDate;
+    if (selRecord.status === 'Finished') {
+        $("#" + allocationScrId + 'editDivAllo').addClass('sno');
+        $("#" + allocationScrId + 'cancelRowAll').addClass('sno');
+    } else if (userRole === "BM") {
+        $("#" + allocationScrId + 'cancelRowAll').removeClass('sno');
+        $("#" + allocationScrId + 'editDivAllo').removeClass('sno');
+    } else {
+        $("#" + allocationScrId + 'cancelRowAll').removeClass('sno');
+        $("#" + allocationScrId + 'editDivAllo').addClass('sno');
+    }
+    if (selRecord.alloType === 'Temporary') {
+        $("#" + allocationScrId + 'allocationPeriodDiv').removeClass('sno');
+        $("#" + allocationScrId + 'cancelRowAll').removeClass('sno');
+        apz.setElmValue(allocationScrId + 'allocationPeriod', paintData.startDate + ' - ' + paintData.endDate);
+    } else {
+        $("#" + allocationScrId + 'cancelRowAll').addClass('sno');
+        $("#" + allocationScrId + 'editDivAllo').addClass('sno');
+        $("#" + allocationScrId + 'allocationPeriodDiv').addClass('sno');
+    }
+    if (selRecord.status === 'Finished' && selRecord.alloType === 'Temporary') {
+        $("#" + allocationScrId + 'cancelRowAll').addClass('sno');
+    }
+    apz.setElmValue(allocationScrId + 'selKmName', paintData.kmName);
+    apz.setElmValue(allocationScrId + 'selKendraId', '#' + paintData.kendraId);
+    apz.setElmValue(allocationScrId + 'state', selRecord.status);
+    apz.setElmValue(allocationScrId + 'noOfKendras', selRecordCompData.length + ' Kendras');
+    let paintArr = []
+    data.forEach((d) => {
+        let obj = {};
+        let data = kendraResponse.find((dt) => dt.kendraDtls.kendraId == d.kendraId);
+        obj.kendraData = data.kendraDtls.kendraName;
+        obj.kendraId = '#' + data.kendraDtls.kendraId;
+        obj.kmName = d.kmName;
+        paintArr.push(obj);
+    });
+    apz.data.scrdata.Kendra__IPaintKendraAllocation_Res.allocationDetails = paintArr;
+    apz.data.loadData("IPaintKendraAllocation", 'Kendra');
+}
+apz.app.AllocationHistory.onClickOfEditBtn = function() {
+    apz.setElmValue("Kendra__AllocationHistory__startDateNew", '');
+    apz.setElmValue("Kendra__AllocationHistory__endDateNew", "");
+    ApzCOB.toggleModal(allocationScrId + "timeChangesModel");
+}
+apz.app.AllocationHistory.onClickOfConfirmDate = function() {
+    if (apz.isNull(document.getElementById("Kendra__AllocationHistory__startDateNew").value) || apz.isNull(document.getElementById(
+            "Kendra__AllocationHistory__endDateNew").value)) {
+        ApzCOB.fnDisplayMsg("Please enter date to continue", "E");
+    } else {
+        ApzCOB.fnDisplayMsg("Are you sure you want to modify the allocation?", "C", apz.app.AllocationHistory.onClickOfConfirmDateProceed);
+    }
+}
+apz.app.AllocationHistory.onClickOfConfirmDateProceed = function(params) {
+    if (params.choice === true) {
+        dateRequest.startDate = document.getElementById(allocationScrId + 'startDateNew').value;
+        dateRequest.endDate = document.getElementById(allocationScrId + 'endDateNew').value;
+        ApzCOB.toggleModal(allocationScrId + "timeChangesModel");
+        apz.setElmValue(allocationScrId + 'allocationPeriod', dateRequest.startDate + ' - ' + dateRequest.endDate);
+        $("#" + allocationScrId + 'saveTimeChange').removeClass('sno');
+    }
+}
+apz.app.AllocationHistory.onClickOfEditAllocation = function() {
+    let srtDay = dateRequest.startDate.split("/");
+    let endDay = dateRequest.endDate.split("/");
+    var req = {
+        "apiRequest": {
+            "interfaceName": "EditOrDeleteKendraAssignmentRecord",
+            "appId": "APZCBO",
+            "requestObj": {
+                "action": 'edit',
+                "batchNo": selRecord.batchNo,
+                "startDate": srtDay[2] + '-' + srtDay[1] + '-' + srtDay[0],
+                "endDate": endDay[2] + '-' + endDay[1] + '-' + endDay[0]
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "EditOrDeleteKendraAssignmentRecord", "N", "N", req, true, apz.app.AllocationHistory
+        .onClickOfEditAllocationCB);
+}
+apz.app.AllocationHistory.onClickOfEditAllocationCB = function(params) {
+    try {
+        apz.stopLoader();
+        if (params.status && apz.isNull(params.errors)) {
+            if (params.res.APZCBO__EditOrDeleteKendraAssignmentRecord_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+                if (params.res.APZCBO__EditOrDeleteKendraAssignmentRecord_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                    $("#" + allocationScrId + 'headerBMApproval').addClass("sno");
+                    $("#" + allocationScrId + 'detailsScreen').addClass("sno");
+                    $("#" + allocationScrId + 'suceessDiv').removeClass('sno');
+                    apz.app.AllocationHistory.loadMoreData();
+                }
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.AllocationHistory.onClickOfSuccessMoreOptions = function() {
+    if ($("#" + allocationScrId + 'moreInfoData').hasClass('sno')) {
+        $("#" + allocationScrId + 'moreInfoData').removeClass('sno');
+    } else {
+        $("#" + allocationScrId + 'moreInfoData').addClass('sno');
+    }
+}
+apz.app.AllocationHistory.onClickOfCancelAllocaion = function() {
+    ApzCOB.toggleModal(allocationScrId + "cancelConfirmation");
+}
+apz.app.AllocationHistory.cancelAllocationRequest = function() {
+    ApzCOB.toggleModal(allocationScrId + "cancelConfirmation");
+    var req = {
+        "apiRequest": {
+            "interfaceName": "EditOrDeleteKendraAssignmentRecord",
+            "appId": "APZCBO",
+            "requestObj": {
+                "action": 'delete',
+                "batchNo": selRecord.batchNo,
+                "startDate": "",
+                "endDate": ""
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "EditOrDeleteKendraAssignmentRecord", "N", "N", req, true, apz.app.AllocationHistory
+        .cancelAllocationRequestCB);
+}
+apz.app.AllocationHistory.cancelAllocationRequestCB = function(params) {
+    try {
+        apz.stopLoader();
+        if (params.status && apz.isNull(params.errors)) {
+            if (params.res.APZCBO__EditOrDeleteKendraAssignmentRecord_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+                if (params.res.APZCBO__EditOrDeleteKendraAssignmentRecord_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                    $("#" + allocationScrId + 'detailsScreen').addClass("sno");
+                    $("#" + allocationScrId + 'suceessDiv').removeClass('sno');
+                    apz.app.AllocationHistory.loadMoreData();
+                    apz.setElmValue(allocationScrId + 'kendraSuccMsg', 'Kendra Allocation Cancelled');
+                    let selKendrPaintData = kendraResponse.find(d => d.kendraDtls.kendraId == selRecord.kendraId)
+                    apz.setElmValue('Kendra__AllocationHistory__successDetails_txtcnt', selRecordCompData.length + ' Allocations Cancelled ' );
+                    $("#" + allocationScrId + 'headerBMApproval').addClass('sno');
+                }
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.AllocationHistory.loadMoreData = function() {
+    let paintData = [];
+    let succArr = ['Allocation Reason', 'Allocation Duration']
+    succArr.forEach(d => {
+        let obj = {};
+        if (d === 'Allocation Reason') {
+            obj.key = d;
+            obj.desc = selRecord.AllocationType
+        } else if (d === 'Allocation Duration') {
+            obj.key = d;
+            obj.desc = dateRequest.startDate + '-' + dateRequest.endDate
+        }
+        paintData.push(obj);
+    });
+    selRecordCompData.forEach(d => {
+        let obj = {};
+        let data = kendraResponse.find((dt) => dt.kendraDtls.kendraId == d.kendraId);
+        obj.key = 'Kendra (Allocated To)'
+        obj.desc = data.kendraDtls.kendraName + (d.kmName);
+        paintData.push(obj);
+    })
+    apz.data.scrdata.Kendra__IPaintKendraAllocation_Res.sucessData = paintData;
+    apz.data.loadData("IPaintKendraAllocation", 'Kendra');
+}
+apz.app.AllocationHistory.onClickOfFilterData = function(pthis) {
+    let id = pthis.id.split("_").at(-1);
+    apz.data.scrdata.Kendra__IPaintKendraAllocation_Res.FilterDatas.forEach((d, idx) => {
+        $("#Kendra__IPaintKendraAllocation__o__FilterDatas__filter_" + idx).removeClass("active");
+    })
+    $("#Kendra__IPaintKendraAllocation__o__FilterDatas__filter_" + id).addClass("active")
+    let data = apz.getElmValue(pthis.id);
+    if (apz.getElmValue(pthis.id) === 'All') {
+        apz.app.AllocationHistory.paintAllocationData(allocationHistoryRec);
+    } else if (apz.getElmValue(pthis.id) === 'Temporary') {
+        let data = allocationHistoryRec.filter(d => d.assignmentType === 'Temporary');
+        apz.app.AllocationHistory.paintAllocationData(data);
+    } else {
+        let data = allocationHistoryRec.filter(d => d.assignmentType === 'Permanent');
+        apz.app.AllocationHistory.paintAllocationData(data);
+    }
+}
+apz.app.AllocationHistory.backNavigation = function() {
+    if (stage === 'STAGE1') {
+        ApzCOB.backNavigation();
+    } else if (stage === 'STAGE2') {
+        $("#" + allocationScrId + 'AllocationHistoryDashbord').removeClass("sno");
+        $("#" + allocationScrId + 'detailsScreen').addClass("sno");
+        stage = 'STAGE1'
+    } else {
+        ApzCOB.backNavigation();
+    }
+}
+apz.app.AllocationHistory.addActiveStatusAtTop = function(allocations) {
+    let reorderedAllocations = allocations.sort((a, b) => {
+        if (a.status === "Active" && b.status !== "Active") {
+            return -1;
+        } else if (a.status !== "Active" && b.status === "Active") {
+            return 1;
+        }
+        return 0;
+    });
+    reorderedAllocations.forEach((allocation) => {
+        if (allocation.status !== "Active") {
+            allocation.status = "Finished";
+        }
+    });
+    return reorderedAllocations;
+}
+apz.app.AllocationHistory.navigationBtn = function() {
+    ApzCOB.launchMicroApp('Kendra', 'AllocationHistory', 'APZCBO__BaseScreens__BaseDIV', );
+    apz.toggleSidebar(this);
+}

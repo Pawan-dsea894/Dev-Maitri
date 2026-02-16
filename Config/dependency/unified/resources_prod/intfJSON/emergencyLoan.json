@@ -1,0 +1,36 @@
+{
+    "apiURL": "${URL}",
+    "servicetype": "HTTP",
+    "methodType": "POST",
+    "contentType": "application/json",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "*/*",
+      "Apikey": "Z3JhbWVlbmtvb3RhcHJvZA",
+      "companyId": "IN0010044"
+    },
+    "requestDef": {
+      "header": {
+        "companyId": "${CONST~IN0010044}"
+      },
+       "body": {
+        "modeOfPayment": "${REQUEST~apiRequest.modeOfPayment}",
+        "loanPurpose": "${REQUEST~apiRequest.loanPurpose}",
+        "loanSubPurpose": "${REQUEST~apiRequest.loanSubPurpose}",
+        "customerId": "${REQUEST~apiRequest.customerId}",
+        "loanProduct": "${REQUEST~apiRequest.loanProduct}",
+        "term": "${REQUEST~apiRequest.term}",
+        "amount": "${REQUEST~apiRequest.amount}",
+        "paymentFreq": "${REQUEST~apiRequest.paymentFreq}",
+        "amountApproved": "${REQUEST~apiRequest.amountApproved}"
+        }
+    },
+    "responseDef": "",
+    "logging": {
+      "logRequired": "Y",
+      "logType": "BOTH",
+	  "externalAPILogRequired":"N",
+	  "externalAPILogType":"NONE"
+    }
+  }
+  

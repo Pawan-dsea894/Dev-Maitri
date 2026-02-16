@@ -1,0 +1,1112 @@
+var UserDetailsScrId = 'Kendra__UserDetails__';
+var empDetails = "";
+var locationMappingDet = {};
+var distinctLocValues = "";
+var unassignRole = false,
+    switchRole = false,
+    switchRole1 = false,
+    onchangeRoles = false,
+    recallUpdate = false;
+var data, roleValue2;
+var newUserRole = "";
+var multipleRoleAllowed = ApzCOB.GetCommonCodes("MULTIROLE").multiroleallowed
+apz.app.onLoad_UserDetails = function(params) {
+    if (userRole != "BM") {
+        $("#" + BaseScrId + "webHeader").removeClass("sno");
+        $("#APZCBO__BaseScreens__sidebarController").addClass("sno");
+        $("#APZCBO__BaseScreens__sc_col_251").addClass("sno");
+    }
+};
+apz.app.onShown_UserDetails = function(params) {
+    $("#footer").addClass("sno");
+    $("#" + UserDetailsScrId + "unassign").attr("disabled", "disabled").addClass("select-disabled");
+    apz.data.scrdata.Kendra__paintUserLocDetails_Res = {};
+    apz.data.scrdata.Kendra__paintUserLocDetails_Res.Location = [];
+    if (userRole === "BM") {
+        apz.app.UserDetails.fetchUserList();
+    } else {
+        $("#" + UserDetailsScrId + "gr_row_1").removeClass('sno');
+        $("#" + UserDetailsScrId + "sc_row_2").removeClass('sno');
+        $("#" + UserDetailsScrId + "sc_row_70").addClass('sno');
+        $("#" + UserDetailsScrId + "sc_row_55").addClass('sno');
+        $("#" + UserDetailsScrId + "gr_row_16").addClass('sno');
+    }
+};
+/*Role to Description*/
+apz.app.UserDetails.fnMapRoletoDesc = function() {
+    var roleId = JSON.parse(empDetails.userDetail).addInfo1;
+    var desc = "";
+    switch (roleId) {
+        case "KM":
+            desc = "Kendra Manager";
+            break;
+        case "BM":
+            desc = "Branch Manager";
+            break;
+        case "DEO":
+            desc = "Data Entry Operator";
+            break;
+        case "Cashier":
+            desc = "Cashier";
+            break;
+        case "ABM":
+            desc = "Assistant Branch Manager";
+            break;
+        case "AM":
+            desc = "Area Manager";
+            break;
+        case "RM":
+            desc = "Regional Manager";
+            break;
+        case "DM":
+            desc = "Divisional Manager";
+            break;
+        case "ZM":
+            desc = "Zonal Manager";
+            break;
+        case "BH":
+            desc = "Business Head";
+            break;
+        case "CRT":
+            desc = "Credit Review Team";
+            break;
+        case "IT_HELPDESK":
+            desc = "IT Help Desk";
+            break;
+        case "HELPDESK":
+            desc = "Common Help Desk";
+            break;
+        case "AUDIT":
+            desc = "Audit";
+            break;
+        case "ROIT":
+            desc = "Regional Office IT";
+            break;
+        case "RPC":
+            desc = "Regional Processing Center";
+            break;
+        case "PAR RM":
+            desc = "Portfolio At Risk";
+            break;
+        case "BST":
+            desc = "Business Support Team";
+            break;
+        case "Risk team":
+            desc = "Risk team";
+            break;
+        default:
+            desc = "";
+            break;
+    }
+    return desc;
+};
+/*Edit User Detail*/
+apz.app.UserDetails.fnClickOnEdit = function() {
+    $("#" + UserDetailsScrId + "editBtn").addClass("sno");
+    $("#" + UserDetailsScrId + "navBarUpdateRow").removeClass("sno");
+    if (userRole == "BM") {
+        $("#" + UserDetailsScrId + "role1_ext").attr("disabled", "disabled").addClass("select-disabled");
+        $("#" + UserDetailsScrId + "role2_ext").removeAttr("disabled").removeClass("select-disabled");
+        $("#" + UserDetailsScrId + "unassign").removeAttr("disabled").removeClass("disabled");
+        if (!apz.isNull(apz.getElmValue(UserDetailsScrId + "role2"))) {
+            $("#" + UserDetailsScrId + "unassignDiv").removeClass('sno');
+        }
+        $("#" + UserDetailsScrId + "userLockStat").removeAttr("disabled").removeClass("select-disabled");
+    } else {
+        $("#" + UserDetailsScrId + "role1_ext," + "#" + UserDetailsScrId + "role2_ext").removeAttr("disabled").removeClass("select-disabled");
+        $("#" + UserDetailsScrId + "unassignDiv").addClass('sno');
+    }
+    if (JSON.parse(empDetails.userDetail).addInfo1 == "KM" || JSON.parse(empDetails.userDetail).addInfo1 == "BM") {
+        $("#" + UserDetailsScrId + "role2_ext").attr("disabled", false);
+        for (var i = 4; i < $("#Kendra__UserDetails__role2_div ul li").length; i++) {
+            $("#Kendra__UserDetails__role2_div ul li")[i].className = "sno";
+        }
+        /*if(apz.getElmValue(UserDetailsScrId + "role1") == "KM") {
+            $("#Kendra__UserDetails__role2_div ul li")[1].className = "sno";
+        } else*/
+        if (apz.getElmValue(UserDetailsScrId + "role1") == "DEO") {
+            $("#Kendra__UserDetails__role2_div ul li")[2].className = "sno";
+        } else if (apz.getElmValue(UserDetailsScrId + "role1") == "Cashier") {
+            $("#Kendra__UserDetails__role2_div ul li")[3].className = "sno";
+        } else if (apz.getElmValue(UserDetailsScrId + "role1") == "KM" || apz.getElmValue(UserDetailsScrId + "role1") == "RM") {
+            $("#Kendra__UserDetails__role2_div ul li")[3].className = "sno";
+        }
+        $("#" + UserDetailsScrId + "userLockStat_ext").removeAttr("disabled").removeClass("select-disabled");
+    }
+    var userRoleDet = JSON.parse(empDetails.userRole);
+    if (!Array.isArray(userRoleDet)) {
+        var userRoleDet1 = [];
+        userRoleDet1[0] = userRoleDet;
+        userRoleDet = userRoleDet1;
+    }
+    if (userRoleDet[0].roleId == "AM") {
+        $("#" + UserDetailsScrId + "role2_ext").removeAttr("disabled").removeClass("select-disabled");
+        for (var i = 0; i < $("#Kendra__UserDetails__role2_div ul li").length; i++) {
+            if (i != 4) {
+                $("#Kendra__UserDetails__role2_div ul li")[i].className = "sno";
+            }
+        }
+    }
+    if (JSON.parse(empDetails.userDetail).addInfo1 == "KM" || JSON.parse(empDetails.userDetail).addInfo1 == "BM") {
+        if (apz.data.scrdata.Kendra__paintUserLocDetails_Res.Location.length > 0) {
+            $("#Kendra__UserDetails__deleteBtn_0").addClass("sno");
+        }
+    }
+    $(".icon-delete_unfilled").removeClass("sno");
+    $("#" + UserDetailsScrId + "userLockStat_ext").removeAttr("disabled").removeClass("select-disabled");
+    if (userRole !== "BM") {
+        $("#" + UserDetailsScrId + "gr_row_13 input").removeAttr("disabled").removeClass("select-disabled");
+        $("#" + UserDetailsScrId + "userStat_ext").removeAttr("disabled").removeClass("select-disabled");
+        $("#" + UserDetailsScrId + "userId").attr("disabled", "disabled").addClass("select-disabled");
+        apz.app.UserDetails.fnFetchOfficeDetails();
+    }
+};
+/*Reset User Details*/
+apz.app.UserDetails.fnResetUserDetails = function() {
+    $("#Kendra__UserDetails__role2_div ul li").removeClass("sno");
+    $("#" + UserDetailsScrId + "editBtn").removeClass("sno");
+    $("#" + UserDetailsScrId + "navBarUpdateRow").addClass("sno");
+    $("#" + UserDetailsScrId + "role1_ext," + "#" + UserDetailsScrId + "role2_ext").attr("disabled", "disabled").addClass("select-disabled");
+    $("#" + UserDetailsScrId + "gr_row_13 input").attr("disabled", "disabled").addClass("select-disabled");
+    $("#" + UserDetailsScrId + "userStat_ext").attr("disabled", "disabled").addClass("select-disabled");
+    $("#" + UserDetailsScrId + "userLockStat_ext").attr("disabled", "disabled").addClass("select-disabled");
+    $("#" + UserDetailsScrId + "userId").attr("disabled", "disabled").addClass("select-disabled");
+    apz.hide(UserDetailsScrId + "locMappingInputRow");
+    apz.setElmValue(UserDetailsScrId + "locTypeRole1", "");
+    apz.setElmValue(UserDetailsScrId + "locTypeRole2", "");
+    apz.setElmValue(UserDetailsScrId + "locIdRole1", "");
+    apz.setElmValue(UserDetailsScrId + "locIdRole2", "");
+    $(".icon-delete_unfilled").addClass("sno");
+};
+/*Cancel Edit User Details*/
+apz.app.UserDetails.fnCancelUserDetails = function() {
+    apz.app.UserDetails.fnResetUserDetails();
+}
+/*Change of Roles*/
+apz.app.UserDetails.fnChangeRole1 = function (pthis) {
+    var role = apz.getElmValue(UserDetailsScrId + "role1");
+    newUserRole=role;
+    if (!apz.isNull(role)) {
+        $("#" + UserDetailsScrId + "sc_row_11").removeClass("sno");
+        $("#Kendra__UserDetails__locTypeRole1_ext").removeAttr("disabled").removeClass("select-disabled");
+        $("#Kendra__UserDetails__role2").removeAttr("disabled").removeClass("select-disabled");
+        if (role === "AM") {
+            var dropDownDet = [
+                { val: "", desc: "Please Select" },
+                { val: "Area", desc: "Area" }
+            ];
+            apz.populateDropdown(document.getElementById("Kendra__UserDetails__locTypeRole1"), dropDownDet);
+        } else {
+            var dropDownDet = [
+                { val: "", desc: "Please Select" },
+                { val: "Branch", desc: "Branch" },
+                { val: "Area", desc: "Area" },
+                { val: "Zone", desc: "Zone" },
+                { val: "Region", desc: "Region/division" },
+                { val: "All", desc: "All" }
+            ];
+            apz.populateDropdown(document.getElementById("Kendra__UserDetails__locTypeRole1"), dropDownDet);
+        }
+    } else {
+        $("#Kendra__UserDetails__locTypeRole1_div ul li").removeClass("sno");
+        $("#" + UserDetailsScrId + "sc_row_11").addClass("sno");
+        $("#Kendra__UserDetails__role2").attr("disabled", "disabled").addClass("select-disabled");
+    }
+};
+var currRole, roleChange1 = false,
+    roleChange2 = false;
+apz.app.UserDetails.fnChangeRole2 = function(pthis) {
+    var role = apz.getElmValue(UserDetailsScrId + "role2");
+    currRole = role;
+    if (!apz.isNull(role)) {
+        $("#" + UserDetailsScrId + "sc_row_12").removeClass("sno");
+        if (unassignRole) {
+            unassignRole = false;
+            $("#" + UserDetailsScrId + "unassign").removeAttr("disabled").removeClass("disabled");
+        }
+        /*        if(role == "AM") {
+                    $("#Kendra__UserDetails__locTypeRole2_div ul li")[1].className = "sno";
+                    $("#Kendra__UserDetails__locTypeRole2_div ul li")[3].className = "sno";
+                    $("#Kendra__UserDetails__locTypeRole2_div ul li")[4].className = "sno";
+                    $("#Kendra__UserDetails__locTypeRole2_div ul li")[5].className = "sno";
+                } else if(role == "Cashier" || role == "DEO" || role == "KM") {
+                    $("#Kendra__UserDetails__locTypeRole2_div ul li")[2].className = "sno";
+                    $("#Kendra__UserDetails__locTypeRole2_div ul li")[3].className = "sno";
+                    $("#Kendra__UserDetails__locTypeRole2_div ul li")[4].className = "sno";
+                    $("#Kendra__UserDetails__locTypeRole2_div ul li")[5].className = "sno";
+                }*/
+    } else {
+        $("#Kendra__UserDetails__locTypeRole2_div ul li").removeClass("sno");
+        $("#" + UserDetailsScrId + "sc_row_12").addClass("sno");
+    }
+    if (role !== roleValue2) {
+        onchangeRoles = true
+    }
+};
+// apz.app.UserDetails.fnOnchangeRoles = function(pthis) {
+//     var Id = pthis.id;
+//     var dropDownDet = [];
+//     if (!apz.isNull(apz.getElmValue(Id))) {
+//         if (pthis.value == "Branch") {
+//             var userBranch = LoggedInUserDetails.loginResponse.addInfo2.split(",");
+//             dropDownDet = locationMappingDet.Branch.map(function(obj) {
+//                 var obj1 = {};
+//                 obj1.val = obj.split(",")[0] + "|" + obj.split(",")[1];
+//                 obj1.desc = obj.split(",")[0] + "|" + obj.split(",")[1];
+//                 return obj1;
+//             })
+//         } else if (pthis.value == "Area") {
+//             dropDownDet = locationMappingDet.Area.map(function(obj) {
+//                 var obj1 = {};
+//                 obj1.val = obj.split(",")[0] + "|" + obj.split(",")[1];
+//                 obj1.desc = obj.split(",")[0] + "|" + obj.split(",")[1];
+//                 return obj1;
+//             });
+//         } else if (pthis.value == "Zone") {
+//             dropDownDet = locationMappingDet.Zone.map(function(obj) {
+//                 var obj1 = {};
+//                 obj1.val = obj + "|" + obj;
+//                 obj1.desc = obj + "|" + obj;
+//                 return obj1;
+//             });
+//         } else if (pthis.value == "Region/division") {
+//             //var region = LoggedInUserDetails.loginResponse.addInfo3.split(",");
+//             dropDownDet = locationMappingDet.Region.map(function(obj) {
+//                 var obj1 = {};
+//                 obj1.val = obj.split(",")[0] + "|" + obj.split(",")[1];
+//                 obj1.desc = obj.split(",")[0] + "|" + obj.split(",")[1];
+//                 return obj1;
+//             });
+//         } else {
+//             var det = [];
+//             for (key in locationMappingDet) {
+//                 var mappingDet = locationMappingDet[key].map(function(obj) {
+//                     var obj1 = {};
+//                     if (key == "Zone") {
+//                         obj1.val = obj + "|" + obj;
+//                         obj1.desc = obj + "|" + obj;
+//                     } else {
+//                         obj1.val = obj.split(",")[0] + "|" + obj.split(",")[1];
+//                         obj1.desc = obj.split(",")[0] + "|" + obj.split(",")[1];
+//                     }
+//                     return obj1;
+//                 });
+//                 det.push(mappingDet);
+//             }
+//             dropDownDet = [...det[0], ...det[1], ...det[2], ...det[3]];
+//         }
+//     } else {
+//         if (Id == (UserDetailsScrId + "locTypeRole1")) {
+//             $("#" + UserDetailsScrId + "el_btn_5").attr("disabled", "disabled").addClass("disabled");
+//         } else {
+//             $("#" + UserDetailsScrId + "el_btn_6").attr("disabled", "disabled").addClass("disabled");
+//         }
+//     }
+//     var pleaseSelectObj = {
+//         val: "",
+//         desc: "Please Select"
+//     };
+//     dropDownDet.unshift(pleaseSelectObj);
+//     var dropDownId = "";
+//     if (Id == (UserDetailsScrId + "locTypeRole1")) {
+//         dropDownId = UserDetailsScrId + "locIdRole1";
+//     } else {
+//         dropDownId = UserDetailsScrId + "locIdRole2";
+//         apz.show(UserDetailsScrId + "sc_row_12");
+//     }
+//     apz.populateDropdown(document.getElementById(dropDownId), dropDownDet);
+// };
+apz.app.UserDetails.fnOnchangeRoles = function (pthis) {
+    var Id = pthis.id;
+    var dropDownDet = [];
+
+    if (!apz.isNull(apz.getElmValue(Id))) {
+        if (pthis.value == "Branch") {
+            var userBranch = LoggedInUserDetails.loginResponse.addInfo2.split(",");
+            dropDownDet = locationMappingDet.Branch.map(function (obj) {
+                return { val: obj.split(",")[0] + "|" + obj.split(",")[1], desc: obj.split(",")[0] + "|" + obj.split(",")[1] };
+            });
+        } else if (pthis.value == "Area") {
+            dropDownDet = locationMappingDet.Area.map(function (obj) {
+                return { val: obj.split(",")[0] + "|" + obj.split(",")[1], desc: obj.split(",")[0] + "|" + obj.split(",")[1] };
+            });
+        } else if (pthis.value == "Zone") {
+            dropDownDet = locationMappingDet.Zone.map(function (obj) {
+                return { val: obj + "|" + obj, desc: obj + "|" + obj };
+            });
+        } else if (pthis.value == "Region/division") {
+            dropDownDet = locationMappingDet.Region.map(function (obj) {
+                return { val: obj.split(",")[0] + "|" + obj.split(",")[1], desc: obj.split(",")[0] + "|" + obj.split(",")[1] };
+            });
+        } else {
+            var det = [];
+            for (var key in locationMappingDet) {
+                var mappingDet = locationMappingDet[key].map(function (obj) {
+                    return key == "Zone"
+                        ? { val: obj + "|" + obj, desc: obj + "|" + obj }
+                        : { val: obj.split(",")[0] + "|" + obj.split(",")[1], desc: obj.split(",")[0] + "|" + obj.split(",")[1] };
+                });
+                det.push(mappingDet);
+            }
+            dropDownDet = [...det[0], ...det[1], ...det[2], ...det[3]];
+        }
+    } else {
+        if (Id == UserDetailsScrId + "locTypeRole1") {
+            $("#" + UserDetailsScrId + "el_btn_5").attr("disabled", "disabled").addClass("disabled");
+        } else {
+            $("#" + UserDetailsScrId + "el_btn_6").attr("disabled", "disabled").addClass("disabled");
+        }
+    }
+    dropDownDet.unshift({ val: "", desc: "Please Select" });
+    var dropDownId = Id == UserDetailsScrId + "locTypeRole1" ? UserDetailsScrId + "locIdRole1" : UserDetailsScrId + "locIdRole2";
+    if (Id !== UserDetailsScrId + "locTypeRole1") {
+        apz.show(UserDetailsScrId + "sc_row_12");
+    }
+    apz.populateDropdown(document.getElementById(dropDownId), dropDownDet);
+};
+/*Check Null and disable Add Row button*/
+apz.app.UserDetails.fnChangeLocTypes = function(pthis) {
+    var Id = pthis.id;
+    if (apz.isNull(apz.getElmValue(Id))) {
+        if (Id == (UserDetailsScrId + "locIdRole1")) {
+            $("#" + UserDetailsScrId + "el_btn_5").attr("disabled", "disabled").addClass("disabled");
+        } else {
+            $("#" + UserDetailsScrId + "el_btn_6").attr("disabled", "disabled").addClass("disabled");
+        }
+    } else {
+        if (Id == (UserDetailsScrId + "locIdRole1")) {
+            $("#" + UserDetailsScrId + "el_btn_5").removeAttr("disabled").removeClass("disabled");
+            $("#" + UserDetailsScrId + "locIdRole1ErrorDiv").addClass('sno');
+        } else {
+            $("#" + UserDetailsScrId + "el_btn_6").removeAttr("disabled").removeClass("disabled");
+        }
+    }
+};
+/*Add Location Row*/
+apz.app.UserDetails.fnAddLocationRow = function(pRole) {
+    if (apz.data.scrdata.Kendra__paintUserLocDetails_Res.Location.length < 20) {
+        let locType = "";
+        let locId = "";
+        let roleId = "";
+        if (pRole == "Role1") {
+            locType = apz.getElmValue(UserDetailsScrId + "locTypeRole1");
+            locId = apz.getElmValue(UserDetailsScrId + "locIdRole1");
+            roleId = apz.getElmValue(UserDetailsScrId + "role1");
+        } else if (pRole == "Role2") {
+            locType = apz.getElmValue(UserDetailsScrId + "locTypeRole2");
+            locId = apz.getElmValue(UserDetailsScrId + "locIdRole2");
+            roleId = apz.getElmValue(UserDetailsScrId + "role2");
+        }
+        let obj = {};
+        obj.locType = locType;
+        obj.locID = locId.split("|")[1];
+        obj.locName = locId.split("|")[0];
+        obj.roleId = roleId;
+        var locationPresent = false;
+        for (var i = 0; i < apz.data.scrdata.Kendra__paintUserLocDetails_Res.Location.length; i++) {
+            if (obj.locName == apz.data.scrdata.Kendra__paintUserLocDetails_Res.Location[i].locName) {
+                locationPresent = true;
+                break;
+            }
+        }
+        if (locationPresent) {
+            ApzCOB.fnDisplayMsg("Location is already added for this user.", "E");
+        } else {
+            apz.data.scrdata.Kendra__paintUserLocDetails_Res.Location.push(obj);
+            apz.data.loadData("paintUserLocDetails", "Kendra");
+            $(".icon-delete_unfilled").removeClass("sno");
+        }
+        /*if(JSON.parse(empDetails.userDetail).addInfo1 == "KM" || JSON.parse(empDetails.userDetail).addInfo1 == "BM") {
+            if(apz.data.scrdata.Kendra__paintUserLocDetails_Res.Location.length > 0) {
+                $("#Kendra__UserDetails__deleteBtn_0").addClass("sno");
+            }
+        }*/
+    } else {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_ERR_LOC_DET_ENTER"), "E");
+    }
+};
+/*Delete Location Row*/
+// apz.app.UserDetails.fnDeleteLocationRow = function(pthis) {
+//     let rowNo = pthis.getAttribute("rowno");
+//     let locationName = apz.getElmValue("Kendra__paintUserLocDetails__o__Location__locName_" + rowNo);
+//     let filteredArr = apz.data.scrdata.Kendra__paintUserLocDetails_Res.Location.pop(rowNo);
+//     //apz.data.scrdata.Kendra__paintUserLocDetails_Res.Location = filteredArr;
+//     apz.data.loadData("paintUserLocDetails", "Kendra");
+//     $(".icon-delete_unfilled").removeClass("sno");
+// };
+apz.app.UserDetails.fnDeleteLocationRow = function(pthis) {
+    try {
+        let rowNo = parseInt(pthis.getAttribute("rowno"), 10);
+        let locationData = apz.data.scrdata.Kendra__paintUserLocDetails_Res.Location;
+        if (rowNo >= 0 && rowNo < locationData.length) {
+            let locationName = apz.getElmValue("Kendra__paintUserLocDetails__o__Location__locName_" + rowNo);
+            locationData.splice(rowNo, 1);
+            apz.data.loadData("paintUserLocDetails", "Kendra");
+            $(".icon-delete_unfilled").removeClass("sno");
+        } else {
+            ApzCOB.fnDisplayMsg("Select row to delete.", "E");
+        }
+    } catch (e) {
+        ApzCOB.fnDisplayMsg("Error deleting location:", "E");
+    }
+};
+/*Fetch User Details*/
+apz.app.UserDetails.fnFetchUserDetails = function(pthis) {
+    let rowNo = $(pthis).attr('rowno');
+    var data;
+    if (rowNo) {
+        data = apz.data.scrdata.Kendra__PaintUserList_Res.UserList[rowNo];
+    } else if (userRole != 'BM') {
+        data = apz.getElmValue(UserDetailsScrId + "fetchUserId")
+    } else {
+        data = pthis;
+    }
+    if (!apz.isNull(data)) {
+        var req = {
+            "apiRequest": {
+                "interfaceName": "FetchUserDetails",
+                "appId": "APZCBO",
+                "userId": LoggedInUserDetails.userID,
+                "requestObj": {
+                    "userId": data.kmId ?? data,
+                }
+            }
+        }
+        apz.startLoader();
+        if (!switchRole) {
+            apz.app.UserDetails.fnResetUserDetails();
+        }
+        ApzCOB.serverBuildParam(gAppId, "FetchUserDetails", "N", "N", req, false, apz.app.UserDetails.fnFetchUserDetailsCB);
+    } else {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_ERR_USER_ID_ENTER"), "E");
+    }
+};
+apz.app.UserDetails.fnFetchUserDetailsCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (params.res.APZCBO__FetchUserDetails_Res.apiResponse.ResponseHeader.ResponseCode == '0') {
+            if (!apz.isNull(params.res.APZCBO__FetchUserDetails_Res.apiResponse.ResponseBody.responseObj)) {
+                var booleanShowScr = true;
+                var userDetails = JSON.parse(JSON.parse(params.res.APZCBO__FetchUserDetails_Res.apiResponse.ResponseBody.responseObj).userDetail);
+                var userRoleplain = JSON.parse(JSON.parse(params.res.APZCBO__FetchUserDetails_Res.apiResponse.ResponseBody.responseObj).userRole);
+                if (userRoleplain.length == 2) {
+                    var userRoleDet = JSON.parse(JSON.stringify(userRoleplain))
+                    userRoleDet.forEach((element, index, array) => {
+                        if (array[0].roleId === 'KM') {
+                            array[index] = array[1];
+                            array[1] = element;
+                        }
+                    });
+                } else {
+                    userRoleDet = userRoleplain;
+                }
+                empDetails = JSON.parse(params.res.APZCBO__FetchUserDetails_Res.apiResponse.ResponseBody.responseObj);
+                if (switchRole) {
+                    switchRole = false;
+                    apz.app.UserDetails.switchRole(userDetails, userRoleDet, empDetails);
+                } else {
+                    if (LoggedInUserDetails.loginResponse.addInfo2 !== userDetails.addInfo2 && LoggedInUserDetails.loginResponse.addInfo1 ==
+                        "BM") {
+                        booleanShowScr = false;
+                        ApzCOB.fnDisplayMsg("User is not present under your Branch.", "E");
+                    } else {
+                        booleanShowScr = true;
+                    }
+                    if (booleanShowScr) {
+                        var userLocDet = {};
+                        if (!apz.isNull(empDetails.userLocDet)) {
+                            userLocDet = JSON.parse(empDetails.userLocDet);
+                        }
+                        apz.setElmValue(UserDetailsScrId + "userId", userDetails.userId);
+                        apz.setElmValue(UserDetailsScrId + "phNum", userDetails.userPhone1);
+                        apz.setElmValue(UserDetailsScrId + "empName", userDetails.userName);
+                        apz.setElmValue(UserDetailsScrId + "offMailId", userDetails.userEml1);
+                        apz.setElmValue(UserDetailsScrId + "userStat", userDetails.userActive);
+                        apz.setElmValue(UserDetailsScrId + "dept", userLocDet.department);
+                        apz.setElmValue(UserDetailsScrId + "subFunc", userLocDet.subFunction);
+                        apz.setElmValue(UserDetailsScrId + "hrisLocID", userLocDet.hrisLocation);
+                        apz.setElmValue(UserDetailsScrId + "repManagerID", userLocDet.reportManagerId);
+                        apz.setElmValue(UserDetailsScrId + "repManagerName", userLocDet.reportManagerName);
+                        apz.setElmValue(UserDetailsScrId + "userLockStat", userDetails.userLocked);
+                        var empDesc = apz.app.UserDetails.fnMapRoletoDesc();
+                        apz.setElmValue(UserDetailsScrId + "designation", empDesc);
+                        if (!Array.isArray(userRoleDet)) {
+                            var userRoleDet1 = [];
+                            userRoleDet1[0] = userRoleDet;
+                            userRoleDet = userRoleDet1;
+                        }
+                        //apz.setElmValue(UserDetailsScrId + "role1", userRoleDet[1].roleId);
+                        if (userRoleDet.length === 1) {
+                            apz.setElmValue(UserDetailsScrId + "role1", userRoleDet[0].roleId);
+                        }
+                        if (userRoleDet.length > 1) {
+                            apz.setElmValue(UserDetailsScrId + "role1", userRoleDet[1].roleId);
+                            apz.setElmValue(UserDetailsScrId + "role2", userRoleDet[0].roleId);
+                            $("#" + UserDetailsScrId + "role2").attr("disabled", false);
+                        } else {
+                            apz.hide(UserDetailsScrId + "sc_row_12");
+                        }
+                        roleValue2 = apz.getElmValue(UserDetailsScrId + "role2");
+                        /*
+                        if (roles[1]) {
+                            apz.setElmValue(UserDetailsScrId + "role2", roles[1]);
+                            $("#" + UserDetailsScrId + "role2").attr("disabled", false);
+                        } else {
+                            apz.hide(UserDetailsScrId + "sc_row_12");
+                        }*/
+                        if (!apz.isNull(empDetails.userLocDet)) {
+                            apz.data.scrdata.Kendra__paintUserLocDetails_Res.Location = JSON.parse(userLocDet.locationDetails);
+                            apz.data.loadData("paintUserLocDetails", "Kendra");
+                        } else {
+                            apz.data.scrdata.Kendra__paintUserLocDetails_Res.Location = [];
+                            apz.data.loadData("paintUserLocDetails", "Kendra");
+                        }
+                        if (!apz.isNull(apz.getElmValue(UserDetailsScrId + "role2"))) {
+                            $("#" + UserDetailsScrId + "unassignDiv").removeClass('sno');
+                        }
+                        apz.show(UserDetailsScrId + "userDetailRow");
+                        apz.hide(UserDetailsScrId + "gr_row_16");
+                        apz.hide(UserDetailsScrId + "sc_row_55");
+                        apz.hide(UserDetailsScrId + "gr_row_2");
+                        $("#" + UserDetailsScrId + "el_icn_3").removeClass('sno');
+                        $("#" + UserDetailsScrId + "unassign").attr("disabled", "disabled").addClass("select-disabled");
+                        if (userRole != 'BM') {
+                            apz.show(UserDetailsScrId + "gr_row_2");
+                            $("#" + UserDetailsScrId + "el_icn_3").addClass('sno');
+                            $("#" + UserDetailsScrId + "unassignDiv").addClass('sno');
+                        }
+                    }
+                }
+            }
+        } else if (params.res.APZCBO__FetchUserDetails_Res.apiResponse.ResponseBody.responseObj == "User is not present in Database") {
+            ApzCOB.fnDisplayMsg("User not existed.", "E");
+        } else {
+            ApzCOB.fnDisplayMsg(params.res.APZCBO__FetchUserDetails_Res.apiResponse.ResponseBody.responseObj, "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+};
+/*Fetch Location Masters*/
+apz.app.UserDetails.fnFetchOfficeDetails = function() {
+    if (!apz.isNull(apz.getElmValue(UserDetailsScrId + "fetchUserId"))) {
+        var req = {
+            "apiRequest": {
+                "interfaceName": "FetchOfficeDetails",
+                "appId": "APZCBO",
+                "userId": LoggedInUserDetails.userID,
+                "requestObj": {
+                    "locationType": "All",
+                }
+            }
+        }
+        apz.startLoader();
+        ApzCOB.serverBuildParam(gAppId, "FetchOfficeDetails", "N", "N", req, false, apz.app.UserDetails.fnFetchOfficeDetailsCB);
+    } else {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_ERR_USER_ID_ENTER"), "E");
+    }
+};
+apz.app.UserDetails.fnFetchOfficeDetailsCB = function(params) {
+    apz.stopLoader();
+    try {
+        //if (ApzCOB.handleServiceCallBacks(params)) {
+        if (!apz.isNull(params.res.APZCBO__FetchOfficeDetails_Res.apiResponse.ResponseBody.responseObj)) {
+            locationMappingDet = JSON.parse(params.res.APZCBO__FetchOfficeDetails_Res.apiResponse.ResponseBody.responseObj);
+            /*locationMappingDet.Branch=[];
+            var Branch = mappingDet.Branch.map(function(obj) {
+                if (!apz.isNull(obj)) {
+                    var obj1 = {};
+                    obj1.value = obj.split(",")[0] + "|" + obj.split(",")[1];
+                    obj1.desc = obj.split(",")[0] + "|" + obj.split(",")[1];
+                    return obj1;
+                }
+            });
+            locationMappingDet.Branch = Branch;
+            locationMappingDet.Area = [];
+            var Area = mappingDet.Area.map(function(obj) {
+                if (!apz.isNull(obj)) {
+                    var obj1 = {};
+                    obj1.value = obj.split(",")[0] + "|" + obj.split(",")[1];
+                    obj1.desc = obj.split(",")[0] + "|" + obj.split(",")[1];
+                    return obj1;
+                }
+            });
+            locationMappingDet.Area = Area;
+            locationMappingDet.Zone = [];
+            var Zone = mappingDet.Zone.map(function(obj) {
+                if (!apz.isNull(obj)) {
+                    var obj1 = {};
+                    obj1.value = obj.split(",")[0] + "|" + obj.split(",")[1];
+                    obj1.desc = obj.split(",")[0] + "|" + obj.split(",")[1];
+                    return obj1;
+                }
+            });
+            locationMappingDet.Zone = Zone;
+            locationMappingDet.Region = [];
+            var Region = mappingDet.Region.map(function(obj) {
+                if (!apz.isNull(obj)) {
+                    var obj1 = {};
+                    obj1.value = obj.split(",")[0] + "|" + obj.split(",")[1];
+                    obj1.desc = obj.split(",")[0] + "|" + obj.split(",")[1];
+                    return obj1;
+                }
+            });
+            locationMappingDet.Region = Region;*/
+            apz.show(UserDetailsScrId + "locMappingInputRow");
+            if (apz.data.scrdata.Kendra__paintUserLocDetails_Res.Location.length > 0) {
+                var locationTypesPresent = JSON.parse(empDetails.userLocDet).locationType.split("|");
+                apz.setElmValue(UserDetailsScrId + "locTypeRole1", locationTypesPresent[0]);
+                $("#" + UserDetailsScrId + "locTypeRole1_ext").attr("disabled", "disabled").addClass("select-disabled");
+                if (locationTypesPresent.length > 1) {
+                    apz.setElmValue(UserDetailsScrId + "locTypeRole2", locationTypesPresent[1]);
+                    $("#" + UserDetailsScrId + "locTypeRole2_ext").attr("disabled", "disabled").addClass("select-disabled");
+                }
+            }
+        }
+        //}
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+};
+/*Update User Details*/
+var mandFields = [
+    UserDetailsScrId + "userId",
+    UserDetailsScrId + "designation",
+    UserDetailsScrId + "empName",
+    UserDetailsScrId + "offMailId",
+    UserDetailsScrId + "userStat",
+    UserDetailsScrId + "role1",
+    UserDetailsScrId + "locTypeRole1",
+    //   UserDetailsScrId+"locIdRole1",
+];
+var particularRoleDtls;
+apz.app.UserDetails.fnUpdateUserDetails = function() {
+    var roleValue = apz.getElmValue(UserDetailsScrId + "role2");
+    if(newUserRole === 'BM'){
+        if((roleValue == "DEO")||(roleValue == "Cashier") ){
+            ApzCOB.fnDisplayMsg("If role1 is BM select role other than DEO and Cashier", "E");
+            return;
+        }
+    }
+    // Validate mandatory fields
+    if (ApzCOB.customeValidateFields(mandFields)) {
+        var isValid = apz.app.UserDetails.fnValidateRequiredFields();
+        if (!isValid) {
+            return;
+        }
+        ApzCOB.fnDisplayMsg("Are you sure you want to Update User Details?", "C", function(params) {
+            if (params.choice) {
+                setTimeout(function() {
+                    apz.app.UserDetails.fnUpdateDetails(params);
+                }, 100);
+            }
+        });
+    }
+    if (userRole === "BM") {
+        if ((!apz.isNull(roleValue) && !apz.isNull(roleDetails[roleValue])&&roleDetails[roleValue].count === 0) || unassignRole) {
+            onchangeRoles = false;
+        }
+        if (onchangeRoles) {
+            var val = !apz.isNull(roleValue) ? apz.getElmValue(UserDetailsScrId + "role2") : roleValue2
+            var id = roleDetails[roleValue].details[0].kmId
+            if (id === apz.getElmValue(UserDetailsScrId + "userId") && val === roleValue2) {
+                ApzCOB.fnDisplayMsg(roleValue + " role already assigned for the user", 'E')
+                return;
+            } else {
+                if (multipleRoleAllowed === 'Y') {
+                    ApzCOB.fnDisplayMsg("Are you sure you want to Update User Details?", "C", function(params) {
+                        if (params.choice) {
+                            setTimeout(function() {
+                                apz.app.UserDetails.fnUpdateDetails(params);
+                            }, 100);
+                        }
+                    });
+                } else if (multipleRoleAllowed === 'N') {
+                    ApzCOB.fnDisplayMsg("The " + val + " role assigned to the specified GKID: " + id + " will be unassigned. Do you wish to proceed?",
+                        "C",
+                        function(params) {
+                            if (params.choice) {
+                                onchangeRoles = false;
+                                setTimeout(function() {
+                                    if (roleDetails.hasOwnProperty(roleValue) && roleDetails[roleValue].count >= 1) {
+                                        particularRoleDtls = roleDetails[roleValue].details[0];
+                                        switchRole = true;
+                                        apz.app.UserDetails.fnFetchUserDetails(particularRoleDtls);
+                                    } else {
+                                        apz.app.UserDetails.fnUpdateDetails(params);
+                                    }
+                                }, 100);
+                            } else {}
+                        });
+                }
+                }
+                } else {
+            if (unassignRole) {
+                unassignRole = false;
+            }
+            var displayMsg
+            if (recallUpdate) {
+                recallUpdate = false;
+                apz.app.UserDetails.fnUpdateDetails();
+            } else {
+                if ((!apz.isNull(roleValue) && roleDetails[roleValue].count === 0)) {
+                    //displayMsg = "The " + roleValue2 + " role will be unassigned. Do you wish to proceed?"
+                    displayMsg = "Are you sure you want to Update User Details?"
+                } else {
+                    displayMsg = "Are you sure you want to Update User Details?"
+                }
+                ApzCOB.fnDisplayMsg(displayMsg, "C", function(params) {
+                    if (params.choice) {
+                        setTimeout(function() {
+                            apz.app.UserDetails.fnUpdateDetails(params);
+                        }, 100);
+                    }
+                });
+            }
+        }
+    }
+};
+apz.app.UserDetails.switchRole = function(userDetails, userRoleDet, empDetails) {
+    var userDetails1 = userDetails,
+        userRoleDet1 = userRoleDet,
+        empDetails1 = empDetails;
+    var roles1 = userRoleDet1.map(role => role.roleId).join(' ~ ');
+    var updatedroles1 = roles1.split(' ~ ').map(role => role.trim()) // Trim any extra spaces around the roles
+        .filter(role => role !== currRole) // Remove the currRole ('Cashier')
+        .join(' ~ ');
+    var userLocDet = {};
+    if (!apz.isNull(empDetails1.userLocDet)) {
+        userLocDet = JSON.parse(empDetails1.userLocDet);
+    }
+    var obj = {
+        userId: userDetails1.userId,
+        userLocked: userDetails1.userLocked,
+        designation: userDetails1.userId,
+        phNum: userDetails1.userId,
+        empName: userDetails1.userName,
+        offMailId: userDetails1.userEml1,
+        userStat: userDetails1.userActive,
+        dept: userLocDet.department,
+        subFunc: userLocDet.subFunction,
+        hrisLocID: userLocDet.hrisLocation,
+        repManagerID: userLocDet.reportManagerId,
+        repManagerName: userLocDet.reportManagerName,
+        locTypes: '',
+        roleId: updatedroles1,
+        locDetails: '[]',
+        branchId : userBranchID,
+        meetingDate :FetchMeetingDtRecord
+    }
+    switchRole1 = true;
+    apz.app.UserDetails.fnUpdateDetails(obj);
+}
+apz.app.UserDetails.fnValidateRequiredFields = function() {
+    var role1 = apz.getElmValue("Kendra__UserDetails__role1");
+    var locTypeRole1 = apz.getElmValue("Kendra__UserDetails__locTypeRole1");
+    var locIdRole1 = apz.getElmValue("Kendra__UserDetails__locIdRole1");
+    // Check if location details for role 1 are required
+    if (!apz.isNull(locTypeRole1)) {
+        if (!apz.isNull(locIdRole1)) {
+            let obj = {};
+            obj.locType = locTypeRole1;
+            obj.locID = locIdRole1.split("|")[1];
+            obj.locName = locIdRole1.split("|")[0];
+            obj.roleId = role1;
+            var locationPresent = false;
+            for (var i = 0; i < apz.data.scrdata.Kendra__paintUserLocDetails_Res.Location.length; i++) {
+                if (obj.locName == apz.data.scrdata.Kendra__paintUserLocDetails_Res.Location[i].locName) {
+                    locationPresent = true;
+                    break;
+                }
+            }
+            if (!locationPresent) {
+                ApzCOB.fnDisplayMsg("Add Row is required", "E");
+                return false;
+            }
+        }
+    }
+    return true;
+};
+apz.app.UserDetails.fnUpdateDetails = function(params) {
+    var req = {};
+    if (switchRole1) {
+        switchRole1 = false;
+        recallUpdate = true
+        req = params;
+    } else {
+        var roles = apz.getElmValue(UserDetailsScrId + "role1");
+        var locTypeRoles = apz.getElmValue(UserDetailsScrId + "locTypeRole1");
+        if (!apz.isNull(apz.getElmValue(UserDetailsScrId + "role2"))) {
+            roles = roles + "~" + apz.getElmValue(UserDetailsScrId + "role2");
+        }
+        if (!apz.isNull(apz.getElmValue(UserDetailsScrId + "locTypeRole2"))) {
+            locTypeRoles = locTypeRoles + "|" + apz.getElmValue(UserDetailsScrId + "locTypeRole2");
+        }
+        locTypeRoles = apz.data.scrdata.Kendra__paintUserLocDetails_Res.Location.map(function(obj) {
+            return obj.locType;
+        }).join("|");
+        req.userId = apz.getElmValue(UserDetailsScrId + "userId");
+        req.userLocked = apz.getElmValue(UserDetailsScrId + "userLockStat");
+        req.designation = apz.getElmValue(UserDetailsScrId + "designation");
+        req.phNum = apz.getElmValue(UserDetailsScrId + "phNum");
+        req.empName = apz.getElmValue(UserDetailsScrId + "empName");
+        req.offMailId = apz.getElmValue(UserDetailsScrId + "offMailId");
+        req.userStat = apz.getElmValue(UserDetailsScrId + "userStat");
+        req.dept = apz.getElmValue(UserDetailsScrId + "dept");
+        req.subFunc = apz.getElmValue(UserDetailsScrId + "subFunc");
+        req.hrisLocID = apz.getElmValue(UserDetailsScrId + "hrisLocID");
+        req.repManagerID = apz.getElmValue(UserDetailsScrId + "repManagerID");
+        req.repManagerName = apz.getElmValue(UserDetailsScrId + "repManagerName");
+        req.locTypes = locTypeRoles;
+        req.roleId = roles;
+        req.locDetails = JSON.stringify(apz.data.scrdata.Kendra__paintUserLocDetails_Res.Location);
+        req.branchId = userBranchID;
+        req.meetingDate = FetchMeetingDtRecord;
+    }
+    var reqObj = {
+        "apiRequest": {
+            "interfaceName": "UpdateUserDetails",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": req
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "UpdateUserDetails", "N", "N", reqObj, false, apz.app.UserDetails.fnUpdateUserDetailsCB);
+};
+apz.app.UserDetails.fnUpdateUserDetailsCB = function(params) {
+    apz.stopLoader();
+    try {
+        //if (ApzCOB.handleServiceCallBacks(params)) {
+        if (!apz.isNull(params.res.APZCBO__UpdateUserDetails_Res.apiResponse.ResponseBody.responseObj)) {
+            if (params.res.APZCBO__UpdateUserDetails_Res.apiResponse.ResponseHeader.ResponseMessage == "Fetching Success") {
+                setTimeout(function() {
+                    if (recallUpdate) {
+                        //recallUpdate = false;
+                        apz.app.UserDetails.fnUpdateUserDetails();
+                    } else {
+                        ApzCOB.fnDisplayMsg(params.res.APZCBO__UpdateUserDetails_Res.apiResponse.ResponseBody.responseObj, "S", apz.app
+                            .UserDetails.fnResetScreen);
+                    }
+                }, 200);
+            } else {
+                setTimeout(function() {
+                    ApzCOB.fnDisplayMsg(params.res.APZCBO__UpdateUserDetails_Res.apiResponse.ResponseBody.responseObj, "E");
+                }, 200);
+            }
+        }
+        //}
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+};
+apz.app.UserDetails.fnResetScreen = function(params) {
+    ApzCOB.launchMicroApp("Kendra", "UserDetails", 'APZCBO__BaseScreens__BaseDIV', '');
+};
+Kendra__UserDetails__empName.oninput = function() {
+    this.value = this.value.replace(/[^a-zA-Z ]/g, '');
+    if (this.value.length > 100) {
+        this.value = this.value.slice(0, 100);
+    }
+}
+Kendra__UserDetails__phNum.oninput = function() {
+    this.value = this.value.replace(/[^0-9]/g, '');
+    if (this.value.length > 10) {
+        this.value = this.value.slice(0, 10);
+    }
+}
+apz.app.UserDetails.fetchTypeOfLocation = function() {
+    var locType1 = apz.getElmValue("Kendra__UserDetails__locTypeRole1");
+    var optionList = [];
+    switch (locType1) {
+        case "Branch":
+            optionList = locationMappingDet.Branch;
+            break;
+        case "Area":
+            optionList = locationMappingDet.Area;
+            break;
+        case "Zone":
+            optionList = locationMappingDet.Zone;
+            break;
+        case "Region":
+            optionList = locationMappingDet.Region;
+            break;
+        default:
+            optionList = locationMappingDet;
+            break;
+    }
+    return optionList;
+};
+apz.app.UserDetails.backNavigation = function() {
+    ApzCOB.backNavigation();
+}
+apz.app.UserDetails.navigateToList = function() {
+    apz.hide(UserDetailsScrId + "userDetailRow");
+    apz.show(UserDetailsScrId + "gr_row_16");
+    apz.show(UserDetailsScrId + "sc_row_55");
+    apz.show(UserDetailsScrId + "gr_row_2");
+    apz.setElmValue(UserDetailsScrId + "role2", "");
+}
+apz.app.UserDetails.fetchUserList = function(pthis) {
+    var req = {
+        "apiRequest": {
+            "interfaceName": "FetchUserList",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "branchId": LoggedInUserDetails.loginResponse.addInfo2
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "FetchUserList", "N", "N", req, false, apz.app.UserDetails.fetchUserListCB);
+};
+apz.app.UserDetails.fetchUserListCB = function(params) {
+    apz.stopLoader();
+    //apz.app.UserDetails.paintUserList(data);
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__FetchUserList_Res.apiResponse.ResponseBody.responseObj)) {
+                data = JSON.parse(params.res.APZCBO__FetchUserList_Res.apiResponse.ResponseBody.responseObj).usersDetails
+                apz.app.UserDetails.paintUserList(data);
+            } else {
+                //ApzCOB.fnDisplayMsg("Application is Locked by another user.", "E");
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        } else {
+            //ApzCOB.fnDisplayMsg(params.res.APZCBO__LockApplication_Res.apiResponse.ResponseBody.responseObj, "E");
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    } catch (e) {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+};
+var userList, userListArray = [];
+var roleDetails = {
+    "KM": {
+        count: 0,
+        details: []
+    },
+    "DEO": {
+        count: 0,
+        details: []
+    },
+    "Cashier": {
+        count: 0,
+        details: []
+    }
+};
+apz.app.UserDetails.paintUserList = function(params) {
+    userList = params
+    userList.forEach(function(el, i) {
+        var obj = {
+            kmName: userList[i].userName,
+            kmId: userList[i].userId,
+            existingRole: userList[i].role.replace(/{|}/g, ''),
+            action: "View /Modify"
+        }
+        userListArray.push(obj)
+    })
+    if (userListArray.length > 0) {
+        apz.data.scrdata.Kendra__PaintUserList_Res = {};
+        apz.data.scrdata.Kendra__PaintUserList_Res.UserList = userListArray;
+        apz.data.loadData("PaintUserList", 'Kendra');
+    } else {
+        $("#" + UserDetailsScrId + "noRecordForm").removeClass("sno");
+        $("#" + UserDetailsScrId + "userListRow").addClass("sno");
+    }
+    // role count
+    userListArray.forEach(item => {
+        const roles = item.existingRole.split(','); // Split roles if there are multiple roles
+        roles.forEach(role => {
+            role = role.trim(); // Trim whitespace
+            if (roleDetails.hasOwnProperty(role)) {
+                roleDetails[role].count++; // Increase the count for this role
+                roleDetails[role].details.push(item); // Store the entry details
+            }
+        });
+    });
+}
+apz.app.UserDetails.onSearch = function(pthis) {
+    var searchText = $("#" + pthis.id).val().trim(); // Get search text
+    var searchResult = [];
+    apz.data.scrdata.Kendra__PaintUserList_Res.UserList = {};
+    apz.data.loadData("PaintUserList", 'Kendra');
+    if (searchText.length > 0) {
+        searchResult = ApzCOB.arraySearch(searchText, userListArray,
+            ["kmName", "kmId", "existingRole"], 'Kendra__PaintUserList_Res.UserList', "", '', '');
+        apz.data.scrdata.Kendra__PaintUserList_Res.UserList = searchResult;
+    } else {
+        apz.data.scrdata.Kendra__PaintUserList_Res.UserList = userListArray;
+    }
+    apz.data.loadData("PaintUserList", 'Kendra');
+    if (apz.data.scrdata.Kendra__PaintUserList_Res.UserList.length === 0) {
+        $("#" + UserDetailsScrId + "noRecordForm").removeClass("sno");
+        $("#" + UserDetailsScrId + "userListRow").addClass("sno");
+    } else {
+        $("#" + UserDetailsScrId + "noRecordForm").addClass("sno");
+        $("#" + UserDetailsScrId + "userListRow").removeClass("sno");
+    }
+}
+//unassignRole
+apz.app.UserDetails.unassignRole = function() {
+    var val = apz.getElmValue(UserDetailsScrId + "role2");
+    ApzCOB.fnDisplayMsg('Are you sure you want to unassign the ' + val + ' role?', "C", apz.app.UserDetails.unassignRoleCB);
+}
+var unassignDisable = false;
+apz.app.UserDetails.unassignRoleCB = function(params) {
+    if (params.choice === true) {
+        unassignRole = true;
+        // unassignDisable = true;
+        $("#" + UserDetailsScrId + "unassign").attr("disabled", "disabled").addClass("select-disabled");
+        apz.setElmValue(UserDetailsScrId + "role2", "");
+    } else {}
+}
+/*apz.app.UserDetails.fnCapitalize = function(string){
+    return string.charAt(0).toUpperCase() + string.slice(1);
+};
+Kendra__UserDetails__locIdRole1.oninput = function(pthis) {
+    var inputVal = apz.app.UserDetails.fnCapitalize(pthis.target.value);
+    if (inputVal.length >= 3) {
+        var optionList = apz.app.UserDetails.fetchTypeOfLocation();
+        var options = optionList.filter(function(item, index) {
+            return item.value.includes(inputVal) ? item.value : '';
+        });
+        $("#Kendra__UserDetails__locIdRole1").autocomplete({
+            source: options,
+            minLength: 3,
+            select: function(event, ui) {},
+            create: function (e) {
+                $('.ui-helper-hidden-accessible').remove();
+            },
+            close: function(event, ui) {
+                $(this).trigger('blur').focus();
+                $('.ui-helper-hidden-accessible').remove();
+            }
+        });
+    } else {}
+};
+Kendra__UserDetails__locIdRole2.oninput = function(pthis) {
+    var inputVal = apz.app.UserDetails.fnCapitalize(pthis.target.value);
+    if (inputVal.length >= 3) {
+        var optionList = apz.app.UserDetails.fetchTypeOfLocation();
+        var options = optionList.filter(function(item, index) {
+            return item.value.includes(inputVal) ? item.value : '';
+        });
+        $("#Kendra__UserDetails__locIdRole2").autocomplete({
+            source: options,
+            minLength: 3,
+            select: function(event, ui) {},
+            create: function (e) {
+                $('.ui-helper-hidden-accessible').remove();
+            },
+            close: function(event, ui) {
+                $(this).trigger('blur').focus();
+                $('.ui-helper-hidden-accessible').remove();
+            }
+        });
+    } else {}
+};*/

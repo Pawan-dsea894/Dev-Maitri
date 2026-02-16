@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.2.2</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.iexceed.appzillonbanking.cagl</groupId>
+	<artifactId>AppzillonBanking-DOCUMENT</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>AppzillonBanking-DOCUMENT</name>
+	<description>Demo project for Spring Boot</description>
+	<properties>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
+		<java.version>17</java.version>
+	</properties>
+		<dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.appzillonbanking</groupId>
+			<artifactId>RetailBanking-Lib-Core</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.appzillonbanking</groupId>
+			<artifactId>RetailBanking-Lib-InterfaceAdapter</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+
+<!--
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>layout</artifactId>
+			<version>7.1.17</version>
+		</dependency>-->
+
+		<!-- iText HTML2PDF 
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>html2pdf</artifactId>
+			<version>2.1.7</version>
+		</dependency>
+
+		
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>itextpdf</artifactId>
+			<version>5.5.0</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>io</artifactId>
+			<version>7.1.17</version> 
+		</dependency>
+-->
+
+	<dependency>
+            <groupId>com.innoventsolutions.birt.runtime</groupId>
+            <artifactId>org.eclipse.birt.runtime_4.8.0-20180626</artifactId>
+            <version>4.8.0</version>
+	     <exclusions>
+	        <exclusion>
+	            <groupId>org.slf4j</groupId> <!-- Exclude SLF4J if needed -->
+	            <artifactId>slf4j-api</artifactId>
+	        </exclusion>
+	        <!-- Add more exclusions if needed -->
+             </exclusions>
+        </dependency>
+	</dependencies>
+
+	<build>
+	<finalName>appzillonbankingdocument</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+					<layers>
+						<enabled>true</enabled>
+					</layers>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

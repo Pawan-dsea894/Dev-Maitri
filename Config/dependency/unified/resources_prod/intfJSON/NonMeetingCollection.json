@@ -1,0 +1,20 @@
+{
+  "apiURL": "${URL}",
+  "servicetype": "HTTP",
+  "methodType": "PUT",
+  "contentType": "application/json",
+  "headers": {
+    "Content-Type": "application/json",
+    "Accept": "*/*",
+    "Apikey": "Z3JhbWVlbmtvb3RhcHJvZA"
+  },
+  "requestDef": "",
+  "responseDef": "",
+  "logging": {
+    "logRequired": "N",
+    "logType": "NONE",
+	  "externalAPILogRequired":"Y",
+	  "externalAPILogType":"BOTH"
+  },
+  "timeout":"120"
+}

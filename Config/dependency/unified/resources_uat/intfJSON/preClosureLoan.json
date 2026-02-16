@@ -1,0 +1,82 @@
+{
+  "apiURL": "${URL}",
+  "servicetype": "HTTP",
+  "methodType": "POST",
+  "contentType": "application/json",
+  "headers": {
+    "Content-Type": "application/json",
+    "Accept": "*/*",
+    "Apikey": "Y2FsZ2xpbnRlcmZhY2Vlc2I=",
+    "companyId": "{REQUEST~apiRequest.branchId}"
+  },
+  "requestDef": {
+    "headers":{
+      "companyId": "${REQUEST~apiRequest.branchId}"
+    },
+    "body": {
+      "nominationDetails~@JSONARRAY@": [
+        {
+          "nomineeName": "${REQUEST~apiRequest.nominationDetails[].nomineeName}",
+          "relationToCust": "${REQUEST~apiRequest.nominationDetails[].relationToCust}"
+        }
+      ],
+      "customerId": "${REQUEST~apiRequest.customerId}",
+      "loanAction": "${REQUEST~apiRequest.loanAction}",
+      "loanProduct": "${REQUEST~apiRequest.loanProduct}",
+      "currencyId": "${REQUEST~apiRequest.currencyId}",
+      "mmflPreclosureAmt": "${REQUEST~apiRequest.mmflPreclosureAmt}",
+      "borrowerInsurance": "${REQUEST~apiRequest.borrowerInsurance}",
+      "spouseInsurance": "${REQUEST~apiRequest.spouseInsurance}",
+      "modeOfPayment": "${REQUEST~apiRequest.modeOfPayment}",
+      "term": "${REQUEST~apiRequest.term}",
+      "amount": "${REQUEST~apiRequest.amount}",
+      "paymentFreq": "${REQUEST~apiRequest.paymentFreq}",
+      "loanPurpose": "${REQUEST~apiRequest.loanPurpose}",
+      "loanSubPurpose": "${REQUEST~apiRequest.loanSubPurpose}",
+      "custRelationOccupation": "${REQUEST~apiRequest.custRelationOccupation}",
+      "NomineeUpi": "${REQUEST~apiRequest.NomineeUpi}",
+      "cbValidTill": "${REQUEST~apiRequest.cbValidTill}",
+      "creditAssessRecom": "${REQUEST~apiRequest.creditAssessRecom}",
+      "creditAssessNotes": "${REQUEST~apiRequest.creditAssessNotes}",
+      "cbReportDate": "${REQUEST~apiRequest.cbReportDate}",
+      "cbStatus": "${REQUEST~apiRequest.cbStatus}",
+      "cbSummary": "${REQUEST~apiRequest.cbSummary}",
+      "cbReportLink": "${CONST~http:^^bureaureport.grameenkoota.in:8081/getpdf.aspx|refno=32562910}",
+      "cbRemarks": "${REQUEST~apiRequest.cbRemarks}",
+      "cbScore": "${REQUEST~apiRequest.cbScore}",
+      "creditAssessResult": "${REQUEST~apiRequest.creditAssessResult}",
+      "creditAssessRemarks": "${REQUEST~apiRequest.creditAssessRemarks}",
+      "creditAssessUpdBy": "${REQUEST~apiRequest.creditAssessUpdBy}",
+      "creditAssessUpdDate": "${REQUEST~apiRequest.creditAssessUpdDate}",
+      "precloseType": "${REQUEST~apiRequest.precloseType}",
+      "reviewApprovalNotes": "${REQUEST~apiRequest.reviewApprovalNotes}",
+      "status": "${REQUEST~apiRequest.status}",
+      "declineReason": "${REQUEST~apiRequest.declineReason}",
+      "remarks": "${REQUEST~apiRequest.remarks}",
+      "referenceId": "${REQUEST~apiRequest.referenceId}",
+      "interestRate": "${REQUEST~apiRequest.interestRate}",
+      "annualPercentageRate": "${REQUEST~apiRequest.annualPercentageRate}",
+      "insurerId": "${REQUEST~apiRequest.insurerId}",
+	  "foir": "${REQUEST~apiRequest.foir}",
+	  "earningMembers": "${REQUEST~apiRequest.earning_member}",
+      "familyIncome": "${REQUEST~apiRequest.family_income}",
+	  "processingFee": "${REQUEST~apiRequest.processingFee}",
+     "gSTPF": "${REQUEST~apiRequest.gSTPF}",
+     "insuranceChargeMember": "${REQUEST~apiRequest.insuranceChargeMember}",
+     "insuranceChargeSpouse": "${REQUEST~apiRequest.insuranceChargeSpouse}",
+	 "upfrontInt": "${REQUEST~apiRequest.upfrontInt}",
+      "preClosure~@JSONARRAY@": [
+        {
+          "closeAcctNo": "${REQUEST~apiRequest.closeAcctNo[].closeAcctNo}"
+        }
+      ]
+    }
+  },
+  "responseDef": "",
+  "logging": {
+    "logRequired": "Y",
+    "logType": "BOTH",
+	  "externalAPILogRequired":"N",
+	  "externalAPILogType":"BOTH"
+  }
+}

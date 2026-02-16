@@ -1,0 +1,581 @@
+var ViewKendraScrId = "CollBM__ViewKendraDetails__";
+var kendraWiseDet = '';
+var selectedGroupDet;
+var BMKendraDet = '';
+var GroupMemberDet = [];
+var prevRow = '';
+var backNavData = "";
+var selectKendRowNo = 0;
+var isFromApproveRejScr = false;
+var atleastOneApproved = 0;
+var atleastOnePushbacked = 0;
+apz.app.onLoad_ViewKendraDetails = function(params) {
+    //initialization
+}
+apz.app.onShown_ViewKendraDetails = function(params) {
+    $('#header').addClass('sno');
+    $('#footer').addClass('sno');
+    BMKendraDet = params;
+    selectedGroupDet = params.kendraDtls;
+    apz.app.ViewKendraDetails.paintDetails();
+}
+apz.app.ViewKendraDetails.paintDetails = function() {
+    for (i = 0; i < selectedGroupDet.length; i++) {
+        var GroupData = selectedGroupDet[i].colldtls.groups;
+        // for (i = 0; i < selectedGroupDet.length; i++) {
+        //    let obj = {};
+        selectedGroupDet[i]['totCollectedAmt'] = selectedGroupDet[i].colldtls
+        .totCollAmt; //ApzCOB.fn_FormatAmount(GroupData.map(g => g.totCollAmt).reduce((acc, sum) => acc + sum));
+        //   }
+    }
+    let pushbackCase = selectedGroupDet.filter(obj => obj.applnDtls.appStatus === "INPROGRESS" && obj.applnWFDtls[0].nextWFStage === "PUSHBACK");
+    for (i = 0; i < pushbackCase.length; i++) {
+        let a = selectedGroupDet.filter(e => e.id === pushbackCase[i].id)
+        a[0].remarks = pushbackCase[i].applnWFDtls[0].remarks
+    }
+    var originalGroupDet = [...selectedGroupDet];
+    if (selectedGroupDet.length > 0) {
+        selectedGroupDet = selectedGroupDet.filter(obj1 => obj1.applnDtls.appStatus !== "APPROVED");
+        selectedGroupDet = selectedGroupDet.length > 0 ? selectedGroupDet : originalGroupDet;
+        $("#" + ViewKendraScrId + "kendraListDisplays").removeClass('sno');
+        $("#" + ViewKendraScrId + "noRecordForm").addClass('sno');
+        if (isPendingRecClick) {
+            $("#" + ViewKendraScrId + "hpl_viewDetailsId_0").addClass('sno');
+        } else {
+            $("#" + ViewKendraScrId + "hpl_viewDetailsId_0").removeClass('sno');
+        }
+        $('#' + ViewKendraScrId + 'txt_pushbackDescId_0').closest('.srb').addClass('sno');
+        $('#' + ViewKendraScrId + 'txt_pushbackDescId_0').closest('.srb').removeClass('bg-dark-err');
+        apz.data.scrdata.CollBM__IPaintKendraDetails_Res = {};
+        apz.data.scrdata.CollBM__IPaintKendraDetails_Res = selectedGroupDet;
+        apz.data.loadData("IPaintKendraDetails", 'CollBM');
+        let grpsTotCollAmt = 0;
+        for (i = 0; i < selectedGroupDet.length; i++) {
+            $("#" + ViewKendraScrId + "kendraWiseList_row_" + i).attr('onclick', '');
+            grpsTotCollAmt = 0;
+            let totalData = selectedGroupDet[i].colldtls;
+            if (totalData.hasOwnProperty('totCollAmt')) {
+                if (totalData.totCollAmt < totalData.netDue) {
+                    $("#" + ViewKendraScrId + "partialPayInfo_" + i).parents().eq(1).removeClass('sno');
+                }
+            }
+            if (selectedGroupDet[i].hasOwnProperty('remarks') && !apz.isNull(selectedGroupDet[i].remarks)) {
+                $("#CollBM__IPaintKendraDetails__o__CollBM__IPaintKendraDetails_Res__remarks_" + i).parents(2).removeClass('sno');
+            }
+            if (selectedGroupDet[i].hasOwnProperty('isPushback') && selectedGroupDet[i].isPushback) {
+                $('#' + ViewKendraScrId + 'txt_pushbackDescId_' + i).closest('.srb').removeClass('sno');
+                $('#' + ViewKendraScrId + 'txt_pushbackDescId_' + i).closest('.srb').addClass('bg-dark-err');
+                $('#' + ViewKendraScrId + 'hpl_viewDetailsId_' + i).removeClass('sno');
+                $('#CollBM__IPaintKendraDetails__o__CollBM__IPaintKendraDetails_Res__totCollectedAmt_' + i).closest('.srb').removeClass('sno');
+            } else if (selectedGroupDet[i].hasOwnProperty('isApproved') && selectedGroupDet[i].isApproved) {
+                $('#' + ViewKendraScrId + 'hpl_viewDetailsId_' + i).removeClass('sno');
+            }
+            grpsTotCollAmt = selectedGroupDet[i].colldtls.groups.reduce((sum, obj) => sum += obj.totCollAmt, 0)
+            $('#CollBM__IPaintKendraDetails__o__CollBM__IPaintKendraDetails_Res__totCollectedAmt_' + i).text("₹" + grpsTotCollAmt);
+        }
+    } else {
+        $("#" + ViewKendraScrId + "kendraListDisplays").addClass('sno');
+        $("#" + ViewKendraScrId + "noRecordForm").removeClass('sno');
+    }
+}
+apz.app.ViewKendraDetails.onClickKendra = function(pthis) {
+    var selectedRow = $(pthis).attr('rowno');
+    selectKendRowNo = selectedRow;
+    GroupMemberDet = [];
+    if (prevRow !== selectedRow) {
+        $("#" + ViewKendraScrId + "kendraWiseList_row_" + prevRow).removeClass('active');
+        $("#" + ViewKendraScrId + "subdiv_" + prevRow).parents().eq(1).addClass('sno');
+        $("#" + ViewKendraScrId + "subdiv_" + selectedRow).closest('.emg-loan-footer').addClass('sno');
+        $("#" + ViewKendraScrId + "subdiv_" + prevRow).closest('li').removeClass('active');
+        $("#" + ViewKendraScrId + "dropIcon_" + prevRow).removeClass('active');
+    }
+    if ($("#" + ViewKendraScrId + "subdiv_" + selectedRow).is(':visible')) {
+        $("#" + ViewKendraScrId + "subdiv_" + selectedRow).parents().eq(1).addClass('sno');
+        $("#" + ViewKendraScrId + "subdiv_" + selectedRow).closest('.emg-loan-footer').addClass('sno');
+        $("#" + ViewKendraScrId + "dropIcon_" + selectedRow).removeClass('active');
+        $("#" + ViewKendraScrId + "kendraWiseList_row_" + selectedRow).removeClass('active');
+    } else {
+        apz.startLoader();
+        setTimeout(() => {
+            var GroupData = selectedGroupDet[selectedRow].colldtls.groups;
+            for (i = 0; i < GroupData.length; i++) {
+                for (j = 0; j < GroupData[i].members.length; j++) {
+                    let obj = {};
+                    obj['groupId'] = 'Group ID' + GroupData[i].id;
+                    obj['id'] = GroupData[i].members[j].id;
+                    obj['name'] = GroupData[i].members[j].name;
+                    obj['depname'] = GroupData[i].members[j].depname;
+                    obj['cashAmt'] = ApzCOB.fn_FormatAmount(GroupData[i].members[j].collAmount);
+                    //UNAP-1402 if loan is empty array
+                    // obj['upiAmt'] = ApzCOB.fn_FormatAmount(GroupData[i].members[j].loans.map(g => g.upiAmt).reduce((acc, sum) => acc +
+                    //     sum));
+                    obj['upiAmt'] = ApzCOB.fn_FormatAmount(GroupData[i].members[j].loans.reduce((acc, loan) => acc + loan.upiAmt, 0));
+                    obj['upiAmt'] = obj['upiAmt'] === '0' ? obj['upiAmt'] = '-' : obj['upiAmt'];
+                    obj['cashAmt'] = obj['cashAmt'] === '0' ? obj['cashAmt'] = '-' : obj['cashAmt'];
+                    obj['parFlg'] = GroupData[i].members[j].parFlg;
+                    obj['collAmount'] = ApzCOB.fn_FormatAmount(GroupData[i].members[j].collAmount);
+                    obj['totalAdv'] = ApzCOB.fn_FormatAmount(GroupData[i].members[j].totalAdv);
+                    obj['totalDue'] = ApzCOB.fn_FormatAmount(GroupData[i].members[j].totalDue);
+                    obj['advAmt'] = GroupData[i].members[j].hasOwnProperty('advAmt') ? ApzCOB.fn_FormatAmount(GroupData[i].members[j]
+                        .advAmt) : '0';
+                    obj['osAmt'] = ApzCOB.fn_FormatAmount(GroupData[i].members[j].outstandingAmt);
+                    GroupMemberDet.push(obj);
+                }
+            }
+            $(".subdivdisplay").html('');
+            $("#" + ViewKendraScrId + "subdiv_" + selectedRow).append($("#" + ViewKendraScrId + "groupDataList").html());
+            if (isPendingRecClick && !((selectedGroupDet[selectedRow].hasOwnProperty('isApproved') && selectedGroupDet[selectedRow]
+                    .isApproved) || (selectedGroupDet[selectedRow].hasOwnProperty('isPushback') && selectedGroupDet[selectedRow]
+                    .isPushback))) {
+                $("#" + ViewKendraScrId + "subdiv_" + selectedRow).append($("#" + ViewKendraScrId + "row_pushApproveRow").html());
+            }
+            $("#" + ViewKendraScrId + "subdiv_" + selectedRow).closest('.sno').removeClass('sno');
+            $("#" + ViewKendraScrId + "subdiv_" + selectedRow).closest('.emg-loan-footer').removeClass('sno');
+            $("#" + ViewKendraScrId + "dropIcon_" + selectedRow).addClass('active');
+            $("#" + ViewKendraScrId + "kendraWiseList_row_" + selectedRow).addClass('active');
+            apz.data.scrdata.CollBM__IPaintMemberDet_Res = {};
+            apz.data.scrdata.CollBM__IPaintMemberDet_Res = GroupMemberDet;
+            apz.data.loadData("IPaintMemberDet", 'CollBM');
+            const seenGroupIds = new Set();
+            var count = 0;
+            let grpCollAmt = 0;
+            let grpAmtPaintIndex = '';
+            GroupMemberDet.forEach((item, index) => {
+                $(`#${'CollBM__ViewKendraDetails__groupDataList_row_'+index}
+                #${ViewKendraScrId}${'existingAdvanceAmtRow_row'}`).addClass("sno");
+                $("#" + ViewKendraScrId + "advancePaymentTxt_" + index).addClass('sno');
+                $(`#${'CollBM__ViewKendraDetails__groupDataList_row_'+index}
+                #${ViewKendraScrId}${'advancePaymentRow_row'}`).addClass("sno");
+                let groupId = item.groupId;
+                // $("#" + "CollBM__IPaintMemberDet__o__CollBM__IPaintMemberDet_Res__groupId_" + index).text('Group ' + groupId);
+                if (seenGroupIds.has(groupId)) {
+                    $("#" + ViewKendraScrId + "groupDataList_row_" + index + "> * > :first-child").addClass('sno');
+                    grpCollAmt += parseInt(String(item.collAmount).replace(/,/g, ''), 10);
+                } else {
+                    seenGroupIds.add(groupId);
+                    $("#" + ViewKendraScrId + "txt_grpTotCollAmt_" + grpAmtPaintIndex).text("₹" + ApzCOB.fn_FormatAmount(
+                        grpCollAmt));
+                    grpCollAmt = 0;
+                    count += 1;
+                    grpAmtPaintIndex = index;
+                    grpCollAmt = parseInt(String(item.collAmount).replace(/,/g, ''), 10);
+                }
+                if (parseInt(ApzCOB.fn_unFormatAmount(item.upiAmt) === 0) || item.upiAmt === '-') {
+                    $("#CollBM__IPaintMemberDet__o__CollBM__IPaintMemberDet_Res__upiAmt_" + index).find('svg').addClass('sno');
+                }
+                if (parseInt(ApzCOB.fn_unFormatAmount(item.cashAmt) === 0) || item.cashAmt === '-') {
+                    $("#CollBM__IPaintMemberDet__o__CollBM__IPaintMemberDet_Res__cashAmt_" + index).find('svg').addClass('sno');
+                }
+                if (item.parFlg === "Y") {
+                    $("#" + ViewKendraScrId + "parFlagStatus_" + index).removeClass('sno');
+                    $("#" + ViewKendraScrId + "parFlagStatus_" + index).addClass('bg-dark-err');
+                }
+                if (item.cashAmt !== '-' || item.upiAmt !== '-') {
+                    if (parseInt(ApzCOB.fn_unFormatAmount(item.collAmount)) < parseInt(ApzCOB.fn_unFormatAmount(item.totalDue))) {
+                        //  $("#" + ViewKendraScrId + "partialPaymentTxt_" + index).removeClass('sno');
+                        if (parseInt(ApzCOB.fn_unFormatAmount(item.totalAdv)) >= 0) {
+                            let totalnetDue = parseInt(ApzCOB.fn_unFormatAmount(item.collAmount)) + parseInt(ApzCOB
+                                .fn_unFormatAmount(item.totalAdv))
+                            if (totalnetDue < parseInt(ApzCOB.fn_unFormatAmount(item.totalDue))) {
+                                $("#" + ViewKendraScrId + "partialPaymentTxt_" + index).removeClass('sno');
+                            }
+                        }
+                    } else if (parseInt(ApzCOB.fn_unFormatAmount(item.collAmount)) >= parseInt(ApzCOB.fn_unFormatAmount(item
+                            .totalDue))) {
+                        if (parseInt(ApzCOB.fn_unFormatAmount(item.advAmt)) > 0) {
+                            $(`#${'CollBM__ViewKendraDetails__groupDataList_row_'+index}
+                            #${ViewKendraScrId}${'advancePaymentRow_row'}`).removeClass("sno");
+                            $("#" + ViewKendraScrId + "advancePaymentTxt_" + index).removeClass('sno');
+                            // $("#CollBM__IPaintMemberDet__o__CollBM__IPaintMemberDet_Res__cashAmt_" + index).next().removeClass('sno');
+                        }
+                    } else if (parseInt(ApzCOB.fn_unFormatAmount(item.collAmount)) === 0) {
+                        $("#" + ViewKendraScrId + "zeroPaymentTxt_" + index).removeClass('sno');
+                    }
+                    if(item.hasOwnProperty('totalAdv')){
+                        if(!apz.isNull(item.totalAdv)){
+                            if(parseInt(ApzCOB.fn_unFormatAmount(item.totalAdv)) > 0 ){
+                                $(`#${'CollBM__ViewKendraDetails__groupDataList_row_' + index}
+                                #${ViewKendraScrId}${'existingAdvanceAmtRow_row'}`).removeClass("sno");
+                                $("#" + ViewKendraScrId + "existingAdvTxt_" + index).removeClass('sno');
+                                // $("#CollBM__IPaintMemberDet__o__CollBM__IPaintMemberDet_Res__cashAmt_" + index)
+                                // .next().next().removeClass('sno');
+                            }
+                        }
+                    }
+                }
+            });
+            $("#" + ViewKendraScrId + "txt_grpTotCollAmt_" + grpAmtPaintIndex).text("₹" + ApzCOB.fn_FormatAmount(grpCollAmt));
+            prevRow = selectedRow;
+            apz.stopLoader();
+        }, 500);
+    }
+}
+apz.app.ViewKendraDetails.backNavigation = function() {
+    ApzCOB.launchMicroApp('CollBM', 'ColletionApproveOrReject', 'APZCBO__BaseScreens__BaseDIV', BMKendraDet);
+}
+apz.app.ViewKendraDetails.onClickCustomerDetails = function(pthis) {
+    backNavData = {};
+    backNavData.childScrId = 'CollBM'
+    backNavData.scr = 'ViewKendraDetails';
+    backNavData.screenId = ViewKendraScrId;
+    backNavData.baseDiv = 'viewKendraBaseDiv';
+    backNavData.data = JSON.parse(JSON.stringify(BMKendraDet));
+    let selRow = pthis.id.split("_").at(-1);
+    backNavData.selCustId = apz.data.scrdata.CollBM__IPaintMemberDet_Res[selRow].id;
+    backNavData.kendraId = selectedGroupDet[selectKendRowNo].id;
+    ApzCOB.customerDetNavigationFunc(backNavData);
+}
+apz.app.ViewKendraDetails.launchMemDetScr = function(params) {
+    let data = {};
+    if (params.length > 0) {
+        params.forEach((obj, i) => {
+            if (obj.customerId === backNavData.selCustId) {
+                data = obj;
+            }
+        })
+    }
+    KendraApp.selectedCustomer = data;
+    ApzCOB.launchMicroApp('Custom', 'CustomerDetails', backNavData.screenId + backNavData.baseDiv, backNavData);
+}
+// apz.app.ViewKendraDetails.onClickOfAccept = function(pthis) {
+//     ApzCOB.toggleModal(ViewKendraScrId + 'confirmModal');
+//     apz.app.ViewKendraDetails.collApprove();
+// }
+apz.app.ViewKendraDetails.onClickOfAccept = function() {
+    ApzCOB.toggleModal(ViewKendraScrId + 'confirmModal');
+    apz.startLoader();
+    setTimeout(() => {
+        apz.app.ViewKendraDetails.collApprove()
+    }, 2000)
+}
+apz.app.ViewKendraDetails.onConfirmPushback = function() {
+    ApzCOB.toggleModal(ViewKendraScrId + 'rejectModal');
+    apz.data.scrdata.CollBM__IPaintPushBackReasons_Res = {};
+    apz.data.scrdata.CollBM__IPaintPushBackReasons_Res = cashierPushBackReason;
+    apz.data.loadData("IPaintPushBackReasons", 'CollBM');
+    // $("#" + ViewKendraScrId + "pushBackCaseList ul li").each(function(i) {
+    //     $("#" + ViewKendraScrId + "selCheckBox_" + i).prop('checked', false);
+    // });
+    // ApzCOB.toggleModal(ViewKendraScrId + 'pushbackModal');
+    ApzCOB.toggleModal(ViewKendraScrId + 'pushbackModal');
+    $("#" + ViewKendraScrId + "pushBackCaseList ul li").each(function(i) {
+        $("#" + ViewKendraScrId + "selCheckBox_" + i).prop('checked', false);
+        $("#" + ViewKendraScrId + "otherReasonText_" + i).val('');
+        $("#" + ViewKendraScrId + "reasonErrorMsg_" + i).parents().eq(1).addClass("sno");
+        $("#" + ViewKendraScrId + "otherReasonText_" + i).parents().eq(2).addClass('sno');
+    });
+    $("#CollBM__ViewKendraDetails__pushbackModal_close").addClass("sno");
+    $("#CollBM__ViewKendraDetails__el_btn_9").attr("disabled",false);
+    if (!$('body').hasClass('mdl-opn')) {
+        $('body').addClass('mdl-opn')
+    }
+}
+apz.app.ViewKendraDetails.onSubmitPushBackCase = function() {
+    $("#CollBM__ViewKendraDetails__el_btn_9").attr("disabled",true);
+    let valid = true;
+    if (selectedReason === 'Other') {
+        if (apz.isNull($("#" + ViewKendraScrId + "otherReasonText_" + selReasonRow).val())) {
+            valid = false;
+            $("#" + ViewKendraScrId + "reasonErrorMsg_" + selReasonRow).parents().eq(1).removeClass('sno');
+        } else {
+            valid = true;
+            $("#" + ViewKendraScrId + "reasonErrorMsg_" + selReasonRow).parents().eq(1).addClass('sno');
+        }
+    }
+    if (valid) {
+        apz.app.ViewKendraDetails.collPushBack();
+    }
+}
+apz.app.ViewKendraDetails.collPushBack = function() {
+    let versNo = "";
+    // let kendraIds = BMCollecData.kendraDtls[prevRow].id
+    // let applID = BMCollecData.kendraDtls[prevRow].applnWFDtls[0].applnId;
+    // versNo = BMCollecData.kendraDtls[prevRow].applnWFDtls[0].verNo;
+    let kendraIds = selectedGroupDet[prevRow].id;
+    let applID = selectedGroupDet[prevRow].applnWFDtls[0].applnId;
+    versNo = selectedGroupDet[prevRow].applnWFDtls[0].verNo;
+    $("#" + ViewKendraScrId + "pushBackCaseList ul li").each(function(i) {
+        if ($("#" + ViewKendraScrId + "selCheckBox_" + i).is(':checked')) {
+            selReason = apz.data.scrdata.CollBM__IPaintPushBackReasons_Res[i].val;
+            if (selReason === 'Other') {
+                selReason = $("#" + ViewKendraScrId + "otherReasonText_" + i).val();
+            }
+        }
+    })
+    if (apz.isNull(selReason)) {
+        ApzCOB.toggleModal(ViewKendraScrId + 'pushbackModal');
+        ApzCOB.toggleModal(ViewKendraScrId + 'customAlertModel');
+        $("#CollBM__ViewKendraDetails__el_btn_9").attr("disabled",false);
+        if (!$('body').hasClass('mdl-opn')) {
+            $('body').addClass('mdl-opn')
+        }
+        return;
+    }
+    ApzCOB.toggleModal(ViewKendraScrId + 'pushbackModal');
+    if ($('body').hasClass('mdl-opn')) {
+        $('body').removeClass('mdl-opn')
+    }
+    var req = {
+        "apiRequest": {
+            "interfaceName": "PushbackApplication",
+            "appId": apz.appId,
+            "userId": apz.userId, // logged in userId Cashier/BM
+            "requestObj": {
+                "applicationId": applID,
+                "kmId": BMCollecData.kmId, // initial kmuserId
+                "kmUserName": LoggedInUserDetails.loginResponse.userDet.name,
+                "kmUserRole": userRole, // userRole
+                "createTs": new Date().$format('Y-m-d H:i:s'),
+                "kendraIds": kendraIds, // ~ separated kendraIds, In case of only one kendra, Pass without ~.
+                "versionNo": versNo,
+                "remarks": selReason
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, 'PushbackCollection', 'N', 'N', req, false, apz.app.ViewKendraDetails.collPushBackCB);
+};
+apz.app.ViewKendraDetails.collPushBackCB = function(params) {
+    var ifaceName = ApzCOB.GetInterfaceResMap(params);
+    if (ApzCOB.handleServiceCallBacks(params)) {
+        if ((params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "0")) {
+            apz.stopLoader();
+            selectedGroupDet[prevRow].isApproved = false;
+            $('#' + ViewKendraScrId + 'txt_pushbackDescId_' + prevRow).closest('.srb').removeClass('sno');
+            $('#' + ViewKendraScrId + 'txt_pushbackDescId_' + prevRow).closest('.srb').addClass('bg-dark-err');
+            $('#CollBM__IPaintKendraDetails__o__CollBM__IPaintKendraDetails_Res__totCollectedAmt_' + prevRow).closest('.srb').removeClass('sno');
+            $('#' + ViewKendraScrId + 'viewKDetails').addClass('sno');
+            $('#' + ViewKendraScrId + 'viewKheaderRow').addClass('sno');
+            // $('#' + ViewKendraScrId + 'dropIcon_' + prevRow).click();
+            $("#" + ViewKendraScrId + "subdiv_" + prevRow).parents().eq(1).addClass('sno');
+            $("#" + ViewKendraScrId + "dropIcon_" + prevRow).removeClass('active');
+            $("#" + ViewKendraScrId + "kendraWiseList_row_" + prevRow).removeClass('active');
+            isFromApproveRejScr = true;
+            selectedGroupDet[prevRow].isPushback = true;
+            ApzCOB.launchMicroApp('CollBM', 'FailureScreen', ViewKendraScrId + 'viewKendraBaseDiv', BMCollecData);
+        } else if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "NR100") {
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_NORECORDFOUND"), "E", ApzCOB.ReloadApp);
+        } else {
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E", ApzCOB.ReloadApp);
+        }
+    } else if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "NR100") {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_NORECORDFOUND"), "E", ApzCOB.ReloadApp);
+    } else {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E", ApzCOB.ReloadApp);
+    }
+    // console.log('params', params);
+}
+apz.app.ViewKendraDetails.collApprove = function(collData) {
+    let VersionNo = "";
+    // let kendraIds = BMCollecData.kendraDtls[prevRow].id;
+    // let applID = BMCollecData.kendraDtls[prevRow].applnWFDtls[0].applnId;
+    // VersionNo = BMCollecData.kendraDtls[prevRow].applnWFDtls[0].verNo;
+    let kendraIds = selectedGroupDet[prevRow].id;
+    let applID = selectedGroupDet[prevRow].applnWFDtls[0].applnId;
+    VersionNo = selectedGroupDet[prevRow].applnWFDtls[0].verNo;
+    var req = {
+        "apiRequest": {
+            "interfaceName": "ApproveApplication",
+            "appId": apz.appId,
+            "userId": apz.userId, // logged in userId Cashier/BM
+            "requestObj": {
+                "applicationId": applID,
+                "kmId": BMCollecData.kmId, // initial kmUserId
+                "kmUserName": LoggedInUserDetails.loginResponse.userDet.name,
+                "createTs": new Date().$format('Y-m-d H:i:s'),
+                "kmUserRole": userRole,
+                "kendraIds": kendraIds,
+                "versionNo": VersionNo,
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, 'ApproveCollection', 'N', 'N', req, false, apz.app.ViewKendraDetails.collApproveCB);
+};
+apz.app.ViewKendraDetails.collApproveCB = function(params) {
+    var ifaceName = ApzCOB.GetInterfaceResMap(params);
+    if (ApzCOB.handleServiceCallBacks(params)) {
+        if ((params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "0")) {
+            let selKenData = BMCollecData.kendraDtls[prevRow].colldtls;
+            apz.stopLoader();
+            var SuccessData = {};
+            SuccessData.fromScreen = apz.childScr;
+            SuccessData.kendraCount = "1";
+            SuccessData.kmName = BMCollecData.kmName;
+            SuccessData.totalColAmt = selKenData.totCollAmt;
+            var data = {
+                DueAmount: '₹' + ApzCOB.fn_FormatAmount(selKenData.totalDue),
+                AmountCollected: '₹' + ApzCOB.fn_FormatAmount(selKenData.totCollAmt),
+                AmountDisbursed: '₹' + ApzCOB.fn_FormatAmount(0),
+                NetCash: '₹' + ApzCOB.fn_FormatAmount(selKenData.totCollAmt),
+                UPI: '₹' + ApzCOB.fn_FormatAmount(0),
+                Status: 'APPROVED',
+            }
+            SuccessData.data = data;
+            selectedGroupDet[prevRow].isPushback = false;
+            selectedGroupDet[prevRow].isApproved = true;
+            $('#' + ViewKendraScrId + 'hpl_viewDetailsId_' + prevRow).removeClass('sno');
+            $('#' + ViewKendraScrId + 'viewKDetails').addClass('sno');
+            $('#' + ViewKendraScrId + 'viewKheaderRow').addClass('sno');
+            $("#" + ViewKendraScrId + "subdiv_" + prevRow).parents().eq(1).addClass('sno');
+            $("#" + ViewKendraScrId + "dropIcon_" + prevRow).removeClass('active');
+            $("#" + ViewKendraScrId + "kendraWiseList_row_" + prevRow).removeClass('active');
+            isFromApproveRejScr = true;
+            if (atleastOneApproved === 0) {
+                atleastOneApproved++;
+            }
+            ApzCOB.launchMicroApp('CollBM', 'SuccessScreen', ViewKendraScrId + 'viewKendraBaseDiv', SuccessData);
+        } else if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "NR100") {
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_NORECORDFOUND"), "E", ApzCOB.dashboardAppListAPI);
+        } else {
+            apz.stopLoader();
+            if (!apz.isNull(params.res[ifaceName].apiResponse.ResponseHeader.ResponseMessage)) {
+                ApzCOB.fnDisplayMsg(params.res[ifaceName].apiResponse.ResponseHeader.ResponseMessage, "E", ApzCOB.dashboardAppListAPI);
+            } else {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E", ApzCOB.dashboardAppListAPI);
+            }
+        }
+    } else if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "NR100") {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_NORECORDFOUND"), "E", ApzCOB.dashboardAppListAPI);
+    } else if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseMessage === 'SOCKET error whilst invoking a web service') {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg("T24 service down", "E", ApzCOB.dashboardAppListAPI);
+    } else {
+        apz.stopLoader();
+        if (!apz.isNull(params.res[ifaceName].apiResponse.ResponseHeader.ResponseMessage)) {
+            ApzCOB.fnDisplayMsg(params.res[ifaceName].apiResponse.ResponseHeader.ResponseMessage, "E", ApzCOB.dashboardAppListAPI);
+        } else {
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E", ApzCOB.dashboardAppListAPI);
+        }
+    }
+}
+apz.app.ViewKendraDetails.onfocusOtherReason = function(pthis) {
+    let prowno = $(pthis).attr('rowno');
+    selectedReason = apz.data.scrdata.CollBM__IPaintPushBackReasons_Res[prowno].val;
+    $("#" + ViewKendraScrId + "reasonErrorMsg_" + prowno).parents().eq(2).removeClass('sno');
+    var otherReasonVal = document.getElementById("CollBM__ViewKendraDetails__otherReasonText_" + prowno).value;
+    if (selectedReason === 'Other') {
+        if (otherReasonVal && otherReasonVal.trim() !== "") {
+            $("#CollBM__ViewKendraDetails__el_btn_9").attr("disabled", false);
+        } else {
+            $("#CollBM__ViewKendraDetails__el_btn_9").attr("disabled", true);
+        }
+    } else {
+        $("#CollBM__ViewKendraDetails__el_btn_9").attr("disabled", false);
+    }
+}
+apz.app.ViewKendraDetails.onClickofOther = function(pthis) {
+    let prowno = $(pthis).attr('rowno');
+    selectedReason = apz.data.scrdata.CollBM__IPaintPushBackReasons_Res[prowno].val;
+    selReasonRow = prowno;
+    $("#CollBM__ViewKendraDetails__el_btn_9").attr("disabled",false);
+    if (selectedReason === 'Other') {
+        $("#" + ViewKendraScrId + "otherReasonText_" + prowno).parents().eq(2).removeClass('sno');
+        $("#" + ViewKendraScrId + "otherReasonText_" + prowno).val('');
+        // $(pusbBackReasonId + prowno).next().removeClass('sno');
+    } else {
+        // $(pusbBackReasonId + prowno).next().addClass('sno');
+        $("#" + ViewKendraScrId + "otherReasonText_" + prowno).parents().eq(2).addClass('sno');
+    }
+}
+apz.app.ViewKendraDetails.onSelectRadioButton = function(pthis) {
+    let prowno = $(pthis).attr('rowno');
+    $("#" + ViewKendraScrId + "pushBackCaseList ul li").each(function(i) {
+        if (parseInt(prowno) !== i) {
+            $("#" + ViewKendraScrId + "selCheckBox_" + i).prop('checked', false);
+            $("#" + ViewKendraScrId + "selCheckBox_" + i).prop('disabled', false);
+            $("#" + ViewKendraScrId + "otherReasonText_" + i).parents().eq(2).addClass('sno');
+        } else {
+            $("#" + ViewKendraScrId + "selCheckBox_" + i).prop('disabled', true);
+        }
+    })
+}
+apz.app.ViewKendraDetails.reasonCB = function() {
+    ApzCOB.toggleModal(ViewKendraScrId + 'pushbackModal');
+    ApzCOB.toggleModal(ViewKendraScrId + 'customAlertModel');
+}
+apz.app.ViewKendraDetails.viewProgress = function(pthis) {
+    ApzCOB.toggleModal(ViewKendraScrId + "statusProgress");
+    var progressDet = [];
+    let rowNo = $(pthis).attr('rowno');
+    let selRowNo = parseInt(rowNo);
+    let verNos = BMCollecData.kendraDtls[selRowNo].applnWFDtls.map(item => parseInt(item.verNo, 10));
+    let highVerNo = Math.max(...verNos);
+    let filteredStages = BMCollecData.kendraDtls[selRowNo].applnWFDtls.filter(({
+        verNo
+    }) => parseInt(verNo, 10) > highVerNo - 1);
+    function createProgressDetail(obj1) {
+        let obj = {
+            seqNO: obj1.seqNo,
+            Name: `By: ${obj1.kmUserName}`,
+            date: !apz.isNull(obj1.createTs) ? ApzCOB.dateformatter(obj1.createTs.split('T')[0], 'd/m/Y') : '',
+            time: apz.app.ViewKendraDetails.calculateTime(obj1.createTs.split('T')[1].slice(0, 5))
+        };
+        switch (obj1.nextWFStage) {
+            case "CASHHANDOVER":
+                obj.CurrProgress = obj1.remarks === 'Cash resubmitted' ? 'KM re-submitted Cash' : 'KM Deposited Cash';
+                break;
+            case "SENDFORAPPROVAL":
+                obj.CurrProgress = 'Cashier Approved';
+                break;
+            case "PUSHBACK":
+                obj.CurrProgress = obj1.usrRole === 'CASHIER' ? 'Pushback by Cashier' : 'Pushback by BM';
+                break;
+            case "APPROVED":
+                obj.CurrProgress = 'BM Approved';
+                break;
+            default:
+                obj.CurrProgress = 'Unknown Stage';
+                break;
+        }
+        return obj;
+    }
+    filteredStages.forEach(obj1 => {
+        const detail = createProgressDetail(obj1);
+
+        const isDuplicate = progressDet.some(item =>
+            item.Name === detail.Name &&
+            item.date === detail.date &&
+            item.time === detail.time &&
+            item.CurrProgress === detail.CurrProgress
+        );
+
+        if (!isDuplicate) {
+            progressDet.push(detail);
+        }
+    });
+    progressDet.sort((a, b) => a.seqNO - b.seqNO);
+    apz.data.scrdata.CollBM__IPaintApprovalDet_Res = progressDet;
+    apz.data.loadData("IPaintApprovalDet", 'CollBM');
+    progressDet.forEach((progress, i) => {
+        let failIcon = $("#" + ViewKendraScrId + "failIcon_" + i);
+        let sucIcon = $("#" + ViewKendraScrId + "sucIcon_" + i);
+        let fadeIcon = $("#" + ViewKendraScrId + "fadeIcon_" + i);
+        let pushbackIcon = $("#" + ViewKendraScrId + "PushbackIcon_" + i);
+        failIcon.addClass('sno');
+        sucIcon.addClass('sno');
+        fadeIcon.addClass('sno');
+        pushbackIcon.addClass('sno');
+        if (['Pushback by BM', 'Pushback by Cashier'].includes(progress.CurrProgress)) {
+            pushbackIcon.removeClass('sno');
+        } else if (['KM Deposited Cash', 'Cashier Approved', 'KM re-submitted Cash', 'BM Approved'].includes(progress.CurrProgress)) {
+            sucIcon.removeClass('sno');
+        }
+    });
+}
+apz.app.ViewKendraDetails.calculateTime = function(a) {
+    let [hours, minutes] = a.split(':');
+    hours = parseInt(hours);
+    let period = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    if (hours === 0) {
+        hours = 12;
+    }
+    return `${hours}:${minutes} ${period}`;
+}

@@ -1,0 +1,307 @@
+var AMAppovalScrId = 'Kendra__AMApproval__';
+var srDataWithoutFilter = [];
+var srApprovalData = '';
+var stage = 'STAGE1';
+apz.app.onLoad_AMApproval = function(params) {
+    $('#footer').addClass('sno');
+    $("#header").addClass('sno');
+    apz.data.scrdata.Kendra__IPaintPaintAMDetails_Res = {};
+}
+apz.app.onShown_AMApproval = function(params) {
+    // ApzCOB.fetchSRRequestList();
+    apz.app.AMApproval.loadAMData();
+}
+apz.app.AMApproval.loadAMData = function() {
+    let paintKendraArr = []
+    let paintSrList = window.srList.filter(d => d.nextRole === 'AM' && d.appStatus === 'PENDING');
+    paintSrList.forEach(d => {
+        let srData = d.payload ? JSON.parse(d.payload) : '';
+        //let kendraData = kendraResponse.find(kendra => kendra.kendraDtls.kendraId == srData.kendraId);
+        let obj = {};
+        obj.applicationId = d.applicationId;
+        obj.createdReq = srData.kmName,
+            obj.kInfo = d.srType + " | #" + srData.kendraId,
+            obj.data = 'SRReq'
+        obj.kendraId = "# " + srData.kendraId
+        obj.payload = srData;
+        obj.srType = d.srType;
+        obj.appStatus = "Pending by AM";
+        let reqSub = {};
+        reqSub.newDay = srData.newDay;
+        if (srData.hasOwnProperty("newStartTime") && srData.hasOwnProperty("newEndTime") && srData.newStartTime && srData.newEndTime) {
+            reqSub.newTime = srData.newStartTime + " - " + srData.newEndTime;
+        } else {
+            reqSub.newTime = '';
+        }
+        obj.updatedReq = reqSub.newTime ? `${reqSub.newDay} | ${reqSub.newTime}` : reqSub.newDay;
+        paintKendraArr.push(obj);
+    });
+    if (paintKendraArr.length === 0) {
+        $("#" + AMAppovalScrId + 'noRecDiv').removeClass('sno');
+        $("#" + AMAppovalScrId + 'dataDiv').addClass('sno');
+    } else {
+        $("#" + AMAppovalScrId + 'noRecDiv').addClass('sno');
+        $("#" + AMAppovalScrId + 'dataDiv').removeClass('sno');
+        let paintLoanSRData = paintKendraArr;
+        apz.data.scrdata.Kendra__IPaintPaintAMDetails_Res.IPaintAMApprovals = paintLoanSRData;
+        srDataWithoutFilter = paintLoanSRData;
+        apz.data.loadData("IPaintPaintAMDetails", 'Kendra');
+    }
+}
+apz.app.AMApproval.onClickOfDetailsRecord = function(pthis) {
+    let rowNo = pthis.id.split("_").at(-1);
+    let data = apz.data.scrdata.Kendra__IPaintPaintAMDetails_Res.IPaintAMApprovals[rowNo];
+    srApprovalData = data;
+    document.getElementById(AMAppovalScrId + "amDataList").classList.add("sno");
+    document.getElementById(AMAppovalScrId + "approvalDiv").classList.remove("sno");
+    document.getElementById(AMAppovalScrId + "reqKendra_txtcnt").innerText = data.payload.kmName
+    document.getElementById(AMAppovalScrId + "reqKendraId_txtcnt").innerText = data.payload.kendraId;
+    document.getElementById(AMAppovalScrId + "selKmName_txtcnt").innerText = data.createdReq;
+    document.getElementById(AMAppovalScrId + "selKendraId_txtcnt").innerText = data.kendraId;
+    document.getElementById(AMAppovalScrId + "reqDay_txtcnt").innerText = data.payload.newDay;
+    document.getElementById(AMAppovalScrId + "reqOldTime_txtcnt").innerText = data.payload.kendraId;
+    document.getElementById(AMAppovalScrId + "reqOldDay_txtcnt").innerText = data.payload.oldMeetingDay;
+    if (data.payload.hasOwnProperty("newStartTime")) {
+        $("#" + AMAppovalScrId + 'oldTimeDiv').removeClass("sno");
+        $("#" + AMAppovalScrId + 'timeDiv').removeClass("sno");
+        document.getElementById(AMAppovalScrId + "reqTime_txtcnt").innerText = data.payload.newStartTime + " - " + data.payload.newEndTime;
+        document.getElementById(AMAppovalScrId + "reqOldTime_txtcnt").innerText = data.payload.oldStartTime + " - " + data.payload.oldEndTime;
+    } else {
+        $("#" + AMAppovalScrId + 'oldTimeDiv').addClass("sno");
+        $("#" + AMAppovalScrId + 'timeDiv').addClass("sno");
+    }
+    stage = 'STAGE2';
+}
+apz.app.AMApproval.onClickOfApprove = function() {
+    ApzCOB.toggleModal(AMAppovalScrId + "confirmationModel");
+}
+apz.app.AMApproval.onClickOfRejectFlow = function() {
+    let rejectReaArr = ['Time overlapping', 'Placeholder'];
+    let paintData = rejectReaArr.map(d => ({
+        rejet: d
+    }));
+    ApzCOB.toggleModal(AMAppovalScrId + "rejectionModel");
+    apz.data.scrdata.Kendra__IPaintPaintAMDetails_Res.RejectResons = paintData;
+    apz.data.loadData("IPaintPaintAMDetails", 'Kendra');
+    document.getElementById(AMAppovalScrId + "rejectConformBtn").disabled = true;
+}
+apz.app.AMApproval.createApproveRequest = function() {
+    ApzCOB.toggleModal(AMAppovalScrId + "confirmationModel");
+    var req = {
+        "apiRequest": {
+            "interfaceName": "UpdateSROperation",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "updateBy": LoggedInUserDetails.loginResponse.userDet.name,
+                "srType": srApprovalData.srType,
+                "applicationId": srApprovalData.applicationId,
+                "remarks": "Approved",
+                "appStatus": "Approved"
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "UpdateSROperation", "N", "N", req, false, apz.app.AMApproval.createApproveRequestCB);
+}
+apz.app.AMApproval.createApproveRequestCB = function(params) {
+    try {
+        apz.stopLoader();
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__UpdateSROperation_Res.apiResponse.ResponseBody.responseObj)) {
+                if (params.res.APZCBO__UpdateSROperation_Res.apiResponse.ResponseHeader.ResponseCode === '0') {
+                    let response = JSON.parse(params.res.APZCBO__UpdateSROperation_Res.apiResponse.ResponseBody.responseObj);
+                    if (response.hasOwnProperty("t24Response")) {
+                        let tTwentyFourRes = JSON.parse(JSON.parse(params.res.APZCBO__UpdateSROperation_Res.apiResponse.ResponseBody.responseObj)
+                            .t24Response);
+                        if (tTwentyFourRes.hasOwnProperty("error")) {
+                            ApzCOB.fnDisplayMsg(tTwentyFourRes.error.errorDetails[0].message, "E", ApzCOB.backNavigation);
+                        } else {
+                            document.getElementById(AMAppovalScrId + "successDiv").classList.remove("sno");
+                            document.getElementById(AMAppovalScrId + "approvalDiv").classList.add("sno");
+                            document.getElementById(AMAppovalScrId + "header").classList.add("sno");
+                            document.getElementById(AMAppovalScrId + "succKmdetailsAndId _txtcnt").innerText = srApprovalData.payload.kendraName +
+                                " # " + srApprovalData.payload.kendraId;
+                            let infoArr = [];
+                            let valueArr = [];
+                            if (srApprovalData.payload.hasOwnProperty("newStartTime")) {
+                                infoArr = ['Previous Meeting Day', 'Updated Meeting Day', 'Previous Meeting Time', 'Updated Meeting Time',
+                                    'Status'
+                                ];
+                                valueArr = [apz.app.AMApproval.getFullDayName(srApprovalData.payload.oldMeetingDay), srApprovalData.payload
+                                    .newDay, srApprovalData.payload.oldStartTime + ' - ' + srApprovalData.payload.oldEndTime, srApprovalData
+                                    .payload.newStartTime + ' - ' + srApprovalData.payload.newEndTime, 'Approved'
+                                ];
+                            } else {
+                                infoArr = ['Previous Meeting Day', 'Updated Meeting Day', 'Status'];
+                                valueArr = [apz.app.AMApproval.getFullDayName(srApprovalData.payload.oldMeetingDay), srApprovalData.payload
+                                    .newDay, 'Approved'
+                                ];
+                            }
+                            let paintArr = [];
+                            infoArr.forEach((d, idx) => {
+                                let obj = {};
+                                obj.info = d;
+                                obj.details = valueArr[idx];
+                                paintArr.push(obj);
+                            });
+                            apz.data.scrdata.Kendra__IPaintPaintAMDetails_Res.SuccessDetails = paintArr;
+                            apz.data.loadData("IPaintPaintAMDetails", 'Kendra');
+                        }
+                    } else {
+                        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+                    }
+                } else {
+                    ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+                }
+            } else {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        } else {
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+};
+apz.app.AMApproval.getFullDayName = function(abbreviation) {
+    let daysMap = {
+        MON: "Monday",
+        TUE: "Tuesday",
+        WED: "Wednesday",
+        THU: "Thursday",
+        FRI: "Friday",
+        SAT: "Saturday",
+        SUN: "Sunday"
+    };
+    let upperCaseAbbreviation = abbreviation.toUpperCase(); // Ensure case-insensitivity
+    return daysMap[upperCaseAbbreviation] || " ";
+}
+apz.app.AMApproval.createRejectRequest = function() {
+    let rejectRea = '';
+    apz.data.scrdata.Kendra__IPaintPaintAMDetails_Res.RejectResons.forEach((d, idx) => {
+        if (($("#" + AMAppovalScrId + "rejectRea_" + idx).prop("checked"))) {
+            rejectRea = apz.data.scrdata.Kendra__IPaintPaintAMDetails_Res.RejectResons[idx].rejet;
+        }
+    });
+    ApzCOB.toggleModal(AMAppovalScrId + "rejectionModel");
+    var req = {
+        "apiRequest": {
+            "interfaceName": "UpdateSROperation",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "updateBy": LoggedInUserDetails.loginResponse.userDet.name,
+                "srType": srApprovalData.srType,
+                "applicationId": srApprovalData.applicationId,
+                "remarks": rejectRea,
+                "appStatus": "Reject"
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "UpdateSROperation", "N", "N", req, false, apz.app.AMApproval.createRejectRequestCB);
+}
+apz.app.AMApproval.createRejectRequestCB = function(params) {
+    try {
+        apz.stopLoader();
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__UpdateSROperation_Res.apiResponse.ResponseBody.responseObj)) {
+                if (params.res.APZCBO__UpdateSROperation_Res.apiResponse.ResponseHeader.ResponseCode === '0') {
+                    document.getElementById(AMAppovalScrId + "failureDiv").classList.remove("sno");
+                    document.getElementById(AMAppovalScrId + "approvalDiv").classList.add("sno");
+                    document.getElementById(AMAppovalScrId + "header").classList.add("sno");
+                    document.getElementById(AMAppovalScrId + 'rejkendraNameInfo_txtcnt').innerText = srApprovalData.payload.kendraName + " # " +
+                        srApprovalData.payload.kendraId;
+                    let sucInfo = ['Previous Day', 'Updated Day', 'Status'];
+                    if (srApprovalData.payload.hasOwnProperty("newStartTime")) {
+                        infoArr = ['Previous Meeting Day', 'Updated Meeting Day', 'Previous Meeting Time', 'Requested Meeting Time', 'Status'];
+                        valueArr = [srApprovalData.payload.newDay, apz.app.AMApproval.getFullDayName(srApprovalData.payload.oldMeetingDay),
+                            srApprovalData.payload.oldStartTime + ' - ' + srApprovalData.payload.oldEndTime, srApprovalData.payload
+                            .newStartTime + ' - ' + srApprovalData.payload.newEndTime, 'Approved'
+                        ]
+                    } else {
+                        infoArr = ['Previous Meeting Day', 'Updated Meeting Day', 'Status'];
+                        valueArr = [apz.app.AMApproval.getFullDayName(srApprovalData.payload.oldMeetingDay), srApprovalData.payload.newDay,
+                            'Rejected'
+                        ]
+                    }
+                    let paintArr = [];
+                    infoArr.forEach((d, idx) => {
+                        let obj = {};
+                        obj.info = d,
+                            obj.details = valueArr[idx];
+                        paintArr.push(obj)
+                    });
+                    apz.data.scrdata.Kendra__IPaintPaintAMDetails_Res.FailureDetails = paintArr;
+                    apz.data.loadData("IPaintPaintAMDetails", 'Kendra');
+                } else {
+                    ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+                }
+            } else {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        } else {
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.AMApproval.onClickOfReaChkBox = function(pthis) {
+    let selId = pthis.id.split("_").at("-1");
+    apz.data.scrdata.Kendra__IPaintPaintAMDetails_Res.RejectResons.forEach((d, idx) => {
+        if (parseInt(selId) === idx && ($("#" + pthis.id).prop("checked"))) {
+            document.getElementById(AMAppovalScrId + 'rejectConformBtn').disabled = false;
+        }
+    });
+}
+apz.app.AMApproval.onClickOfMoreOptions = function(pthis) {
+    let row = pthis.id.split("__").at("-1");
+    if (row === "moreOptRej") {
+        document.getElementById(AMAppovalScrId + "moreInfoDataRej").classList.remove("sno");
+    } else {
+        document.getElementById(AMAppovalScrId + "moreInfoDataSucc").classList.remove("sno");
+    }
+}
+apz.app.AMApproval.onKeyupofSearchFilter = function(pthis) {
+    let val = $("#" + pthis.id).val().toLowerCase().trim();
+    if (val.length > 0) {
+        let paintArr = [];
+        srDataWithoutFilter.forEach((d, i) => {
+            let kmName = d.createdReq;
+            if (kmName.includes(val)) {
+                paintArr.push(d);
+            }
+        });
+        if (paintArr.length === 0) {
+            $("#" + AMAppovalScrId + 'noRecDiv').removeClass('sno');
+            $("#" + AMAppovalScrId + 'dataDiv').addClass('sno');
+        } else {
+            $("#" + AMAppovalScrId + 'noRecDiv').addClass('sno');
+            $("#" + AMAppovalScrId + 'dataDiv').removeClass('sno');
+            apz.data.scrdata.Kendra__IPaintPaintAMDetails_Res.IPaintAMApprovals = paintArr;
+            apz.data.loadData("IPaintPaintAMDetails", 'Kendra');
+        }
+    } else {
+        $("#" + AMAppovalScrId + 'noRecDiv').addClass('sno');
+        $("#" + AMAppovalScrId + 'dataDiv').removeClass('sno');
+        apz.data.scrdata.Kendra__IPaintPaintAMDetails_Res.IPaintAMApprovals = srDataWithoutFilter;
+        apz.data.loadData("IPaintPaintAMDetails", 'Kendra');
+    }
+}
+apz.app.AMApproval.backNaigation = function() {
+    if (stage == 'STAGE2') {
+        document.getElementById(AMAppovalScrId + "amDataList").classList.remove("sno");
+        document.getElementById(AMAppovalScrId + "approvalDiv").classList.add("sno");
+        stage = 'STAGE1';
+    } else {
+        ApzCOB.backNavigation();
+    }
+}
+apz.app.AMApproval.onClickOfDone = function() {
+    ApzCOB.fetchSRRequestList();
+    ApzCOB.backNavigation();
+}

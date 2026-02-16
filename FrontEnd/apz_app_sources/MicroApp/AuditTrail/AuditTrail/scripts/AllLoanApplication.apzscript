@@ -1,0 +1,1494 @@
+var AllLoanApplicationScrId = 'Audit__AllLoanApplication__';
+var allLoanApp, auditList, auditArray = [];
+var auditTrail, auditTrailArray = [];
+var uniqueApplication = [],
+    stageNameArray = [];
+var selectedCust;
+var onStatusSelect = false;
+var filterBasedOnTypes = [{
+    key: "Kendra",
+    value: ""
+}, {
+    key: "KMs",
+    value: ""
+}, {
+    key: "Loan",
+    value: ""
+}, {
+    key: "Date",
+    value: ""
+}];
+window.isCBpassCases = false;
+apz.app.onLoad_AllLoanApplication = function(params) {
+    $('#header').addClass('sno');
+    $('#footer').addClass('sno');
+}
+apz.app.onShown_AllLoanApplication = function(params) {
+    if (window.ViewAuditTrail || window.isDraftBackNavigation) {
+        apz.app.AllLoanApplication.launchLoanApplicationPending(params)
+    } else {
+        apz.app.AllLoanApplication.fetchAuditTrail();
+        //apz.app.AllLoanApplication.stageName();
+    }
+};
+apz.app.AllLoanApplication.backNavigate = function() {
+    ApzCOB.launchMicroApp('Dashbo', 'dashboard', 'APZCBO__BaseScreens__BaseDIV', '');
+}
+apz.app.AllLoanApplication.onSearch = function(pthis) {
+    var searchText = $("#" + pthis.id).val();
+    var searchResult = [];
+    if (onStatusSelect) {
+        searchResult = ApzCOB.arraySearch(searchText, customerListBasedOnStage, ["customerName", "kendraName", "applicationId"],
+            'Audit__AuditListData_Res', "", '', '');
+    } else {
+        searchResult = ApzCOB.arraySearch(searchText, auditArray, ["customerName", "kendraName", "customerId", "applicationId"],
+            'Audit__AuditListData_Res', "", '', '');
+    }
+    searchResult.forEach((item, index) => {
+        item.rowNo = index;
+    });
+    if (searchResult.length === 0) {
+        $("#" + AllLoanApplicationScrId + "noRecordForm").removeClass("sno");
+        $("#" + AllLoanApplicationScrId + "applicationListRow").addClass("sno");
+    } else {
+        $("#" + AllLoanApplicationScrId + "noRecordForm").addClass("sno");
+        $("#" + AllLoanApplicationScrId + "applicationListRow").removeClass("sno");
+    }
+    if (searchText.length === 0) {
+        if (onStatusSelect) {
+            apz.data.scrdata.Audit__AuditListData_Res.AuditList = customerListBasedOnStage;
+        } else {
+            apz.data.scrdata.Audit__AuditListData_Res.AuditList = auditArray;
+        }
+        apz.data.loadData("AuditListData", 'Audit');
+        $("#" + AllLoanApplicationScrId + "noRecordForm").addClass("sno");
+        $("#" + AllLoanApplicationScrId + "applicationListRow").removeClass("sno");
+    } else {
+        apz.data.scrdata.Audit__AuditListData_Res = {};
+        apz.data.scrdata.Audit__AuditListData_Res.AuditList = searchResult;
+        apz.data.loadData("AuditListData", 'Audit');
+    }
+}
+apz.app.AllLoanApplication.stageName = function () {
+    var uniqueStageIds = [...new Set(uniqueApplication.map(item => parseInt(item.stageId)))];
+    var rejectedStages = ['6', '7','8','9','11', '10', '12', '14', '16','18','19'];
+    if (window.StageName.length > 0) {
+        window.StageName.forEach(function (el,ix) {
+              if(ix==5){
+               stageNameArray.push({ stageName: 'PENDING FOR SANCTION' });
+            } 
+            if (!rejectedStages.includes(el.stageId.toString())) {
+                stageNameArray.push({ stageName: el.stageName });
+            }
+        });
+    }
+    stageNameArray.unshift({
+        stageName: "All"
+    })
+    stageNameArray.push({
+        stageName: "REJECTED"
+    })
+    if (stageNameArray.length > 0) {
+        apz.data.scrdata.Audit__StageNameData_Res = {};
+        apz.data.scrdata.Audit__StageNameData_Res.StageName = stageNameArray;
+        apz.data.loadData("StageNameData", 'Audit');
+        $("#Audit__StageNameData__o__StageName__stageName_0").addClass('active');
+    }
+}
+apz.app.AllLoanApplication.detailsBasedOnStageName = function(pthis) {
+    apz.startLoader(); // Start loader to indicate processing
+    setTimeout(function() {
+        var status = $('#' + pthis.id).text().trim(); // Get status from clicked tab
+        onStatusSelect = true; // Indicate that a status is selected
+        $('.ett-para').removeClass('active');
+        $(pthis).addClass('active');
+        customerListBasedOnStage = [];
+         if (status === 'All') {
+            customerListBasedOnStage = auditArray;
+        } else if (status === 'REJECTED') {
+            let rejectedStages = ['6', '7', '10', '12', '14', '16','18','19']
+            customerListBasedOnStage = auditArray.filter(function (el) {
+                return rejectedStages.includes(el.stage);
+            });
+        } else if(status === 'PENDING FOR SANCTION'){
+            let rejectedStages = ['8', '9', '11'];
+            customerListBasedOnStage = auditArray.filter(function (el) {
+                return rejectedStages.includes(el.stage);
+            });
+        }else {
+            customerListBasedOnStage = auditArray.filter(function (el) {
+                return el.stageName === status;
+            });
+        }
+        if (customerListBasedOnStage.length > 0) {
+            apz.data.scrdata.Audit__AuditListData_Res = {};
+            apz.data.scrdata.Audit__AuditListData_Res.AuditList = customerListBasedOnStage;
+            apz.data.loadData("AuditListData", 'Audit');
+            let rejectedStages = ['6', '7', '10', '12', '14', '16','18','19'];
+            apz.data.scrdata.Audit__AuditListData_Res.AuditList.forEach(function(k,i){
+                let stageNames = k.stageName;
+                if(k.stage === '1'){
+                    $("#" + AllLoanApplicationScrId + "el_txt_687_"+i).removeClass("sno");
+                }else{
+                    $("#" + AllLoanApplicationScrId + "el_txt_687_"+i).addClass("sno");
+                }
+                if (rejectedStages.includes(String(k.stage))) {
+                    $("#Audit__AllLoanApplication__el_txt_681_" + i).addClass("sno").hide();
+                } else {
+                    $("#Audit__AllLoanApplication__el_txt_681_" + i).removeClass("sno").show();
+                    $("#Audit__AllLoanApplication__el_txt_681_" + i + "_txtcnt").text("PENDING");
+                }
+            })
+            $("#" + AllLoanApplicationScrId + "noRecordForm").addClass("sno");
+            $("#" + AllLoanApplicationScrId + "applicationListRow").removeClass("sno");
+        } else {
+            $("#" + AllLoanApplicationScrId + "noRecordForm").removeClass("sno");
+            $("#" + AllLoanApplicationScrId + "applicationListRow").addClass("sno");
+        }
+        apz.stopLoader();
+    }, 300);
+};
+apz.app.AllLoanApplication.fetchAuditTrail = function() {
+     let kendra = [];
+    window.KendraApp.KendraResponsenew.forEach(function (index, i) {
+        kendra.push(index.kendraDtls.kendraId);
+    });
+    var req = {
+        "apiRequest": {
+            "interfaceName": "FetchAuditTrail",
+            "appId": gAppId,
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "appId": gAppId,
+                "userId": LoggedInUserDetails.userID,
+                "userRole": LoggedInUserDetails.loginResponse.addInfo1,
+                "branchId": LoggedInUserDetails.loginResponse.addInfo2,
+                "kendraId": kendra
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, 'FetchAuditTrail', 'N', 'N', req, 'Y', apz.app.AllLoanApplication.fetchAuditTrailCB);
+}
+apz.app.AllLoanApplication.fetchAuditTrailCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__FetchAuditTrail_Res.apiResponse.ResponseBody.responseObj)) {
+                auditList = JSON.parse(params.res.APZCBO__FetchAuditTrail_Res.apiResponse.ResponseBody.responseObj);
+                // Sort by `createTs` in descending order (latest first)
+                auditList.auditTrailData.sort((a, b) => new Date(b.createTs) - new Date(a.createTs));
+                auditList.auditTrailData.forEach(item => {
+                    let existingIndex = uniqueApplication.findIndex(app => app.applicationId === item.applicationId);
+                    if (existingIndex === -1) {
+                        // If applicationId is not found, add the item
+                        uniqueApplication.push(item);
+                    } else {
+                        // If applicationId exists and createTs is the same, update to the latest stageId
+                        if (new Date(item.createTs).getTime() === new Date(uniqueApplication[existingIndex].createTs).getTime()) {
+                            uniqueApplication[existingIndex].stageId = Math.max(parseInt(uniqueApplication[existingIndex].stageId, 10),
+                                parseInt(item.stageId, 10)).toString();
+                        }
+                    }
+                });
+                // Call the function to update UI
+                apz.app.AllLoanApplication.paintData();
+                apz.app.AllLoanApplication.stageName();
+            } else {
+                apz.stopLoader();
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        } else {
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(params.res.APZCBO__FetchAuditTrail_Res.apiResponse.ResponseHeader.ResponseMessage, "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+};
+var applicationId;
+apz.app.AllLoanApplication.fetchAuditTrailAppId = function(pthis) {
+    let rowNo = $(pthis).attr('rowno');
+    selectedCust = apz.data.scrdata.Audit__AuditListData_Res.AuditList[rowNo];
+    //applicationId = data.applicationId;
+    var req = {
+        "apiRequest": {
+            "interfaceName": "FetchAuditTrailApplicationId",
+            "appId": gAppId,
+            "requestObj": {
+                "applicationId": selectedCust.applicationId
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, 'FetchAuditTrailApplicationId', 'N', 'N', req, 'Y', apz.app.AllLoanApplication.fetchAuditTrailAppIdCB);
+}
+apz.app.AllLoanApplication.fetchAuditTrailAppIdCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__FetchAuditTrailApplicationId_Res.apiResponse.ResponseBody.responseObj)) {
+                window.auditTrialData = JSON.parse(params.res.APZCBO__FetchAuditTrailApplicationId_Res.apiResponse.ResponseBody.responseObj);
+                ApzCOB.fetchLoanApplication(selectedCust, 'AllLoanApplication')
+            } else {
+                apz.stopLoader();
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        } else {
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.AllLoanApplication.paintData = function() {
+    var stageName;
+    if (uniqueApplication.length > 0) {
+        uniqueApplication.forEach(function(el, i) {
+            stageName = uniqueApplication[i].stageId ? window.StageName[parseInt(uniqueApplication[i].stageId) - 1].stageName : '-'
+            var obj = {
+                customerId: uniqueApplication[i].customerId ?? 'NO DATA',
+                applicationId: uniqueApplication[i].applicationId ?? 'NO DATA',
+                customerName: uniqueApplication[i].customerName ?? 'NO DATA',
+                spouse: uniqueApplication[i].spouse ?? 'NO DATA',
+                kendraName: uniqueApplication[i].kendreName ?? 'NO DATA',
+                loanAmount: uniqueApplication[i].loanAmt ? ApzCOB.fn_FormatAmount(uniqueApplication[i].loanAmt) : 'NO DATA',
+                productId: uniqueApplication[i].productId ?? 'NO DATA',
+                stage: uniqueApplication[i].stageId ?? 'NO DATA',
+                stageName: stageName,
+                date: uniqueApplication[i].createDate ? apz.app.AllLoanApplication.convertDate(uniqueApplication[i]
+                    .createDate) : 'NO DATA',
+                userId: uniqueApplication[i].userId ?? 'NO DATA'
+            }
+            auditArray.push(obj)
+        })
+    }
+    if (auditArray.length > 0) {
+        apz.data.scrdata.Audit__AuditListData_Res = {};
+        apz.data.scrdata.Audit__AuditListData_Res.AuditList = auditArray;
+        apz.data.loadData("AuditListData", 'Audit');
+        $("#" + AllLoanApplicationScrId + "noRecordForm").addClass("sno");
+        $("#" + AllLoanApplicationScrId + "applicationListRow").removeClass("sno");
+         setTimeout(function () {
+            auditArray.forEach(function (item, index) {
+                if (item.stageName && item.stageName.toLowerCase().includes("reject")) {
+                    var pendingElementId = `Audit__AllLoanApplication__el_txt_681_${index}`;
+                    var el = document.getElementById(pendingElementId);
+                    if (el) {
+                        el.style.display = "none";
+                    }
+                }
+                if(item.stage === '1'){
+                    $("#" + AllLoanApplicationScrId + "el_txt_687_"+index).removeClass("sno");
+                }else{
+                    $("#" + AllLoanApplicationScrId + "el_txt_687_"+index).addClass("sno");
+                }
+            });
+        }, 100); 
+    } else {
+        $("#" + AllLoanApplicationScrId + "noRecordForm").removeClass("sno");
+        $("#" + AllLoanApplicationScrId + "applicationListRow").addClass("sno");
+    }
+}
+var formattedDate;
+apz.app.AllLoanApplication.convertDate = function(date) {
+    var inputDate = date;
+    var dateObj = new Date(inputDate);
+    var day = dateObj.getDate();
+    var month = dateObj.toLocaleString('default', {
+        month: 'short'
+    }); // "Mar"
+    var year = dateObj.getFullYear();
+    formattedDate = `${day} ${month}, ${year}`;
+    return formattedDate
+}
+apz.app.AllLoanApplication.toggleFIlterModal = function() {
+    ApzCOB.toggleModal(AllLoanApplicationScrId + "auditTrailModal");
+    apz.data.scrdata.Audit__IPaintAuditFilterTypes_Res = {};
+    apz.data.scrdata.Audit__IPaintAuditFilterTypes_Res = filterBasedOnTypes;
+    if(userRole === 'KM'){
+        apz.data.scrdata.Audit__IPaintAuditFilterTypes_Res = filterBasedOnTypes.filter(item => item.key !== "KMs");
+    }else{
+        apz.data.scrdata.Audit__IPaintAuditFilterTypes_Res = filterBasedOnTypes;
+    }
+    apz.data.loadData("IPaintAuditFilterTypes", 'Audit');
+    setTimeout(function() {
+        $.each(filterBasedOnTypes, function(i) {
+            $('#Audit__AllLoanApplication__ct_lst_18_row_' + i).removeClass('active');
+        });
+        $('#Audit__AllLoanApplication__ct_lst_18_row_0').addClass('active');
+        apz.app.AllLoanApplication.onSelectAuditTypes(
+            $('#Audit__AllLoanApplication__ct_lst_18_row_0')[0]
+        );
+    }, 100);
+};
+apz.app.AllLoanApplication.onSelectAuditTypes = function (pthis){
+    console.log('pthis---',pthis);
+    let rowNo = $(pthis).attr("rowno");
+     $.each(apz.data.scrdata.Audit__IPaintAuditFilterTypes_Res, function(i) {
+        if (parseInt(rowNo) === i) {
+            $('#' + AllLoanApplicationScrId + 'ct_lst_18_row_' + i).addClass('active');
+        } else {
+            $('#' + AllLoanApplicationScrId + 'ct_lst_18_row_' + i).removeClass('active');
+        }
+    });
+}
+apz.app.AllLoanApplication.onSelectAuditTypes = function (pthis) {
+    let rowNo = parseInt($(pthis).attr("rowno"));
+    $.each(apz.data.scrdata.Audit__IPaintAuditFilterTypes_Res, function(i) {
+        let rowId = AllLoanApplicationScrId + 'ct_lst_18_row_' + i;
+        if (i === rowNo) {
+            $('#' + rowId).addClass('active');
+        } else {
+            $('#' + rowId).removeClass('active');
+        }
+    });
+    let selectedType = apz.data.scrdata.Audit__IPaintAuditFilterTypes_Res[rowNo].key;
+    let extractedData = [];
+    switch (selectedType) {
+        case 'Kendra':
+            extractedData = uniqueApplication
+                .map(app => app.kendreName)
+                .filter((name, index, self) => name && self.indexOf(name) === index);
+            break;
+
+        case 'KMs':
+            extractedData = uniqueApplication
+                .map(app => app.userId)
+                .filter((id, index, self) => id && self.indexOf(id) === index);
+            break;
+
+        case 'Loan':
+            extractedData = uniqueApplication
+                .map(app => app.productId)
+                .filter((id, index, self) => id && self.indexOf(id) === index);
+            break;
+
+        case 'Date':
+            extractedData = uniqueApplication
+                .map(app => app.createDate)
+                .filter((date, index, self) => date && self.indexOf(date) === index);
+            break;
+
+        default:
+            extractedData = [];
+    }
+     let wrappedList = selectedType === 'Kendra' ? [{ value: 'All' }, ...extractedData.map(value => ({ value }))]: extractedData.map(value => ({ value }));
+    apz.data.scrdata.Audit__IPaintFilteredAuditData_Res = {};
+    apz.data.scrdata.Audit__IPaintFilteredAuditData_Res = wrappedList;
+    apz.data.loadData("IPaintFilteredAuditData", 'Audit');
+};
+apz.app.AllLoanApplication.onSelectAuditFilterVal = function(pthis) {
+    let clickedRow = parseInt($(pthis).attr("rowno"));
+    let selectedValue = apz.data.scrdata.Audit__IPaintFilteredAuditData_Res[clickedRow].value;
+    let isCurrentlyChecked = $(pthis).prop("checked");
+    let totalRows = apz.data.scrdata.Audit__IPaintFilteredAuditData_Res.length;
+    for (let i = 0; i < totalRows; i++) {
+        let checkboxId = '#Audit__AllLoanApplication__el_cbx_1_' + i;
+        if (selectedValue === 'All') {
+            $(checkboxId).prop("checked", isCurrentlyChecked).prop("disabled", false);
+        } else {
+            if (i === clickedRow) {
+                $(checkboxId).prop("checked", isCurrentlyChecked).prop("disabled", false);
+            } else {
+                $(checkboxId).prop("checked", false).prop("disabled", isCurrentlyChecked);
+            }
+        }
+    }
+};
+//format date -
+apz.app.AllLoanApplication.formatToYYYYMMDD = function(dateStr){
+      if (!dateStr) return '';
+    const parts = dateStr.split(' ');
+    if (parts.length !== 3) return '';
+    const day = parts[0].padStart(2, '0');
+    const rawMonth = parts[1].replace(',', '');
+    const monthMap = {
+        Jan: '01', Feb: '02', Mar: '03', Apr: '04',
+        May: '05', Jun: '06', Jul: '07', Aug: '08',
+        Sep: '09', Oct: '10', Nov: '11', Dec: '12'
+    };
+    const month = monthMap[rawMonth];
+    const year = parts[2];
+    if (!month) return '';
+    return `${year}-${month}-${day}`;
+}
+apz.app.AllLoanApplication.filterAuditTrialRecords = function () {
+    let selectedValues = [];
+    let totalRows = apz.data.scrdata.Audit__IPaintFilteredAuditData_Res.length;
+    for (let i = 0; i < totalRows; i++) {
+        const checkboxId = '#Audit__AllLoanApplication__el_cbx_1_' + i;
+        if ($(checkboxId).prop("checked")) {
+            selectedValues.push(apz.data.scrdata.Audit__IPaintFilteredAuditData_Res[i].value.trim());
+        }
+    }
+    let selectedType = null;
+    let typeList = apz.data.scrdata.Audit__IPaintAuditFilterTypes_Res;
+    for (let i = 0; i < typeList.length; i++) {
+        if ($('#Audit__AllLoanApplication__ct_lst_18_row_' + i).hasClass('active')) {
+            selectedType = typeList[i].key;
+            break;
+        }
+    }
+    let originalList = auditArray;
+    let filteredList = [];
+    if (selectedType && selectedValues.length > 0) {
+        filteredList = originalList.filter(item => {
+            switch (selectedType) {
+                case 'Kendra':
+                    return selectedValues.includes((item.kendraName || '').trim());
+                case 'KMs':
+                    return selectedValues.includes((item.userId || '').trim());
+                case 'Loan':
+                    return selectedValues.includes((item.productId || '').trim());
+                case 'Date':
+                    let formattedItemDate = apz.app.AllLoanApplication.formatToYYYYMMDD(item.date);
+                    return selectedValues.includes(formattedItemDate);
+                default:
+                    return true;
+            }
+        });
+    } else {
+        filteredList = originalList;
+    }
+    apz.data.scrdata.Audit__AuditListData_Res.AuditList = filteredList;
+    if (filteredList.length === 0) {
+        $("#" + AllLoanApplicationScrId + "noRecordForm").removeClass("sno");
+    } else {
+        $("#" + AllLoanApplicationScrId + "noRecordForm").addClass("sno");
+    }
+    apz.data.loadData("AuditListData", 'Audit');
+    ApzCOB.toggleModal(AllLoanApplicationScrId + "auditTrailModal");
+    setTimeout(function () {/**HIDING PENDING TEXT BASED ON REJECT*/
+        filteredList.forEach(function (item, index) {
+            if ((item.stageName || '').toLowerCase().includes("reject")) {
+                var pendingElementId = `Audit__AllLoanApplication__el_txt_681_${index}`;
+                var el = document.getElementById(pendingElementId);
+                if (el) {
+                    el.style.display = "none";
+                }
+            }
+        });
+    }, 100);
+};
+apz.app.AllLoanApplication.resetAuditTrialRecords = function () {
+    let totalRows = apz.data.scrdata.Audit__IPaintFilteredAuditData_Res.length;
+    for (let i = 0; i < totalRows; i++) {
+        let checkboxId = '#Audit__AllLoanApplication__el_cbx_1_' + i;
+        $(checkboxId).prop("checked", false).prop("disabled", false);
+    }
+    let typeList = apz.data.scrdata.Audit__IPaintAuditFilterTypes_Res;
+    for (let i = 0; i < typeList.length; i++) {
+        $('#Audit__AllLoanApplication__ct_lst_18_row_' + i).removeClass('active');
+    }
+    $('#Audit__AllLoanApplication__ct_lst_18_row_0').addClass('active');
+    apz.data.scrdata.Audit__AuditListData_Res.AuditList = auditArray;
+    apz.data.loadData("AuditListData", 'Audit');
+    ApzCOB.toggleModal(AllLoanApplicationScrId + "auditTrailModal");
+};
+//Search filter
+apz.app.LoanApplicationPending.onSearchFilteredData = function (pthis) {
+    var searchText = $("#" + pthis.id).val().toLowerCase().trim();
+    let selectedType = null;
+    let typeList = apz.data.scrdata.Audit__IPaintAuditFilterTypes_Res;
+    for (let i = 0; i < typeList.length; i++) {
+        if ($('#Audit__AllLoanApplication__ct_lst_18_row_' + i).hasClass('active')) {
+            selectedType = typeList[i].key;
+            break;
+        }
+    }
+    if (!selectedType) return;
+    if (!apz.data.scrdata.OriginalAuditFilteredData) {
+        apz.data.scrdata.OriginalAuditFilteredData = {};
+    }
+    if (!apz.data.scrdata.OriginalAuditFilteredData[selectedType]) {
+        apz.data.scrdata.OriginalAuditFilteredData[selectedType] = [...apz.data.scrdata.Audit__IPaintFilteredAuditData_Res];
+    }
+    let fullList = apz.data.scrdata.OriginalAuditFilteredData[selectedType];
+    let filteredList = fullList.filter(item => {
+        if (!searchText) return true;
+        return item.value.toLowerCase().includes(searchText);
+    });
+    if (filteredList.length === 0) {
+        $("#" + AllLoanApplicationScrId + "noRecordForm").removeClass("sno");
+        $("#" + AllLoanApplicationScrId + "appList").addClass("sno");
+    } else {
+        $("#" + AllLoanApplicationScrId + "noRecordForm").addClass("sno");
+        $("#" + AllLoanApplicationScrId + "appList").removeClass("sno");
+    }
+    apz.data.scrdata.Audit__IPaintFilteredAuditData_Res = filteredList;
+    apz.data.loadData("IPaintFilteredAuditData", "Audit");
+};
+// LoanApplication script
+//var loanApplicationScrId = 'Audit__LoanApplicationPending__';
+var loanApplication;
+var custData, auditTrialArr = [];
+var auditRejectionReasons = ['Invalid document', 'Invalid Address', 'No Address Proof', 'Others'];
+apz.app.AllLoanApplication.launchLoanApplicationPending = function(params) {
+    $("#" + AllLoanApplicationScrId + "gr_row_97").addClass("sno");
+    $("#" + AllLoanApplicationScrId + "loanApplication").removeClass("sno");
+    if (window.ViewAuditTrail || window.isDraftBackNavigation) {
+        window.ViewAuditTrail = false;
+        window.isDraftBackNavigation = false;
+        custData = params;
+    } else {
+        custData = params.matchingCustomer;
+    }
+    apz.app.AllLoanApplication.paintCustDtls();
+    apz.app.AllLoanApplication.compareLoanAmount('modal')
+};
+apz.app.AllLoanApplication.compareLoanAmount = function(params) {
+    var loanAmtAudit = window.auditTrialData.auditTrailData
+    let loanAmtChanges = [];
+    if (loanAmtAudit.length > 1) {
+        loanAmtAudit.sort((a, b) => new Date(a.createTs) - new Date(b.createTs));
+        for (let i = 1; i < loanAmtAudit.length; i++) {
+            let prevRecord = loanAmtAudit[i - 1];
+            let currentRecord = loanAmtAudit[i];
+            if (parseInt(prevRecord.loanAmt) !== parseInt(currentRecord.loanAmt)) {
+                let loanAmount = '₹' + prevRecord.loanAmt + ' ' + '->' + ' ' + '₹' + currentRecord.loanAmt
+                var obj = {
+                    date: loanAmtAudit[i].createDate,
+                    loanAmt: loanAmount,
+                    userRole: loanAmtAudit[i].userRole,
+                    userName: loanAmtAudit[i].userId
+                }
+                loanAmtChanges.push(obj);
+            }
+        }
+        if (loanAmtChanges.length > 0) {
+            apz.data.scrdata.Audit__LoanAmtAuditData_Res = {};
+            apz.data.scrdata.Audit__LoanAmtAuditData_Res.LoanAmtAudit = loanAmtChanges;
+            apz.data.loadData("LoanAmtAuditData", "Audit");
+            $("#" + AllLoanApplicationScrId + "noRecordForm").addClass("sno");
+            $("#" + AllLoanApplicationScrId + "loanAmtApplicationListRow").removeClass("sno");
+            $('#Audit__AllLoanApplication__el_txt_536 .ett-icon').removeClass('sno')
+        } else {
+            $("#" + AllLoanApplicationScrId + "noRecordForm").removeClass("sno");
+            $("#" + AllLoanApplicationScrId + "loanAmtApplicationListRow").addClass("sno");
+            $('#Audit__AllLoanApplication__el_txt_536 .ett-icon').addClass('sno')
+        }
+    } else {}
+    if(!params){
+        ApzCOB.toggleModal(AllLoanApplicationScrId + "loanAmountChanges");
+    }
+}
+apz.app.AllLoanApplication.paintCustDtls = function() {
+    apz.setElmValue(AllLoanApplicationScrId + "outstandingAmt", "₹ " + custData.customerDtls.loanDtls.maxAmountLimit);
+    if (custData?.customerDtls?.loanDtls?.maxAmountLimit === "0" || custData?.customerDtls?.loanDtls?.maxAmountLimit === null) {
+      $("#" + AllLoanApplicationScrId + "outstandingAmt").addClass("sno");
+      $("#" + AllLoanApplicationScrId + "el_txt_700").addClass("sno");
+    }
+    var insurFor='';
+    if (custData.customerDtls.loanDtls.insurDtls.member === 'Y' && custData.customerDtls.loanDtls.insurDtls.Spouse === 'Y') {
+        insurFor = 'Member & Spouse'
+    } else if (custData.customerDtls.loanDtls.insurDtls.member === 'Y') {
+        insurFor = 'Member'
+    } else if (custData.customerDtls.loanDtls.insurDtls.Spouse === 'Y') {
+        insurFor = 'Spouse'
+    }
+    let loanForPreClosure = [];
+    custData.customerDtls.loanDtls.activeLoanDtls.forEach(function(el, i) {
+        if(el.status === 'CLOSED'){
+            loanForPreClosure.push(el.productType ?? 'NO DATA');
+        }
+    });
+    var totalOutstandingAmt = 0;
+    custData.customerDtls.loanDtls.activeLoanDtls.forEach(function(el, i) {
+        if (el.status !== 'CLOSED') {
+            var outstandingAMT = 0
+            if (el.outstandingPrincipal === undefined || el.outstandingPrincipal === null) {
+                el.outstandingPrincipal = 0;
+            }
+            totalOutstandingAmt = totalOutstandingAmt + parseInt(el.outstandingPrincipal)
+        }
+    });
+    apz.setElmValue(AllLoanApplicationScrId + "loanAppId", "₹ " +  !apz.isNull(custData.applicationId) ? custData.applicationId :'');
+    //apz.setElmValue(AllLoanApplicationScrId + "outstandingAmt", "₹ " + ApzCOB.fn_FormatAmount(totalOutstandingAmt) ?? 'NO DATA');
+    apz.setElmValue(AllLoanApplicationScrId + "custName", !apz.isNull(custData.customerDtls.customerName) ? custData.customerDtls.customerName :
+        'NO DATA');
+    apz.setElmValue(AllLoanApplicationScrId + "profileName", !apz.isNull(custData.customerDtls.customerName) ? custData.customerDtls.customerName
+        .slice(0, 1) : 'NO DATA');
+    apz.setElmValue(AllLoanApplicationScrId + "kendraID", !apz.isNull(custData.kendraId) ? custData.kendraId : 'NO DATA');
+    let groupId=''
+    if (typeof custData.addInfo === "string") {
+        groupId = JSON.parse(custData.addInfo).groupId
+    }else{
+        groupId = custData.addInfo.groupId
+    }
+    apz.setElmValue(AllLoanApplicationScrId + "groupID", groupId? groupId : 'NO DATA');
+    var vintage = custData.customerDtls.kycDtls.vintage;
+    apz.setElmValue(AllLoanApplicationScrId + "vintageYrs", 'Vintage' + ' ' + vintage + ' ' + 'Year');
+    apz.setElmValue(AllLoanApplicationScrId + "loanAmt", !apz.isNull(custData.amount) ? ApzCOB.fn_FormatAmount(custData.amount) : "NO DATA")
+    apz.setElmValue(AllLoanApplicationScrId + "product", !apz.isNull(custData.customerDtls.loanDtls.product) ? custData.customerDtls.loanDtls
+        .product : "NO DATA")
+    apz.setElmValue(AllLoanApplicationScrId + "purposeSubPurpose", (!apz.isNull(custData.customerDtls.loanDtls.purpose.purposeDesc) ? custData
+        .customerDtls.loanDtls.purpose.purposeDesc : 'NO DATA') + ' ' + '/' + ' ' + !apz.isNull(custData.customerDtls.loanDtls.purpose
+        .productSubPurpose) ? custData.customerDtls.loanDtls.purpose.productSubPurpose : 'NO DATA');
+    apz.setElmValue(AllLoanApplicationScrId + "frequencyTenure", (!apz.isNull(custData.customerDtls.loanDtls.repayFrequency.idDesc) ? custData
+            .customerDtls.loanDtls.repayFrequency.idDesc : 'NO DATA') + ' ' + 'for' + ' ' + !apz.isNull(custData.customerDtls.loanDtls.term) ?
+        custData.customerDtls.loanDtls.term : 'NO DATA');
+    apz.setElmValue(AllLoanApplicationScrId + "loanPreClosure", loanForPreClosure.length>0?loanForPreClosure:"NO DATA")
+    apz.setElmValue(AllLoanApplicationScrId + "nomineeName", (!apz.isNull(custData.customerDtls.loanDtls.nomineeDtls.nomineeName) ? custData
+        .customerDtls.loanDtls.nomineeDtls.nomineeName : 'NO DATA') + ' ' + '&' + ' ' + (!apz.isNull(custData.customerDtls.loanDtls
+        .nomineeDtls.relationWithMember) ? custData.customerDtls.loanDtls.nomineeDtls.relationWithMember : 'NO DATA'));
+    apz.setElmValue(AllLoanApplicationScrId + "insurFor", insurFor),
+    apz.setElmValue(AllLoanApplicationScrId + "disbursementMode", !apz.isNull(custData.loanMode) ? custData.loanMode : "NO DATA")
+    apz.setElmValue(AllLoanApplicationScrId + "associatedKM", custData?.kmId??"NO DATA")
+    apz.setElmValue(AllLoanApplicationScrId + "membersDOB", ApzCOB.dateformatter(ApzCOB.dateStringToDate(custData.customerDtls.kycDtls.dob), "d M'y"));
+    apz.setElmValue(AllLoanApplicationScrId + "maritalStatus", custData.customerDtls.kycDtls.maritalStatus);
+    var depname,depDob,depDocType,depDocId;
+    custData.customerDtls.earnings.forEach(function (k,i) {
+        if(k.memRelation === 'SPOUSE'){
+            depname = k.name
+            depDob = k.dob
+            depDocType = k.legaldocName
+            depDocId = k.legaldocId
+        }
+    })
+    if (custData.customerDtls.kycDtls.maritalStatus === 'MARRIED') {
+        $("#" + AllLoanApplicationScrId + 'sc_row_848').removeClass('sno');
+        $("#" + AllLoanApplicationScrId + 'sc_row_852').removeClass('sno');
+        apz.setElmValue(AllLoanApplicationScrId + "spouseNameAndDOB", depname??'' + ',' + ApzCOB.dateformatter(ApzCOB.dateStringToDate(
+            depDob??''), "d M'y"));
+        apz.setElmValue(AllLoanApplicationScrId + "spouseKycId", depDocType??'' + " (" + depDocId??'' + ") ");
+    } else {
+        $("#" + AllLoanApplicationScrId + 'sc_row_848').addClass('sno');
+        $("#" + AllLoanApplicationScrId + 'sc_row_852').addClass('sno');
+    }
+    apz.setElmValue(AllLoanApplicationScrId + "membersKycId", custData?.customerDtls?.kycDtls?.primaryType + " (" + custData?.customerDtls?.kycDtls?.primaryId + ") ");
+    apz.setElmValue(AllLoanApplicationScrId + "accNumber", custData?.customerDtls?.bankDtls?.bankAccNo??'');
+    apz.setElmValue(AllLoanApplicationScrId + "bankIfsc", custData?.customerDtls?.bankDtls?.bankName??'' + ", " + custData?.customerDtls?.bankDtls?.bankIfscCode??'');
+    apz.setElmValue(AllLoanApplicationScrId + "branch", custData?.customerDtls?.bankDtls?.bankBranchName??'');
+    apz.app.AllLoanApplication.paintAuditTrailData();
+    if (custData.status != 'REJECTED') {
+        var incomeAppId,otpDetails
+        if (typeof custData.addInfo === "string") {
+            incomeAppId = JSON.parse(custData.addInfo).incomeAppId
+            otpDetails = JSON.parse(custData.addInfo).otpDetails
+        }else{
+            incomeAppId = custData.addInfo.incomeAppId
+            otpDetails = custData.addInfo.otpDetails
+        }
+        if (selectedCust.stage === '1') {
+            $("#" + AllLoanApplicationScrId + "sc_row_863").removeClass("sno");
+            $("#" + AllLoanApplicationScrId + "sc_row_862").addClass("sno");
+        }
+    }
+}
+apz.app.AllLoanApplication.activeloanlist = function() {
+    let activeloanDtls = $('#' + AllLoanApplicationScrId + 'activeLoanDtls');
+    let activeLoanList = [];
+    if ((activeloanDtls).hasClass('sno')) {
+        if (custData.customerDtls && custData.customerDtls.loanDtls && custData.customerDtls.loanDtls.activeLoanDtls && custData.customerDtls
+            .loanDtls.activeLoanDtls.length > 0) {
+            activeloanDtls.removeClass('sno');
+            $('#Audit__AllLoanApplication__el_txt_704_txtcnt').text('Maturity Weeks(Date) | Remaining Installments');
+            custData.customerDtls.loanDtls.activeLoanDtls.forEach(function(el, i) {
+                if (el.status !== 'CLOSED') {
+                    let wks = ApzCOB.findMaturityWeek(el.lnMatDate);
+                    var loanAmt = el.approvedAmt;
+                    if (apz.isNull(el.approvedAmt)) {
+                        loanAmt = el.amount;
+                    }
+                    let maturityDate = ApzCOB.confDateFormatter(ApzCOB.dateStringToDate(el.lnMatDate), "dd/mm/yy");
+                    let remainingInstallment =  ApzCOB.calculateRemainingInstallments(el.lnValueDate, el.lnMatDate, el.freq, todayStr = null);
+                    let lObj = {
+                        maturityDate: `${maturityDate} (${remainingInstallment})`,
+                        product: el.shortDesc,
+                        loanId: el.loanId,
+                        description: el.shortDesc,
+                        loanAmount: "₹ " + loanAmt,
+                        dueAmt: "₹ " + Math.round(parseFloat(el.outstandingPrincipal)) + ' ( ₹ ' + Math.round((parseFloat(el
+                            .overdueInterest)) + Math.round(parseFloat(el.overduePrincipal))) + ' )'
+                    };
+                    activeLoanList.push(lObj);
+                }
+            });
+            if (activeLoanList.length > 0) {
+                apz.data.scrdata.Audit__IPaintActiveLoanDtls_Res = {};
+                apz.data.scrdata.Audit__IPaintActiveLoanDtls_Res.ActiveLoanDtls = activeLoanList;
+                apz.data.loadData("IPaintActiveLoanDtls", 'Audit');
+            }else{
+	    activeloanDtls.addClass('sno');
+            ApzCOB.fnDisplayMsg("No Existing Loans Available", "I");
+        }
+        } else {
+            ApzCOB.fnDisplayMsg("No Existing Loans Available", "I");
+        }
+    } else {
+        activeloanDtls.addClass('sno');
+    }
+}
+apz.app.AllLoanApplication.backNavigateLoan = function() {
+    ApzCOB.launchMicroApp("Audit", "AllLoanApplication", 'APZCBO__BaseScreens__BaseDIV', '');
+}
+apz.app.AllLoanApplication.paintAuditTrailData = function() {
+    var stageName, userName, userRole;
+    if (!apz.isNull(window.auditTrialData) && window.auditTrialData.auditTrailData.length > 0) {
+        window.auditTrialData.auditTrailData.forEach(function(el, i) {
+            stageName = window.auditTrialData.auditTrailData[i].stageId ? (window.StageName[parseInt(window.auditTrialData.auditTrailData[
+                    i].stageId) - 1] ? window.StageName[parseInt(window.auditTrialData.auditTrailData[i].stageId) - 1].stageName :
+                '-') : '-'
+            userName = window.auditTrialData.auditTrailData[i].userId ?? ''
+            userRole = window.auditTrialData.auditTrailData[i].userRole ?? ''
+            var obj = {
+                stageId: window.auditTrialData.auditTrailData[i].stageId,
+                stageName: stageName,
+                userName: userName + '(' + userRole + ')',
+                date: window.auditTrialData.auditTrailData[i].createDate ?? 'NO DATA'
+            }
+            auditTrialArr.push(obj)
+        })
+    }
+    let auditTrialMap = new Map();
+    auditTrialArr.sort((a, b) => parseInt(a.stageId, 10) - parseInt(b.stageId, 10));
+    auditTrialArr.forEach(item => {
+        auditTrialMap.set(item.stageId, item); // Overwrites older entries with the latest one
+    });
+    auditTrialArr = Array.from(auditTrialMap.values());
+    if (auditTrialArr.length > 0) {
+        apz.data.scrdata.Audit__AuditTrailData_Res = {};
+        apz.data.scrdata.Audit__AuditTrailData_Res.AuditTrail = auditTrialArr;
+        apz.data.loadData("AuditTrailData", 'Audit');
+        //$("#Audit__LoanApplicationPending__takeAction_" + (auditTrialArr.length - 1)).removeClass("sno");
+        $("#Audit__AllLoanApplication__el_icn_17_" + (auditTrialArr.length - 1)).addClass("sno");
+        $("#Audit__AllLoanApplication__el_icn_18_" + (auditTrialArr.length - 1)).removeClass("sno");
+    }
+    let hiddenStages = ['6', '7', '10', '12', '14', '16','18','19'];
+    let allowedStageNames = [
+        'DRAFT APPLICATION',
+        'CB PENDING',
+        'CRT PENDING',
+        'RPC VERIFICATION PENDING'
+    ];
+    let lastStage = auditTrialArr[auditTrialArr.length - 1] || {};
+    let stageId = lastStage.stageId;
+    let stageNames = (lastStage.stageName || '').toUpperCase();
+    let isHiddenStage = hiddenStages.includes(stageId);
+    let isAllowedStage = allowedStageNames.includes(stageNames);
+    // CASE 1: Show rejected reason row if last stage is in hiddenStages
+    if (isHiddenStage) {
+        let auditTrailArray = window.auditTrialData.auditTrailData;
+        let lastEntry = auditTrailArray[auditTrailArray.length - 1];
+        let lastRemarks = lastEntry?.remarks || "Application Rejected!!";
+        $('#Audit__AllLoanApplication__rejectedRow').addClass('sno');
+        $('#Audit__AllLoanApplication__rectedResionRow').removeClass('sno');
+        let $errorBlock = $('#Audit__AllLoanApplication__rectedResionRow');
+        $errorBlock.css({
+            backgroundColor: '#fdecea',
+            padding: '10px',
+            borderRadius: '4px'
+        });
+        $('#Audit__AllLoanApplication__el_txt_691 svg')
+            .removeClass('icon-check_circle')
+            .addClass('icon-error')
+            .css({ fill: '#f44336' });
+
+        $('#Audit__AllLoanApplication__el_txt_691').css({ fontWeight: 'bold' });
+        $('#Audit__AllLoanApplication__el_txt_691_txtcnt').text(`Rejected Remarks: ${lastRemarks}`);
+    }
+    // CASE 2: Show reject button row only if last stageName is allowed and not hidden
+    else if (isAllowedStage && !isHiddenStage) {
+        $('#Audit__AllLoanApplication__rejectedRow').removeClass('sno');
+        $('#Audit__AllLoanApplication__rectedResionRow').addClass('sno');
+    }
+    // CASE 3: Hide both rows if neither condition matches
+    else {
+        $('#Audit__AllLoanApplication__rejectedRow').addClass('sno');
+        $('#Audit__AllLoanApplication__rectedResionRow').addClass('sno');
+    }
+     if (stageNames === "CB PASS" ) {
+        let approvedLoanAmt = parseFloat(window.KendraLoans.cbResponse.Approved_Loan_Amount);
+        let appliedAmt = parseFloat(custData.amount);
+        if(appliedAmt === approvedLoanAmt){
+             $('#Audit__AllLoanApplication__proceedAppRow').removeClass('sno');
+        }else if(appliedAmt !== approvedLoanAmt){
+             $('#Audit__AllLoanApplication__proceedBtnRow').removeClass('sno');
+             $('#Audit__AllLoanApplication__proceedBtn').text(`Proceed with amount ₹${approvedLoanAmt}`);
+             $('#Audit__AllLoanApplication__rejectCol').removeClass('sno');
+             $('#Audit__AllLoanApplication__proceedAppRow').addClass('sno');
+        }else{
+             $('#Audit__AllLoanApplication__proceedAppRow').addClass('sno');
+        }
+    } else {
+        $('#Audit__AllLoanApplication__proceedAppRow').addClass('sno');
+    }
+    if(currentUserRole === 'BM' || LoggedInUserDetails.loginResponse.addInfo1 === 'BM'){
+        $('#Audit__AllLoanApplication__rejectedRow').addClass('sno');
+        $('#Audit__AllLoanApplication__proceedBtnRow').addClass('sno');
+        $('#Audit__AllLoanApplication__proceedAppRow').addClass('sno');
+    }
+}
+apz.app.AllLoanApplication.viewAuditTrail = function() {
+    ApzCOB.launchMicroApp('Audit', 'AuditTrail', 'APZCBO__BaseScreens__BaseDIV', custData);
+}
+apz.app.AllLoanApplication.rejectReason = function() {
+    ApzCOB.toggleModal(AllLoanApplicationScrId + "rejectReasonModel");
+    let paintData = auditRejectionReasons.map((data) => ({
+        reason: data
+    }));
+    apz.data.scrdata.Audit__IPaintRejectFlow_Res = {};
+    apz.data.scrdata.Audit__IPaintRejectFlow_Res.PaintReason = paintData;
+    apz.data.loadData("IPaintRejectFlow", "Audit");
+}
+apz.app.AllLoanApplication.selectReason = function(pthis) {
+    const rowIndex = $(pthis).attr("rowno");
+    const isChecked = $(pthis).prop("checked");
+    const selectedReason = $(`#Audit__IPaintRejectFlow__o__PaintReason__reason_${rowIndex}_txtcnt`).text().trim();
+    let fullTargetId = $(pthis).closest('li').find('#Audit__AllLoanApplication__sc_row_876_row');
+    $('[id="Audit__AllLoanApplication__sc_row_876_row"]').addClass('sno');
+    if (selectedReason === 'Others' && isChecked) {
+        $(fullTargetId).removeClass('sno');
+        $(`#Audit__AllLoanApplication__el_txa_1_${rowIndex}`).off('keyup').on('keyup', function() {
+            const comment = $(this).val().trim();
+            if (apz.data.scrdata.selectedAuditRejectReasons) {
+                const reasonObj = apz.data.scrdata.selectedAuditRejectReasons.find(r => r.index === rowIndex);
+                if (reasonObj) {
+                    reasonObj.comment = comment;
+                }
+            }
+        });
+    }
+    apz.data.scrdata.Audit__IPaintRejectFlow_Res.PaintReason.forEach((data, index) => {
+        if (index !== parseInt(rowIndex)) {
+            $(`#Audit__AllLoanApplication__el_cbx_2_${index}`).prop("checked", false);
+        }
+    });
+    apz.data.scrdata.selectedAuditRejectReasons = [];
+    if (isChecked) {
+        let comment = "";
+        if (selectedReason === "Others") {
+            comment = $(`#Audit__AllLoanApplication__el_txa_1_${rowIndex}`).val().trim();
+        }
+        apz.data.scrdata.selectedAuditRejectReasons.push({
+            index: rowIndex,
+            reason: selectedReason,
+            comment: comment
+        });
+    }
+};
+apz.app.AllLoanApplication.rejectAuditApp = function () {
+    let role = userRole;
+    let auditTrail = apz.data.scrdata.Audit__AuditTrailData_Res.AuditTrail;
+    let latestStage = auditTrail[auditTrail.length - 1];
+    let latestStageId = latestStage.stageId;
+    let stageName = latestStage.stageName;
+    let selectedReasons = apz.data.scrdata.selectedAuditRejectReasons || [];
+    let remarks = "";
+    let compiledReasons = selectedReasons.map(r => r.comment ? `${r.reason} - ${r.comment}` : r.reason).join(', ');
+    if (stageName === 'CB PASS') {
+        ApzCOB.toggleModal(AllLoanApplicationScrId + "rejectReasonModel");
+        let role = userRole;
+        var workflowId, stage;
+        remarks = `${compiledReasons} -The Loan rejected by ${LoggedInUserDetails.userID} (${currentUserRole}) ~ from stage ${stageName}.`
+        workflowId = "LOANINPUT";
+        stage = "USERCHECK";
+        var workflow = {
+            "currentRole": role,
+            "action": "REJECT",
+            "workflowId": workflowId,
+            "stage": stage,
+            "remarks": remarks
+        }
+        apz.app.AllLoanApplication.rejectionForCBpassCases(workflow);
+    } else {
+        if (selectedReasons.length === 0) {
+            ApzCOB.fnDisplayMsg("Please select at least one reject reason.", "I");
+            return;
+        }
+        if ((selectedReasons[0].reason === 'Others') && (stageName === 'CRT PENDING' || stageName === 'CB PENDING')) {
+            remarks = `${compiledReasons} -The Loan rejected by ${LoggedInUserDetails.userID} (${currentUserRole}) ~ from stage ${stageName}.`
+        } else if ((selectedReasons[0].reason === 'Others') && (stageName === 'DRAFT APPLICATION' || stageName === 'RPC VERIFICATION PENDING')) {
+            remarks = `${compiledReasons} -The Loan rejected by ${LoggedInUserDetails.userID} (${currentUserRole}) ~ from stage ${stageName}.`
+        } else {
+            remarks = `${compiledReasons} -The Loan rejected by ${LoggedInUserDetails.userID} (${currentUserRole}) ~ from stage ${stageName}.`
+        }
+        if (['1', '2', '3', '4'].includes(latestStageId)) {
+            let stages = "USERCHECK";
+            switch (latestStageId) {
+                case '1':
+                    remarks = remarks || "Draft Application";
+                    stages = "DRAFT";
+                    break;
+                case '2':
+                    remarks = remarks || "RPC VERIFCATION PENDING";
+                    stages = "DRAFT";
+                    break;
+                case '3':
+                    remarks = remarks || "CB PENDING";
+                    break;
+                case '4':
+                    remarks = remarks || "CRT PENDING";
+                    break;
+                // case '5':
+                //     remarks = remarks || "CB PASS";
+                //     break;
+            }
+            window.CRTworkflow = {
+                currentRole: "KM",
+                action: "REJECT",
+                workflowId: "LOANINPUT",
+                stage: stages,
+                remarks: remarks
+            };
+            window.auditTrialReject = true;
+            window.reject = true;
+            if(stageName === 'DRAFT APPLICATION' || stageName === 'RPC VERIFICATION PENDING'){
+                   window.cbApproveManual = '';
+            }else{
+                   window.cbApproveManual = 'N';
+            }
+            apz.app.AllLoanApplication.rejectAuditAppService();
+            ApzCOB.toggleModal(AllLoanApplicationScrId + "rejectReasonModel");
+            return;
+        }
+        let workflow = {
+            currentRole: role,
+            action: "REJECT",
+            workflowId: "SANCTION",
+            stage: stageName,
+            remarks: remarks
+        };
+        switch (latestStageId) {
+            case '8':
+            case '9':
+                workflow.workflowId = "BMINPUT";
+                workflow.stage = "BMQUEUE";
+                break;
+            case '11':
+                workflow.workflowId = "AMINPUT";
+                workflow.stage = "AMQUEUE";
+                break;
+            case '13':
+                workflow.workflowId = "SANCTION";
+                workflow.stage = "SANCTIONED";
+                break;
+            case '15':
+                workflow.workflowId = "DISBURSE";
+                workflow.stage = "DISBURSEMENT";
+                break;
+        }
+        ApzCOB.updateAppication(workflow);
+        ApzCOB.toggleModal(AllLoanApplicationScrId + "rejectReasonModel");
+
+    }
+};
+apz.app.AllLoanApplication.rejectAuditAppService = function () {
+    var workflow = {}
+    var applicationDetails = [];
+    applicationDetails.push({
+        "applicationId": custData.applicationId,
+        "versionNum": custData.versionNo
+    });
+    var req = {
+        "apiRequest": {
+            "appId": gAppId,
+            "interfaceName": "KMActionPostCBCheck",
+            "requestObj": {
+                "workflow": window.CRTworkflow,
+                "createdBy": custData.createdBy,
+                "applicationId": "",
+                "applicationStatus": 'Move to BM',
+                "appId": gAppId,
+                "cbApproveManual": window.cbApproveManual,
+                "versionNum": "",
+                "applicationDetailList": applicationDetails,
+                "remarks": window.CRTworkflow.remarks
+            }
+        }
+    }
+    req.apiRequest.requestObj.userRole = currentUserRole;
+    req.apiRequest.requestObj.appVersion = appVersion;
+    req.apiRequest.requestObj.userName = LoggedInUserDetails.loginResponse.userDet.name;
+    req.apiRequest.requestObj.userId = LoggedInUserDetails.userID;
+    if (apz.deviceType !== 'WEB') {
+        apz.app.BaseScreens.UEstartTimer("WorkflowUpdate", req);
+        apz.app.BaseScreens.UElogevent("WorkflowUpdate", req);
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, 'KMActionPostCBCheck', 'N', 'N', req, 'Y', apz.app.AllLoanApplication.rejectAuditAppServiceCB);
+}
+apz.app.AllLoanApplication.rejectAuditAppServiceCB = function (params) {
+    if (apz.deviceType !== 'WEB') {
+        apz.app.BaseScreens.UEstopTimer("WorkflowUpdate ", params.req);
+    }
+    if (ApzCOB.handleServiceCallBacks(params)) {
+        if (params.res.APZCBO__KMActionPostCBCheck_Res.apiResponse.ResponseHeader.ResponseCode == "0") {
+             ApzCOB.fnDisplayMsg('Application Rejected Successfully', "I",apz.app.AllLoanApplication.backNavigateLoan);
+        } else {
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E", ApzCOB.ReloadApp);
+        }
+        apz.stopLoader();
+    }else{
+         apz.stopLoader();
+	     ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.AllLoanApplication.onlyCharacterslALlow = function() {
+    var textarea = document.getElementById('Audit__AllLoanApplication__el_txa_1');
+    if (textarea) {
+        textarea.value = textarea.value.replace(/[0-9]/g, '');
+    }
+};
+apz.app.AllLoanApplication.resumeDraftApp = function(params) {
+    window.isDraft = true;
+    window.isDraftFromAllLoan = true;
+    var kendraID;
+    if (params) {
+        kendraID = params;
+    } else {
+        kendraID = custData.kendraId;
+    }
+    KendraApp.currentLoanAppRequest.applicationdtls = custData;
+    KendraApp.selectedKendra = ''
+    KendraApp.selectedCustomer = ''
+    kendraResponse.forEach(function(k, i) {
+        if (k.kendraDtls.kendraId === parseInt(custData.kendraId)) {
+            KendraApp.selectedKendra = k.kendraDtls;
+            // KendraApp.selectedKendra.customerDtls.forEach(function(cust, ind) {
+            //     if (cust.customerId === custData.customerId) {
+            //         KendraApp.selectedCustomer = cust
+            //     }
+            // })
+        }
+    });
+    if (KendraApp.selectedKendra === "") {
+      ApzCOB.fnDisplayMsg("Kendra Not Available.", "I");
+      return;
+    }
+    $('#APZCBO__BaseScreens__BaseDIV').addClass('sno');
+    apz.app.AllLoanApplication.selectKendra()
+        //ApzCOB.fetchCustomerIdDetails(custData.customerId)
+    //ApzCOB.launchMicroApp("NEWLOA", "AddLoanDetails", "APZCBO__BaseScreens__STAGE1", custData);
+}
+apz.app.AllLoanApplication.getKendraData = function() {
+    var incomeAppId
+    if (typeof custData.addInfo === "string") {
+        incomeAppId = JSON.parse(custData.addInfo).incomeAppId
+    }else{
+        incomeAppId = custData.addInfo.incomeAppId
+    }
+    if (!apz.isNull(incomeAppId)) {
+        window.isgetIncome = true;
+        //ApzCOB.fetchLoanApplicationNew(custData)  //to get income details
+        ApzCOB.fetchCustomerIdDetails(custData.customerId)
+        //apz.app.AllLoanApplication.selectLoanContinueFn(); 
+    } else {
+        apz.app.AllLoanApplication.selectLoanContinueFn();
+    }
+}
+apz.app.AllLoanApplication.selectKendra = function() {
+    let custList = []
+    if (window.currentUserRole === "DEO") {
+        ApzCOB.fetchCustDetailsDeo(KendraApp.selectedKendra.kendraId);
+    } else {
+        KendraApp.selectedKendra.customerDtls.forEach(function(el, index) {
+            custList.push(KendraApp.selectedKendra.customerDtls[index]);
+        });
+        custList.forEach(function(el, idx) {
+            let maxAmountLimit = 0;
+            if (custList[idx].eligibleLoan.length !== 0) {
+                var eligibleLoan = custList[idx].eligibleLoan;
+                eligibleLoan.forEach(function(el, id) {
+                    KendraApp.ProductList.forEach(function(lproduct, i) {
+                        if (lproduct.productDtls.productId == eligibleLoan[id].product) {
+                            eligibleLoan[id].productId = lproduct.productDtls.productId;
+                            eligibleLoan[id].shortDesc = lproduct.productDtls.shortDesc;
+                            eligibleLoan[id].amountLimit = lproduct.productDtls.amountLimit;
+                            eligibleLoan[id].amountMin = lproduct.productDtls.amountMin;
+                            eligibleLoan[id].amountMax = lproduct.productDtls.amountMax;
+                            eligibleLoan[id].spouseInsurance = lproduct.productDtls.spouseInsurance;
+                            eligibleLoan[id].freq = lproduct.productDtls.freq;
+                            eligibleLoan[id].insuranceProvider = lproduct.productDtls.insuranceProvider;
+                            eligibleLoan[id].insurancePercentage = lproduct.productDtls.insurancePercentage;
+                            eligibleLoan[id].prodPurpose = lproduct.productDtls.prodPurpose;
+                            eligibleLoan[id].description = lproduct.productDtls.description;
+                            eligibleLoan[id].productType = lproduct.productDtls.productType;
+                            console.log(eligibleLoan[id])
+                        }
+                    });
+                    eligibleLoan[id].cbAmt = parseFloat(eligibleLoan[id].cbAmt);
+                });
+                maxAmountLimit = Math.max.apply(null, eligibleLoan.map(function(o) {
+                    return o.cbAmt;
+                }));
+            }
+            custList[idx].maxAmountLimit = maxAmountLimit;
+        });
+        KendraApp.selectedKendra.customerDtls = [];
+        KendraApp.selectedKendra.customerDtls = custList;
+        KendraApp.selectedKendra.customerDtls.forEach(function(cust, ind) {
+            if (cust.customerId === custData.customerId) {
+                KendraApp.selectedCustomer = cust
+            }
+        })
+        apz.app.AllLoanApplication.getKendraData()
+    }
+}
+apz.app.AllLoanApplication.selectLoanContinueFn = function() {
+    // let dob = ApzCOB.ageCalculator(KendraApp.selectedCustomer.depDob);
+    let age = ApzCOB.ageCalculator(KendraApp.selectedCustomer.dob);
+    if (age > 65) {
+        ApzCOB.fnDisplayMsg("Member above 65 years.", "E");
+        KendraApp.selectedCustomer = {};
+        return;
+    } else if (age < 18) {
+        ApzCOB.fnDisplayMsg("Member below 18 years.", "E");
+        KendraApp.selectedCustomer = {};
+        return;
+    }
+    if (apz.isNull(KendraApp.selectedCustomer.income)) {
+        KendraApp.selectedCustomer.income = [];
+    }
+    if (apz.isNull(KendraApp.selectedCustomer.earnings)) {
+        KendraApp.selectedCustomer.earnings = [];
+    }
+    if (KendraApp.selectedCustomer.income.length == 0) {}
+    KendraApp.selectedCustomer.isEarning = true;
+    if (KendraApp.selectedCustomer.earnings.length == 0) {
+        KendraApp.selectedCustomer.isEarning = false;
+    }
+    if (apz.isNull(KendraApp.selectedCustomer.primaryId) || apz.isNull(KendraApp.selectedCustomer.primaryType)) {
+        ApzCOB.fnDisplayMsg("KYC ID is missing.Kindly update details to enter loan application.", "E");
+        KendraApp.selectedCustomer = {};
+        return;
+    }
+    if (apz.isNull(KendraApp.selectedCustomer.bankAccNo)) {
+        ApzCOB.fnDisplayMsg("Bank details is missing.Kindly update details to enter loan application.", "E");
+        KendraApp.selectedCustomer = {};
+        return;
+    }
+    if (KendraApp.selectedCustomer.maritalStatus === "MARRIED") {
+        if (!apz.isNull(KendraApp.selectedCustomer.memRelation.split(',')[0])) {
+            if (apz.isNull(KendraApp.selectedCustomer.depname.split(',')[0]) || apz.isNull(KendraApp.selectedCustomer.depDocId.split(',')[0]) ||
+                apz.isNull(KendraApp.selectedCustomer.depDocType.split(',')[0]) || apz.isNull(KendraApp.selectedCustomer.depDob.split(',')[0])) {
+                ApzCOB.fnDisplayMsg("Spouse information is missing. Kindly update details to enter loan application.", "E");
+                KendraApp.selectedCustomer = {};
+            } else {
+                var depDetails = [{
+                    "customerId": KendraApp.selectedCustomer.customerId,
+                    "name": KendraApp.selectedCustomer.depname.split(',')[0],
+                    "dob": KendraApp.selectedCustomer.depDob.split(',')[0],
+                    "memRelation": KendraApp.selectedCustomer.memRelation.split(',')[0],
+                    "legaldocId": KendraApp.selectedCustomer.depDocId.split(',')[0],
+                    "legaldocName": KendraApp.selectedCustomer.depDocType.split(',')[0]
+                }];
+                KendraApp.selectedCustomer.household = depDetails;
+                $('#APZCBO__BaseScreens__BaseDIV').addClass('sno');
+                let customerId = KendraApp.selectedCustomer.customerId,
+                    branchId = KendraApp.selectedKendra.branchId;
+                /*if (customerId && customerId !== '' && branchId && branchId !== '') {
+                    ApzCOB.customerPayoffDtls(branchId, customerId);
+                } else {*/
+                var obj = {
+                    data: custData,
+                    selectedCustomer: KendraApp.selectedCustomer
+                }
+                ApzCOB.launchMicroApp("NEWLOA", "AddLoanDetails", "APZCBO__BaseScreens__STAGE1", obj);
+                /*}*/
+            }
+        } else {
+            ApzCOB.fnDisplayMsg("Spouse information is missing. Kindly update details to enter loan application.", "E");
+            KendraApp.selectedCustomer = {};
+        }
+    } else {
+        var depDetails = [];
+        KendraApp.selectedCustomer.household = depDetails;
+        $('#APZCBO__BaseScreens__BaseDIV').addClass('sno');
+        let customerId = KendraApp.selectedCustomer.customerId,
+            branchId = KendraApp.selectedKendra.branchId;
+        /*if (customerId && customerId !== '' && branchId && branchId !== '') {
+            ApzCOB.customerPayoffDtls(branchId, customerId);
+        } else {*/
+        var obj = {
+            data: custData,
+            selectedCustomer: KendraApp.selectedCustomer
+        }
+        ApzCOB.launchMicroApp("NEWLOA", "AddLoanDetails", "APZCBO__BaseScreens__STAGE1", obj);
+        /*}*/
+    }
+}
+apz.app.AllLoanApplication.selectKendraDeo = function(customerDetailsDeo) {
+    let custList = [];
+    customerDetailsDeo.forEach(function(el, index) {
+        custList.push(customerDetailsDeo[index]);
+    });
+    if (custList.length !== 0) {
+        custList.forEach(function(el, idx) {
+            let maxAmountLimit = 0;
+            if (custList[idx].eligibleLoan.length !== 0) {
+                var eligibleLoan = custList[idx].eligibleLoan;
+                eligibleLoan.forEach(function(el, id) {
+                    KendraApp.ProductList.forEach(function(lproduct, i) {
+                        if (lproduct.productDtls.productId == eligibleLoan[id].product) {
+                            eligibleLoan[id].productId = lproduct.productDtls.productId;
+                            eligibleLoan[id].shortDesc = lproduct.productDtls.shortDesc;
+                            eligibleLoan[id].amountLimit = lproduct.productDtls.amountLimit;
+                            eligibleLoan[id].amountMin = lproduct.productDtls.amountMin;
+                            eligibleLoan[id].amountMax = lproduct.productDtls.amountMax;
+                            eligibleLoan[id].spouseInsurance = lproduct.productDtls.spouseInsurance;
+                            eligibleLoan[id].freq = lproduct.productDtls.freq;
+                            eligibleLoan[id].insuranceProvider = lproduct.productDtls.insuranceProvider;
+                            eligibleLoan[id].insurancePercentage = lproduct.productDtls.insurancePercentage;
+                            eligibleLoan[id].prodPurpose = lproduct.productDtls.prodPurpose;
+                            eligibleLoan[id].description = lproduct.productDtls.description;
+                            eligibleLoan[id].productType = lproduct.productDtls.productType;
+                            console.log(eligibleLoan[id])
+                        }
+                    });
+                    eligibleLoan[id].cbAmt = parseFloat(eligibleLoan[id].cbAmt);
+                });
+                maxAmountLimit = Math.max.apply(null, eligibleLoan.map(function(o) {
+                    return o.cbAmt;
+                }));
+            }
+            custList[idx].maxAmountLimit = maxAmountLimit;
+        });
+        KendraApp.selectedKendra.customerDtls = [];
+        KendraApp.selectedKendra.customerDtls = custList;
+        KendraApp.selectedKendra.customerDtls.forEach(function(cust, ind) {
+            if (cust.customerId === custData.customerId) {
+                KendraApp.selectedCustomer = cust
+            }
+        })
+        apz.app.AllLoanApplication.getKendraData();
+    } else {
+        ApzCOB.fnDisplayMsg('No customers for selected kendra', "E");
+    }
+}
+apz.app.AllLoanApplication.proceedWithLoanApp = function () {
+    var workflow = {};
+    var applicationDetails = [];
+    applicationDetails.push({
+        "applicationId": KendraLoans.custFetchLoanAppRes.applicationdtls[0].applicationId,
+        "versionNum": KendraLoans.custFetchLoanAppRes.applicationdtls[0].versionNo
+    });
+    if (custData.customerDtls.loanDtls.product ==="GL.EMERG.LOAN" || custData.customerDtls.loanDtls.productId ==="GL.EMERG.LOAN" || custData.customerDtls.loanDtls.productType ==="EL") { 
+             workflow = {
+            "currentRole": "KM",
+            "action": "NEXT",
+            "workflowId": "SANCTION",
+            "stage": "SANCTIONED",
+            "remarks": "The Loan resubmitted by"+LoggedInUserDetails.userID +' ('+currentUserRole +').'
+        };
+    }
+    var req = {
+        "apiRequest": {
+            "appId": gAppId,
+            "interfaceName": "KMActionPostCBCheck",
+            "requestObj": {
+                "workflow": workflow,
+                "createdBy": custData.createdBy,
+                "applicationId": "",
+                "applicationStatus": 'Move to BM',
+                "appId": gAppId,
+                "cbApproveManual": "",
+                "versionNum": "",
+                "applicationDetailList": applicationDetails
+            }
+        }
+    }
+    req.apiRequest.requestObj.userRole = currentUserRole;
+    req.apiRequest.requestObj.appVersion = appVersion;
+    req.apiRequest.requestObj.userName = LoggedInUserDetails.loginResponse.userDet.name;
+    req.apiRequest.requestObj.userId = LoggedInUserDetails.userID;
+    req.apiRequest.requestObj.remarks =  "The Loan application resubmitted by "+ LoggedInUserDetails.userID + ' (' + currentUserRole + ').';
+    if (apz.deviceType !== 'WEB') {
+        apz.app.BaseScreens.UEstartTimer("WorkflowUpdate", req);
+        apz.app.BaseScreens.UElogevent("WorkflowUpdate", req);
+    }
+     apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, 'KMActionPostCBCheck', 'N', 'N', req, 'Y', apz.app.AllLoanApplication.proceedWithLoanAppCB);
+}
+apz.app.AllLoanApplication.proceedWithLoanAppCB = function (params) {
+    apz.stopLoader();
+    window.isCBpassCases = false;
+    if (apz.deviceType !== 'WEB') {
+        apz.app.BaseScreens.UEstopTimer("WorkflowUpdate ", params.req);
+    }
+    if (ApzCOB.handleServiceCallBacks(params)) {
+        if (params.res.APZCBO__KMActionPostCBCheck_Res.apiResponse.ResponseHeader.ResponseCode == "0") {
+           ApzCOB.fnDisplayMsg("Application submitted successfully", "S", apz.app.AllLoanApplication.launchDashb);
+        } else {
+                apz.stopLoader();
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    } else {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E", ApzCOB.ReloadApp);
+    }
+}
+apz.app.AllLoanApplication.upgradeBack = function() {
+    var insDet = window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls;
+    var selProd = KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.productId;
+    var selProdArray = KendraApp.ProductResponse.filter(val => (val.productDtls.productId === selProd));
+    var approvedAmt = 0;
+    if (!apz.isNull(window.KendraLoans.cbResponse.Approved_Loan_Amount)) {
+        approvedAmt = window.KendraLoans.cbResponse.Approved_Loan_Amount;
+    }
+    var selLoanProdDetails = {};
+    if (selProdArray.length > 0) {
+        selLoanProdDetails = selProdArray[0];
+    }
+    if (!apz.isNull(selLoanProdDetails.productDtls.insLnamount)) {
+        if (parseInt(selLoanProdDetails.productDtls.insLnamount) > parseInt(approvedAmt)) {
+            if (insDet.Spouse == 'Y') {
+                insDet.Spouse = 'N';
+            }
+        }
+    }
+    var insurAmt = 0;
+    if (insDet.member === 'Y' && insDet.Spouse === 'Y') {
+        insurAmt = window.KendraLoans.cbResponse.Insurance_Charge_Spouse + window.KendraLoans.cbResponse.Insurance_Charge_Member;
+        insDet.applicant_insurance_amt = window.KendraLoans.cbResponse.Insurance_Charge_Member;
+        insDet.spouse_insurance_amt = window.KendraLoans.cbResponse.Insurance_Charge_Spouse;
+    } else if (insDet.member === 'Y') {
+        insurAmt = window.KendraLoans.cbResponse.Insurance_Charge_Member;
+        insDet.applicant_insurance_amt = window.KendraLoans.cbResponse.Insurance_Charge_Member;
+        insDet.spouse_insurance_amt = "";
+    } else if (insDet.Spouse === 'Y') {
+        insurAmt = window.KendraLoans.cbResponse.Insurance_Charge_Spouse;
+        insDet.applicant_insurance_amt = "";
+        insDet.spouse_insurance_amt = window.KendraLoans.cbResponse.Insurance_Charge_Spouse;
+    } else {
+        insurAmt = 0;
+        insDet.applicant_insurance_amt = "";
+        insDet.spouse_insurance_amt = "";
+    }
+    insDet.insurCharges = insurAmt;
+    window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls = insDet;
+    var aprxloancharges = parseInt((window.KendraLoans.cbResponse.GST + window.KendraLoans.cbResponse.Processing_fees_without_GST));
+    var aprxloanchargeswithins = aprxloancharges + insurAmt;
+    var aprxloanamount = ((parseInt(window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].amount)) - parseInt((window.KendraLoans.cbResponse.GST + window.KendraLoans.cbResponse
+        .Processing_fees_without_GST + insurAmt)));
+    window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.chargeAndBreakupDtls.loanAmt = window.KendraLoans.cbResponse.Approved_Loan_Amount;
+    window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.chargeAndBreakupDtls.GST = window.KendraLoans.cbResponse.GST;
+    window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.chargeAndBreakupDtls.addInfo1 = aprxloanchargeswithins;
+    window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.chargeAndBreakupDtls.aprxLoanCharges = aprxloancharges;
+    window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.chargeAndBreakupDtls.loanProcessingFee = window.KendraLoans.cbResponse
+        .Processing_fees_without_GST;
+    window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.chargeAndBreakupDtls.aprxLoanAmt = aprxloanamount;
+    window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].amount = window.KendraLoans.cbResponse.Approved_Loan_Amount;
+    window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.chargeAndBreakupDtls.iscbUpdated = true;
+    if (window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].productType == 'EL') {
+        window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.chargeAndBreakupDtls.interest_Fee = window.KendraLoans.cbResponse
+        .Interest_Fee;
+        window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.chargeAndBreakupDtls.upfront_Fee = window.KendraLoans.cbResponse.Upfront_Fee;
+    } else {
+        window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.chargeAndBreakupDtls.interest_Fee = "";
+        window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.chargeAndBreakupDtls.upfront_Fee = "";
+    }
+    if (typeof window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].addInfo == 'string') {
+        window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].addInfo = JSON.parse(window.KendraLoans.custFetchLoanAppRes.applicationdtls[0]
+            .addInfo)
+    }
+    window.KendraLoans.custFetchLoanAppRes.applicationdtls[0].addInfo.isAmountUpdate = false;
+    // ApzCOB.saveLoan();
+    apz.app.AllLoanApplication.saveUpgradedBREamount();
+}
+apz.app.AllLoanApplication.saveUpgradedBREamount = function () {
+    var data = [];
+    data.push(KendraLoans.custFetchLoanAppRes.applicationdtls[0]);
+    var req = {
+        "apiRequest": {
+            "appId": gAppId,
+            "interfaceName": "CreateLoanApplication",
+            "requestObj": {
+                "applicationdtls": data
+            }
+        }
+    }
+    if (apz.deviceType !== 'WEB') {
+        apz.app.BaseScreens.UEstartTimer("UpdateApplication", req);
+        apz.app.BaseScreens.UElogevent("UpdateApplication", req);
+    }
+    req.apiRequest.requestObj.userRole = currentUserRole;
+    req.apiRequest.requestObj.appVersion = appVersion;
+    req.apiRequest.requestObj.userName = LoggedInUserDetails.loginResponse.userDet.name;
+    req.apiRequest.requestObj.userId = LoggedInUserDetails.userID;
+    req.apiRequest.requestObj.remarks = "The Loan application saved by " + LoggedInUserDetails.userID + ' (' + currentUserRole + ').';
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, 'CreateLoanApplication', 'N', 'N', req, 'Y', apz.app.AllLoanApplication.saveUpgradedBREamountCB);
+}
+apz.app.AllLoanApplication.saveUpgradedBREamountCB = function (params) {
+    apz.stopLoader();
+    if (apz.deviceType !== 'WEB') {
+        apz.app.BaseScreens.UEstopTimer("UpdateApplication ", params.req);
+    }
+    if (ApzCOB.handleServiceCallBacks(params)) {
+        if (!apz.isNull(params.res.APZCBO__CreateLoanApplication_Res.apiResponse.ResponseBody.responseObj)) { 
+            KendraApp.AppCreateResObj = JSON.parse(params.res.APZCBO__CreateLoanApplication_Res.apiResponse.ResponseBody
+                .responseObj);
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].applicationId = KendraApp.AppCreateResObj.applicationId;
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].versionNo = KendraApp.AppCreateResObj.versionNo;
+            apz.app.AllLoanApplication.proceedWithLoanApp();
+        }else{
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E"); 
+        }
+    }else {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E", ApzCOB.ReloadApp);
+    }
+}
+apz.app.AllLoanApplication.rejectionForCBpassCases = function(pworkflowObj) {
+    var applicationDetails = [];
+    applicationDetails.push({
+        "applicationId": custData.applicationId,
+        "versionNum": custData.versionNo
+    });
+    var req = {
+        "apiRequest": {
+            "appId": gAppId,
+            "interfaceName": "KMActionPostCBCheck",
+            "requestObj": {
+                "workflow": pworkflowObj,
+                "createdBy": custData.createdBy,
+                "applicationId": "",
+                "applicationStatus": 'Move to BM',
+                "appId": gAppId,
+                "cbApproveManual": window.cbApproveManual,
+                "versionNum": "",
+                "applicationDetailList": applicationDetails,
+                "remarks": pworkflowObj.remarks
+            }
+        }
+    }
+    req.apiRequest.requestObj.userRole = currentUserRole;
+    req.apiRequest.requestObj.appVersion = appVersion;
+    req.apiRequest.requestObj.userName = LoggedInUserDetails.loginResponse.userDet.name;
+    req.apiRequest.requestObj.userId = LoggedInUserDetails.userID;
+    if (apz.deviceType !== 'WEB') {
+        apz.app.BaseScreens.UEstartTimer("WorkflowUpdate", req);
+        apz.app.BaseScreens.UElogevent("WorkflowUpdate", req);
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, 'KMActionPostCBCheck', 'N', 'N', req, 'Y', apz.app.AllLoanApplication.rejectionForCBpassCasesCB);
+}
+apz.app.AllLoanApplication.rejectionForCBpassCasesCB = function(params) {
+    apz.stopLoader();
+    if (apz.deviceType !== 'WEB') {
+        apz.app.BaseScreens.UEstopTimer("WorkflowUpdate ", params.req);
+    }
+    if (ApzCOB.handleServiceCallBacks(params)) {
+      if (params.res.APZCBO__KMActionPostCBCheck_Res.apiResponse.ResponseHeader.ResponseCode == "0") {
+                ApzCOB.fnDisplayMsg('Application Rejected Successfully', "I", apz.app.AllLoanApplication.backNavigateLoan);
+        } else {
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    } else {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E", ApzCOB.ReloadApp);
+    }
+}
+apz.app.AllLoanApplication.launchDashb = function(params){
+    if (params.choice === true) {
+        ApzCOB.dashboardAppListAPI()
+    }
+}

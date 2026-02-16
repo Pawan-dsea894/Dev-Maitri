@@ -1,0 +1,38 @@
+var screenId = 'Income__TotalIncomeSummary__';
+apz.app.onLoad_TotalIncomeSummary = function(params) {
+    // Initialization logic if needed
+};
+apz.app.onShown_TotalIncomeSummary = function(params) {
+    $('#Income__AddEarningFamilyMem__eariningMembersMainRow').addClass('sno');
+    $('#Income__MonthlyHouseHoldExp__monthlyExpRow').addClass('sno');
+    $('#' + screenId + 'totalIncomeRow').removeClass('sno');
+    apz.setElmValue(screenId + "updCustName", KendraApp.selectedCustomer.customerName);
+    apz.setElmValue(screenId + "updCustGroupID", KendraApp.selectedCustomer.groupId);
+    apz.setElmValue(screenId + "updCustID", KendraApp.selectedCustomer.customerId);
+    apz.setElmValue(screenId + "updVintage", KendraApp.selectedCustomer.vintageYear);
+    apz.setElmValue(screenId + "monthlyFamExpData", "₹" + ApzCOB.fn_FormatAmount(window.TotalData.sum));
+    apz.setElmValue(screenId + "annualFamExpData", "₹" + ApzCOB.fn_FormatAmount(window.TotalData.yearlyExpense));
+    var calcData = [];
+    for (let i = 0; i < window.TotalMonthlyExpenseValues.length; i++) {
+        var det = {};
+        det.key = window.TotalMonthlyExpenseValues[i].key;
+        det.value = window.TotalMonthlyExpenseValues[i].value * 12;
+        calcData.push(det)
+    }
+    apz.data.scrdata.Income__IPaintTotalIncomeSummary_Res = {};
+    apz.data.scrdata.Income__IPaintTotalIncomeSummary_Res.MonthlyExpenseList = calcData;
+    apz.data.scrdata.Income__IPaintTotalIncomeSummary_Res.EarningMembers = KendraApp.selectedCustomer.earnings;
+    apz.data.loadData("IPaintTotalIncomeSummary", 'Income');
+};
+apz.app.TotalIncomeSummary.edit = function(stage) {
+    var stagesSteps = stage;
+    if (stagesSteps === "stage1") {
+        ApzCOB.launchMicroApp('Income', 'IncomeAssessment', 'APZCBO__BaseScreens__BaseDIV', "");
+    } else if (stagesSteps === "stage2") {
+        ApzCOB.launchMicroApp('Income', 'AddHouseHoldDetails', 'APZCBO__BaseScreens__BaseDIV', "");
+    } else if (stagesSteps === "stage3") {
+        ApzCOB.launchMicroApp('Income', 'AddEarningFamilyMem', 'APZCBO__BaseScreens__BaseDIV', "");
+    } else if (stagesSteps === "stage4") {
+        ApzCOB.launchMicroApp('Income', 'MonthlyHouseHoldExp', 'APZCBO__BaseScreens__BaseDIV', "");
+    }
+}

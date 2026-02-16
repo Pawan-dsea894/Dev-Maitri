@@ -1,0 +1,58 @@
+let CBCheckDetailsScrId = "CBCHEK__CBCheckDetails__";
+apz.app.onLoad_CBCheckDetails = function() {
+    //yet to do
+}
+var CbDetailsArr = [];
+var data = [{
+    'branchId': '12345678999191919',
+    'recordId': '12345678999191919',
+    'custNameId': 'Lakshmi 1234',
+    'custID': '1234',
+    'activationDate': '12/03/2022',
+    'LoanProduct': '123456789 Kormangala',
+    'MFI': '987654321 Banashankari',
+    'mfiOd': 'New'
+}, {
+    'branchId': '12345678999191919',
+    'recordId': '12345678999191919',
+    'custNameId': 'Lakshmi',
+    'custID': '1234',
+    'activationDate': '12/03/2022',
+    'LoanProduct': '123456789 Kormangala',
+    'MFI': '987654321 Banashankari',
+    'mfiOd': 'New'
+}, {
+    'branchId': '12345678999191919',
+    'recordId': '12345678999191919',
+    'custNameId': 'Lakshmi',
+    'custID': '1234',
+    'activationDate': '12/03/2022',
+    'LoanProduct': '123456789 Kormangala',
+    'MFI': '987654321 Banashankari',
+    'mfiOd': 'New'
+}]
+apz.app.onShown_CBCheckDetails = function() {
+    apz.app.CBCheckDetails.paintMemberDtls();
+}
+apz.app.CBCheckDetails.paintMemberDtls = function() {
+    CbDetailsArr = [];
+    data.forEach(function(el, i) {
+        var obj = {
+            branchId: data[i].branchId,
+            recordId: data[i].recordId,
+            custName: data[i].custName,
+            custID: data[i].custID,
+            activationDate: data[i].activationDate,
+            loanProduct: data[i].LoanProduct,
+            mfi: data[i].MFI,
+            mfiOd: data[i].mfiOd
+        }
+        CbDetailsArr.push(obj)
+    })
+    if (CbDetailsArr.length > 0) {
+        apz.data.scrdata.CBCHEK__CbDetailsList_Res = {};
+        apz.data.scrdata.CBCHEK__CbDetailsList_Res.CbDetailsNode = CbDetailsArr;
+        apz.data.loadData("CbDetailsList", 'CBCHEK');
+    }
+    $('#' + CrtDetailsScrId + 'count').text("VIEW " + (10 - 4) + " MORE");
+}

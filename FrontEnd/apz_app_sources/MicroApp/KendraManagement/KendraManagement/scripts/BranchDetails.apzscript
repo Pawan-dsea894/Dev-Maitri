@@ -1,0 +1,216 @@
+var BranchDetailsScrId = 'Kendra__BranchDetails__';
+var capAdd = "";
+apz.app.BranchDetails.currentBranch = {
+    lat: null,
+    long: null
+};
+apz.app.onLoad_BranchDetails = function(params) {
+
+};
+apz.app.onShown_BranchDetails = function(params) {
+    $("#header").addClass("sno");
+    $("#footer").addClass("sno");
+    apz.setElmValue(BranchDetailsScrId + 'locatioVal', LoggedInUserDetails.loginResponse.addInfo3);
+    captureAdd = params;
+    apz.setElmValue(BranchDetailsScrId + 'branchAdd', captureAdd);
+    apz.app.BranchDetails.captureAgain();
+    
+};
+
+apz.app.BranchDetails.backNavigation = function() {
+    ApzCOB.dashboardAppListAPI();
+    // ApzCOB.launchMicroApp('Dashbo', 'dashboard', gAppId + '__BaseScreens__BaseDIV', '');
+}
+apz.app.BranchDetails.toggleUpdateModel = function() {
+       ApzCOB.toggleModal(BranchDetailsScrId + "branchLocationCapt");
+}
+apz.app.BranchDetails.captureAgain = function(){
+     var req = {
+        "apiRequest": {
+            "interfaceName": "FetchLatiLongData",
+            "requestObj": {
+                "KendraUserId": LoggedInUserDetails.loginResponse.addInfo2,
+                "latLongFlag": "branch",
+                "KendraRoleId": "string",
+            }
+        }
+    }
+    apz.startLoader()
+    ApzCOB.serverBuildParam(gAppId, "FetchLatiLongData", "N", "N", req, false, apz.app.BranchDetails.captureLocationForBMCB);
+}
+apz.app.BranchDetails.captureLocationForBMCB = function(params) {
+    console.log(params);
+    try {
+        apz.stopLoader();
+        if (params.status && apz.isNull(params.errors)) {
+            if (params.res.APZCBO__FetchLatiLongData_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+                if (params.res.APZCBO__FetchLatiLongData_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                    var data = JSON.parse(params.res.APZCBO__FetchLatiLongData_Res.apiResponse.ResponseBody.responseObj);
+                    if (data !== 'null') {
+                        apz.app.BranchDetails.currentBranch.lat = data.latitude;
+                        apz.app.BranchDetails.currentBranch.long =data.longitude;
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.BranchDetails.getCurPosLatitudeAndLogitude = function() {
+    try {
+        var gps = {
+            id: "LOCATEUSER",
+            callBack: apz.app.BranchDetails.getCurPosLatitudeAndLogitudeCB
+        };
+        apz.startLoader();
+        apz.ns.getLocation(gps);
+    } catch (e) {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("Geolocation is not supported"));
+    }
+}
+apz.app.BranchDetails.getCurPosLatitudeAndLogitudeCB = function(params) {
+    try {
+        if (params.status) {
+            apz.stopLoader();
+            locationDetails = params;
+            branch = params.address;
+            var json = {
+                "markerInfo": [{
+                    "locationLatitude": params.latitude.toString(),
+                    "locationLongitude": params.longitude.toString(),
+                    "locationName": "My Location",
+                    "locationDescription": "My Location"
+                }]
+            };
+            json.id = BranchDetailsScrId + 'MapMainDiv';
+            json.callBack = apz.app.BranchDetails.loadMapCB;
+            apz.ns.loadMap(json);
+        } else {
+            ApzCOB.fnDisplayMsg("Please turn on the location", "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.BranchDetails.loadMapCB = function(params) {
+    ApzCOB.toggleModal(BranchDetailsScrId + "branchLocationCapt");
+    apz.app.BranchDetails.captureKendraLocation();
+}
+apz.app.BranchDetails.captureKendraLocation = function() {
+    var req = {
+        "apiRequest": {
+            "interfaceName": "BranchLatiLongSave",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "branchId": LoggedInUserDetails.loginResponse.addInfo2,
+                "latitude": locationDetails.latitude,
+                "longitude": locationDetails.longitude,
+                "updatedBy": LoggedInUserDetails.userID
+            }
+        }
+    }
+    apz.startLoader()
+    ApzCOB.serverBuildParam(gAppId, "BranchLatiLongSave", "N", "N", req, false, apz.app.BranchDetails.captureKendraLocationCB);
+}
+apz.app.BranchDetails.captureKendraLocationCB = function(params) {
+    try {
+        apz.stopLoader();
+        if (params.status && apz.isNull(params.errors)) {
+            if (params.res.APZCBO__BranchLatiLongSave_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+                if (params.res.APZCBO__BranchLatiLongSave_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                    apz.app.BranchDetails.captureLocationNow();
+                }
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.BranchDetails.captureLocationNow = function() {
+    $('#header').addClass('sno');
+    $('#footer').addClass('sno');
+    $("#" + BranchDetailsScrId + 'branchMainScr').addClass('sno');
+    $("#" + BranchDetailsScrId + 'LocCaptureSuccessRow').removeClass('sno');
+}
+apz.app.BranchDetails.onClickOfMoreOptions = function() {
+    now = new Date();
+    let currDate = now.toLocaleDateString();
+    let currTime = now.toLocaleTimeString();
+    if ($("#" + BranchDetailsScrId + 'moreDetailsDiv').hasClass('sno')) {
+        $("#" + BranchDetailsScrId + 'moreDetailsDiv').removeClass('sno');
+        apz.setElmValue(BranchDetailsScrId + 'branchCapture', branch);
+        apz.setElmValue(BranchDetailsScrId + 'dateCapture', currDate);
+        apz.setElmValue(BranchDetailsScrId + 'timeCapture', currTime);
+    } else {
+        $("#" + BranchDetailsScrId + 'moreDetailsDiv').addClass('sno');
+    }
+}
+apz.app.BranchDetails.onLocationSuccessDone = function() {
+    ApzCOB.launchMicroApp('Kendra', 'BranchDetails', gAppId + '__BaseScreens__BaseDIV',branch);
+}
+apz.app.BranchDetails.viewLocationMap = function() {
+    try {
+        let branchDetails = apz.app.BranchDetails.currentBranch;
+        if (branchDetails.lat && branchDetails.long) {
+            apz.app.BranchDetails.captureCurrentLocation(apz.app.BranchDetails.onLocationCaptured);
+        } else {
+            ApzCOB.fnDisplayMsg("Branch location not captured. Please capture now.", "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+};
+apz.app.BranchDetails.captureCurrentLocation = function(callback) {
+    try {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                let params = {
+                    status: true,
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                };
+                callback(params);
+            },
+            function(error) {
+                let params = { status: false };
+                callback(params);
+            }
+        );
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg("Error capturing location. Please enable GPS.", "E");
+    }
+};
+apz.app.BranchDetails.onLocationCaptured = function(params) {
+    apz.stopLoader();
+    try {
+        if (params.status) {
+            let branchDetails = apz.app.BranchDetails.currentBranch;
+            let destination = branchDetails.lat + ',' + branchDetails.long;
+            let origin = params.latitude + ',' + params.longitude;
+            let url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
+
+            if (apz.deviceType === "WEB") {
+                window.open(url);
+            } else {
+                var json = {
+                    "url": url,
+                    "id": "BROWSERID",
+                    "callBack": apz.app.googlemapsCB
+                };
+                apz.ns.openUrl(json);
+            }
+        } else {
+            ApzCOB.fnDisplayMsg("Please enable location services.", "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+};

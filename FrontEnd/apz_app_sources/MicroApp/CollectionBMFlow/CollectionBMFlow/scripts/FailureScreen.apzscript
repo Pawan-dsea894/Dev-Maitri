@@ -1,0 +1,79 @@
+var FailureScreenId = 'CollBM__FailureScreen__';
+var selectedCashierDet = '';
+var chooseKenData = {};
+apz.app.onShown_FailureScreen = function(params) {
+    selectedCashierDet = params;
+    apz.app.FailureScreen.paintCollectionDetails();
+}
+apz.app.FailureScreen.paintCollectionDetails = function() {
+    apz.setElmValue(FailureScreenId + 'name', selectedCashierDet.kmName);
+    apz.setElmValue(FailureScreenId + 'kendraCount', "1");
+    chooseKenData = apz.app.FailureScreen.calculateAmt(selectedGroupDet[prevRow]);
+    apz.setElmValue(FailureScreenId + 'collectedAmt', "₹" + chooseKenData.totalCollAmt);
+    if (userRole === "CASHIER") {
+        $("#" + FailureScreenId + 'txt_pushbackRole').text("by Cashier")
+    } else if (userRole === "BM") {
+        $("#" + FailureScreenId + 'txt_pushbackRole').text("by BM")
+    }
+}
+apz.app.FailureScreen.clickMoreOptionsBtn = function() {
+    if (document.getElementById(FailureScreenId + "moreDetailsDiv").classList.contains("sno")) {
+        document.getElementById(FailureScreenId + "moreDetailsDiv").classList.remove("sno");
+        $("#" + FailureScreenId + 'dropIcon').addClass('active')
+        $("#" + FailureScreenId + 'dueAmt').text("₹" + ApzCOB.fn_FormatAmount(chooseKenData.totalDue));
+        $("#" + FailureScreenId + 'amtCollected').text("₹" + ApzCOB.fn_FormatAmount(chooseKenData.totalCollAmt));
+        $("#" + FailureScreenId + 'upi').text("₹" + ApzCOB.fn_FormatAmount(chooseKenData.totalUPI));
+        $("#" + FailureScreenId + 'advance').text("₹" + ApzCOB.fn_FormatAmount(chooseKenData.advanceAmt));
+        $("#" + FailureScreenId + 'cash').text("₹" + ApzCOB.fn_FormatAmount(chooseKenData.totalCash));
+        $("#" + FailureScreenId + 'status').text('PUSHBACK');
+        $("#" + FailureScreenId + 'status').addClass('bg-dark-err');
+        $("#" + FailureScreenId + 'rejectReason').text(selReason);
+    } else {
+        document.getElementById(FailureScreenId + "moreDetailsDiv").classList.add("sno");
+        $("#" + FailureScreenId + 'dropIcon').removeClass('active')
+    }
+}
+apz.app.FailureScreen.done = function() {
+    // ApzCOB.dashboardAppListAPI();
+    $('#' + ViewKendraScrId + 'viewKDetails').removeClass('sno');
+    $('#' + ViewKendraScrId + 'viewKheaderRow').removeClass('sno');
+    $('#' + ViewKendraScrId + 'viewKendraBaseDiv').addClass('sno');
+    selReason = "";
+    apz.childScr = "ViewKendraDetails";
+    if (isFromCashierARScr) {
+        isFromCashierARScr = false;
+        apz.currAppId = "CasCol";
+    } else if (isFromApproveRejScr) {
+        isFromApproveRejScr = false;
+    }
+    var count = 0;
+    if (!apz.isNull(selectedGroupDet)) {
+        for (let i = 0; i < selectedGroupDet.length; i++) {
+            let firstWF = selectedGroupDet[i];
+            if (firstWF.isPushback === true || firstWF.isApproved === true) {
+                count++;
+            }
+        }
+    }
+    if (selectedGroupDet.length === count) {
+        ApzCOB.launchMicroApp('Dashbo', 'dashboard', gAppId + '__BaseScreens__BaseDIV', '');
+    }
+}
+apz.app.FailureScreen.calculateAmt = function(selectedKend) {
+    const allMembers = selectedKend.colldtls.groups.flatMap(group => group.members || []);
+    const totals = allMembers.reduce((acc, item) => {
+        acc.totalCash += item.totalCash;
+        acc.totalUPI += item.totalUPI;
+        acc.totalCollAmt += item.collAmount;
+        acc.totalDue += item.totalDue;
+        acc.advanceAmt += item.advAmt;
+        return acc;
+    }, {
+        totalCash: 0,
+        totalUPI: 0,
+        totalCollAmt: 0,
+        totalDue: 0,
+        advanceAmt: 0
+    });
+    return totals;
+}

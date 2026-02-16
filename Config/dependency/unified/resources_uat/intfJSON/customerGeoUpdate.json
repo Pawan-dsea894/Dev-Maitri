@@ -1,0 +1,26 @@
+{
+  "apiURL": "${URL}",
+  "servicetype": "HTTP",
+  "methodType": "POST",
+  "contentType": "application/json",
+  "headers": {
+    "Content-Type": "application/json",
+    "Accept": "*/*",
+    "Authorization": "Basic dXNlcm5hbWU6MjAyMUBHS2FwIQ=="
+  },
+  "requestDef": {
+    "id": "${CONST~17}",
+    "gkv": "${CONST~2.0}",
+    "method": "${CONST~custgeoupdate.Update}",
+    "customerId": "${REQUEST~apiRequest.customerId}",
+    "latitude" : "${REQUEST~apiRequest.latitude}" ,
+	"longitude":"${REQUEST~apiRequest.longitude}" 
+  },
+  "responseDef": "",
+  "logging": {
+    "logRequired": "Y",
+    "logType": "BOTH",
+	  "externalAPILogRequired":"N",
+	  "externalAPILogType":"NONE"
+  }
+}

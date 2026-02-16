@@ -1,0 +1,25 @@
+package com.iexceed.appzillonbanking.cagl.document.core.utils;
+
+public enum WorkflowStatus {
+	
+	PENDING_FOR_VERIFICATION("PENDINGFORVERIFICATION"),
+	PENDING_FOR_APPROVAL("PENDINGFORAPPROVAL"),
+	PENDING_IN_QUEUE("PENDINGINQUEUE"),
+	QUEUED_ASSIGNED("QUEUED/ASSIGNED"),
+	NEXT_WF_STAGE_VERIFY_DOC("SUBMITFORVERIFYDOCUMENTS"),
+	NEXT_WF_STAGE_APPROVE("SUBMITFORAPPROVAL"),
+	NEXT_WF_STAGE_ASSIGNED_TO("ASSIGNEDTO"),
+	NEXT_WF_STAGE_SUBMT_INITIATOR("SUBMITFORINITIATOR"),
+	APPROVED("APPROVED"),
+	REJECTED("REJECTED");
+	
+	private final String value;
+	
+	WorkflowStatus(String value) {
+		this.value = value;
+	}
+	
+	public String getValue() {
+		return value;
+	}
+}

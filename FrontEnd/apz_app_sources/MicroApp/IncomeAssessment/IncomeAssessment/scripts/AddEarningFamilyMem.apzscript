@@ -1,0 +1,1434 @@
+var screenId = 'Income__AddEarningFamilyMem__';
+var eariningIncomeMemb = [{
+    key: "Daughter"
+}, {
+    key: "Son"
+}];
+var selected = [];
+var selectedDiv = '';
+var incomeDtlsField = [{
+    key: "Business"
+}, {
+    key: "Agriculture"
+}, {
+    key: "Salary"
+}, {
+    key: "Wage"
+}, {
+    key: "Pension"
+}, {
+    key: "Rental Income"
+}, {
+    key: "Wlfare Benefits"
+}, {
+    key: "Remittances"
+}, {
+    key: "Any Other Income"
+}];
+var globalKycName = "";
+var requestData = "";
+var kycDetails = [];
+var eRequestData = "";
+var eKycDetails = [];
+var familyMembers = [];
+var closeToggle = false;
+var isSpouse = false;
+var selectedMembers = [];
+var idx = 0;
+var maxMemCount = 4;
+var totCount= 4;
+var editNav = '';
+var isDeletedaddedMembers = false;
+var deletedMemberDetails = [];
+apz.app.onLoad_AddEarningFamilyMem = function(params) {
+    IncomeApp.currentDocId='';
+    // Initialization logic if needed
+    // KendraApp = params.KendraApp;
+    requestData = params.requestData;
+    kycDetails.push(params.kycDetails);
+    eRequestData = params.eRequestData;
+    eKycDetails.push(params.eKycDetails);
+    //memberKycStatus = params.memberKycStatus
+    if (KendraApp.selectedCustomer.earnings.length == 0 && KendraApp.selectedCustomer.maritalStatus === 'MARRIED') {
+        eariningIncomeMemb = eariningIncomeMemb.filter(function(e, i) {
+            return ((e.key !== 'Spouse'));
+        });
+    } else if (KendraApp.selectedCustomer.earnings.length >= 1) {
+        for (var j = 0; j < KendraApp.selectedCustomer.earnings.length; j++) {
+            if (KendraApp.selectedCustomer.earnings[j].memRelation == "SON") {
+                maxMemCount -= 1;
+            } else if (KendraApp.selectedCustomer.earnings[j].memRelation == "DAUGHTER") {
+                maxMemCount -= 1;
+            } else if (KendraApp.selectedCustomer.earnings[j].memRelation == "SPOUSE") {
+                isSpouse = true;
+                maxMemCount -= 1;
+            }
+        }
+        /*if(gApzCOB.existingFamilyMembersArray.length ==0) {
+            gApzCOB.existingFamilyMembersArray = JSON.parse(JSON.stringify(KendraApp.selectedCustomer.earnings));
+        }*/
+        eariningIncomeMemb = eariningIncomeMemb.filter(function(e, i) {
+            return ((e.key !== 'Spouse'));
+        });
+    }
+    /*else {
+           isSpouse = true;
+           maxMemCount = 3;
+           eariningIncomeMemb = eariningIncomeMemb.filter(function(e, i) {
+               return ((e.key !== 'Spouse'));
+           });
+       } */
+    if (gApzCOB.addedFamilyMembersArray.length > 0) {
+        selectedMembers = JSON.parse(JSON.stringify(gApzCOB.addedFamilyMembersArray));
+    }
+    if (gApzCOB.existingFamilyMembersArray.length > 0) {
+        selectedEMembers = JSON.parse(JSON.stringify(gApzCOB.existingFamilyMembersArray));
+    }
+};
+apz.app.onShown_AddEarningFamilyMem = function(params) {
+    $('#Income__IncomeAssessment__greenIcon_ul').removeClass('sno');
+    $('#Income__IncomeAssessment__el_txt_20').addClass('sno');
+    $('#Income__IncomeAssessment__ct_frm_11').removeClass('sno');
+    $('#Income__IncomeAssessment__sc_col_276').removeClass('sno');
+    $('#Income__IncomeAssessment__el_bdg_1').addClass('sno');
+    $('#Income__IncomeAssessment__el_btn_59').addClass('sno');
+    $("#Income__IncomeAssessment__ct_frm_12").addClass('sno');
+    $("#Income__IncomeAssessment__ps_pls_22").addClass('sno');
+    $('#Income__IncomeAssessment__gr_row_20').addClass('sno');
+    $('#Income__IncomeAssessment__toAddMoreMember').addClass('sno');
+    $('#Income__AddHouseHoldDetails__houseHoldRow').addClass('sno');
+    $('#' + screenId + 'eariningMembersMainRow').removeClass('sno');
+    $('#Income__IncomeAssessment__eariningMembersMainRow li').each(function() {
+        let rowToHide = $(this).find('#Income__IncomeAssessment__sc_row_964_row');
+        if (rowToHide.length) {
+            rowToHide.addClass('sno');
+        }
+    });
+    console.log('init', KendraApp.selectedCustomer.earnings);
+    if (KendraApp.selectedCustomer.earnings.length != 0) {
+        // idx = 0;
+        KendraApp.selectedCustomer.earnings.map(function(earningMem) {
+            earningMem.isEarning = false;
+            earningMem.idx = -1;
+            earningMem.isExisting = true;
+            earningMem.rowNo = -1;
+            earningMem.isEdited = false;
+            var dob = earningMem.dob;
+            if (typeof dob === 'string' && dob.length === 8) {
+                var year = dob.substring(0, 4); // Extract year, month, and day from the input dateStr
+                var month = dob.substring(4, 6);
+                var day = dob.substring(6, 8);
+                var formattedDob = day + '/' + month + '/' + year; // Create the formatted date string
+                earningMem.dob = formattedDob; // Assign the formatted date to the dob field
+                //console.log(KendraApp.selectedCustomer.earnings[0].dob); // Output: 01/01/1976
+            } else {
+                //console.error('Invalid date format');
+            }
+        });
+        apz.data.scrdata.Income__IPaintMemRelation_Res = [];
+        apz.data.scrdata.Income__IPaintMemRelation_Res = KendraApp.selectedCustomer.earnings;
+        console.log('defaultmembers');
+        //kycDetails.push(KendraApp.selectedCustomer.earnings);
+        //familyMembers.push(KendraApp.selectedCustomer.earnings[0]);
+        apz.data.loadData("IPaintMemRelation", 'Income');
+        for (var k = 0; k < apz.data.scrdata.Income__IPaintMemRelation_Res.length; k++) {
+            if (apz.data.scrdata.Income__IPaintMemRelation_Res[k].memRelation == "SON" || apz.data.scrdata.Income__IPaintMemRelation_Res[k]
+                .memRelation == "DAUGHTER") {
+                $("#Income__AddEarningFamilyMem__ct_lst_47_row_" + k + " #Income__AddEarningFamilyMem__sc_row_1209_row").removeClass("sno");
+                $("#Income__AddEarningFamilyMem__dltIconSpouse_" + k).removeClass("sno");
+            }
+        }
+        // idx++;
+    } else {
+        apz.data.scrdata.Income__IPaintMemRelation_Res = [];
+        $('#Income__AddEarningFamilyMem__ct_lst_47').addClass('sno');
+    }
+    apz.app.AddEarningFamilyMem.PaintSelectedCustomerDet();
+    apz.data.scrdata.Income__IPaintIncomeDtls_Res = incomeDtlsField;
+    if (window.selectedMembersData && apz.data.scrdata.Income__IPaintMemRelation_Res && ((apz.data.scrdata.Income__IPaintMemRelation_Res.length +
+            window.selectedMembersData.length) >= totCount)) {
+        $('#Income__AddEarningFamilyMem__addMoreMemForm').addClass('sno');
+    } else {
+        $('#Income__AddEarningFamilyMem__addMoreMemForm').removeClass('sno');
+    }
+    if (params.kycDetails && params.rowNo) {
+        apz.app.AddEarningFamilyMem.loadSelectedMemberData(true, params.rowNo);
+    } else {
+        apz.app.AddEarningFamilyMem.loadSelectedMemberData(false, '');
+    }
+    if (params.eKycDetails && params.rowNo) {
+        apz.app.AddEarningFamilyMem.loadSelectedEMemberData(true, params.rowNo);
+    } else {
+        apz.app.AddEarningFamilyMem.loadSelectedEMemberData(false, '');
+    }
+};
+apz.app.AddEarningFamilyMem.onChangeEarning = function(pthis) {
+    var indexNo = $(pthis).attr("rowno");
+    var idxNo = 0;
+    if ($("#Income__AddEarningFamilyMem__el_tgl_5_" + indexNo).prop('checked')) {
+        /*familyMembers.forEach(function(m, n) {
+            if (m.idx = idxNo) {
+                m.isEarning = true;
+            }
+        });*/
+        gApzCOB.addedFamilyMembersArray.forEach(function(m, n) {
+            if (n = indexNo) {
+                m.isEarning = true;
+            }
+        });
+        //KendraApp.selectedCustomer.earnings[0].isEarning=true; 
+    } else {
+        /*familyMembers.forEach(function(m, n) {
+            if (m.idx = idxNo) {
+                m.isEarning = false;
+            }
+        });*/
+        gApzCOB.addedFamilyMembersArray.forEach(function(m, n) {
+            if (n = indexNo) {
+                m.isEarning = false;
+            }
+        });
+        // KendraApp.selectedCustomer.earnings[0].isEarning=false; 
+    }
+}
+apz.app.AddEarningFamilyMem.PaintSelectedCustomerDet = function() {
+    let vintageYear = KendraApp.selectedCustomer.custVintage ? +KendraApp.selectedCustomer.custVintage + ' Years' : '';
+    apz.setElmValue(screenId + "custName", KendraApp.selectedCustomer.customerName ? KendraApp.selectedCustomer.customerName : "");
+    apz.setElmValue(screenId + "groupId", (KendraApp.selectedCustomer.customerId ? KendraApp.selectedCustomer.customerId : ""));
+    apz.setElmValue(screenId + "maxLoanLimit", KendraApp.selectedCustomer.maxAmountLimit ? "₹ " + KendraApp.selectedCustomer.maxAmountLimit : "");
+    apz.setElmValue(screenId + "vintage1", "Customer Vintage: " + vintageYear);
+    apz.setElmValue(screenId + "groupID1", (KendraApp.selectedCustomer.groupId ? KendraApp.selectedCustomer.groupId : ""));
+    apz.setElmValue(screenId + "el_txt_109", KendraApp.selectedCustomer.customerName.substring(0, 2));
+}
+apz.app.AddEarningFamilyMem.closeModal = function() {
+    if (gApzCOB.addedFamilyMembersArray.length > 0) {
+        //gApzCOB.addedFamilyMembersArray = selectedMembers;
+        var sonCount = 0,
+            daughterCount = 0;
+        $.each(gApzCOB.addedFamilyMembersArray, function(i, j) {
+            if (j.memRelation === "SON") {
+                sonCount++
+            }
+            if (j.memRelation === "DAUGHTER") {
+                daughterCount++
+            }
+        });
+    } else {
+        gApzCOB.memberCounts = {
+            son: 0,
+            daughter: 0
+        }
+        selectedMembers = [];
+        gApzCOB.addedFamilyMembersArray = [];
+    }
+}
+apz.app.AddEarningFamilyMem.AddMoreFamilyMembers = function() {
+    $("#Income__AddEarningFamilyMem__toAddMoreMember_close").attr("onclick", "apz.app.AddEarningFamilyMem.closeModal()");
+    if (gApzCOB.addedFamilyMembersArray.length > 0) {
+        apz.data.scrdata.Income__IPaintToAddMoreMembers_Res = eariningIncomeMemb;
+        apz.data.loadData("IPaintToAddMoreMembers", 'Income');
+        ApzCOB.toggleModal(screenId + "toAddMoreMember");
+        let liList = $('#' + screenId + 'earningMemList').find('li');
+        if (liList.length > 1) {
+            for (var m = 0; m < liList.length; m++) {
+                var liItem = $('#Income__AddEarningFamilyMem__mainRow_row_' + m);
+                console.log(liItem);
+                if (liItem.hasClass('ssp')) {
+                    console.log(liItem);
+                    liItem.remove();
+                }
+            }
+        }
+        if (liList.length > 0) {
+            var spouseFlag = false,
+                sonFlag = false,
+                daughterFlag = false,
+                spouseCheckbox = "",
+                sonCheckbox = "",
+                daughterCheckbox = "",
+                sonInput = "",
+                daughterInput = "",
+                sonLi = "",
+                daughterLi = "";
+            for (var i = 0; i < liList.length; i++) {
+                var liItem = $('#' + screenId + 'earningMemList_row_' + i);
+                var memTextDesc = liItem.find('p.ett-para span').text().trim();
+                var inputFieldCount = liItem.find('input[type="Tel"]');
+                var rowEle = $(liItem.find("#Income__AddEarningFamilyMem__iconRow_row")).closest('.srb.sec');
+                var addIcon = rowEle.find('.icon-add_circle-1');
+                let minusIcon = rowEle.find('.icon-subtract-fill');
+                if (memTextDesc.toUpperCase() === "SPOUSE") {
+                    spouseFlag = true;
+                    liItem.find('input[type="CHECKBOX"]').prop('checked', true);
+                    spouseCheckbox = liItem.find('input[type="CHECKBOX"]');
+                    inputFieldCount.val("");
+                    inputFieldCount.hide();
+                    liItem.find('.ett-icon').hide();
+                } else if (memTextDesc.toUpperCase() === "SON") {
+                    sonCheckbox = liItem.find('input[type="CHECKBOX"]');
+                    sonInput = inputFieldCount;
+                    sonLi = liItem;
+                    if (gApzCOB.memberCounts.son !== 0) {
+                        sonFlag = true;
+                        liItem.find('input[type="CHECKBOX"]').prop('checked', true);
+                        inputFieldCount.show();
+                        inputFieldCount.val(gApzCOB.memberCounts.son.toString().padStart(2, '0'));
+                        liItem.find('.ett-icon').show();
+                    }
+                } else if (memTextDesc.toUpperCase() === "DAUGHTER") {
+                    daughterCheckbox = liItem.find('input[type="CHECKBOX"]');
+                    daughterInput = inputFieldCount;
+                    daughterLi = liItem;
+                    if (gApzCOB.memberCounts.daughter !== 0) {
+                        daughterFlag = true;
+                        liItem.find('input[type="CHECKBOX"]').prop('checked', true);
+                        inputFieldCount.val(gApzCOB.memberCounts.daughter.toString().padStart(2, '0'));
+                        inputFieldCount.show();
+                        liItem.find('.ett-icon').show();
+                    }
+                }
+                if (memTextDesc.toUpperCase() !== "SPOUSE") {
+                    let currentValue = parseInt(inputFieldCount.val());
+                    let totalMembers = gApzCOB.memberCounts.son + gApzCOB.memberCounts.daughter;
+                    if (gApzCOB.isSpouseChecked) {
+                        totalMembers += 1;
+                    }
+                    if (currentValue >= maxMemCount || totalMembers >= maxMemCount) {
+                        addIcon.css('opacity', '0.5');
+                        addIcon.removeAttr("onclick", "");
+                        minusIcon.css('opacity', '1');
+                        minusIcon.attr("onclick", "apz.app.AddEarningFamilyMem.addSubtract(this);");
+                    } else {
+                        addIcon.css('opacity', '1');
+                        addIcon.attr("onclick", "apz.app.AddEarningFamilyMem.addSubtract(this);");
+                    }
+                }
+            }
+            if (!spouseFlag && spouseCheckbox !== "") {
+                spouseCheckbox.prop('checked', false);
+            }
+            if (!sonFlag && sonCheckbox !== "") {
+                sonCheckbox.prop('checked', false);
+                sonInput.val("");
+                sonInput.hide();
+                sonLi.find('.ett-icon').hide();
+            }
+            if (!daughterFlag && "" !== daughterCheckbox) {
+                daughterCheckbox.prop('checked', false);
+                daughterInput.val("");
+                daughterInput.hide();
+                daughterLi.find('.ett-icon').hide();
+            }
+        }
+    } else {
+        apz.data.scrdata.Income__IPaintToAddMoreMembers_Res = eariningIncomeMemb;
+        ApzCOB.toggleModal(screenId + "toAddMoreMember");
+        apz.data.loadData("IPaintToAddMoreMembers", 'Income');
+        $.each(eariningIncomeMemb, function(i) {
+            let listItem = $('#' + screenId + 'earningMemList_row_' + i);
+            if (listItem.length > 0) {
+                listItem.find('input').val('').hide();
+                listItem.find('.ett-icon').hide();
+            }
+        });
+        $('#' + screenId + 'earningMemList input[type="CHECKBOX"]').prop('checked', false);
+    }
+};
+apz.app.AddEarningFamilyMem.ifCheckedEarningMemb = function(pthis) {
+    let liList = $('#' + screenId + 'earningMemList').find('li');
+    window.selected = [];
+    var tempMembers = [];
+    var inputValNum = 0;
+    var row = $(pthis).attr("rowno");
+    let listItem = $('#' + screenId + 'earningMemList_row_' + row);
+    var rowEle = $(listItem.find("#Income__AddEarningFamilyMem__iconRow_row")).closest('.srb.sec');
+    var addIcon = rowEle.find('.icon-add_circle-1');
+    let minusIcon = rowEle.find('.icon-subtract-fill');
+    var text = listItem.find('p.ett-para span').text().trim();
+    var textLowerCase = text.toLowerCase(),
+        textUpperCase = text.toUpperCase();
+    let inputField = listItem.find('input[type="Tel"]');
+    let currentValue = parseInt(inputField.val() !== "" ? inputField.val() : 0);
+    let totalMembers = gApzCOB.memberCounts.son + gApzCOB.memberCounts.daughter;
+    if (gApzCOB.isSpouseChecked) {
+        totalMembers += 1;
+    }
+    if (listItem.find('input[type="CHECKBOX"]').is(':checked')) {
+        if (totalMembers === maxMemCount) {
+            listItem.find('input[type="CHECKBOX"]').prop('checked', false);
+            ApzCOB.fnDisplayMsg("Maximum earning members reached", "E");
+            return false;
+        }
+        var members = {};
+        tempMembers = selectedMembers.filter(function(e, i) {
+            return ((e.memRelation === text.toLowerCase()));
+        });
+        inputValNum = tempMembers.length + 1;
+        if (textUpperCase === "SON" || textUpperCase === "DAUGHTER") {
+            listItem.find('.ett-icon').show();
+            inputField.show();
+            inputField.val(inputValNum.toString().padStart(2, '0'));
+        } else {
+            gApzCOB.isSpouseChecked = true;
+            listItem.find('.ett-icon').hide();
+            inputField.hide();
+            inputField.val("");
+        }
+        members.memRelation = textUpperCase;
+        members.isEarning = false;
+        members.index = selectedMembers.length;
+        members.idx = selectedMembers.length;
+        members.isExisting = false;
+        selectedMembers.push(members);
+        console.log('checkmember');
+        familyMembers.push(members);
+        //gApzCOB.addedFamilyMembersArray.push(members);
+        addIcon.css('opacity', '1');
+        addIcon.attr("onclick", "apz.app.AddEarningFamilyMem.addSubtract(this);");
+        minusIcon.css('opacity', '0.5');
+        minusIcon.removeAttr("onclick", "");
+        idx++;
+    } else {
+        if (textUpperCase === "SPOUSE") {
+            gApzCOB.isSpouseChecked = false;
+        }
+        var deleteArrayList = selectedMembers.filter(function(e, i) {
+            return ((e.memRelation === textUpperCase));
+        });
+        tempMembers = selectedMembers.filter(function(e, i) {
+            return ((e.memRelation !== textUpperCase));
+        });
+        if (deleteArrayList.length > 0) {
+            tempMembers.forEach(function(m, n) {
+                m.index = n;
+            });
+        }
+        selectedMembers = tempMembers;
+        gApzCOB.addedFamilyMembersArray = JSON.parse(JSON.stringify(selectedMembers));
+        idx = tempMembers.length;
+        inputField.val("");
+        listItem.find('input[type="Tel"]').hide();
+        listItem.find('.ett-icon').hide();
+        if (currentValue <= maxMemCount || totalMembers <= maxMemCount) {
+            if (liList.length > 0) {
+                for (var i = 0; i < liList.length; i++) {
+                    if (parseInt(row) !== i) {
+                        var liItem = $('#' + screenId + 'earningMemList_row_' + i);
+                        if (liItem.find('input[type="CHECKBOX"]').is(':checked')) {
+                            var memTextDesc = liItem.find('p.ett-para span').text().trim();
+                            var inputFieldCount = liItem.find('input[type="Tel"]');
+                            var rowEle = $(liItem.find("#Income__AddEarningFamilyMem__iconRow_row")).closest('.srb.sec');
+                            var addIcon = rowEle.find('.icon-add_circle-1');
+                            let minusIcon = rowEle.find('.icon-subtract-fill');
+                            if (memTextDesc.toUpperCase() !== "SPOUSE" && totalMembers <= maxMemCount) {
+                                addIcon.css('opacity', '1');
+                                addIcon.attr("onclick", "apz.app.AddEarningFamilyMem.addSubtract(this);");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (textUpperCase === 'SON') {
+        gApzCOB.memberCounts.son = parseInt(inputField.val() !== "" ? inputField.val() : 0);
+    } else if (textUpperCase === 'DAUGHTER') {
+        gApzCOB.memberCounts.daughter = parseInt(inputField.val() !== "" ? inputField.val() : 0);
+    }
+}
+apz.app.AddEarningFamilyMem.addSubtract = function(pthis) {
+    /*if (gApzCOB.addedFamilyMembersArray.length > 0) {
+        //sdsdsd
+    } else {*/
+    let liList = $('#' + screenId + 'earningMemList').find('li');
+    let rowElement = $(pthis).closest('.srb.sec');
+    var row = $(pthis).attr("rowno");
+    let listItem = $('#' + screenId + 'earningMemList_row_' + row);
+    let inputField = rowElement.prev().find('input[type="Tel"]');
+    if (inputField.length === 0 || !inputField.is('input')) {
+        console.error('Input field not found or not an input element');
+        return;
+    }
+    let currentValue = parseInt(inputField.val());
+    if (isNaN(currentValue)) {
+        console.error('Current value is NaN, defaulting to 1');
+        currentValue = 1;
+    }
+    let isAddButton = $(pthis).hasClass('icon-add_circle-1');
+    let isSubtractButton = $(pthis).hasClass('icon-subtract-fill');
+    let memberType = listItem.find('p.ett-para span').text().trim().toLowerCase();
+    let totalMembers = gApzCOB.memberCounts.son + gApzCOB.memberCounts.daughter;
+    if (gApzCOB.isSpouseChecked) {
+        totalMembers += 1;
+    }
+    if (isAddButton && currentValue < maxMemCount && totalMembers < maxMemCount) {
+        currentValue += 1;
+        var obj = {
+            "memRelation": memberType.toUpperCase(),
+            "isEarning": false,
+            "index": selectedMembers.length,
+            "idx": selectedMembers.length,
+            "isExisting": false
+        }
+        console.log('addmember');
+        selectedMembers.push(obj);
+        familyMembers.push(obj);
+        idx++;
+    }
+    if (isSubtractButton && currentValue > 1) {
+        currentValue -= 1;
+        var tempCount = 0;
+        selectedMembers.forEach(function(m, n) {
+            if (memberType.toUpperCase() === "SON" && m.memRelation === "SON") {
+                tempCount++
+                if (tempCount === gApzCOB.memberCounts.son) {
+                    selectedMembers.splice(n, 1);
+                    familyMembers.splice(n, 1);
+                }
+            }
+            if (memberType.toUpperCase() === "DAUGHTER" && m.memRelation === "DAUGHTER") {
+                tempCount++
+                if (tempCount === gApzCOB.memberCounts.daughter) {
+                    selectedMembers.splice(n, 1);
+                    familyMembers.splice(n, 1);
+                }
+            }
+        });
+    }
+    inputField.val(currentValue.toString().padStart(2, '0'));
+    if (memberType === 'son') {
+        gApzCOB.memberCounts.son = currentValue;
+    } else if (memberType === 'daughter') {
+        gApzCOB.memberCounts.daughter = currentValue;
+    }
+    totalMembers = gApzCOB.memberCounts.son + gApzCOB.memberCounts.daughter;
+    if (gApzCOB.isSpouseChecked) {
+        totalMembers += 1;
+    }
+    let addButton = rowElement.find('.icon-add_circle-1');
+    let subtractButton = rowElement.find('.icon-subtract-fill');
+    if (currentValue >= maxMemCount || totalMembers >= maxMemCount) {
+        addButton.css('opacity', '0.5');
+        addButton.removeAttr("onclick", "");
+        for (var i = 0; i < liList.length; i++) {
+            if (parseInt(row) !== i) {
+                var liItem = $('#' + screenId + 'earningMemList_row_' + i);
+                if (liItem.find('input[type="CHECKBOX"]').is(':checked')) {
+                    var memTextDesc = liItem.find('p.ett-para span').text().trim();
+                    var inputFieldCount = liItem.find('input[type="Tel"]');
+                    var rowEle = $(liItem.find("#Income__AddEarningFamilyMem__iconRow_row")).closest('.srb.sec');
+                    var addIcon = rowEle.find('.icon-add_circle-1');
+                    let minusIcon = rowEle.find('.icon-subtract-fill');
+                    if (memTextDesc.toUpperCase() !== "SPOUSE" && totalMembers >= maxMemCount) {
+                        addIcon.css('opacity', '0.5');
+                        addIcon.removeAttr("onclick", "");
+                        minusIcon.css('opacity', '1');
+                        minusIcon.attr("onclick", "apz.app.AddEarningFamilyMem.addSubtract(this);");
+                    }
+                }
+            }
+        }
+        //ApzCOB.fnDisplayMsg("Maximum earning members reached", "E");
+    } else {
+        addButton.css('opacity', '1');
+        addButton.attr("onclick", "apz.app.AddEarningFamilyMem.addSubtract(this);");
+        if (liList.length > 0) {
+            for (var i = 0; i < liList.length; i++) {
+                if (parseInt(row) !== i) {
+                    var liItem = $('#' + screenId + 'earningMemList_row_' + i);
+                    if (liItem.find('input[type="CHECKBOX"]').is(':checked')) {
+                        var memTextDesc = liItem.find('p.ett-para span').text().trim();
+                        var inputFieldCount = liItem.find('input[type="Tel"]');
+                        var rowEle = $(liItem.find("#Income__AddEarningFamilyMem__iconRow_row")).closest('.srb.sec');
+                        var addIcon = rowEle.find('.icon-add_circle-1');
+                        let minusIcon = rowEle.find('.icon-subtract-fill');
+                        if (memTextDesc.toUpperCase() !== "SPOUSE" && parseInt(inputFieldCount.val()) <= maxMemCount) {
+                            //listItem.find('.ett-icon').show();
+                            addIcon.css('opacity', '1');
+                            addIcon.attr("onclick", "apz.app.AddEarningFamilyMem.addSubtract(this);");
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (currentValue <= 1) {
+        subtractButton.css('opacity', '0.5');
+        subtractButton.removeAttr("onclick", "");
+        if (currentValue >= maxMemCount || totalMembers >= maxMemCount) {
+            if (liList.length > 0) {
+                for (var i = 0; i < liList.length; i++) {
+                    if (parseInt(row) !== i) {
+                        var liItem = $('#' + screenId + 'earningMemList_row_' + i);
+                        if (liItem.find('input[type="CHECKBOX"]').is(':checked')) {
+                            var memTextDesc = liItem.find('p.ett-para span').text().trim();
+                            var inputFieldCount = liItem.find('input[type="Tel"]');
+                            var rowEle = $(liItem.find("#Income__AddEarningFamilyMem__iconRow_row")).closest('.srb.sec');
+                            var addIcon = rowEle.find('.icon-add_circle-1');
+                            let minusIcon = rowEle.find('.icon-subtract-fill');
+                            if (memTextDesc.toUpperCase() !== "SPOUSE" && parseInt(inputFieldCount.val()) <= maxMemCount) {
+                                //listItem.find('.ett-icon').hide();
+                                addIcon.css('opacity', '1');
+                                addIcon.attr("onclick", "apz.app.AddEarningFamilyMem.addSubtract(this);");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        subtractButton.css('opacity', '1');
+        subtractButton.attr("onclick", "apz.app.AddEarningFamilyMem.addSubtract(this);");
+        if (currentValue >= maxMemCount || totalMembers >= maxMemCount) {
+            if (liList.length > 0) {
+                for (var i = 0; i < liList.length; i++) {
+                    if (parseInt(row) !== i) {
+                        var liItem = $('#' + screenId + 'earningMemList_row_' + i);
+                        if (liItem.find('input[type="CHECKBOX"]').is(':checked')) {
+                            var memTextDesc = liItem.find('p.ett-para span').text().trim();
+                            var inputFieldCount = liItem.find('input[type="Tel"]');
+                            var rowEle = $(liItem.find("#Income__AddEarningFamilyMem__iconRow_row")).closest('.srb.sec');
+                            var addIcon = rowEle.find('.icon-add_circle-1');
+                            let minusIcon = rowEle.find('.icon-subtract-fill');
+                            if (memTextDesc.toUpperCase() !== "SPOUSE" && totalMembers >= maxMemCount) {
+                                //listItem.find('.ett-icon').hide();
+                                minusIcon.css('opacity', '0.5');
+                                minusIcon.attr("onclick", "");
+                            } else {
+                                addIcon.css('opacity', '1');
+                                addIcon.attr("onclick", "apz.app.AddEarningFamilyMem.addSubtract(this);");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    //gApzCOB.addedFamilyMembersArray = selectedMembers;
+}
+apz.app.AddEarningFamilyMem.updateButtonStates = function(listItem, sonCount, daughterCount) {
+    listItem.find('.icon-add_circle-1').prop('disabled', sonCount >= 2 || daughterCount >= 2);
+    listItem.find('.icon-subtract-fill').prop('disabled', sonCount <= 0 && daughterCount <= 0);
+}
+apz.app.AddEarningFamilyMem.toMonthlyExpDetails = function() {
+    var earningMem = [];
+    var error = false;
+    gApzCOB.addedFamilyMembersArray.forEach(function(val) {
+        if (apz.isNull(val.OCRData)) {
+            error = true;
+        }
+        val.isEarning = true;
+    });
+    gApzCOB.existingFamilyMembersArray.forEach(function(val) {
+        if (apz.isNull(val.OCRData)) {
+            error = true;
+        }
+        val.isEarning = true;
+    });
+    if (!error) {
+        if (KendraApp.selectedCustomer.earnings.length != 0) {
+            gApzCOB.existingFamilyMembersArray.forEach(function(obj){
+                earningMem.push(obj);
+            });
+            
+        }
+        if( gApzCOB.addedFamilyMembersArray.length !=0) {
+            gApzCOB.addedFamilyMembersArray.forEach(function(obj){
+                earningMem.push(obj);
+            });
+        }
+        earningMem.forEach(function(o) {
+            o.status = 'Completed';
+            if (o.isEdited) {
+                o.status = 'Pending';
+            }
+        });
+        let deletedMembers = [];
+        if (deletedMemberDetails.length > 0) {
+              deletedMembers = deletedMemberDetails.map(member => ({
+                ...member,
+                status: 'Deleted' // Mark deleted members with a 'Deleted' status
+            }));
+        }
+        IncomeApp.payLoad.earnings = earningMem;
+        IncomeApp.payLoad.deletedMembers = deletedMembers
+        window.IncomeApp.screen = apz.childScr;
+        IncomeApp.status = 'EARNINGSUPDATE';
+        IncomeApp.workflow = {};
+        apz.app.CommonScript.updateIncomeAssesment();
+    } else {
+        ApzCOB.fnDisplayMsg("Please update the Member information", "E");
+    } //ApzCOB.launchMicroApp('Income', 'MonthlyHouseHoldExp', 'APZCBO__BaseScreens__BaseDIV', data);
+}
+apz.app.AddEarningFamilyMem.selectedMember = function() {
+    gApzCOB.addedFamilyMembersArray = JSON.parse(JSON.stringify(selectedMembers));
+    var sonCount = 0,
+        daughterCount = 0;
+    $.each(selectedMembers, function(i, j) {
+        if (j.memRelation === "SON") {
+            sonCount++
+        }
+        if (j.memRelation === "DAUGHTER") {
+            daughterCount++
+        }
+    });
+    gApzCOB.memberCounts.son = sonCount;
+    gApzCOB.memberCounts.daughter = daughterCount;
+    let liList = $('#' + screenId + 'earningMemList').find('li');
+    window.selectedMembersData = [];
+    closeToggle = true;
+    let count = 0;
+    if (liList.length > 0) {
+        for (var i = 0; i < liList.length; i++) {
+            var liItem = $('#' + screenId + 'earningMemList_row_' + i);
+            if (liItem.find('input[type="CHECKBOX"]').is(':checked')) {
+                var inputFieldCount = liItem.find('input[type="Tel"]');
+                count += parseInt(inputFieldCount.val() !== "" ? inputFieldCount.val() : 0);
+            }
+        }
+    }
+    if (count <= maxMemCount) {
+        $.each(gApzCOB.addedFamilyMembersArray, function(i, j) {
+            let memRelation = j.memRelation.toLowerCase();
+            window.selectedMembersData.push(memRelation.charAt(0).toUpperCase() + memRelation.slice(1));
+        });
+        apz.app.AddEarningFamilyMem.loadSelectedMemberData(false, "");
+    } else {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("You cannot add more than 3 members in total"), "I");
+    }
+}
+apz.app.AddEarningFamilyMem.loadSelectedMemberData = function(paintData, locRowNum) {
+    if (window.selectedMembersData && Array.isArray(window.selectedMembersData) && window.selectedMembersData.length > 0) {
+        let selMems = window.selectedMembersData.map(memb => ({
+            memb
+        }));
+        apz.data.scrdata.Income__IPaintSelectedIncomeMemb_Res = selMems;
+        apz.data.loadData("IPaintSelectedIncomeMemb", 'Income');
+        $('#' + screenId + 'mainRow').find('li').hide();
+        selMems.forEach((member, index) => {
+            let listItem = $('#' + screenId + 'mainRow').find('li').eq(index);
+            listItem.show();
+        });
+        if (closeToggle) {
+            ApzCOB.toggleModal(screenId + "toAddMoreMember");
+        }
+        $('#' + screenId + 'mainRow').removeClass('sno');
+        if ((selMems.length + apz.data.scrdata.Income__IPaintMemRelation_Res.length) >= maxMemCount) {
+            $('#Income__AddEarningFamilyMem__addMoreMemForm').addClass('sno');
+        } else {
+            $('#Income__AddEarningFamilyMem__addMoreMemForm').removeClass('sno');
+        }
+    }
+    if (paintData) {
+        apz.app.AddEarningFamilyMem.updateData(requestData, locRowNum);
+        apz.app.AddEarningFamilyMem.updateKYCDetails(requestData, locRowNum);
+    } else {
+            apz.app.AddEarningFamilyMem.updateexistingData();
+    }
+    //apz.app.AddEarningFamilyMem.deleteMemKYCDetails();
+}
+apz.app.AddEarningFamilyMem.updateData = function(data, row) {
+    gApzCOB.addedFamilyMembersArray.forEach(function(el, i) {
+        if (el.index == row) {
+            el.InputData = data.InputData;
+            el.OCRData = data.OCRData;
+            el.OCRresponselog = data.OCRresponselog;
+            el.backImg = data.backImg;
+            el.customerId = data.customerId;
+            el.dob = data.dob;
+            el.forntImg = data.forntImg;
+            el.index = data.index;
+            el.isEarning = data.isEarning;
+            el.isEdited = data.isEdited;
+            el.isKycEdited = data.isKycEdited;
+            el.legaldocId = data.legaldocId;
+            el.legaldocName = data.legaldocName;
+            el.memRelation = data.memRelation;
+            el.name = data.name;
+        }
+    })
+}
+/*Existing Member Details Update*/
+apz.app.AddEarningFamilyMem.loadSelectedEMemberData = function(paintData, locRowNum) {
+    if (apz.data.scrdata.Income__IPaintMemRelation_Res && Array.isArray(apz.data.scrdata.Income__IPaintMemRelation_Res)) {
+        let selMems = apz.data.scrdata.Income__IPaintMemRelation_Res;
+        apz.data.scrdata.Income__IPaintMemRelation_Res = selMems;
+        apz.data.loadData("IPaintMemRelation", 'Income');
+        // $('#' + screenId + 'ct_lst_47').find('li').hide();
+        selMems.forEach((member, index) => {
+            let listItem = $('#' + screenId + 'ct_lst_47').find('li').eq(index);
+            listItem.show();
+            var liItem = $('#' + screenId + 'ct_lst_47_row_' + index);
+            liItem.find('#Income__AddEarningFamilyMem__spouseKycFrontRow_row').removeClass('sno');
+            if (liItem.find('#Income__AddEarningFamilyMem__spouseKycBackRow_row')) {
+                liItem.find('#Income__AddEarningFamilyMem__spouseKycBackRow_row').addClass('sno');
+            } else {
+                liItem.find('#Income__AddEarningFamilyMem__spouseKycBackRow_row').removeClass('sno');
+            }
+        });
+        if (closeToggle) {
+            ApzCOB.toggleModal(screenId + "toAddMoreMember");
+        }
+        $('#' + screenId + 'ct_lst_47').removeClass('sno');
+        if ((selMems.length + window.selectedMembersData.length) >= totCount) {
+            $('#Income__AddEarningFamilyMem__addMoreMemForm').addClass('sno');
+        } else {
+            $('#Income__AddEarningFamilyMem__addMoreMemForm').removeClass('sno');
+        }
+    }
+    if (paintData) {
+        apz.app.AddEarningFamilyMem.updateEData(eRequestData, locRowNum);
+        debugger
+        apz.app.AddEarningFamilyMem.updateEKYCDetails(eRequestData, locRowNum);
+    } else {
+        debugger
+    }
+    //apz.app.AddEarningFamilyMem.deleteMemKYCDetails();
+}
+apz.app.AddEarningFamilyMem.updateEData = function(data, row) {
+    gApzCOB.existingFamilyMembersArray.forEach(function(el, i) {
+        if (el.index == row) {
+            el.InputData = data.InputData;
+            el.OCRData = data.OCRData;
+            el.OCRresponselog = data.OCRresponselog;
+            el.backImg = data.backImg;
+            el.customerId = data.customerId;
+            el.dob = data.dob;
+            el.forntImg = data.forntImg;
+            el.index = data.index;
+            el.isEarning = data.isEarning;
+            el.isEdited = data.isEdited;
+            el.isKycEdited = data.isKycEdited;
+            el.legaldocId = data.legaldocId;
+            el.legaldocName = data.legaldocName;
+            el.memRelation = data.memRelation;
+            el.name = data.name;
+        }
+    })
+};
+apz.app.AddEarningFamilyMem.updateEKYCDetails = function(requestData, locRowNo) {
+    if (gApzCOB.existingFamilyMembersArray.length > 0) {
+        gApzCOB.existingFamilyMembersArray.forEach((mem, index) => {
+            if (mem.hasOwnProperty("customerId") && mem.customerId !== "") {
+                apz.app.AddEarningFamilyMem.paintEUpdatedKYCDetails(mem, index);
+            }
+        });
+    }
+    let liList = $('#' + screenId + 'ct_lst_47').find('li');
+    if (liList.length > 0) {
+        for (var i = 0; i < liList.length; i++) {
+            if (gApzCOB.existingFamilyMembersArray[i].legaldocName === 'Pan Card') {
+                var liItem = $('#' + screenId + 'ct_lst_47_row_' + i);
+                liItem.find('#Income__AddEarningFamilyMem__spouseKycFrontRow_row').removeClass('sno');
+                if (liItem.find('#Income__AddEarningFamilyMem__spouseKycBackRow_row')) {
+                    liItem.find('#Income__AddEarningFamilyMem__spouseKycBackRow_row').addClass('sno');
+                } else {
+                    liItem.find('#Income__AddEarningFamilyMem__spouseKycBackRow_row').removeClass('sno');
+                }
+            }
+        }
+    }
+};
+apz.app.AddEarningFamilyMem.paintEUpdatedKYCDetails = function(requestData, locRowNo) {
+    var rowSelector = $('#Income__AddEarningFamilyMem__ct_lst_47_row_' + locRowNo);
+    rowSelector.find("#Income__IPaintMemRelation__o__Income__IPaintMemRelation_Res__name_" + locRowNo + "_txtcnt").text(requestData.InputData
+        .name);
+    rowSelector.find("#Income__IPaintMemRelation__o__Income__IPaintMemRelation_Res__dob_" + locRowNo).text(requestData.InputData.dob);
+    rowSelector.find("#Income__IPaintMemRelation__o__Income__IPaintMemRelation_Res__legaldocName_" + locRowNo).text(requestData.legaldocName);
+    rowSelector.find("#Income__IPaintMemRelation__o__Income__IPaintMemRelation_Res__legaldocId_" + locRowNo).text(requestData.InputData
+        .legaldocId);
+    rowSelector.find("#Income__AddEarningFamilyMem__kycSaveBtn_" + locRowNo).addClass("sno");
+};
+apz.app.AddEarningFamilyMem.deleteMemberDetails = function(pthis) {
+    isDeletedaddedMembers = true;
+    let listItem = $(pthis).closest('li');
+    let rowNumber = Number($(pthis).attr('rowno'));
+    let deletedMember = gApzCOB.addedFamilyMembersArray[rowNumber] || KendraApp.selectedCustomer.earnings[rowNumber];
+    if (deletedMember) {
+        deletedMemberDetails.push(deletedMember);
+    }
+    let deleteText = listItem.find("#Income__IPaintSelectedIncomeMemb__o__Income__IPaintSelectedIncomeMemb_Res__memb_" + rowNumber).text();
+    if (gApzCOB.memberCounts.hasOwnProperty(deleteText.toLowerCase())) {
+        gApzCOB.memberCounts[deleteText.toLowerCase()] -= 1;
+    }
+    window.selectedMembersData.splice(rowNumber, 1);
+    if (gApzCOB.addedFamilyMembersArray[rowNumber]) {
+        gApzCOB.addedFamilyMembersArray.splice(rowNumber, 1); // Removing from newly added members
+    } else if (KendraApp.selectedCustomer.earnings[rowNumber]) {
+        KendraApp.selectedCustomer.earnings.splice(rowNumber, 1); // Removing from existing saved members
+        apz.data.scrdata.Income__IPaintMemRelation_Res = KendraApp.selectedCustomer.earnings.map(memb => ({
+            name: memb.name,
+            memRelation: memb.memRelation,
+            isEarning: memb.isEarning
+        }));
+        apz.data.loadData("IPaintMemRelation", 'Income');
+    }
+    selectedMembers.length > 0 ? selectedMembers.splice(rowNumber, 1) : "";
+    let remSelectedMembers = window.selectedMembersData.map(memb => ({
+        memb
+    }));
+    /*console.log('Updated selected members:', remSelectedMembers);
+    console.log('Updated member counts:', gApzCOB.memberCounts);*/
+    apz.data.scrdata.Income__IPaintSelectedIncomeMemb_Res = remSelectedMembers;
+    apz.data.loadData("IPaintSelectedIncomeMemb", 'Income');
+    if (apz.data.scrdata.Income__IPaintSelectedIncomeMemb_Res.length < maxMemCount) {
+        $('#Income__AddEarningFamilyMem__addMoreMemForm').removeClass('sno');
+    } else {
+        $('#Income__AddEarningFamilyMem__addMoreMemForm').addClass('sno');
+    }
+    let liList = $('#Income__AddEarningFamilyMem__mainRow').find('li');
+    if (liList.length > 1) {
+        for (var m = 0; m < liList.length; m++) {
+            var liItem = $('#Income__AddEarningFamilyMem__mainRow_row_' + m);
+            console.log(liItem);
+            if (liItem.hasClass('ssp')) {
+                console.log(liItem);
+                liItem.remove();
+            }
+        }
+    }
+    apz.app.AddEarningFamilyMem.deleteMemKYCDetails();
+}
+apz.app.AddEarningFamilyMem.onCLickOfEdit = function(pthis) {
+    let parentSpan = pthis.closest('.completed-tabs');
+    if (parentSpan) {
+        var textElement = parentSpan.querySelector('h6.ett-hed6 span'); // Get the text content of the relevant span
+        if (textElement) {
+            var textContent = textElement.textContent.trim();
+            var isCheckMarkPresent = parentSpan.querySelector('.icon-check_circle') !== null; /*Check if the checkmark icon is present*/
+            if (textContent === "Add member Profile" && isCheckMarkPresent) {
+                var data = {
+                    // KendraApp: KendraApp,
+                    requestData: requestData,
+                    //selectedMembers: selectedMembers,
+                    kycDetails: kycDetails,
+                    globalKycName,
+                    checkedQues: true,
+                    incomepayload: IncomeApp.payLoad
+                    // rowNo: rowNo
+                };
+                ApzCOB.launchMicroApp('Income', 'IncomeAssessment', 'APZCBO__BaseScreens__BaseDIV', data);
+            } else if (textContent === "Household Details" && isCheckMarkPresent) {
+                var data = {
+                    //  KendraApp: KendraApp,
+                    requestData: requestData,
+                    //selectedMembers: selectedMembers,
+                    kycDetails: kycDetails,
+                    globalKycName,
+                    editNav: true
+                    // rowNo: rowNo
+                };
+                ApzCOB.launchMicroApp('Income', 'AddHouseHoldDetails', 'APZCBO__BaseScreens__BaseDIV', data);
+            } else {
+                // Add your logic for any other conditions here
+            }
+        } else {
+            console.error("Text element not found in the parent span", parentSpan);
+        }
+    } else {
+        console.error("Parent span not found for the clicked button", pthis);
+    }
+};
+apz.app.AddEarningFamilyMem.onCLickOfSpouseEdit = function(pthis) {
+    var rowNo = pthis.getAttribute("rowno");
+    let spouseDetailsRow = '#' + screenId + 'spouseDetailsRow_row';
+    let dob = KendraApp.selectedCustomer.earnings[0].dob;
+    var earningMem;
+    if (KendraApp.selectedCustomer.earnings.length > 0) {
+        earningMem = "Yes"
+    } else {
+        earningMem = "No"
+    }
+    if ($("#Income__AddEarningFamilyMem__ct_lst_47_row_" + rowNo + " " + spouseDetailsRow).hasClass('sno')) {
+        $("#Income__AddEarningFamilyMem__ct_lst_47_row_" + rowNo + " " + spouseDetailsRow).removeClass("sno");
+        $('#Income__AddEarningFamilyMem__spouseEarningMemb_' + rowNo).text(earningMem ? earningMem : "N/A")
+    } else {
+        $("#Income__AddEarningFamilyMem__ct_lst_47_row_" + rowNo + " " + spouseDetailsRow).addClass('sno');
+    }
+};
+apz.app.AddEarningFamilyMem.onChangeOfEarningMember = function(pthis) {
+    let checkbox = $(pthis).find('input[type="checkbox"]'); // Get the checkbox element
+    if (checkbox.length === 0) { // Check if the checkbox is found and log an error if not
+        console.error('Checkbox not found within pthis context');
+        return;
+    }
+    let isChecked = checkbox.prop('checked'); // Check if the checkbox is checked
+    let rowno = checkbox.attr('rowno'); // Get the row number
+    if (!rowno) { // Ensure the row number is found and log an error if not
+        console.error('Row number attribute not found on checkbox');
+        return;
+    }
+    let parentRow = checkbox.closest('li[rowno="' + rowno + '"]'); // Get the parent row element
+    if (parentRow.length === 0) { // Ensure the parent row is found and log an error if not
+        console.error('Parent row not found for row number:', rowno);
+        return;
+    }
+    let yesElement = parentRow.find('#Income__AddEarningFamilyMem__yes_' + rowno); // Get the Yes element
+    let noElement = parentRow.find('#Income__AddEarningFamilyMem__no_' + rowno); // Get the No element
+    // Ensure the Yes and No elements are found and log an error if not
+    if (yesElement.length === 0) {
+        console.error('Yes element not found for row number:', rowno);
+    }
+    if (noElement.length === 0) {
+        console.error('No element not found for row number:', rowno);
+    }
+    /* below lines commented for this phase according to requirement*/
+    // let listElement = $('#Income__AddEarningFamilyMem__ct_lst_50').find('li[rowno="' + rowno + '"] #Income__AddEarningFamilyMem__isEarningList_row'); // Get the list element from ct_lst_50
+    // Ensure the list element is found and log an error if not
+    // if (listElement.length === 0) {
+    //     console.error('List element not found for row number:', rowno);
+    // }
+    if (isChecked) {
+        // Toggle is Yes
+        yesElement.removeClass('sno');
+        noElement.addClass('sno');
+        /* below lines commented for this phase according to requirement*/
+        // listElement.removeClass('sno'); // Show the list
+        //  $('#Income__AddEarningFamilyMem__ct_lst_50').removeClass('sno');
+        //  incomeDtlsField.forEach((item,index) => {
+        //     $('#Income__AddEarningFamilyMem__el_btn_39_' + index).addClass('sno')
+        //  })
+        //  apz.data.scrdata.Income__IPaintIncomeDtls_Res = incomeDtlsField;
+        // apz.data.loadData("IPaintIncomeDtls", 'Income');
+    } else {
+        // Toggle is No
+        yesElement.addClass('sno');
+        noElement.removeClass('sno');
+        /* below lines commented for this phase according to requirement*/
+        // listElement.addClass('sno'); // Hide the list
+        //  $('#Income__AddEarningFamilyMem__ct_lst_50').addClass('sno')
+    }
+};
+// Function to handle checkbox click
+apz.app.AddEarningFamilyMem.onCLickCheckBoxList = function(checkbox) {
+    window.listItem = $(checkbox).closest('li'); // Find the parent list item
+    var addButton = listItem.find('button[id^="Income__AddEarningFamilyMem__el_btn_39_"]'); // Find the "ADD DETAILS" button within the list item
+    apz.app.AddEarningFamilyMem.toggleAddDetailsVisibility(listItem,
+    addButton); // Toggle visibility of "ADD DETAILS" button for the specific list item
+}
+// Function to toggle visibility of "ADD DETAILS" button based on checkbox state
+apz.app.AddEarningFamilyMem.toggleAddDetailsVisibility = function(listItem, addButton) {
+    var anyCheckboxChecked = listItem.find('input[type="checkbox"]:checked').length > 0; // Check if any checkbox within the list item is checked
+    if (anyCheckboxChecked) {
+        addButton.removeClass('sno'); // Remove the "sno" class to show the button if any checkbox is checked
+    } else {
+        addButton.addClass('sno'); // Add the "sno" class to hide the button if no checkbox is checked
+    }
+};
+apz.app.AddEarningFamilyMem.onAddDetailsClick = function(pthis) {
+    var selectedLabel = "";
+    for (var i = 0; i < listItem.length; i++) { // Loop through listItem to find the selected label
+        var text = listItem[i].innerText.trim(); // Remove leading and trailing whitespace
+        text = text.replace(/\n\t\n.*/, "");
+        if (text !== "") {
+            selectedLabel = text;
+            break; // Exit the loop once the selected label is found
+        }
+    }
+    $('#Income__AddEarningFamilyMem__addDetailsOne_grp_lbl').text(selectedLabel); // Update the form label text with the selected label
+    $('#' + screenId + 'eariningMembersMainRow').addClass('sno'); // Hide selfDeclareIncRow and show sourcesIncomeDtlsRow
+    $('#' + screenId + 'sourcesIncomeDtlsRow').removeClass('sno');
+}
+apz.app.AddEarningFamilyMem.addDetailsIncomeField = function() { // Get form input values
+    let addDetailsOne = $('#' + screenId + 'addDetailsOne').val();
+    let addDetailsTwo = $('#' + screenId + 'addDetailsTwo').val();
+    let addDetailsThree = $('#' + screenId + 'addDetailsThree').val();
+    // Construct object with form data
+    let formData = {
+        addDetailsOne: addDetailsOne,
+        addDetailsTwo: addDetailsTwo,
+        addDetailsThree: addDetailsThree
+    };
+    apz.app.AddEarningFamilyMem.updateListWithData(formData); // Update list with form data
+};
+apz.app.AddEarningFamilyMem.updateListWithData = function(formData) { // Function to update list with form data
+    let listItemIndex = listItem.attr('rowno'); // Get the selected list item index
+    // Update text content with formData
+    let businessTypeText = $('#' + screenId + 'el_txt_102_' + listItemIndex + '_txtcnt');
+    let tenureText = $('#' + screenId + 'el_txt_104_' + listItemIndex + '_txtcnt');
+    let incomeText = $('#' + screenId + 'el_txt_106_' + listItemIndex + '_txtcnt');
+    businessTypeText.text(formData.addDetailsOne || '');
+    tenureText.text(formData.addDetailsTwo || '');
+    incomeText.text(formData.addDetailsThree || '');
+    listItem.find('#' + screenId + 'addedDetailsRow_row').removeClass('sno'); // Show added details row
+    let editRowElement = listItem.find('#' + screenId + 'editRow_row'); // Locate and show the editRow element
+    editRowElement.removeClass('sno');
+    $('#' + screenId + 'el_btn_39_' + listItemIndex).addClass('sno'); // Hide Add Details button
+    $('#' + screenId + 'el_btn_40_' + listItemIndex).removeClass('sno'); // Show Edit button
+    // Hide form screen and show previous screen
+    $('#' + screenId + 'sourcesIncomeDtlsRow').addClass('sno');
+    $('#' + screenId + 'eariningMembersMainRow').removeClass('sno');
+};
+apz.app.AddEarningFamilyMem.DeleteConfirmation = function(pthis) {
+    ApzCOB.toggleModal(screenId + "deleteModal");
+};
+apz.app.AddEarningFamilyMem.addKycDetailsForExistingEM = function(pthis) {
+    let rowno = pthis.getAttribute("rowno");
+    globalKycName = apz.data.scrdata.Income__IPaintMemRelation_Res[rowNo].memRelation;
+    var data = {
+        requestData: requestData,
+        kycDetails: kycDetails,
+        globalKycName,
+        memDetails: apz.data.scrdata.Income__IPaintMemRelation_Res[rowNo],
+        rowNo: rowNo,
+    };
+    ApzCOB.defEarningMemObjFormat();
+    ApzCOB.launchMicroApp("Income", "KycDetails", "APZCBO__BaseScreens__BaseDIV", data);
+};
+apz.app.AddEarningFamilyMem.addKycDetails = function(pthis) {
+    let rowNo = $(pthis).attr("rowno");
+    let rowSelected = $('#Income__AddEarningFamilyMem__mainRow_row_' + rowNo);
+    // Extract the name (assuming it's the first line of the outerText)
+    let outerText = rowSelected[0].outerText;
+    let name = outerText.split('\n')[0].trim(); // Extract and trim the first line
+    globalKycName = name; // Store in the global variable
+    var data = {
+        requestData: requestData,
+        kycDetails: kycDetails,
+        globalKycName,
+        rowNo: rowNo,
+    };
+    ApzCOB.defEarningMemObjFormat();
+    ApzCOB.launchMicroApp("Income", "KycDetails", "APZCBO__BaseScreens__BaseDIV", data);
+}
+apz.app.AddEarningFamilyMem.backNavigateIncomeDtls = function(pthis) {
+    var data = {
+        // KendraApp: KendraApp,
+        requestData: requestData,
+        //   selectedMembers: selectedMembers,
+        kycDetails: kycDetails,
+        backNav: true,
+        globalKycName,
+        checkedQues: true,
+        // rowNo: rowNo
+    };
+     ApzCOB.launchMicroApp('Income', 'IncomeAssessment', 'APZCBO__BaseScreens__BaseDIV', data);
+    /*ApzCOB.launchMicroApp('Income', 'AddHouseHoldDetails', 'APZCBO__BaseScreens__BaseDIV', data);*/
+}
+apz.app.AddEarningFamilyMem.onCLickOfMemberEdit = function(buttonElement) {
+    // Find the parent li element which contains all related elements
+    var parentLi = $(buttonElement).closest('li');
+    // Find the KYC details row within the parent li element
+    var kycRow = parentLi.find('#Income__AddEarningFamilyMem__kycResAddMemberRow_row');
+    // Toggle sno class to show/hide KYC details row
+    kycRow.toggleClass('sno');
+    // Log to console for debugging
+    console.log('Toggled KYC Details for member:', parentLi.attr('rowno'));
+    // Update KYC details based on the row number
+    var rowNumber = parentLi.attr('rowno');
+    /*var kycData = window.kycDetails.ocr.result[rowNumber];
+    // Check if kycData exists before updating
+    if (kycData) {
+        $("#Income__AddEarningFamilyMem__addedMembName_0").text(kycData.details.name.value);
+        $("#Income__AddEarningFamilyMem__addedMembDob_0").text("N/A");
+        $("#Income__AddEarningFamilyMem__addedMembKYC_0").text(kycData.details.type);
+        $("#Income__AddEarningFamilyMem__addedMembKycId_0").text(kycData.details.voterid.value);
+        $("#Income__AddEarningFamilyMem__addedEarnngMem_0").text(kycData.details.relation.value);
+    } else {
+        console.log('No KYC data found for row number:', rowNumber);
+    }*/
+};
+var editparams;
+apz.app.AddEarningFamilyMem.editkyc = function(params) {
+    editparams = params;
+    ApzCOB.fnDisplayMsg('Do you want to modify Member Kyc details?', "C", apz.app.AddEarningFamilyMem.editApp);
+}
+apz.app.AddEarningFamilyMem.editApp = function(params) {
+    if (params.choice === true) {
+        let rowNo = $(editparams).attr("rowno");
+        editparams.docuID = $('#Income__AddEarningFamilyMem__addedMembKycId_' + rowNo).text();
+        gApzCOB.addedFamilyMembersArray.forEach(function(m, i) {
+            if (!apz.isNull(m.InputData)) {
+                if (m.InputData.legaldocId === editparams.docuID) {
+                    var obj = {
+                        "memRelation": m.memRelation,
+                        "isEarning": true,
+                        "index": m.index,
+                        "idx": m.index,
+                        "isExisting": false
+                    }
+                    //m = obj;
+                    gApzCOB.addedFamilyMembersArray[i] = obj;
+                }
+            }
+        })
+        apz.app.AddEarningFamilyMem.addKycDetails(editparams);
+    }
+}
+apz.app.AddEarningFamilyMem.deletekyc = function(params) {
+    editparams = params;
+    ApzCOB.fnDisplayMsg('Do you want to delete Member Kyc details?', "C", apz.app.AddEarningFamilyMem.deleteMember);
+}
+apz.app.AddEarningFamilyMem.deleteMember = function(params) {
+    if (params.choice === true) {
+        apz.app.AddEarningFamilyMem.deleteMemberDetails(editparams);
+    }
+}
+apz.app.AddEarningFamilyMem.deleteMemKYCDetails = function() {
+    if (gApzCOB.addedFamilyMembersArray.length > 0) {
+        gApzCOB.addedFamilyMembersArray.forEach((mem, index) => {
+            if (mem.hasOwnProperty("customerId") && mem.customerId !== "") {
+                apz.app.AddEarningFamilyMem.paintAfterDeletedDetails(mem, index);
+            } else {
+                var rowSelector = $('#Income__AddEarningFamilyMem__mainRow_row_' + index);
+                rowSelector.find("#Income__AddEarningFamilyMem__kycAddBtn_" + index).removeClass("sno");
+                rowSelector.find("#Income__AddEarningFamilyMem__kycEditBtn_" + index).addClass("sno");
+                rowSelector.find("#Income__AddEarningFamilyMem__kycDeleteIcon_" + index).removeClass("sno");
+                rowSelector.find("#Income__AddEarningFamilyMem__kycDpIcon_" + index).addClass("sno");
+                rowSelector.find("#Income__AddEarningFamilyMem__kycSaveBtn_" + index).addClass("sno");
+                rowSelector.find("#Income__AddEarningFamilyMem__toAddKycRow_row").removeClass("sno");
+                rowSelector.find("#Income__AddEarningFamilyMem__kycResAddMemberRow_row").addClass("sno");
+                rowSelector.find("#Income__AddEarningFamilyMem__isEarningToggle_row").removeClass("sno");
+            }
+        });
+    }
+};
+apz.app.AddEarningFamilyMem.paintAfterDeletedDetails = function(requestData, locRowNo) {
+    var rowSelector = $('#Income__AddEarningFamilyMem__mainRow_row_' + locRowNo);
+    rowSelector.find("#Income__AddEarningFamilyMem__addedMembName_" + locRowNo).text(requestData.InputData.name);
+    rowSelector.find("#Income__AddEarningFamilyMem__addedMembDob_" + locRowNo).text(requestData.InputData.dob);
+    rowSelector.find("#Income__AddEarningFamilyMem__addedMembKYC_" + locRowNo).text(requestData.legaldocName);
+    rowSelector.find("#Income__AddEarningFamilyMem__addedMembKycId_" + locRowNo).text(requestData.InputData.legaldocId);
+    rowSelector.find("#Income__AddEarningFamilyMem__kycAddBtn_" + locRowNo).addClass("sno");
+    rowSelector.find("#Income__AddEarningFamilyMem__kycEditBtn_" + locRowNo).removeClass("sno");
+    rowSelector.find("#Income__AddEarningFamilyMem__kycDeleteIcon_" + locRowNo).removeClass("sno");
+    rowSelector.find("#Income__AddEarningFamilyMem__kycDpIcon_" + locRowNo).removeClass("sno");
+    rowSelector.find("#Income__AddEarningFamilyMem__kycSaveBtn_" + locRowNo).addClass("sno");
+    rowSelector.find("#Income__AddEarningFamilyMem__toAddKycRow_row").addClass("sno");
+    rowSelector.find("#Income__AddEarningFamilyMem__kycResAddMemberRow_row").addClass("sno");
+    rowSelector.find("#Income__AddEarningFamilyMem__isEarningToggle_row").addClass("sno");
+};
+apz.app.AddEarningFamilyMem.updateKYCDetails = function(requestData, locRowNo) {
+    if (gApzCOB.addedFamilyMembersArray.length > 0) {
+        gApzCOB.addedFamilyMembersArray.forEach((mem, index) => {
+            if (mem.hasOwnProperty("customerId") && mem.customerId !== "") {
+                apz.app.AddEarningFamilyMem.paintUpdatedKYCDetails(mem, index);
+            }
+        });
+    }
+    let liList = $('#' + screenId + 'mainRow').find('li');
+    if (liList.length > 0) {
+        for (var i = 0; i < liList.length; i++) {
+            if (gApzCOB.addedFamilyMembersArray[i].legaldocName === 'Pan Card') {
+                var liItem = $('#' + screenId + 'mainRow_row_' + i);
+                if (liItem.find('#Income__AddEarningFamilyMem__sc_row_1199_row')) {
+                    liItem.find('#Income__AddEarningFamilyMem__sc_row_1199_row').addClass('sno');
+                } else {
+                    liItem.find('#Income__AddEarningFamilyMem__sc_row_1199_row').removeClass('sno');
+                }
+            }
+        }
+    }
+};
+apz.app.AddEarningFamilyMem.paintUpdatedKYCDetails = function(requestData, locRowNo) {
+    var rowSelector = $('#Income__AddEarningFamilyMem__mainRow_row_' + locRowNo);
+    rowSelector.find("#Income__AddEarningFamilyMem__addedMembName_" + locRowNo).text(requestData.InputData.name);
+    rowSelector.find("#Income__AddEarningFamilyMem__addedMembDob_" + locRowNo).text(requestData.InputData.dob);
+    rowSelector.find("#Income__AddEarningFamilyMem__addedMembKYC_" + locRowNo).text(requestData.legaldocName);
+    rowSelector.find("#Income__AddEarningFamilyMem__addedMembKycId_" + locRowNo).text(requestData.InputData.legaldocId);
+    rowSelector.find("#Income__AddEarningFamilyMem__kycAddBtn_" + locRowNo).addClass("sno");
+    rowSelector.find("#Income__AddEarningFamilyMem__kycEditBtn_" + locRowNo).removeClass("sno");
+    rowSelector.find("#Income__AddEarningFamilyMem__kycDeleteIcon_" + locRowNo).removeClass("sno");
+    rowSelector.find("#Income__AddEarningFamilyMem__kycDpIcon_" + locRowNo).removeClass("sno");
+    rowSelector.find("#Income__AddEarningFamilyMem__kycSaveBtn_" + locRowNo).addClass("sno");
+    if (rowSelector.find("#Income__AddEarningFamilyMem__kycResAddMemberRow_row").hasClass("sno")) {
+        rowSelector.find("#Income__AddEarningFamilyMem__toAddKycRow_row").removeClass("sno");
+        rowSelector.find("#Income__AddEarningFamilyMem__kycResAddMemberRow_row").removeClass("sno");
+        rowSelector.find("#Income__AddEarningFamilyMem__isEarningToggle_row").removeClass("sno");
+    } else {
+        rowSelector.find("#Income__AddEarningFamilyMem__toAddKycRow_row").addClass("sno");
+        rowSelector.find("#Income__AddEarningFamilyMem__kycResAddMemberRow_row").addClass("sno");
+        rowSelector.find("#Income__AddEarningFamilyMem__isEarningToggle_row").addClass("sno");
+    }
+    if (requestData.isEarning) {
+        rowSelector.find("#Income__AddEarningFamilyMem__kycSaveBtn_" + locRowNo).addClass("sno");
+    } else {
+        rowSelector.find("#Income__AddEarningFamilyMem__kycSaveBtn_" + locRowNo).addClass("sno");
+    }
+    apz.app.AddEarningFamilyMem.UpdatedKYCDetails(requestData);
+};
+apz.app.AddEarningFamilyMem.UpdatedKYCDetails = function(data) {
+    familyMembers.forEach(function(m, n) {
+        if (m.idx = data.idx) {
+            m = data;
+        }
+    });
+};
+apz.app.AddEarningFamilyMem.SaveandDetails = function(pthis) {
+    IncomeApp.payLoad.earnings = kycDetails;
+    IncomeApp.status = 'EARNINGSAVE';
+    IncomeApp.workflow = {};
+    apz.app.AddEarningFamilyMem.updateIncomeAssesment();
+};
+apz.app.AddEarningFamilyMem.updateIncomeAssesment = function() {
+    // let appDate = ApzCOB.dateMMDDYYYYformat()
+    //let formattedDate = appDate.slice(0, 4) + '-' + appDate.slice(4, 6) + '-' + appDate.slice(6, 8);
+    var req = {
+        "apiRequest": {
+            "interfaceName": "UpdateIncomeAssessment",
+            "appId": gAppId,
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "appId": gAppId,
+                "applicationId": IncomeApp.applicationId,
+                "versionNum": IncomeApp.versionNum,
+                "status": IncomeApp.status,
+                "updatedBy": LoggedInUserDetails.userID,
+                "userId": LoggedInUserDetails.userID,
+                "remarks": "",
+                "incAssessmentPayload": IncomeApp.payLoad,
+                "updatedBy": LoggedInUserDetails.userID,
+                "workflow": IncomeApp.workflow
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "UpdateIncomeAssessment", "N", "N", req, 'Y', apz.app.AddEarningFamilyMem.updateIncomeAssesmentCB);
+}
+apz.app.AddEarningFamilyMem.updateIncomeAssesmentCB = function(params) {
+    console.log('saveandproceed', params);
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            var ifaceName = ApzCOB.GetInterfaceResMap(params);
+            var response = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+            if (response.status === "success") {
+                IncomeApp.versionNum = response.versionNum;
+                IncomeApp.applicationId = response.applicationId;
+                ApzCOB.fnDisplayMsg('Application saved Succesfully', "I");
+                //ApzCOB.launchMicroApp('Income', 'AddEarningFamilyMem', 'APZCBO__BaseScreens__BaseDIV', data);
+            } else {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.AddEarningFamilyMem.dpViewDetails = function(pthis) {
+    var row = $(pthis).attr("rowno");
+    gApzCOB.addedFamilyMembersArray.forEach((mem, index) => {
+        if (index === parseInt(row) && mem.hasOwnProperty("customerId") && mem.customerId !== "") {
+            apz.app.AddEarningFamilyMem.paintUpdatedKYCDetails(mem, index);
+        }
+    });
+};
+apz.app.AddEarningFamilyMem.updateexistingData = function() {
+    window.selectedMembersData = [];
+    gApzCOB.addedFamilyMembersArray.forEach(function(obj, i) {
+        var name = '';
+        if (obj.memRelation == 'SON') {
+            name = 'Son';
+        } else if (obj.memRelation == 'DAUGHTER') {
+            name = 'Daughter';
+        } else {
+            name = 'Spouse';
+        }
+        window.selectedMembersData.push(name)
+    })
+    var selMems = window.selectedMembersData.map(memb => ({
+        memb
+    }));
+    apz.data.scrdata.Income__IPaintSelectedIncomeMemb_Res = selMems;
+    apz.data.loadData("IPaintSelectedIncomeMemb", 'Income');
+    $('#' + screenId + 'mainRow').find('li').hide();
+    selMems.forEach((member, index) => {
+        let listItem = $('#' + screenId + 'mainRow').find('li').eq(index);
+        listItem.show();
+        if (gApzCOB.addedFamilyMembersArray.length > 0) {
+            gApzCOB.addedFamilyMembersArray.forEach(function(obj, i) {
+                var rowSelector = $('#Income__AddEarningFamilyMem__mainRow_row_' + i);
+                if (obj.index == index) {
+                    if (apz.isNull(obj.legaldocId)) {
+                        rowSelector.find("#Income__AddEarningFamilyMem__kycAddBtn_" + index).removeClass("sno");
+                        rowSelector.find("#Income__AddEarningFamilyMem__kycEditBtn_" + index).addClass("sno");
+                        rowSelector.find("#Income__AddEarningFamilyMem__kycDeleteIcon_" + index).removeClass("sno");
+                        rowSelector.find("#Income__AddEarningFamilyMem__kycDpIcon_" + index).addClass("sno");
+                        rowSelector.find("#Income__AddEarningFamilyMem__kycSaveBtn_" + index).addClass("sno");
+                        rowSelector.find("#Income__AddEarningFamilyMem__toAddKycRow_row").removeClass("sno");
+                        rowSelector.find("#Income__AddEarningFamilyMem__kycResAddMemberRow_row").addClass("sno");
+                        rowSelector.find("#Income__AddEarningFamilyMem__isEarningToggle_row").removeClass("sno");
+                    } else {
+                        apz.app.AddEarningFamilyMem.paintAfterDeletedDetails(obj, obj.index)
+                        rowSelector.find("#Income__AddEarningFamilyMem__kycAddBtn_" + index).addClass("sno");
+                        rowSelector.find("#Income__AddEarningFamilyMem__kycEditBtn_" + index).removeClass("sno");
+                        rowSelector.find("#Income__AddEarningFamilyMem__kycDeleteIcon_" + index).removeClass("sno");
+                        rowSelector.find("#Income__AddEarningFamilyMem__kycDpIcon_" + index).removeClass("sno");
+                        rowSelector.find("#Income__AddEarningFamilyMem__kycSaveBtn_" + index).addClass("sno");
+                        rowSelector.find("#Income__AddEarningFamilyMem__toAddKycRow_row").removeClass("sno");
+                        rowSelector.find("#Income__AddEarningFamilyMem__kycResAddMemberRow_row").removeClass("sno");
+                        rowSelector.find("#Income__AddEarningFamilyMem__isEarningToggle_row").removeClass("sno");
+                    }
+                }
+            })
+        }
+    })
+}
+apz.app.AddEarningFamilyMem.edit = function(ev) {
+    selectedDiv = ev;
+    ApzCOB.fnDisplayMsg('Do you want to edit KYC?', 'C', apz.app.AddEarningFamilyMem.editCallBack);
+};
+apz.app.AddEarningFamilyMem.editCallBack = function(param) { //Call delete scheduled transfer
+    if (param.choice === true) {
+        apz.app.AddEarningFamilyMem.onCLickOfFamilyMemberEdit(selectedDiv);
+    } else {
+        return;
+    }
+};
+apz.app.AddEarningFamilyMem.onCLickOfFamilyMemberEdit = function(buttonElement) {
+    var parentLi = $(buttonElement).closest('li');
+    var rowNumber = parentLi.attr('rowno');
+    let rowSelected = $('#Income__AddEarningFamilyMem__mainRow_row_' + rowNumber);
+    let outerText = parentLi[0].outerText;
+    let name = outerText.split('\n')[0].trim(); // Extract and trim the first line
+    globalKycName = name;
+    var data = {
+        requestData: requestData,
+        kycDetails: kycDetails,
+        globalKycName,
+        rowNo: rowNumber,
+        editFlow: true,
+    };
+    console.log(data);
+    if (parentLi[0].id.indexOf("Income__AddEarningFamilyMem__mainRow_row_") > -1) {
+        gApzCOB.addedFamilyMemberObj = gApzCOB.addedFamilyMembersArray[rowNumber];
+        IncomeApp.currentDocId=gApzCOB.addedFamilyMemberObj.InputData.legaldocId;
+    } else {
+        gApzCOB.existingFamilyMembersArray.push(apz.data.scrdata.Income__IPaintMemRelation_Res[rowNumber]);
+        gApzCOB.existingFamilyMemberObj = JSON.parse(JSON.stringify(apz.data.scrdata.Income__IPaintMemRelation_Res[rowNumber]));
+        data.existingMem = true;
+    }
+    ApzCOB.launchMicroApp("Income", "KycDetails", "APZCBO__BaseScreens__BaseDIV", data);
+};
+apz.app.AddEarningFamilyMem.frontImg = function(pthis) {
+    let rowNo = $(pthis).attr('rowno');
+    apz.setElmValue(screenId + "imgage", '')
+    var img = gApzCOB.addedFamilyMembersArray[rowNo].forntImg;
+    $("#" + screenId + "imgage").attr('src', 'data:image/' + 'png' + ';base64,' + img);
+    ApzCOB.toggleModal(screenId + "imageModal");
+}
+apz.app.AddEarningFamilyMem.backImg = function(pthis) {
+    let rowNo = $(pthis).attr('rowno');
+    apz.setElmValue(screenId + "imgage", '')
+    var img = gApzCOB.addedFamilyMembersArray[rowNo].backImg;
+    $("#" + screenId + "imgage").attr('src', 'data:image/' + 'png' + ';base64,' + img);
+    ApzCOB.toggleModal(screenId + "imageModal");
+}
+apz.app.AddEarningFamilyMem.frontEImg = function(pthis) {
+    let rowNo = $(pthis).attr('rowno');
+    apz.setElmValue(screenId + "imgage", '')
+    var img = gApzCOB.existingFamilyMembersArray[rowNo].forntImg;
+    $("#" + screenId + "imgage").attr('src', 'data:image/' + 'png' + ';base64,' + img);
+    ApzCOB.toggleModal(screenId + "imageModal");
+}
+apz.app.AddEarningFamilyMem.backEImg = function(pthis) {
+    let rowNo = $(pthis).attr('rowno');
+    apz.setElmValue(screenId + "imgage", '')
+    var img = gApzCOB.existingFamilyMembersArray[rowNo].backImg;
+    $("#" + screenId + "imgage").attr('src', 'data:image/' + 'png' + ';base64,' + img);
+    ApzCOB.toggleModal(screenId + "imageModal");
+}
+apz.app.AddEarningFamilyMem.onClickOk = function() {
+    ApzCOB.toggleModal(screenId + "imageModal");
+}

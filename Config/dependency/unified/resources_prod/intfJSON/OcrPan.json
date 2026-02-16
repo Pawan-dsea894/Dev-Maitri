@@ -1,0 +1,27 @@
+{
+  "apiURL": "${URL}",
+  "servicetype": "HTTP",
+  "methodType": "POST",
+  "contentType": "application/json",
+  "headers": {
+    "Content-Type": "application/json",
+    "Accept": "*/*",
+    "Authorization": ""
+  },
+  "requestDef": {
+    "imageUrl": "${REQUEST~apiRequest.imageUrl}",
+    "RequestID": "${REQUEST~apiRequest.requestID}",
+    "isBlackWhiteCheck": "${REQUEST~apiRequest.isBlackWhiteCheck}",
+    "confidence": "${REQUEST~apiRequest.confidence}",
+    "fraudCheck": "${REQUEST~apiRequest.fraudCheck}",
+    "isCompleteImageCheck": "${REQUEST~apiRequest.isCompleteImageCheck}",
+    "doctype": "${REQUEST~apiRequest.doctype}"
+  },
+  "responseDef": "",
+  "logging": {
+    "logRequired": "Y",
+    "logType": "BOTH",
+	  "externalAPILogRequired":"N",
+	  "externalAPILogType":"NONE"
+  }
+}

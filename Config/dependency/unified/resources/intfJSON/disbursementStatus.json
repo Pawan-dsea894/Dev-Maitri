@@ -1,0 +1,22 @@
+{
+  "apiURL": "${URL}",
+  "servicetype": "HTTP",
+  "methodType": "GET",
+  "contentType": "application/json",
+  "headers": {
+    "Content-Type": "application/json",
+    "Accept": "*/*",
+    "Apikey": "Y2FsZ2xpbnRlcmZhY2Vlc2I=",
+	"loanRefID": "{REQUEST~apiRequest.loanRefID}"
+  },
+  "requestDef": {
+    "loanRefID": "${REQUEST~apiRequest.loanRefID}"  
+  },
+  "responseDef": "",
+  "logging": {
+    "logRequired": "Y",
+    "logType": "BOTH",
+  "externalAPILogRequired":"N",
+  "externalAPILogType":"NONE"
+  }
+}

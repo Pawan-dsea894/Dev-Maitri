@@ -1,0 +1,74 @@
+var SuccessScreenId = 'CollBM__SuccessScreen__';
+var selectedCashierDetails = '';
+apz.app.onShown_SuccessScreen = function(params) {
+    $('body').removeClass('modal-open');
+    selectedCashierDetails = params;
+    apz.app.SuccessScreen.paintCollectionDetails();
+}
+apz.app.SuccessScreen.paintCollectionDetails = function() {
+    apz.setElmValue(SuccessScreenId + 'name', selectedCashierDetails.kmName);
+    apz.setElmValue(SuccessScreenId + 'kendraCount', selectedCashierDetails.kendraCount);
+    apz.setElmValue(SuccessScreenId + 'collectedAmt', "₹" + selectedCashierDetails.totalColAmt);
+}
+apz.app.SuccessScreen.clickMoreOptionsBtn = function() {
+    if (document.getElementById(SuccessScreenId + "moreDetailsDiv").classList.contains("sno")) {
+        document.getElementById(SuccessScreenId + "moreDetailsDiv").classList.remove("sno");
+        $("#" + SuccessScreenId + 'dropIcon').addClass('active')
+        apz.setElmValue(SuccessScreenId + 'dueAmt', selectedCashierDetails.data.DueAmount);
+        apz.setElmValue(SuccessScreenId + 'amtCollected', "₹" + selectedCashierDetails.totalColAmt);
+        apz.setElmValue(SuccessScreenId + 'disbursed', "₹" + 0);
+        apz.setElmValue(SuccessScreenId + 'upi', "₹" + 0);
+        $("#" + SuccessScreenId + "status").addClass('vrfed brd-rd');
+        if (window.userRole === "CASHIER") {
+            $("#" + SuccessScreenId + "status").text('ACCEPTED');
+        } else if (window.userRole === "BM") {
+            $("#" + SuccessScreenId + "status").text('APPROVED');
+        }
+        apz.setElmValue(SuccessScreenId + 'netCash', "₹" + selectedCashierDetails.totalColAmt);
+    } else {
+        document.getElementById(SuccessScreenId + "moreDetailsDiv").classList.add("sno");
+        $("#" + SuccessScreenId + 'dropIcon').removeClass('active')
+    }
+}
+apz.app.SuccessScreen.done = function() {
+    $('#' + ViewKendraScrId + 'viewKDetails').removeClass('sno');
+    $('#' + ViewKendraScrId + 'viewKheaderRow').removeClass('sno');
+    $('#' + ViewKendraScrId + 'viewKendraBaseDiv').addClass('sno');
+    apz.childScr = "ViewKendraDetails";
+    if (isFromCashierARScr) {
+        isFromCashierARScr = false;
+        apz.currAppId = "CasCol";
+    } else if (isFromApproveRejScr) {
+        isFromApproveRejScr = false;
+    }
+    var count = 0;
+    if (!apz.isNull(selectedGroupDet)) {
+        for (let i = 0; i < selectedGroupDet.length; i++) {
+            let firstWF = selectedGroupDet[i];
+            if (firstWF.isPushback === true || firstWF.isApproved === true) {
+                count++;
+            }
+        }
+    }
+    if (selectedGroupDet.length === count) {
+        ApzCOB.launchMicroApp('Dashbo', 'dashboard', gAppId + '__BaseScreens__BaseDIV', '');
+    }
+}
+apz.app.SuccessScreen.calculateAmt = function(selectedKend) {
+    const allMembers = selectedKend.colldtls.groups.flatMap(group => group.members || []);
+    const totals = data.reduce((acc, item) => {
+        acc.totalCash += item.totalCash;
+        acc.totalUPI += item.totalUPI;
+        acc.totalCollAmt += item.collAmount;
+        acc.totalDue += item.totalDue;
+        acc.advanceAmt += item.advAmt;
+        return acc;
+    }, {
+        totalCash: 0,
+        totalUPI: 0,
+        totalCollAmt: 0,
+        totalDue: 0,
+        advanceAmt: 0
+    });
+    return totals;
+}

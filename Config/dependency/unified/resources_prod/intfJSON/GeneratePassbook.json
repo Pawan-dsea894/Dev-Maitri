@@ -1,0 +1,28 @@
+{
+  "apiURL": "${URL}",
+  "servicetype": "HTTP",
+  "methodType": "POST",
+  "contentType": "application/json",
+  "headers": {
+    "Content-Type": "application/json",
+    "Accept": "*/*",
+    "Apikey": "Z3JhbWVlbmtvb3RhcHJvZA",
+	"Authorization": "Basic dXNlcm5hbWU6MjAyMUBHS2FwIQ=="
+  },
+  "requestDef": {
+    "company": "${REQUEST~apiRequest.company}",
+    "password": "${REQUEST~apiRequest.password}",
+    "userName":"${REQUEST~apiRequest.userName}",
+    "columnName": "${REQUEST~apiRequest.columnName}",
+    "criteriaValue": "${REQUEST~apiRequest.criteriaValue}",
+    "operand":"${REQUEST~apiRequest.operand}"
+    
+  },
+  "responseDef": "",
+  "logging": {
+    "logRequired": "Y",
+    "logType": "BOTH",
+  "externalAPILogRequired":"N",
+  "externalAPILogType":"NONE"
+  }
+}

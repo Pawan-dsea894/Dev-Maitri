@@ -1,0 +1,1889 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.23" id="1">
+    <property name="createdBy">Eclipse BIRT Designer Version 4.16.0.v202406131946</property>
+    <property name="units">in</property>
+    <property name="iconFile">/templates/blank_report.gif</property>
+    <property name="bidiLayoutOrientation">ltr</property>
+    <property name="imageDPI">96</property>
+    <parameters>
+        <scalar-parameter name="memberId" id="1135">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="memberName" id="311">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="phoneno" id="2218">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="branchName" id="1141">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="kendraName" id="1143">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="kendraId" id="1137">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="date" id="1147">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="productName" id="2278">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="Lnpurpose" id="2261">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="loanAmount" id="2228">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="paymentFreq" id="2230">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="memInsurance" id="2232">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="spouseInsurance" id="2233">
+            <property name="hidden">false</property>
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="kmName" id="2219">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="kmId" id="2220">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="bmName" id="1139">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="bmId" id="2221">
+            <property name="valueType">static</property>
+            <property name="isRequired">false</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant"></value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+    </parameters>
+    <page-setup>
+        <simple-master-page name="Simple MasterPage" id="2">
+            <property name="type">us-letter</property>
+            <property name="headerHeight">0.6cm</property>
+            <property name="footerHeight">0in</property>
+            <page-header>
+                <label id="91143">
+                    <property name="fontSize">7pt</property>
+                    <property name="color">#717171</property>
+                    <property name="textAlign">right</property>
+                    <text-property name="text">Branch Copy</text-property>
+                </label>
+            </page-header>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <grid id="255">
+            <column id="256"/>
+            <row id="257">
+                <cell id="258">
+                    <property name="diagonalStyle">none</property>
+                    <property name="antidiagonalStyle">none</property>
+                    <property name="borderBottomStyle">none</property>
+                    <property name="borderLeftStyle">none</property>
+                    <property name="borderRightStyle">none</property>
+                    <property name="borderTopStyle">none</property>
+                    <property name="paddingTop">10pt</property>
+                    <property name="paddingLeft">10pt</property>
+                    <property name="paddingBottom">10pt</property>
+                    <property name="paddingRight">10pt</property>
+                    <grid id="4">
+                        <property name="height">1.3125in</property>
+                        <property name="width">7.385416666666667in</property>
+                        <column id="5">
+                            <property name="width">4.3125in</property>
+                        </column>
+                        <column id="6">
+                            <property name="width">3.0729166666666665in</property>
+                        </column>
+                        <row id="7">
+                            <property name="height">1.3125in</property>
+                            <cell id="8">
+                                <text id="10">
+                                    <property name="fontSize">10pt</property>
+                                    <property name="fontWeight">bold</property>
+                                    <property name="textAlign">center</property>
+                                    <property name="whiteSpace">normal</property>
+                                    <property name="display">block</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ ಕ್ರೆಡಿಟ್ ಆಕ್ಸೆಸ್ ಗ್ರಾಮೀಣ್ ಲಿಮಿಟೆಡ್ ]]></text-property>
+                                </text>
+                                <text id="11">
+                                    <property name="fontSize">8pt</property>
+                                    <property name="color">#808080</property>
+                                    <property name="textAlign">center</property>
+                                    <property name="whiteSpace">normal</property>
+                                    <property name="display">block</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[(ಹಿಂದೆ ಗ್ರಾಮೀಣ್ ಕೂಟ ಫೈನಾನ್ಶಿಯಲ್ ಸರ್ವಿಸಸ್ ಪ್ರೈ. ಲಿಮಿಟೆಡ್ ಎಂದು ಕರೆಯಲಾಗುತ್ತಿತ್ತು.) ]]></text-property>
+                                </text>
+                                <text id="12">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="textAlign">center</property>
+                                    <property name="whiteSpace">normal</property>
+                                    <property name="display">block</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ನೋಂದಾಯಿತ ವಿಳಾಸ: 49, 43 ಕ್ರಾಸ್, ರಾಜಲಕ್ಷ್ಮಿ]]></text-property>
+                                </text>
+                                <text id="14">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="textAlign">center</property>
+                                    <property name="whiteSpace">normal</property>
+                                    <property name="display">block</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ರಾಜಲಕ್ಷ್ಮಿ ಕಲ್ಯಾಣ ಮಂಟಪದ ಹತ್ತಿರ,  ಜಯನಗರ, 8ನೇ ಬ್ಲಾಕ್, ಬೆಂಗಳೂರು -560071, ಫೋನ್ :080-2263730]]></text-property>
+                                </text>
+                                <text id="13">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="textAlign">center</property>
+                                    <property name="whiteSpace">normal</property>
+                                    <property name="display">block</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[CIN: L51216KA1991PLC053425]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="9">
+                                <property name="textAlign">center</property>
+                                <property name="verticalAlign">middle</property>
+                                <image id="15">
+                                    <property name="height">0.5906040268456376in</property>
+                                    <property name="width">1.2483221476510067in</property>
+                                    <property name="source">embed</property>
+                                    <property name="imageName">gk-unified.png</property>
+                                </image>
+                            </cell>
+                        </row>
+                    </grid>
+                    <text id="16">
+                        <property name="fontSize">10pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="marginTop">0pt</property>
+                        <property name="marginBottom">1pt</property>
+                        <property name="textAlign">center</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಸಾಲದ ಅರ್ಜಿ ನಮೂನೆ]]></text-property>
+                    </text>
+                    <label id="1760">
+                        <property name="fontSize">9pt</property>
+                        <property name="fontWeight">bold</property>
+                        <text-property name="text">ಅಪ್ಲಿಕೇಶನ್ ವಿವರಗಳು:</text-property>
+                    </label>
+                    <grid id="9318">
+                        <property name="height">1.0833333333333333in</property>
+                        <property name="width">7.358333333333333in</property>
+                        <column id="9319">
+                            <property name="width">3.375in</property>
+                        </column>
+                        <column id="91194">
+                            <property name="width">0.475in</property>
+                        </column>
+                        <column id="91169">
+                            <property name="width">3.5in</property>
+                        </column>
+                        <row id="9321">
+                            <property name="height">1.0833333333333333in</property>
+                            <cell id="9322">
+                                <property name="diagonalStyle">none</property>
+                                <property name="antidiagonalStyle">none</property>
+                                <property name="borderBottomStyle">none</property>
+                                <property name="borderLeftStyle">none</property>
+                                <property name="borderRightStyle">none</property>
+                                <property name="borderTopStyle">none</property>
+                                <grid id="9138">
+                                    <property name="marginTop">5pt</property>
+                                    <property name="marginBottom">2pt</property>
+                                    <property name="width">3.216666666666667in</property>
+                                    <column id="9139">
+                                        <property name="width">1.3083333333333333in</property>
+                                    </column>
+                                    <column id="9140">
+                                        <property name="width">1.9083333333333334in</property>
+                                    </column>
+                                    <row id="9141">
+                                        <cell id="9142">
+                                            <property name="verticalAlign">middle</property>
+                                            <text id="9143">
+                                                <property name="fontSize">9pt</property>
+                                                <property name="contentType">auto</property>
+                                                <text-property name="content"><![CDATA[ಸದಸ್ಯರ ವಿಧ:]]></text-property>
+                                            </text>
+                                        </cell>
+                                        <cell id="9144">
+                                            <text id="91167">
+                                                <property name="fontSize">9pt</property>
+                                                <property name="contentType">auto</property>
+                                                <text-property name="content"><![CDATA[[ವಿಶೇಷ್/ GL]]]></text-property>
+                                            </text>
+                                        </cell>
+                                    </row>
+                                    <row id="91147">
+                                        <cell id="91148">
+                                            <property name="verticalAlign">middle</property>
+                                            <text id="91195">
+                                                <property name="fontSize">9pt</property>
+                                                <property name="contentType">auto</property>
+                                                <text-property name="content"><![CDATA[ಸದಸ್ಯರ ಐಡಿ:]]></text-property>
+                                            </text>
+                                        </cell>
+                                        <cell id="91149">
+                                            <data id="91196">
+                                                <property name="fontSize">9pt</property>
+                                                <list-property name="boundDataColumns">
+                                                    <structure>
+                                                        <property name="name">memberId</property>
+                                                        <expression name="expression" type="javascript">params["memberId"]</expression>
+                                                        <property name="dataType">string</property>
+                                                    </structure>
+                                                </list-property>
+                                                <property name="resultSetColumn">memberId</property>
+                                            </data>
+                                        </cell>
+                                    </row>
+                                    <row id="91150">
+                                        <cell id="91151">
+                                            <property name="verticalAlign">middle</property>
+                                            <text id="91197">
+                                                <property name="fontSize">9pt</property>
+                                                <property name="contentType">auto</property>
+                                                <text-property name="content"><![CDATA[ಸದಸ್ಯರ ಹೆಸರು:]]></text-property>
+                                            </text>
+                                        </cell>
+                                        <cell id="91152">
+                                            <data id="91198">
+                                                <property name="fontSize">9pt</property>
+                                                <list-property name="boundDataColumns">
+                                                    <structure>
+                                                        <property name="name">memberName</property>
+                                                        <expression name="expression" type="javascript">params["memberName"]</expression>
+                                                        <property name="dataType">string</property>
+                                                    </structure>
+                                                </list-property>
+                                                <property name="resultSetColumn">memberName</property>
+                                            </data>
+                                        </cell>
+                                    </row>
+                                    <row id="91153">
+                                        <cell id="91154">
+                                            <property name="verticalAlign">middle</property>
+                                            <text id="91199">
+                                                <property name="fontSize">9pt</property>
+                                                <property name="contentType">auto</property>
+                                                <text-property name="content"><![CDATA[ಮೊಬೈಲ್ ಸಂಖ್ಯೆ:]]></text-property>
+                                            </text>
+                                        </cell>
+                                        <cell id="91155">
+                                            <data id="91200">
+                                                <property name="fontSize">9pt</property>
+                                                <list-property name="boundDataColumns">
+                                                    <structure>
+                                                        <property name="name">phoneno</property>
+                                                        <expression name="expression" type="javascript">params["phoneno"]</expression>
+                                                        <property name="dataType">string</property>
+                                                    </structure>
+                                                </list-property>
+                                                <property name="resultSetColumn">phoneno</property>
+                                            </data>
+                                        </cell>
+                                    </row>
+                                </grid>
+                            </cell>
+                            <cell id="91193">
+                                <property name="diagonalStyle">none</property>
+                                <property name="antidiagonalStyle">none</property>
+                                <property name="borderBottomStyle">none</property>
+                                <property name="borderLeftStyle">none</property>
+                                <property name="borderRightStyle">none</property>
+                                <property name="borderTopStyle">none</property>
+                            </cell>
+                            <cell id="91168">
+                                <property name="diagonalStyle">none</property>
+                                <property name="antidiagonalStyle">none</property>
+                                <property name="borderBottomStyle">none</property>
+                                <property name="borderLeftStyle">none</property>
+                                <property name="borderRightStyle">none</property>
+                                <property name="borderTopStyle">none</property>
+                                <grid id="91170">
+                                    <property name="marginTop">5pt</property>
+                                    <property name="marginBottom">2pt</property>
+                                    <property name="width">3.4166666666666665in</property>
+                                    <column id="91171">
+                                        <property name="width">1.3in</property>
+                                    </column>
+                                    <column id="91172">
+                                        <property name="width">2.1166666666666667in</property>
+                                    </column>
+                                    <row id="91173">
+                                        <cell id="91174">
+                                            <property name="verticalAlign">middle</property>
+                                            <text id="91201">
+                                                <property name="fontSize">9pt</property>
+                                                <property name="contentType">auto</property>
+                                                <text-property name="content"><![CDATA[ಶಾಖೆಯ ಹೆಸರು:]]></text-property>
+                                            </text>
+                                        </cell>
+                                        <cell id="91176">
+                                            <data id="91202">
+                                                <property name="fontSize">9pt</property>
+                                                <list-property name="boundDataColumns">
+                                                    <structure>
+                                                        <property name="name">branchName</property>
+                                                        <expression name="expression" type="javascript">params["branchName"]</expression>
+                                                        <property name="dataType">string</property>
+                                                    </structure>
+                                                </list-property>
+                                                <property name="resultSetColumn">branchName</property>
+                                            </data>
+                                        </cell>
+                                    </row>
+                                    <row id="91178">
+                                        <cell id="91179">
+                                            <property name="verticalAlign">middle</property>
+                                            <text id="91203">
+                                                <property name="fontSize">9pt</property>
+                                                <property name="contentType">auto</property>
+                                                <text-property name="content"><![CDATA[ಕೇಂದ್ರ ಹೆಸರು:]]></text-property>
+                                            </text>
+                                        </cell>
+                                        <cell id="91181">
+                                            <data id="91204">
+                                                <property name="fontSize">9pt</property>
+                                                <list-property name="boundDataColumns">
+                                                    <structure>
+                                                        <property name="name">kendraName</property>
+                                                        <expression name="expression" type="javascript">params["kendraName"]</expression>
+                                                        <property name="dataType">string</property>
+                                                    </structure>
+                                                </list-property>
+                                                <property name="resultSetColumn">kendraName</property>
+                                            </data>
+                                        </cell>
+                                    </row>
+                                    <row id="91183">
+                                        <cell id="91184">
+                                            <property name="verticalAlign">middle</property>
+                                            <text id="91205">
+                                                <property name="fontSize">9pt</property>
+                                                <property name="contentType">auto</property>
+                                                <text-property name="content"><![CDATA[ಕೇಂದ್ರ ಸಂಖ್ಯೆ:]]></text-property>
+                                            </text>
+                                        </cell>
+                                        <cell id="91186">
+                                            <data id="91206">
+                                                <property name="fontSize">9pt</property>
+                                                <list-property name="boundDataColumns">
+                                                    <structure>
+                                                        <property name="name">kendraId</property>
+                                                        <expression name="expression" type="javascript">params["kendraId"]</expression>
+                                                        <property name="dataType">string</property>
+                                                    </structure>
+                                                </list-property>
+                                                <property name="resultSetColumn">kendraId</property>
+                                            </data>
+                                        </cell>
+                                    </row>
+                                    <row id="91188">
+                                        <cell id="91189">
+                                            <property name="verticalAlign">middle</property>
+                                            <text id="91207">
+                                                <property name="fontSize">9pt</property>
+                                                <property name="contentType">auto</property>
+                                                <text-property name="content"><![CDATA[ದಿನಾಂಕ:]]></text-property>
+                                            </text>
+                                        </cell>
+                                        <cell id="91191">
+                                            <data id="91208">
+                                                <property name="fontSize">9pt</property>
+                                                <list-property name="boundDataColumns">
+                                                    <structure>
+                                                        <property name="name">date</property>
+                                                        <expression name="expression" type="javascript">params["date"]</expression>
+                                                        <property name="dataType">string</property>
+                                                    </structure>
+                                                </list-property>
+                                                <property name="resultSetColumn">date</property>
+                                            </data>
+                                        </cell>
+                                    </row>
+                                </grid>
+                            </cell>
+                        </row>
+                    </grid>
+                    <grid id="91209">
+                        <property name="marginTop">5pt</property>
+                        <property name="height">0.7013888888888888in</property>
+                        <property name="width">7.191666666666666in</property>
+                        <column id="91146">
+                            <property name="width">1.725in</property>
+                        </column>
+                        <column id="91210">
+                            <property name="width">1.4916666666666667in</property>
+                        </column>
+                        <column id="91211">
+                            <property name="width">1.1083333333333334in</property>
+                        </column>
+                        <column id="91212">
+                            <property name="width">1.4333333333333333in</property>
+                        </column>
+                        <column id="91213">
+                            <property name="width">1.4333333333333333in</property>
+                        </column>
+                        <row id="91214">
+                            <cell id="91144">
+                                <property name="borderBottomColor">#808080</property>
+                                <property name="borderBottomStyle">solid</property>
+                                <property name="borderBottomWidth">1px</property>
+                                <property name="borderLeftColor">#808080</property>
+                                <property name="borderLeftStyle">solid</property>
+                                <property name="borderLeftWidth">1px</property>
+                                <property name="borderRightColor">#808080</property>
+                                <property name="borderRightStyle">solid</property>
+                                <property name="borderRightWidth">1px</property>
+                                <property name="borderTopColor">#808080</property>
+                                <property name="borderTopStyle">solid</property>
+                                <property name="borderTopWidth">1px</property>
+                                <text id="91215">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="fontWeight">bold</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಅನ್ವಯಿಸಲಾದ ಸಾಲದ ಉತ್ಪನ್ನ:]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="91216">
+                                <property name="borderBottomColor">#808080</property>
+                                <property name="borderBottomStyle">solid</property>
+                                <property name="borderBottomWidth">1px</property>
+                                <property name="borderLeftColor">#808080</property>
+                                <property name="borderLeftStyle">solid</property>
+                                <property name="borderLeftWidth">1px</property>
+                                <property name="borderRightColor">#808080</property>
+                                <property name="borderRightStyle">solid</property>
+                                <property name="borderRightWidth">1px</property>
+                                <property name="borderTopColor">#808080</property>
+                                <property name="borderTopStyle">solid</property>
+                                <property name="borderTopWidth">1px</property>
+                                <text id="91217">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="fontWeight">bold</property>
+                                    <property name="paddingLeft">5pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಸಾಲದ ಉದ್ದೇಶ]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="91218">
+                                <property name="borderBottomColor">#808080</property>
+                                <property name="borderBottomStyle">solid</property>
+                                <property name="borderBottomWidth">1px</property>
+                                <property name="borderLeftColor">#808080</property>
+                                <property name="borderLeftStyle">solid</property>
+                                <property name="borderLeftWidth">1px</property>
+                                <property name="borderRightColor">#808080</property>
+                                <property name="borderRightStyle">solid</property>
+                                <property name="borderRightWidth">1px</property>
+                                <property name="borderTopColor">#808080</property>
+                                <property name="borderTopStyle">solid</property>
+                                <property name="borderTopWidth">1px</property>
+                                <text id="91219">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="fontWeight">bold</property>
+                                    <property name="paddingLeft">5pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಸಾಲದ ಮೊತ್ತ]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="91220">
+                                <property name="borderBottomColor">#808080</property>
+                                <property name="borderBottomStyle">solid</property>
+                                <property name="borderBottomWidth">1px</property>
+                                <property name="borderLeftColor">#808080</property>
+                                <property name="borderLeftStyle">solid</property>
+                                <property name="borderLeftWidth">1px</property>
+                                <property name="borderRightColor">#808080</property>
+                                <property name="borderRightStyle">solid</property>
+                                <property name="borderRightWidth">1px</property>
+                                <property name="borderTopColor">#808080</property>
+                                <property name="borderTopStyle">solid</property>
+                                <property name="borderTopWidth">1px</property>
+                                <text id="91221">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="fontWeight">bold</property>
+                                    <property name="paddingLeft">5pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಮರುಪಾವತಿ ಆವರ್ತನ]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="91222">
+                                <property name="borderBottomColor">#808080</property>
+                                <property name="borderBottomStyle">solid</property>
+                                <property name="borderBottomWidth">1px</property>
+                                <property name="borderLeftColor">#808080</property>
+                                <property name="borderLeftStyle">solid</property>
+                                <property name="borderLeftWidth">1px</property>
+                                <property name="borderRightColor">#808080</property>
+                                <property name="borderRightStyle">solid</property>
+                                <property name="borderRightWidth">1px</property>
+                                <property name="borderTopColor">#808080</property>
+                                <property name="borderTopStyle">solid</property>
+                                <property name="borderTopWidth">1px</property>
+                                <text id="91223">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="fontWeight">bold</property>
+                                    <property name="paddingLeft">5pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ವಿಮೆ ಆಯ್ಕೆ ಮಾಡಲಾಗಿದೆ]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                        <row id="91224">
+                            <property name="height">0.4513888888888889in</property>
+                            <cell id="91145">
+                                <property name="borderBottomColor">#808080</property>
+                                <property name="borderBottomStyle">solid</property>
+                                <property name="borderBottomWidth">1px</property>
+                                <property name="borderLeftColor">#808080</property>
+                                <property name="borderLeftStyle">solid</property>
+                                <property name="borderLeftWidth">1px</property>
+                                <property name="borderRightColor">#808080</property>
+                                <property name="borderRightStyle">solid</property>
+                                <property name="borderRightWidth">1px</property>
+                                <property name="borderTopColor">#808080</property>
+                                <property name="borderTopStyle">solid</property>
+                                <property name="borderTopWidth">1px</property>
+                                <data id="91225">
+                                    <property name="fontSize">9pt</property>
+                                    <list-property name="boundDataColumns">
+                                        <structure>
+                                            <property name="name">productName</property>
+                                            <expression name="expression" type="javascript">params["productName"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">productName</property>
+                                </data>
+                            </cell>
+                            <cell id="91226">
+                                <property name="borderBottomColor">#808080</property>
+                                <property name="borderBottomStyle">solid</property>
+                                <property name="borderBottomWidth">1px</property>
+                                <property name="borderLeftColor">#808080</property>
+                                <property name="borderLeftStyle">solid</property>
+                                <property name="borderLeftWidth">1px</property>
+                                <property name="borderRightColor">#808080</property>
+                                <property name="borderRightStyle">solid</property>
+                                <property name="borderRightWidth">1px</property>
+                                <property name="borderTopColor">#808080</property>
+                                <property name="borderTopStyle">solid</property>
+                                <property name="borderTopWidth">1px</property>
+                                <data id="91227">
+                                    <property name="fontSize">9pt</property>
+                                    <list-property name="boundDataColumns">
+                                        <structure>
+                                            <property name="name">Lnpurpose</property>
+                                            <expression name="expression" type="javascript">params["Lnpurpose"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">Lnpurpose</property>
+                                </data>
+                            </cell>
+                            <cell id="91228">
+                                <property name="borderBottomColor">#808080</property>
+                                <property name="borderBottomStyle">solid</property>
+                                <property name="borderBottomWidth">1px</property>
+                                <property name="borderLeftColor">#808080</property>
+                                <property name="borderLeftStyle">solid</property>
+                                <property name="borderLeftWidth">1px</property>
+                                <property name="borderRightColor">#808080</property>
+                                <property name="borderRightStyle">solid</property>
+                                <property name="borderRightWidth">1px</property>
+                                <property name="borderTopColor">#808080</property>
+                                <property name="borderTopStyle">solid</property>
+                                <property name="borderTopWidth">1px</property>
+                                <data id="91229">
+                                    <property name="fontSize">9pt</property>
+                                    <list-property name="boundDataColumns">
+                                        <structure>
+                                            <property name="name">loanAmount</property>
+                                            <expression name="expression" type="javascript">params["loanAmount"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">loanAmount</property>
+                                </data>
+                            </cell>
+                            <cell id="91230">
+                                <property name="borderBottomColor">#808080</property>
+                                <property name="borderBottomStyle">solid</property>
+                                <property name="borderBottomWidth">1px</property>
+                                <property name="borderLeftColor">#808080</property>
+                                <property name="borderLeftStyle">solid</property>
+                                <property name="borderLeftWidth">1px</property>
+                                <property name="borderRightColor">#808080</property>
+                                <property name="borderRightStyle">solid</property>
+                                <property name="borderRightWidth">1px</property>
+                                <property name="borderTopColor">#808080</property>
+                                <property name="borderTopStyle">solid</property>
+                                <property name="borderTopWidth">1px</property>
+                                <data id="91231">
+                                    <property name="fontSize">9pt</property>
+                                    <list-property name="boundDataColumns">
+                                        <structure>
+                                            <property name="name">paymentFreq</property>
+                                            <expression name="expression" type="javascript">params["paymentFreq"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">paymentFreq</property>
+                                </data>
+                            </cell>
+                            <cell id="91232">
+                                <property name="borderBottomColor">#808080</property>
+                                <property name="borderBottomStyle">solid</property>
+                                <property name="borderBottomWidth">1px</property>
+                                <property name="borderLeftColor">#808080</property>
+                                <property name="borderLeftStyle">solid</property>
+                                <property name="borderLeftWidth">1px</property>
+                                <property name="borderRightColor">#808080</property>
+                                <property name="borderRightStyle">solid</property>
+                                <property name="borderRightWidth">1px</property>
+                                <property name="borderTopColor">#808080</property>
+                                <property name="borderTopStyle">solid</property>
+                                <property name="borderTopWidth">1px</property>
+                                <text id="91233">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="contentType">html</property>
+                                    <text-property name="content"><![CDATA[ಸದಸ್ಯರು:<VALUE-OF>params["memInsurance"]</VALUE-OF>]]></text-property>
+                                </text>
+                                <text id="91234">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="contentType">html</property>
+                                    <text-property name="content"><![CDATA[ಸಂಗಾತಿ: <VALUE-OF>params["spouseInsurance"]</VALUE-OF>]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                    </grid>
+                    <text id="1922">
+                        <property name="fontSize">8pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಸದಸ್ಯರು ವಿಮೆಗಾಗಿ ಆಯ್ಕೆ ಮಾಡದಿದ್ದರೆ, ಸಂಗಾತಿಯ ವಿಮೆಯು ಅನ್ವಯಿಸುವುದಿಲ್ಲ
+ನಾನು ಈ ಮೂಲಕ ಘೋಷಿಸುವುದೇನೆಂದರೆ]]></text-property>
+                    </text>
+                    <text id="1923">
+                        <property name="fontSize">8pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಪ್ರಸ್ತಾವಿತ ಸಾಲದ ಪರಿಷ್ಕರಣ ಶುಲ್ಕಗಳು, ಬಡ್ಡಿ ದರ, ಮತ್ತು ಇತರೆ ನಿಯಮ ಹಾಗೂ ನಿಬಂಧನೆಗಳ ಕುರಿತು ನನಗೆ ತಿಳಿದಿದೆ. ಹಾಗೆಯೇ, ಸಾಲವನ್ನು ಅವಧಿ-ಪೂರ್ವ ತೀರಿಸುವುದಕ್ಕೂ ಯಾವುದೇ ಜುಲ್ಮಾನೆ/ದಂಡ ಶುಲ್ಕಗಳು ಇಲ್ಲವೆಂದು ನನಗೆ ತಿಳಿಸಿದೆ. ನಾನು ನಿಜವಾಗಿಯೂ ಮರುಪಾವತಿಯ ಸಮಸ್ಯೆಯನ್ನು ಹೊಂದಿದ್ದರೆ, ನಾನು ಕೇಂದ್ರದ ಸದಸ್ಯ/ಶಾಖೆಯ ವ್ಯವಸ್ಥಾಪಕರನ್ನು ಸಂಪರ್ಕಿಸಬಹುದು.ಮೇಲೆ ತಿಳಿಸಲಾಗಿರುವ ನಿರ್ದಿಷ್ಟ ಉದ್ದೇಶಕ್ಕಾಗಿ, ಸಾಲದ ಮೊತ್ತವನ್ನು ಬಳಸುತ್ತೇನೆಂದು ನಾನು ಮಾತುಕೊಡುತ್ತೇನೆ. ಒಂದು ಕಂತಿನ ಮರುಪಾವತಿ ಕಾಲವಕಾಶ (ಮೊದಲ ಕಂತಿನ ಆಸಲಿನ ಹಣಕ್ಕೆ ಮಾತ್ರ) ಒದಗಿಸಲಾಗಿದೆ ಎಂದು ನನಗೆ ತಿಳಿದಿದೆ. ಗ್ರೂಪ್ ಇನ್ಶುರೆನ್ಸ್  ಸ್ಕೀಮ್ ನಿಯಮ ಮತ್ತು ಷರತ್ತುಗಳನ್ನು ಸಂಪೂರ್ಣವಾಗಿ ಅರ್ಥಮಾಡಿಕೊಂಡ ನಂತರ, ಕ್ರೆಡಿಟ್ ಆಕ್ಸೆಸ್ ಗ್ರಾಮೀಣ್ ಲಿಮಿಟೆಡ್‌ನಿಂದ (ಇನ್ನು ಮುಂದೆ (CAGL) ಎಂದು ಕರೆಯಲ್ಪಡುತ್ತದೆ) ನೀಡಲಾಗುವ, ಗ್ರೂಪ್ ಇನ್ಸೂರೆನ್ಸ್ ಸ್ಕೀಮ್ ಅಡಿಯಲ್ಲಿ, ಮಾಸ್ಟರ್ ಪಾಲಿಸಿ ಹೋಲ್ಡರ್ (MPH) ಆಗಿ ನೋಂದಾಯಿಸಿಕೊಳ್ಳಲು ನಾನು ಸ್ವಯಿಚ್ಛೆಯಿಂದ ಆಯ್ಕೆಮಾಡಿಕೊಂಡಿದ್ದೇನೆ.ನನ್ನ ಫೋನ್‌ನಲ್ಲಿ ಗ್ರಾಮೀಣ ಕೂಟದಿಂದ ಎಲ್ಲಾ ರೀತಿಯ ಸಂವಹನ/ಸಂಪರ್ಕಗಳನ್ನು ಸ್ವೀಕರಿಸಲು ನಾನು ಸಮ್ಮತಿಸುತ್ತೇನೆ.]]></text-property>
+                    </text>
+                    <grid id="1932">
+                        <property name="height">0.375in</property>
+                        <column id="1933">
+                            <property name="width">1.6597222222222223in</property>
+                        </column>
+                        <column id="1934">
+                            <property name="width">2.2430555555555554in</property>
+                        </column>
+                        <column id="1935">
+                            <property name="width">0.3541666666666667in</property>
+                        </column>
+                        <column id="1936">
+                            <property name="width">2.7222222222222223in</property>
+                        </column>
+                        <column id="1937">
+                            <property name="width">0.4027777777777778in</property>
+                        </column>
+                        <row id="1938">
+                            <property name="height">0.375in</property>
+                            <cell id="1939">
+                                <text id="1944">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="fontWeight">bold</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಅಗತ್ಯವಿರುವ ದಾಖಲೆಗಳು:]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="1940">
+                                <text id="1945">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[KYC ನ ಪ್ರತಿ (IGL ನವೀಕರಣದ ಸಮಯದಲ್ಲಿ)]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="1941">
+                                <grid id="1946">
+                                    <property name="borderBottomColor">#808080</property>
+                                    <property name="borderBottomStyle">solid</property>
+                                    <property name="borderBottomWidth">1px</property>
+                                    <property name="borderLeftColor">#808080</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">1px</property>
+                                    <property name="borderRightColor">#808080</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">1px</property>
+                                    <property name="borderTopColor">#808080</property>
+                                    <property name="borderTopStyle">solid</property>
+                                    <property name="borderTopWidth">1px</property>
+                                    <property name="height">0.2847222222222222in</property>
+                                    <property name="width">0.2708333333333333in</property>
+                                    <column id="1947">
+                                        <property name="width">0.2708333333333333in</property>
+                                    </column>
+                                    <row id="1948">
+                                        <property name="height">0.2847222222222222in</property>
+                                        <cell id="1949">
+                                            <text id="1950">
+                                                <property name="contentType">html</property>
+                                            </text>
+                                        </cell>
+                                    </row>
+                                </grid>
+                            </cell>
+                            <cell id="1942">
+                                <text id="1956">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಬ್ಯಾಂಕ್ ಪಾಸ್‌ಬುಕ್ ನಕಲು(ಸಾಲಗಳ ಬ್ಯಾಂಕ್ ವರ್ಗಾವಣೆಗಾಗಿ)]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="1943">
+                                <grid id="1951">
+                                    <property name="borderBottomColor">#808080</property>
+                                    <property name="borderBottomStyle">solid</property>
+                                    <property name="borderBottomWidth">1px</property>
+                                    <property name="borderLeftColor">#808080</property>
+                                    <property name="borderLeftStyle">solid</property>
+                                    <property name="borderLeftWidth">1px</property>
+                                    <property name="borderRightColor">#808080</property>
+                                    <property name="borderRightStyle">solid</property>
+                                    <property name="borderRightWidth">1px</property>
+                                    <property name="borderTopColor">#808080</property>
+                                    <property name="borderTopStyle">solid</property>
+                                    <property name="borderTopWidth">1px</property>
+                                    <property name="height">0.2847222222222222in</property>
+                                    <property name="width">0.2708333333333333in</property>
+                                    <column id="1952">
+                                        <property name="width">0.2708333333333333in</property>
+                                    </column>
+                                    <row id="1953">
+                                        <property name="height">0.2847222222222222in</property>
+                                        <cell id="1954">
+                                            <text id="1955">
+                                                <property name="contentType">html</property>
+                                            </text>
+                                        </cell>
+                                    </row>
+                                </grid>
+                            </cell>
+                        </row>
+                    </grid>
+                    <text id="1957">
+                        <property name="fontSize">9pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="textUnderline">underline</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಗುಂಪು ಮತ್ತು ಕೇಂದ್ರ ಘೋಷಣೆ:]]></text-property>
+                    </text>
+                    <text id="1958">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಮೇಲಿನ ಸದಸ್ಯರಿಗೆ ಸಾಲದ ಮೊತ್ತವನ್ನು ನೀಡಲು ನಮ್ಮ ಕೇಂದ್ರ ಮತ್ತು ಗುಂಪು ಈ ಮೂಲಕ CAGL ಗೆ ನಮ್ಮ ಸ್ಪಷ್ಟ ಒಪ್ಪಿಗೆಯನ್ನು ನೀಡುತ್ತದೆ. ಸಾಲದ ಮೊತ್ತದ ಮರುಪಾವತಿಗೆ ಸಂಬಂಧಿಸಿದಂತೆ ನಾವು ನಮ್ಮನ್ನು ಮೂಲವಾಗಿ ಬಂಧಿಸುತ್ತೇವೆ ಮತ್ತು ಜಾಮೀನುದಾರರಾಗಿಲ್ಲ ಎಂದು ನಾವು ಘೋಷಿಸುತ್ತೇವೆ. ಸಾಲದ ಮೊತ್ತ ಮತ್ತು ಸಂಚಿತ ಬಡ್ಡಿಯನ್ನು ಪಾವತಿಸುವ ನಮ್ಮ ಹೊಣೆಗಾರಿಕೆಯು ಮೇಲಿನ ಸದಸ್ಯರೊಂದಿಗೆ ಜಂಟಿ ಮತ್ತು ಹಲವಾರು ಎಂದು ನಾವು ಘೋಷಿಸುತ್ತೇವೆ ಮತ್ತು ಅದರ ಪ್ರಕಾರ ಮೇಲಿನ ಸದಸ್ಯರು ಡೀಫಾಲ್ಟ್ ಮಾಡಿದ ಸಂದರ್ಭದಲ್ಲಿ ಅದನ್ನು ಪೂರ್ಣವಾಗಿ ಬಿಡುಗಡೆ ಮಾಡಲು ನಾವು ಕೈಗೊಳ್ಳುತ್ತೇವೆ. ಮೇಲಿನ ಸದಸ್ಯರ ವಿರುದ್ಧ ಲಭ್ಯವಿರುವ ಪರಿಹಾರಗಳನ್ನು ಮೊದಲು ಅನುಸರಿಸದೆ ಮತ್ತು / ಅಥವಾ ಖಾಲಿ ಮಾಡದೆಯೇ CAGL ಸಾಲದ ಮೊತ್ತ ಮತ್ತು ಗುಂಪಿನಿಂದ ಸಂಗ್ರಹವಾದ ಬಡ್ಡಿಯನ್ನು ಮರುಪಡೆಯಬಹುದು ಎಂದು ನಾವು ಒಪ್ಪುತ್ತೇವೆ. ಸಾಲವನ್ನು ಯಾವ ಉದ್ದೇಶಕ್ಕಾಗಿ ವಿನಿಯೋಗಿಸಲಾಗುತ್ತದೆಯೋ ಅದಕ್ಕಾಗಿ ನಾವು ಸಂಪೂರ್ಣ ಜವಾಬ್ದಾರಿಯನ್ನು ತೆಗೆದುಕೊಳ್ಳುತ್ತೇವೆ ಎಂದು ನಾವು ಈ ಮೂಲಕ ಘೋಷಿಸುತ್ತೇವೆ. ಸಾಲದ ದುರ್ಬಳಕೆಯ ಸಂದರ್ಭದಲ್ಲಿ ನಾವು ತಕ್ಷಣವೇ CAGL ಗೆ ಸಾಲವನ್ನು ಮರುಪಾವತಿಸಲು ಕೈಗೊಳ್ಳುತ್ತೇವೆ.]]></text-property>
+                    </text>
+                    <grid id="1960">
+                        <property name="width">7.375in</property>
+                        <column id="1961">
+                            <property name="width">0.7916666666666666in</property>
+                        </column>
+                        <column id="1962">
+                            <property name="width">1.6166666666666667in</property>
+                        </column>
+                        <column id="1963">
+                            <property name="width">1.7083333333333333in</property>
+                        </column>
+                        <column id="1964">
+                            <property name="width">1.1583333333333334in</property>
+                        </column>
+                        <column id="1965">
+                            <property name="width">2.1in</property>
+                        </column>
+                        <row id="1966">
+                            <cell id="1967">
+                                <text id="1973">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="fontWeight">bold</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಸಹಿಗಳು:]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="1968">
+                                <text id="1974">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಗುಂಪಿನ ಮುಖ್ಯಸ್ಥರು:]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="1969">
+                                <property name="borderBottomStyle">solid</property>
+                                <property name="borderBottomWidth">thin</property>
+                            </cell>
+                            <cell id="1970">
+                                <text id="1975">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಕೇಂದ್ರ ಮುಖ್ಯಸ್ಥರು:]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="1971">
+                                <property name="borderBottomStyle">solid</property>
+                                <property name="borderBottomWidth">thin</property>
+                            </cell>
+                        </row>
+                    </grid>
+                    <text id="1976">
+                        <property name="fontSize">9pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಸಾಲಗಾರನ CAGL ಕ್ರೆಡಿಟ್ ಅರ್ಹತೆ ಮತ್ತು ಸಾಲದ ಮೊತ್ತವನ್ನು ಮರುಪಾವತಿ ಮಾಡುವ ಸಾಮರ್ಥ್ಯದ ಆಧಾರದ ಮೇಲೆ ಬಡ್ಡಿದರವು ಬದಲಾಗುತ್ತದೆ.]]></text-property>
+                    </text>
+                    <text id="1977">
+                        <property name="fontSize">9pt</property>
+                        <property name="fontWeight">bold</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಮಂಜೂರಾತಿ ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳು]]></text-property>
+                    </text>
+                    <grid id="217">
+                        <property name="fontSize">8pt</property>
+                        <property name="width">7.416666666666667in</property>
+                        <column id="218">
+                            <property name="width">0.225in</property>
+                        </column>
+                        <column id="219">
+                            <property name="width">7.191666666666666in</property>
+                        </column>
+                        <row id="220">
+                            <cell id="221">
+                                <text id="271">
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[1.]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="222">
+                                <text id="288">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="textAlign">justify</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಸಾಲದ ಮೊತ್ತವನ್ನು ಮರುಪಾವತಿಯ ಅವಧಿ ಮತ್ತು ಆವರ್ತನದ ಪ್ರಕಾರ, ಬಡ್ಡಿ ಸಹಿತ, ಕಂತುಗಳಲ್ಲಿ ಮರುಪಾವತಿ ಮಾಡಬೇಕು.  ]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                        <row id="223">
+                            <cell id="224">
+                                <text id="272">
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[2.]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="225">
+                                <text id="289">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="textAlign">justify</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಸಾಲಗಾರರಿಗೆ ತಿಳಿಸುವುದರ ಮೂಲಕ, CAGL ತನ್ನ ವಿವೇಚನೆಗೆ ಅನುಸಾರವಾಗಿ ಕಾಲಕಾಲಕ್ಕೆ ಬಡ್ಡಿದರವನ್ನು ಮರುನಿಗದಿಪಡಿಸುತ್ತದೆ, ಮತ್ತು ಸಾಲಗಾರರು ಅಂತಹ ಪರಿಷ್ಕೃತ ಬಡ್ಡಿದರವನ್ನು ಅಂದಿನಿಂದ ಮುಂದಕ್ಕೆ ಪಾವತಿಸಲು ಒಪ್ಪಿಕೊಳ್ಳುತ್ತಾರೆ .]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                        <row id="226">
+                            <cell id="227">
+                                <text id="273">
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[3.]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="228">
+                                <text id="290">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="textAlign">justify</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಕ್ರೆಡಿಟ್ ಆಕ್ಸೆಸ್‌ ಗ್ರಾಮೀಣ್ ಲಿಮಿಟೆಡ್‌ನ (ಇನ್ನು ಮುಂದೆ (ಸಿಎಜಿಎಲ್) ಎಂದು ಕರೆಯಲ್ಪಡುತ್ತದೆ) ಜಂಟಿ ಹೊಣೆಗಾರಿಕೆ ಗುಂಪಿನ ಸದಸ್ಯರಾಗಿ ಸಾಲದ ಮೊತ್ತವನ್ನು ನೀಡಲಾಗುತ್ತದೆ.]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                        <row id="229">
+                            <cell id="230">
+                                <text id="274">
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[4.]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="231">
+                                <text id="291">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="textAlign">justify</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಗ್ರಾಹಕರು ಕೇಂದ್ರದ ಎಲ್ಲಾ ಸಭೆಗಳಿಗೆ ಹಾಜರಾಗಬೇಕು, ಸಾಲವನ್ನು ಒಪ್ಪಿಕೊಂಡಿರುವ ಉದ್ದೇಶಕ್ಕಾಗಿ ಮಾತ್ರ ಬಳಸಿಕೊಳ್ಳಬೇಕು, ಸಾಲದ ಕಂತುಗಳನ್ನು ಪ್ರಾಮಾಣಿಕವಾಗಿ ಮರುಪಾವತಿ ಮಾಡಬೇಕು, ಕೇಂದ್ರದ ಸದಸ್ಯರು ಯಾವುದೇ ಸಮಸ್ಯೆಯನ್ನು ಎದುರಿಸಿದರೆ ಅವರಿಗೆ ಸಹಾಯ ಮಾಡಬೇಕು, ಮತ್ತು ಮರುಪಾವತಿ ಸಾಮರ್ಥ್ಯಕ್ಕಿಂತ ಹೆಚ್ಚಿನ ಸಾಲವನ್ನು ತೆಗೆದುಕೊಳ್ಳಬಾರದು. ]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                        <row id="91235">
+                            <cell id="91187">
+                                <text id="91236">
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[5.]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="91237">
+                                <text id="91190">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="textAlign">justify</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ವಿಶೇಷ್ ಸಾಲದ ಗ್ರಾಹಕರು ಜಂಟಿ ಜವಾಬ್ದಾರಿ ಗುಂಪಿನ ಭಾಗವಾಗಿರುವುದಿಲ್ಲ]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                        <row id="232">
+                            <cell id="233">
+                                <text id="275">
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[6.]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="234">
+                                <text id="292">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="textAlign">justify</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಒಪ್ಪಿಕೊಂಡಿರುವ ಮರುಪಾವತಿ ವೇಳಾಪಟ್ಟಿಯ ಪ್ರಕಾರ ಸಾಲದ ಮೊತ್ತ ಮತ್ತು / ಅಥವಾ ಬಡ್ಡಿಯನ್ನು ಪಾವತಿಸಲು, ಗುಂಪಿನ ಇತರ ಸದಸ್ಯರೊಂದಿಗೆ ಗ್ರಾಹಕರು ಪ್ರತ್ಯೇಕವಾಗಿ ಮತ್ತು ಜಂಟಿಯಾಗಿ ಹೊಣೆಗಾರರಾಗಿರುತ್ತಾರೆ. ]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                        <row id="235">
+                            <cell id="236">
+                                <text id="276">
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[7.]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="237">
+                                <text id="293">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="textAlign">justify</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಸಾಲದ ದುರುಪಯೋಗ ಅಥವಾ ಯಾವುದೇ ಸಾಲದ ಷರತ್ತುಗಳ ಉಲ್ಲಂಘನೆಯ ಸಂದರ್ಭದಲ್ಲಿ, ಸಿಎಜಿಎಲ್ ಸಾಲವನ್ನು ಹಿಂಪಡೆಯುವ ಹಕ್ಕನ್ನು ಹೊಂದಿದೆ.  ]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                        <row id="238">
+                            <cell id="239">
+                                <text id="277">
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[8.]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="240">
+                                <text id="294">
+                                    <property name="fontFamily">serif</property>
+                                    <property name="fontSize">9pt</property>
+                                    <property name="fontWeight">normal</property>
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="textAlign">justify</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಸಾಲಗಾರರ ಮಾಹಿತಿಯ ಗೌಪ್ಯತೆಯನ್ನು ಗೌರವಿಸಲಾಗುವುದು ಎಂದು ಸಿಎಜಿಎಲ್ ಭರವಸೆ ನೀಡುತ್ತದೆ. ಎಲ್ಲಾ ಸಾಲಗಳು ಕ್ರೆಡಿಟ್ ಬ್ಯೂರೋ ಪರಿಶೀಲನೆಗೆ ಒಳಪಟ್ಟಿರುತ್ತವೆ, ಆದ್ದರಿಂದ ಮಾಹಿತಿಯನ್ನು ಕ್ರೆಡಿಟ್ ಬ್ಯೂರೋ ಏಜೆನ್ಸಿಗಳೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತದೆ.  ]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                        <row id="241">
+                            <cell id="242">
+                                <text id="278">
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[9.]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="243">
+                                <text id="295">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="textAlign">justify</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಸಾಲವನ್ನು ಅವಧಿಪೂರ್ವ ತೀರಿಸಲು ಅಥವಾ ಸಾಲ ಅಥವಾ ಕಂತನ್ನು ಭಾಗಶಃ ಪಾವತಿ ಮಾಡಲು ಯಾವುದೇ ಶುಲ್ಕಗಳನ್ನು ವಿಧಿಸಲಾಗುವುದಿಲ್ಲ. ]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                        <row id="244">
+                            <cell id="245">
+                                <text id="279">
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[10.]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="246">
+                                <text id="296">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="textAlign">justify</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಪ್ರತಿ ಸಾಲದ ಮೇಲೆ ಒಂದು ಕಂತಿನ ಮರುಪಾವತಿ ಕಾಲಾವಕಾಶ (ಮೊದಲ ಕಂತಿನ ಅಸಲಿನ ಹಣಕ್ಕೆ ಮಾತ್ರ) ನೀಡಲಾಗುವುದು.  ]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                        <row id="247">
+                            <cell id="248">
+                                <text id="280">
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[11.]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="249">
+                                <text id="297">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="textAlign">justify</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಸಿಎಜಿಎಲ್ ಅಥವಾ ಮೂರನೇ ವ್ಯಕ್ತಿ ನೀಡುವ ಯಾವುದೇ ಇತರ ಉತ್ಪನ್ನ/ಸೇವೆಗಳಿಗೆ, ಸಾಲದ ಅನುದಾನವನ್ನು ಲಿಂಕ್ ಮಾಡಲಾಗಿಲ್ಲ. ]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                        <row id="250">
+                            <cell id="251">
+                                <text id="281">
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[12.]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="252">
+                                <text id="298">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="textAlign">justify</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಯಾವುದೇ ಸಿಬ್ಬಂದಿ ಅನುಚಿತ ವರ್ತನೆಯನ್ನು ತಡೆಗಟ್ಟಲು ಮತ್ತು ಸಕಾಲದಲ್ಲಿ ಕುಂದುಕೊರತೆ ಪರಿಹಾರವನ್ನು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಲು ಸಿಎಜಿಎಲ್ ಜವಾಬ್ದಾರಿ ಹೊಂದಿರುತ್ತದೆ. ]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                        <row id="253">
+                            <cell id="254">
+                                <text id="282">
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[13.]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="91238">
+                                <text id="299">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="textAlign">justify</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಸಾಲದ ವಿರುದ್ಧ ಭದ್ರತಾ ಠೇವಣಿ ಅಥವಾ ಮಾರ್ಜಿನ್ ಹಣವನ್ನು ಸಿಎಜಿಎಲ್ ಸಂಗ್ರಹಿಸುವುದಿಲ್ಲ.  ]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                        <row id="91239">
+                            <cell id="91240">
+                                <text id="283">
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[14.]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="91241">
+                                <text id="300">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="textAlign">justify</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಅರ್ಜಿಯ ದಿನಾಂಕದಿಂದ 15 ದಿನಗಳ ಒಳಗಾಗಿ ಸಾಲವನ್ನು ವಿತರಿಸದಿದ್ದರೆ, ಸಿಎಜಿಎಲ್ ಗ್ರಾಹಕರ ಸಿಬಿ ಸ್ಥಿತಿಯನ್ನು ಮರುಪರಿಶೀಲಿಸಬಹುದು .]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                        <row id="259">
+                            <cell id="260">
+                                <text id="284">
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[15.]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="261">
+                                <text id="301">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="textAlign">justify</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಗ್ರಾಹಕರು ಆಯ್ಕೆಮಾಡಿದ ಮರುಪಾವತಿಯ ಅವಧಿಗೆ ಅನುಗುಣವಾಗಿ, ವಾರಕ್ಕೊಮ್ಮೆ ಎರಡು ವಾರಕ್ಕೊಮ್ಮೆ/ನಾಲ್ಕು ವಾರಕ್ಕೊಮ್ಮೆ, ಇಳಿಕೆ ಮೊತ್ತದ ಮೇಲೆ, ಬಡ್ಡಿಯನ್ನು ಲೆಕ್ಕಹಾಕಲಾಗುತ್ತದೆ.  ]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                        <row id="262">
+                            <cell id="263">
+                                <text id="285">
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[16.]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="264">
+                                <text id="302">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="textAlign">justify</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಸಾಲದ ಕಂತುಗಳ ಆವರ್ತನವನ್ನು ಮರುಪಾವತಿಸುವ ದಿನಾಂಕ ಮತ್ತು ಅಸಲು ಮತ್ತು ಬಡ್ಡಿಯ ವಿವರವನ್ನು, ನೀಡಲಾಗುವ ಸಾಲದ ಪಾಸ್‌ಬುಕ್‌ನಲ್ಲಿ ಒದಗಿಸಲಾಗುತ್ತದೆ, ಸಾಲದ ಮರುಪಾವತಿ ವೇಳಾಪಟ್ಟಿಗಾಗಿ ಸಾಲದ ಪಾಸ್‌ಬುಕ್ ಅನ್ನು ನೋಡಿ.]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                        <row id="265">
+                            <cell id="266">
+                                <text id="286">
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[17.]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="267">
+                                <text id="303">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="textAlign">justify</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಸಾಲದ ಮೌಲೀಕರಣ ವಿವರಗಳಿರುವ ಫ್ಯಾಕ್ಸ್ ಶೀಟ್ ಅನ್ನು ಒದಗಿಸಲಾಗುವುದು.  ]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                        <row id="268">
+                            <cell id="269">
+                                <text id="287">
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[18.]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="270">
+                                <text id="304">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="paddingTop">0pt</property>
+                                    <property name="paddingLeft">0pt</property>
+                                    <property name="paddingBottom">0pt</property>
+                                    <property name="paddingRight">0pt</property>
+                                    <property name="textAlign">justify</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಸಾಲದ ಖಾತೆಯು 90 ದಿನಗಳಿಗಿಂತ ಹೆಚ್ಚು ಕಾಲ ಡೀಫಾಲ್ಟ್ ಆದರೆ, ಅಂತಹ ಖಾತೆಗಳನ್ನು ಎನ್‌ಪಿಎ ಎಂದು ಪರಿಗಣಿಸಲಾಗುತ್ತದೆ ಮತ್ತು ಕ್ರೆಡಿಟ್ ಬ್ಯೂರೋಗೆ ವರದಿ ಮಾಡಲಾಗುತ್ತದೆ.]]></text-property>
+                                </text>
+                            </cell>
+                        </row>
+                    </grid>
+                    <grid id="1995">
+                        <property name="width">7.381944444444445in</property>
+                        <column id="1996">
+                            <property name="width">0.4513888888888889in</property>
+                        </column>
+                        <column id="1997">
+                            <property name="width">0.4791666666666667in</property>
+                        </column>
+                        <column id="1998">
+                            <property name="width">1.7986111111111112in</property>
+                        </column>
+                        <column id="1999">
+                            <property name="width">3.1805555555555554in</property>
+                        </column>
+                        <column id="2000">
+                            <property name="width">1.4722222222222223in</property>
+                        </column>
+                        <row id="2001">
+                            <cell id="2002">
+                                <text id="2003">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="fontWeight">bold</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಸಹಿ:]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="2004">
+                                <text id="2005">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಸದಸ್ಯ:]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="2006">
+                                <property name="borderBottomStyle">solid</property>
+                                <property name="borderBottomWidth">thin</property>
+                            </cell>
+                            <cell id="2007"/>
+                            <cell id="2009"/>
+                        </row>
+                    </grid>
+                    <grid id="2010">
+                        <property name="width">7.381944444444445in</property>
+                        <column id="2011">
+                            <property name="width">0.8055555555555556in</property>
+                        </column>
+                        <column id="2012">
+                            <property name="width">1.6597222222222223in</property>
+                        </column>
+                        <column id="2013">
+                            <property name="width">0.8125in</property>
+                        </column>
+                        <column id="2014">
+                            <property name="width">1.6458333333333333in</property>
+                        </column>
+                        <column id="2015">
+                            <property name="width">0.5069444444444444in</property>
+                        </column>
+                        <column id="2016">
+                            <property name="width">1.9513888888888888in</property>
+                        </column>
+                        <row id="2017">
+                            <cell id="2018">
+                                <text id="2025">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[KM ಹೆಸರು:]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="2019">
+                                <data id="2223">
+                                    <property name="fontSize">9pt</property>
+                                    <list-property name="boundDataColumns">
+                                        <structure>
+                                            <property name="name">kmName</property>
+                                            <expression name="expression" type="javascript">params["kmName"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">kmName</property>
+                                </data>
+                            </cell>
+                            <cell id="2020">
+                                <text id="2026">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಜಿಕೆ ಐಡಿ:]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="2021">
+                                <data id="2224">
+                                    <property name="fontSize">9pt</property>
+                                    <list-property name="boundDataColumns">
+                                        <structure>
+                                            <property name="name">kmId</property>
+                                            <expression name="expression" type="javascript">params["kmId"]</expression>
+                                            <property name="dataType">string</property>
+                                        </structure>
+                                    </list-property>
+                                    <property name="resultSetColumn">kmId</property>
+                                </data>
+                            </cell>
+                            <cell id="2022">
+                                <text id="2027">
+                                    <property name="fontSize">9pt</property>
+                                    <property name="fontWeight">bold</property>
+                                    <property name="contentType">auto</property>
+                                    <text-property name="content"><![CDATA[ಸಹಿ:]]></text-property>
+                                </text>
+                            </cell>
+                            <cell id="2023">
+                                <property name="borderBottomStyle">solid</property>
+                                <property name="borderBottomWidth">thin</property>
+                                <text id="2234"/>
+                            </cell>
+                        </row>
+                    </grid>
+                    <text id="2028">
+                        <property name="fontSize">8pt</property>
+                        <property name="contentType">auto</property>
+                        <text-property name="content"><![CDATA[ಸೂಚನೆ : ಅರ್ಜಿ ಸಲ್ಲಿಸಿದ ದಿನಾಂಕದಿಂದ 21 ದಿನಗಳ ಒಳಗಾಗಿ, ಸಾಲದ ಅರ್ಜಿಯನ್ನು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲಾಗುತ್ತದೆ.]]></text-property>
+                    </text>
+                </cell>
+            </row>
+        </grid>
+    </body>
+    <list-property name="images">
+        <structure>
+            <property name="name">gk-unified.png</property>
+            <property name="type">image/png</property>
+            <property name="data">
+                iVBORw0KGgoAAAANSUhEUgAAALoAAABYCAYAAABCgu14AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+                YQUAAAAJcEhZcwAAFxEAABcRAcom8z8AADspSURBVHhe7b0HfFXXlS7+//3ezMskGSeZ8XtTMpNM7Ezi
+                JBM7iSdxnMQTO8UNsI2NMcWmGWNjOpjekUACCQlQQ0KoAEJICCSBUEGoSyBAvfeKem9X0pUE3/9be9+L
+                hAHbGJxHzF2XrXvuObusvfa31/7WPude/j9YxCJffpltAbpFHgSxAN0iD4RYgG6RB0IsQLfIAyF/SaBf
+                G5Ou3vD5Gj9LuuHzNb5LuspzfJdkPqdz66RfpqI3ia7vxmSRB1C+aKDfCmgCzBECVpKG69XrnwXI/Hxt
+                CCPXhjEyMqLS8MgQkxFXrw4zjdyQVB0yEcwTQom8y8SRNKKSeWpY5IGULxroZqCZQCdAVEnASUBfvYrh
+                q0PoH+xFb383evq70NJdh7zKi0jMDENWWRKKatOQmHUK59ICcaEgHGklsSiqSUPplWyU1mSjtrEEHT1N
+                GBzq4+QYIt4F/MO6XbZhbmsU6ObJYJEHSL5goCtQC+DMHpse+ZoRxuE+groNda1lSM2LROC5ffCN2I5j
+                sY44Em2H7T7vYbH9OKx3nwZr37lYsed1rHR6HesPTMVqt8nY6jsbVkfmwurQXNj5L4T76U04keiKhOwQ
+                ZJUms94KttFPjLNNJtFDrRYK6BZ5AOWLBbrypATaCD23cWQQNS1lSMkOR2iSJwITnOAZboVVrpPx9rYn
+                MWXrj7HCZQIcA5fCIXAR02LsO7kG+09vxZGo3QhJdIffWXvY+S3BFq+ZWO3+OuY7PIu3rX+Gtzb9CDOs
+                n8TiPS9go/t0HDhlhZTcCNS3lalJpSbZDdTGIg+YfIFAJ6aGho1o7apHRnE8Ii76wi10HZbtfRWzrX+D
+                +bv/iHUeU7DV+104nVwN78gdzHMUBVWXUNGYi9q2EjR21aLd0AiDsRODI73oMrSgqqEQBaQ2GcWxiMs4
+                jqAEZzidWI017pPxAYH/zvafY8b2/8ZHLhOxP2QjUnLC0NhWiUGjQXF6pZhFHjT5PEAXoNwMFvOOiA4O
+                hX8Poawum97YDuvc3sQ8u1/jHesnMNP6KaxymQT3kA2ITj9GPp6KxvZq9BjaMUAwmj2vuT6e0HUqjj16
+                XrcxzDJ9aGirRnpJEqIzAnDk3G7YByzGR66vYc723+Ijp1fgFrIeEal+1CcHg8NsQ5VXWjNZePsDIJ8X
+                6GPBIUAU/j1ETA5heHiAnrdZBY1CQ2bv+CWmbfkplux7gXRkKU4k7MelwnOoJT83DPWSs4/Wo9MdipTn
+                P6lniO139rWhurkYqYWR8I20wQauGu/ZPoP5dn+Avf8iJOeFoaOvVQXCKnZQOzJmHSzyJZXPS13GglIA
+                wyBzxAiDoRO5JckIOOeI9Z7TyZt/jRXO4+FxaiMSsoJR21KMgaEecvYhphGCU3tpPWmkvs8POMG71Ce7
+                Lldla/KqER29jSo4DWCwu/ng23jX9jdYxdUlONETV5pLMcy4wbxaWORLLXcGdA1JEyiJLGKEb9fUPndd
+                SxXiMkNgd3QB1u6fiF3+8+F1xhbJDAqbOmrI1wkq2QUhCGUFkPKqguvbj58H5KLNaDmpUtWj6hb9rmKE
+                ugm3zy5PxuGzu7HS+Q0stH8e7qfWI7fqPPqNPcxr4e5fcrlToMtLA1O4tN5N6UcNPbVftCOWu47D7J1P
+                YR+Dy3xy77bORjUJBHB0s3p+KKpg2ue+nu4tyKQ2VaP8YdvXyOVlFWnrbkJiVgisfWYxZvgtrHxmqz16
+                iQ9UPGCRL6vcKdBlmScwCQoJBNtJDYRv7w/ZhA92/x5vbvo+luwZj+jLwTAM9NBREtACNKEHyouL5zYn
+                PW30617LaK3mwFUlrigD9OCZZQnYE7gcH+x8Dhs93sb5/AgV1Eo5i3wp5bMAXQZfA0BgLkHftZGraGqv
+                RmiKB9bsn4K3tz6Jd6x+gS2eMxGZegzNHfWKKytgS37zBFEAH5XRmr840ZDXL/WPK8vgUD/K6vMQGOOC
+                ta5v4eApK7R01OrJaJEvo9wZ0MU7ym5Fd18Hwi8cwkLH5/HGxv/EuzZPwzloNTJKE9Az0KVBZSpz3wn7
+                IBNQAtfW7kZEXfJHxPlDaG6r5iWhVPep3ha5G/k0oN8IWFn+ZelPLYjEugNTSVX+C+/Z/gaepzajoj6f
+                fH1AAUiXMb/fP6J7Y9KNgB+hrl39bWhsq0IvJ6/eJr2/dLbIPZHbAV1DQicRwoMAMA4ZkE2vvf3wXEy1
+                +hk+dHgeh6N2orqxQD1lqDFuAtL1sveP6B6Z9FOenZ+4Qskd3GEmoVj3o94WuWv5JI9uHnAB+QiGhgZQ
+                XJMBx2PLMG3rzzDf4Y8IiNuL+vZyjDAw1cDR+e9XoItorcw6mtP9qatF7pl8OkcXTy43Vrp6mhAU74LZ
+                O3+Nadt+DreQDbjSUkLOPsQ8EmyOlb8G4IiO5mSRL7l8OtAl+Owb7MSlgihsPDgNk7f9BFaH5iCnIhnD
+                Q6abQPSKFrhY5D6W2wPd7OtkK668IRPOJ1Zh2uafYQF5+dk0f3UrX5Hy68GnRSxy38qtgW4GuYC4pqkQ
+                hyJs8IH9s5i57ZfwDLXGlbZKyNfdoO5wWkBukftebgd0vcty9aoR8RlBWLj7eUzZ+lPs8vsQRVXpGJLb
+                +urmiqTr08IiFrlf5XbUhZyb3ryztw0+EbaYsuVxLHB8HufSA9Xz3Pp7mUJbCHBJFqBb5P6W2wCdIJZv
+                41Q1lWJX4BJM3fYzOJ1YQxpTooPP6yD/S3D0+3kSmSe5Od0bufc1fvnkDu0zFuhjisq++fAAzudFYoXb
+                K1i070X1CK6cu9GDjz3+7CLUSD0z87Hy6hP/yLuePiqn6coXJ6pdfUjRrZrbFgpnTlo5SWbt5LpMfEmj
+                NdyJSCldrW5R6pTXiOldzphySfYHXLQdlJV4KGn0jD7S6Sb5ONBNwoFs726EzxkbTCdt2XHkPZTW5XAw
+                ZIDvXqQW86ak/NVn5JNOoy9eN4PrC5VRA2mTjeoxzKMRAeF1PXRsYs4lgNSgvHMdpcTY3usapUX52Q4j
+                mzM/zqxrv/MWvgzCXov9eXSDrYhF7WDkfezVW1rJDPQbLwoHl99Osfadg+mbn4B3+A609zapSu+F6CEV
+                dXXSqovCPFZJgKQgRl3k2i2Vv4eiDaX1kk9yPKKehRlmkncz0EXH6y/qOWJKo8/43IlIfaakP/GvtCX1
+                DfNIT6G/hAXuTzHZgy+NEjNStGXUuEge09hcTzeLAH30gjb6VfT0dyLq8lEs2fsCVjhPQHJuOIzDQ2Oz
+                3pVoUI8OotAYRWXMipr0ECANq3z3qOFPEjEak/KfbLPb0IeSulZkVTQis6IZhdUtXOXkR5JkClyDcWQY
+                da1dyKloQGFNM9p65Gc1ZCg+u8ggSRlVjm2qCS79vUo9JIk+6pxcF7uYCj5Aomx0/aVxIyvdqIPRK+xY
+                jnALGaUuqhoWktv9xTWZcAhYhulWT2CX/4eoaiyi8e+hoWVwrw5jmIPZPzSClq5eVNQ1oai6DiVXGlHT
+                0sEVZAADRvlZOnp2BsBfpChPoQxI47GT8nN4OaXV2HwwEpO3HsekbSex0PE0YjPKOPFoKerfZTDC52w2
+                plkHYZFTOBJyKtX5OzGS5JZ1S00vUhWJgVq7u1X/a5naurphNOq7z6xcF3rARHqtwGseH9pigJjoo136
+                hwaJV03xtPv5zEAfhmGgCwmZJ7HCZTwmbngUTidXobnjCo1t8ip3JSa1qXB7rwGJuVVwPpmCj1zPYLZt
+                ECfWMczYEYh5DiFY53kWMZkV6OdKIsCTTujyIrqe0c83yuiVsfnGphtF+QOZfGOAnl1ei+VuZ/DYLCd8
+                bbwN/vNtR3hFpGNIwMxJ2tLdj5Ue0XjopW348ay98DuXxfI31j9E59BrvIqBYRmAm0XOjfCP8uqss6i2
+                BQ7Hk/A++/+BYwh2B8Qjv7pJ0SeVR73uTHR++Wsuq4+1jD02i843ekX+iu3H2l9k9Kr+a05j9TSf+zS5
+                MY+51GiS/o9gcJg2utKKs+klCL9cylSE1IIK5SjN48c/LHGTjAW6LJnD6DF0IvT8Aby3+3eYtOkHOBi2
+                Fd19rczw8Y5+FpFOiwIyiSTJjBxCeUMbnELT8PI6Pzw23Q6Pz3TEn1cdxsStJ/DfH7jj78db4x8n2sDG
+                P5FAMZroi0BQeKsYUf6aZ7A+o3XTOqq21FldTlOksWXkr+S8bkYmXlPtCNDlOfUBZFQ2Yr1vNB6ZuQeP
+                zNiHg5EZ6klN+VmPLsMgDp3LwTs2J7DUNQKJ9OjmeELVRx2yyurhHJyCmKwKDBL05vbGioyLgFhWrqOx
+                +Xhirhv+YcJ2fHOCFf5rpgN8z2WqslK36oMUuF7PmKTOj4p8UhOYR9Iv3TcpbwKDKsIzql6ts9hHSsix
+                HJnPSUguk1/RS9P5632Vd1Pd2oY6n+nq9Vq0dvJXpxtfqkaTbrp9cyl1lW0M0+75VY04Gp0OW98orHMO
+                hpVvBJxDkhGXWUqw9ygdNU5vEs3R9YsNiKfqasABgnvK1scxx+ZphCZ56O9TfsyQn03MHeAR/wxTkYrG
+                VlgdSaCndMN3p+3F2zbHcSD8MuJzKpBW3ghrv3j8xzQHPDTRDtb+Seg3Dii9FLUQHdkRAaLZwDrJMTto
+                SubzOq+sCEbTQPEaVyYVi1AvTRzEsHqAdD1iWF6XsgT0qQvZ+OUid3xvhiu8IzJxlYCUewyDwyOob+tF
+                Abl7cV0bOTq9ikwC3WMMDg3DLTgZ/zVjJ7b7x6NPvDp14h8xuU7qTZdo7+7FBq9YPPq2EyZsOorfLjuI
+                b03YhrUHz6KlR2wg/dE66jqkldGk/sppdU3XKeuT4rCqrPRTyktf5eooYNU1ZR+TDWgjiRPMdhJ7D6k8
+                ckdc7Kl3o6S8sifrl3PSgrK7lJeyUheTAr7ps95oGG1fH8t1Xdac1HgrnSROu0r79iMspQB+Zy/DM+wi
+                9tO2+0+nwDPyMo4nZOFCfqXpjr3UfJOYg1FJuiMVdQXYeWQ+pm5+HLaHP0BBzUVlZNagSty56M4oL2kw
+                wCPsEn482wXffnM3Fu0LU+DuISiG2fbwVSMiLhbg2cUeeHjiDg0QcrHBkasEyjX0jYwowPRzRIdohEHS
+                mmZSiIr6dtS3dnNSyLacGEcPRs/AMKpbulBY24yyhna09kpdYlTpj8x+PbB6IK/CyHq7+42obe5iINqO
+                koYOHDybhp996KGA7kOgC5gHqE8PKUn3IINWxhE9RvLGIbbNiSEcvp/Vlzd340P27+FXrbDxcAKa+3WZ
+                PiN1pw7anPKu279cXIvXNx7F75Z4wycmBx8diMI3XrHGqwT9xeJ6PYnYLwG4KmwCgrm8gbFOQ4eBMU47
+                +9uG0voO1LX1oJcrk/rpbZVPQDhCSjWCjv5BVFFHoUsltU10QB1o7B4gVRRgjoJOynUNDKFS5W1GBVfj
+                tr5B2so8QfSkkHd+4nnS0r5+1t1JB9BOPdpRw2OhejI+QtFEZ/ME66P96qi36Cv5yxs7+bmP4zBIO+mg
+                U3QopJ5nLhQiIauc4E7HzqAUuJ2+gPisEkRcKuS1AtZPh6awfJMI0GUGiOGoKAcqt/wCthycjg93/wHh
+                qb5UpJOKfV6QU1hWZqwom1Zcg0mb/fG1cTZ4hYOakl+lliR22dTxIVTT43uTImw+HIPo7FL0DA4y0KvC
+                jmMJ2OwXBxu+x+ZWoKihFUdiMvGRxznM3RWKvUFJHIRW9TPU7b29iMsqgy0nyrw9ZzDdNhSz7U5hzcFz
+                CErOQ0NbBwdHjKg9ifS7vrMTp2kwq8OxmO94CjNZ50z7MDy//ij+aYojHnnHhR49SwXQ2RUN2BOSig2H
+                4rDhcDwcglORUVangF5S30SKcwmLnE/jp+974O/G7cAfV/lgrU88NvrGMSZJJv+vVxNCBlzANEhw+JzN
+                wONz9mGOXTCdSzPjgcv4z5l78Ridgk9UFox0BqOPRJs8I/vQ3d+PCwXV2BeUjKVOYZhpexLTdoRQ/zAs
+                cTqLsAvF6KMNhwXgBE41g9ygpGxs8YlmLHQK022CSb9OYq59CHYdS0JedbPSTewiO0nCh62O0I4OYSrf
+                u3ah2MiVJ4yga+7sZl7akfoIIK+0dtK75mDdwWjMZfD+Nm04e9cJzGfMsdY9EmfJqQ3URfrRNzCIVHrh
+                3YEJWOgchll2IXhnZzBm25/CQqczcD+VirL6VrWSCHYkVglnm8mkiJ6RaVjjFQU30pbc8hpVr1wzcCJ9
+                CtC1lximIS4XxmKN2xvY6jMDhdWpPE0Dq+KfD+x6mbxGjzfCJYeDR677r285wDYwCR2GAVP9koNaSKfk
+                F784M7uo9ACj6v5BAzxPX8ITc/biW69sx7+8th2zSXc+cj+Hp+fvxz+9vgt/9+IOvLn5CDKKq0kBenAs
+                PhPj1nozSHTEnz7ywjTrADy3zBPfnWLPMq7YH3qB3q9XGVAmRl1Lu6IZv1/sjv/L+r5N/X46bz+epCd/
+                9J09+PoEG1IKF4IvWwE96nIJXlrthX96zQrfGLcVP5+7FwGcdAL0lIIygiEAj892xLcm2uNvXrbBd6bZ
+                sy43/OpDV66UXoi8mE+vqkEufW7oNnDCnsUj1G/XsUR0G/qRkleBF9cext9P2IlVnMzN1Fd+wcBMJ2SS
+                dNJznkzOYSzlh++x7A/e3o0/rvTGM0sP4l8n2eFb43dig3e8CvxHho0orWkiaGPx3/Nd8J3JOxkPueCl
+                dUfw07mu+PpLVnhmoQciUos5BlfR0tmHQ1GZeH6F2HEfnl/li6lWAbSRB777lp169ybgWmTLVbw4qcUB
+                ju9T77vhJzP34bUtxzCHYH99sx++P90BDzPm2OIdiY6+PtY/gvP5NZix4ziD/N343VIPzOKEeJeT/NcL
+                3JVNX1zlifjsMmUnGadG6nOaTiooLg3BBPXpS2U4mZSLk4l5TDlIkrzydU7a5xYyBug0oih8uSgWq90m
+                we7YQnrXQp4XkGswfh6RdoWftXHpWncgVg3cUwv241SKDLb2HLLoSf3qL4GvEwdTllzSk9zKJuwLvYxn
+                P/LF11/egUemMnhd7oWlpAaTtwTg4dfsCPSjasWITi/DC2t88e9v2TOgDqVHKkN+ZT3CLxVh6vbj+IfX
+                bPE/5L+nL5ViiHX39hsY8GXjyff34//w2gtrj2Bn4HkExNOAKYVYTQrxyIy9yqN7RWbTRlfVUnwsLhdT
+                t9Hbv26DH89xxtGYbOVh69o7cS6zAta+8Xh8nge+Nn47PWwg/BLyEZhcgMi0ElQ3tSu6IXaR+s7nV2Mc
+                A/NfcWKFkofKgF1p68YSl3B8fZwtxm/wR2phjfKEMlYCdaEO5zLKMJ59fZh6/36ZDxxOXEAsl/Yj5zLw
+                p+WeJqAnoINAb+rowe6AZPzgHSd8Z6oD5uwORiC5bTIn1JoDkfj2pF34zWJvnLlYwvhiiB6bFHKpF23t
+                gCX0uHHZ5cirbEAw9Zu46QidjjXtfBgx2ZWc/MNqlZtiHYR/pC7zHENxoagWVU2djL2qMGkL7T7eGpu9
+                Ijk5+7jCDGFP0Hn8++Td+PViT3iTd5fWNaOcNGc7Y7R/m+KA57gKxmaVmuwkP5Q1hPSSGvhGpMDnTBKi
+                6CyORl+Gg38cIlOLSF07FYWiaW4lZo4uGWT5GUZaYRxWu76JnUcXoKqhQJ3XHv3Oga69tPDza6QV7Zyx
+                p/G3L9hgwrrDuFhQpc4LzNVEomeTARx9sTz/SJKOtpMnrvY6h6++bMXl3BX2x5KpXzuCE/MxaaM/1nFp
+                FDBsIsAeZiD73AofRHHZFX6v9+uHaNA0/HCOCx6eZM9ANxFd9IgSyb+9Kxhfm2Crdn5CLxYylujnJKNm
+                nIgnOCF/vsCNQHci0MnRRU/qI1tdnuEX8X1Ogsfe3U+g60ckxEMLeOMyqvCHlYfJs60YYMcqDi09FSua
+                eqeOZbn1PH0RP5yxhxTrBINb0hquDH08v//UBTwy3RE/mEXaFJUGo3yBW8aDqZ7AXecZxcm5E7/44ACv
+                Z9GrGhh2DHEidmAzqcn/LNwPl+AL7OcAJ0U5VzcfAtQOM3aGIr28TtUnAVw446LJmw9hBldKuR9Q396N
+                1e4R+OarNhi33o8Us4JemLSAE61n0AiXkBQ8Os1BAdKR9fcNGZGUV4Xn1/rjHyfuxFrSiobOLvVzgJ29
+                fbRbFlfhk/DnqtdLqtVBjr/FJ5bBti3+xJUiJrMQA0qXESRx0i9xj1aUMLeqXvdXLEda2zM4gCzqHXUp
+                H1FpxWp7MT6jFFfoeEaU06RlxbQ3y5hglBXKIBZWp2Gb9xw4HF/GYKZUnTc3dqeiambLAui86kZMtT6B
+                v3neFm9uPYacsloCSbE75vu0iXQNvQzgNh2Kp0ffogyakFenOid3J9WODb35BXL+KTuC8L9fIi9eeYhA
+                SUUIvWhwchHfC7HJJwaPzXHFV7gqLKK3FK8ZnJSHJ+e74f9O2g0rvxS0EvwCVLGY6H6SQP8Zgf7oO/u4
+                VGeqSSdAFVsdpif6IZf1HxPo/gro2o4C9riMajxHHR5iMGp1NAEGeWzlYyLZa6n/Yudw/AuD8/U+cQpk
+                3QwguxiMnblYjN8v98ZDpE4rPSIV3VLt026phdWYsMFPUY4P951BFeuRWEPok4GTOrOijqtDDnIq69A9
+                YMTeE6n418n2XH1c4BudpSaqnphX0cBVKI5BXUxmqbLnZTqM1zb64W9pR1lpfDihQ5LySZOKSRcKsJq6
+                fP/tfXho/A6s9oxGMydYHjn0DJsgPMT46ymuDDYBiYp+tXR0kLt38XoL6tu6MMRJIR7dJTQVj8hk4eo8
+                m/FBIMehtL6FlKmHcQ6DaQa93YraatdgxuEQjdZJp1dHKtPClWpQdsGkHzImOuetZCzQ9YyobSlRP+/s
+                HLIGzd3VrF83cLdAL6ih59wehP9FoE8kf8sqreag6EBUgKPrv42aPK+BHkegb8aLDBCT8wXosq0lOzZG
+                5QUTuNSJh/hfL+3Ev0x2wJPznPAUOfnTH7gxueLHs/dyad2Br764RS2vpYzwXUIucAndiZ++5w7/WNIp
+                ehXR1wzakyl5+Dn59aP06N70TOLl5dInA50ePfMzAJ11xWdVMFglFZjoiFc2BWLroQRYH05QW7CLnM8y
+                oD2Av3nJGuPXsc8FdewrnQL7Gky++ov5Hvjn13fC8XgiBug9ZYKpHRDxbtdtM0xADCie/9Vx1uTkfqRK
+                FdRVviEmu0+yQskqRJrIssKJw0kLfst4Rez4b2/txlPz9uDXtN+v2N5T5PePzXTAt+jtv0Gns9zlNOq4
+                unT0GWiPS3j6Q3fS012MSxzxMvn/Jq9ohKVyAklMRFDKzxRKYHyZwft79kH49hu2+IdXd9HZeGKuw2l4
+                MB7Lq6hnbGbkiqBtKeOv/imvTdfI8oIdFZxTdxkQMb326Dy4WW4GelldLmwOz1dgv9JSzMruHuhSb3Vz
+                O6PvUPztizYEgK/iX9JhDXPJK/Xfro2xQN+Elwj0lIIraiD13u+w2jKLuFSAZ5YcwFdfssEzy32x9EAM
+                VnrFYe3BWKw7GEPqQ1omiZ8D6JnqOvtheyxJgf/X9ELhDMQ0QERvasa+nyCgnqDHF+pyO6D/6GNAl7I3
+                AN3v1kAfID0RavHdaXvw8Bv0tqzrifecye2d8MQ8Zzwx1wXfJXX56oQd+MH0PfCMyMAAB1g896GzGYrS
+                PPr2Xhw8c8kU3NJ+fKdRFCjks3Dc2tZeLNwThq+8uBWTyaNzybXNQBfrmwEi+WWb9QQD3CcJ6K+Q4z+3
+                yg8raa81TGs942m/WKxiWnMwHhtIJSWm6DDIrs6wWhmOxuZgFinY4+86se87SWXs8dslPrA9nqJ2UWS1
+                lJeBnv0iV6Ut3tH4IwPeb5NOPjRuJ74/0wmz7U4ytipF72A/dTP5aQ0SZV/1FU4FcI0erbu2PQ94/Sb5
+                GHXhIOeWX8SmA+8wmHoXJbUZLKdpxecGOpMYUmb8ZlKHb7Lz35/lhAMR6ewsQarq1i+d+1Zyo0d/eb0/
+                ztO7KQ8mL9YvS1pUejGeZRD2EHn8cvcoVBLI7YMj6BrUe96dKg1z6RtBL5d32f/ecTSJ3skWv1zkjdMX
+                BOgy8GIw7R394nLwGAH3vRnOimvKOTHqZwG6cPSHyNGtGGAZhkyDMUaqmzrwIQH4f+gd37I6Bo+wNGUX
+                98gMeDDJ8RqC6fF5rvj7l7dh+X5y3y7ZLRqG79lMAt0Z3yFPdiMNkOBULd68prw0X2IXAfqVVgOBHo6v
+                vLANrzEwTC9tUP2kQsriMrK6tGzljSDkfB5+uWA/vv7KDmykzZvJqWUvvZt266QtO5i6BmhTfu6TeyDi
+                sFQaJjiHUFDVBL9zmVjiGo2nFhzEN+jhH5uxT1FJoWQyZmoVocdu7OhDNIPqnf4JeH2TP/596l5885Wd
+                nCyByCnX9PZGEY3lnHgO/b1lwZDoL0n36Cb5OEcfVj8tt+vofKzZ/wYyimKp0BCv6mruVEw1qwEeZLBx
+                OCYLP5nLQaMB32XUn1/bpAAjnZZB0YqaxVxaD0LPsBnoWwj0o1x+SV2kjAIWPTuNnFZci4mb/fGVl7bT
+                K4QwkpdHi7mkX3/J3rkEVTI4w+gnTdlzIgX/TG/y2Gw3eslMDKk7mLJKDCkas4/U5p/fsjcBXYJRiSr0
+                lpcC+mwCfa4APVf1QUAu/YnPqCTQ6dFfsTYBXc7rgZCeSj0R6RX4n+WH8ZOZe3EoKh0DnAzG4RHyzhH1
+                dKTwz7zaVszYFaL69PJaCQyrYKR+IecLCUYPfGP8dqz3ilE3cfTEFzpock4yaTkB2gxDasJ8fcJWPL3Q
+                E2HnixU4zV6RijG/OCTaiCmRMc/zq30Zy1hjkROpidx3EJuIN+Z10V3fEZXP8v+/GtFDPl3Z3IXath4Y
+                GDTKeNe2dJEOZjNe8lWxxLvk4qUN7epX0WS7tKy+iwH0ACfpENoNvfTwlVjCeOPf3tqHxxlLBBAvnAsm
+                GIziQd41WgTwkuRYzozm+JgI0M3CrOxAX38XZ+NuLN87AfFpJ1UnzJV9HlHqCSAJLBm0OQ4hHPzt+P47
+                e7DR66wKYmS/XAAvBlSDZXrXd9EEnPQUDJ42+8bQYFvIV4/gQl61XgaV0WUQhukdehm0ncU36BF+8f5+
+                guciOrmSCCgVQFmn8FDZJ5aBljuhx+Jz6THd8fBrOzm5w1UwJhNBTfrGDrzveErd9JEtRq+INEWR5K6s
+                TJQjkZfx2Ky95Ohu8D8nW49CpTTfTSL3/vNqP/LVHdjkHUNPJhNM3ziT/42jZ2AQu05cwLc5iV7bcETt
+                GEnd4lFFN0nSTme/AduPJuLhSQ74AQNiT9KUPqMRWeSxUxjc/50E3h/5IvySvrlm/r9WFcUSjstJ0893
+                z6g0/OesPfjnN3ZhtVu42gWT/WzxmJqecozUOF1DFWOXBXtPq52opxcfRFBCDr23PIbA+piULcWOKrE9
+                xgdpxVdIZeJgdSgReeTfwsWl7paeXlLFSAauVnhz+0lkVzWrnZhDZ7Mxd3cYTiQWkI9Tb9pEnt4MSc7H
+                Lxf64NHpTvA6k8a2NI5MSNKHlBs/faqMBboWuV2cmBMKB/8luJAdQWVNt50/ab58gmiF+GI9wstOXyzC
+                C5zh3xhvq/jlTHor11OXcOZiIZJzy5hKEXG5mFF+IZdA+Y8E6NmMAyhrale31L/KwOx3i70QGJ9DIxqU
+                51P0isnIAQ09X8Dr7lz+rPHcCi/YB11AdFoxLhdX43xRFQOtIsSnl6OJXkr6mlXZjHfIKb/BgfjFB/th
+                G3geiXmVSMgpg5XvOU4YVy7hdvj3KXth65+Ipq4e9A/1o7GzG3akPd/j+UenO2N3YDKvdan93mGCJZOD
+                PWlbIP7u5R2YuOEovWgRctmfvKoGdfdX7mZOsTqKbzLmkCc2M8ibB+RJTTXJ5FECxh1MbQSFw4kkxgiO
+                +PvxNmqlSi+pQ2N7N+12GT8iDXz4NRu8wjbcOQkSc8qRxbbTS6/wuBSFNY3oN8o+dyNm2YUq6vij2U5Y
+                sT9S7YmnFdUgl/mFL8tkq2/rhoGU7ig98ZMM4r/F/C+tOQwn0qNzmWXajgUVCLuQh7jsSjR3GZQdQxm0
+                P/WhK340w1HdkGvs6uO1PqSyn2/bBJGe7cAy5zD1CHJjRzeWukbha7TN3F0nkV/ZiFaOZXlTKyd/En4w
+                2wVPL5CVp5CTT+PoLuVmoMuMTck9g93+ixCa6Inmds5OAboC+521Krn1FOERB03A3tlroFGK8Pb242p7
+                Sbzv9zh7f7vICy+vOoyXVnvjd8s88cyCA4p7yr5tFgd2HZfen9JL/y2N809v7cG4dUfhSoNWN7awXvGk
+                4mmuoYlG9AhLZX3ujOZ34j+m7cNzSw8SbH4Yt/4IJ4EnZlgfQ3J2CQdoWHnWwIRsPLuENGCCBENueHnN
+                Iby00hu/ZGA4fp0vfr30ECeOPX6/1BPOISmcjOXYG3IRv1vCCctJ8E2mZ5b6wCn4PCob20ktrqKluxs7
+                /KLxnbfs6EXt8ewyH3rgQLxnf4KeLwazOMH/Y6ojvvaiNQPQ/dh1/DxqyNnVQ2NiK6ZB9utUaiHGrfZR
+                d2z/5sUd+B69+vsEbHJOFUrqW2B9mByegd+3XrElD96Ll1YdwptbAxWFe3GNNxyDUtDKySl0Qm5WTd52
+                DN9+U+v0qw898foGf0zdEoBXSYtmc8LJ7XQJbIV27GHZ/ybY/4ExzCPvOOPZFYfwKifUuHWH8JuFbpjL
+                SXe5uE6tPiF0ML9a4MYA1AZ/WOWLFQfOYoVHNCax7h/OcFIB5ykGuQODfXQSPVjiFsWV0gY/me2sHj9Y
+                6xmH+Y5hrMMDP5y5B5u52st9Eg7pvZCbgS5L2JkLh/G+/bNY7zmVs/wcvQypi0ytO25U+XJVTL0TAAJI
+                efYigx7HmUCevy8cr20OUMvvc0t98fwqH0zc6o+Fe8OVl+8dNCAlpxLL3SLxFifHlO0BfD/B92DY+sWi
+                pLqBQBfao5deAX1Te4/aN19BY77CgXxmiSd+u8Adf1jmjde3BGIbOXMul35zACXPM59IzMP7DqHqpsr/
+                LHTHhLVHOLniSAnK6DnTMG1HEKZuD2TwmkD7FMH2aDL1CFY6vWUtKRi7/BJQVNOigC4PqMkz7duOxLHN
+                APyZfF0m0Dz7kxzUc5i3JxJvWodiEtNkKXvsPCrqWhXQ1W4S9eofMSIwKRcztwcxWD2JSdtDuPyfwII9
+                p3EuvZTUy8iJ1Qofxhay2o1bdxi/W+SJ39BJ/GGZlwKZ7BR1dMvjA0PoJf1IKajCduo5nXUK+J5e6EGn
+                cAAv0skscwpDMlcz2XkRanKltVtRu8Uu4ZjAuOgZOonfMP+zy73wBifTrsAL6kGvIepxsaQWK90j1aPX
+                f+JK+uflHvjzR154faM/lrly9bhQqCa/7Bh19PbDh4H2JAafsrr/cdlB5vfGeE7SGbahcDyZigKucMNq
+                r/+eIP1moIuk5IZjidNLmLPzV6Qa3urumQQ2CrF3JBriGub6SK0LAngaUp5cqyYnTi+uQVxmMc6lFSEx
+                q0wtu1WNXeg1cFmkETu6+9QD9/IoQAEBmsf3nMoWlHPG9xj6VV03BKZMctevvq1T3VgJJxUKS81HDCmM
+                1F3X0cW4QFYYnV+AJbxXbljEUo9w5j2fX4krXB3k5kZ9SyeX1wa2KU9Bdqrb6cJxc8g35bZ4HpfenKoW
+                VPKcPC0oD0UJj5WdkEYu7RkEgezxp+RWobCqngF/G/Kr25DN+rKkLzxXyWW7Z6Cf5QYJNAbCBMTQyCAa
+                qGseKU8O25C82XwvrGlCK8GrJ4Q8GzSAquYOJDNQPXOpSN2+j2VfxZk0kOKoB8JMfFx0aiPQ8kmh4jJL
+                aJcC5VAScitp4zb1zSmxozz6IXYdYHBcS8Cnsu4o5jvD/NGZpcgob0BDZ5+6ozlMnTs5DkW1jeom0Tm2
+                LU+hRnN1SBM61Nqh4jChYxKjGAlgsWk6aVM8xzuSOkew7niusgVXmhhXyTeHTPHDFwn0uuZyeJ7ehnk7
+                f49jMfuopPxoEcGpoPrZ5UaIm4/0SwU+ZnBKh+jBdGIHpS3TOXVsyjsKZtYgxwJUc35VK4+ZWIrnpC79
+                WKiuQyd1Tj2fruvVq4ysCKPtSr3yLkCS4FDfoNDlzUGzLi+6SDlpWXSTYx0v6Lp1/aKDCoRFZ7nG+nRQ
+                ampPBZDSFvNRe7kmgZ54dV2nqR2xj1AbpZvUyyQxiuqn6KmDXalLlZV2mXRdUo9Oyt6qTo4Hk/JhJn1V
+                EMvrrFh/Vvl0X8359LGpfalT7WZJG9IPxhnMo20kekpfzW3rcvq62fZmO5jfNQ7Mt/SZiai5a7k10HsN
+                HZyZYdjoOQM+Z3aip69dK8rBvFPRJcaWk2N28vrRjTL2/Ngkoo/1a1TGntFH16MJVYB/TMa6dR79WWVV
+                n3W6/pl/JbfOIe/aCjqN/auPxn4am+RlblOSXtn0H1VGHctZJtN5/dl8Td5lOslk0OBS26ACDnVe8kpW
+                yaw/a231J623qS2VbiPqstbDnNNc7tal5Ly5bnnXrekeah1kz06VVZXxj+rzGDH1VdUx5voNee5Obg30
+                QXpw+Z+fNx18B3ZHF6KyvoB6yCy/h01b5DOKeciZBIACCAUKAbr2kuI1PwYdi9wotwa6LB/ycJf8Fy7L
+                9r2MxOww9bgsrWrKYZEvUkahPeZIvJzCubwT2Nf3ywl6OWcZmk+SWwNdjNrT34YTCU7ql3SPntuHbkOn
+                Beh/ITGDXF5yJF5bgtNOQzuD1mI6oQwUVKUxeM5Bc0ctjAxGVVaL3E5uDXRxDyMjRuSWpWDLwVmwOjyP
+                EXUmPYfwLot88aIBbgZ5R28TLhZEw+/sHniFW+NI1C54hW2HY9AKHE9wQV2r/KaMBemfILcHukS+7V2N
+                8Di1Be/bPYszqYfU/36h10izUcceW+SeiowBU+9AB2IzgmDjPR/7Albj7MXDSMuPQvSlo9js+TasvefS
+                w6frHQvm1yGd8Hj5jugQjMODpt0QvSpI/GUcGlA3ecw7QxIySnCrAlyGjvLd0kF5LEO2lVlO6JFxWJ5f
+                ke1PHQ+olyovd9ONrLNX3cJXgbGpXlUzy8uPYg0N9alnXBTVMl3X7WqN1SMZwwbWIdvFpnhQ0r2R2wCd
+                DUuEb2SjkTToQvs/Y3/IejR11rBtHU1rJUzHFrm3IuZX3Ft/Ecbm8IewP7KIx5cIQoNyQt2kMfEZwTiT
+                4kuPXoW2riakl8QhIStEAb+g6jIiUv1wPu8MGlrKUFSViahLQTiZ4IHQBE+kcoVo62qAYaAXhaRBcWlB
+                yClPVsdnLwYiJN4TKdmnUdmQj+zyFIQle+NU4kFklSahm7RWHlOQCVPVWIxYlg1OcEXYBR/kVl5Ab788
+                LyTf6upDWX0uoi/7s103hKceQWHNJbbZiYbmalzMjURqXjgK2MeLhTGs3xNnkn2pQ7q6g6onhckmdye3
+                AzqFgBZQVzWXwPXkWmzymIqUnFMEv/zG4NgZJ0C/N9pYxCTKtPStVwcRRbAu3zcRwckeBE638pgyNvKw
+                Vk9/Ozr7muh9+1DfVo7j8U7Y4DkFNkcWYP/prVjt/gYcApYjsygR0QSvR+g2uIds5MSZh63esxCfeQLt
+                PU1ISA/BtgOz1Ln9vL7/5EbsOjIfGz2nwvH4R/AMs4JbyDpYe83BrkMLkVEaD+O1PpTUXobPqW1wOb4G
+                h87uxu7Aj+Dgv0x9wb7f2Iu88lR4BG+By4n18I22h33AUuwJXIrMsliU1GThYKg1Nh2YAjv/hWQOW5mP
+                OPOcCSe+l17JVs/6iMe/B3KbYFQlNmBasi4VnYWN7zy4BK5BGbm63ITQIJdk8epfhAitGBzuRgABsmzv
+                RCTkhCkvqnal1SSQu7nd6DK00IPKHeJ2AigB23xmYJXzGwhN8YJfrAOORjuh/Eq++v5vaW0GapsLEJMV
+                wEnwJnm+tfp58Cst5XAOXo35jn/AkbP2KKKHTc4LxfqDk7Ha9S21EpQ0ZHOyuWO1E+tO8kKboR7H4xzp
+                AHn9oh+utJbjXFoA1rq+wYmxDWWN2TgUboMtHu9wQp3k9RKcocdf4fQaDkXboL6jAtFcCT5yexVWvjOR
+                khvG4DoL3mdtscbtTSRmhqrHKBQO714+waOrbX59l6qlq5ZKBcAlaA3Cz/uivbeFAyEPvkuygPzei+av
+                hqFOHIncjhXOE5GSf9bkzTW/7exrRmJWKHzP7EJ4ylFcaaqkVy/F3uNL4HB0CWobS9DcXouaxlL0GTrQ
+                2lWP/IqLSCs4h9DznlhJb78/eJOKw4wjvTgW56D+2/vLRTHqsduapiLYH1uIPQErUddSpSbW5YJIbKEH
+                Ph7ngrKGPDgcX4oFe/8M1+D1nJD74Ba8Fov2/BF2AQsRkx2EHYffw1KncfTWm3Es2gH7TqzCB7v/xPc1
+                aGyrJlVKwTbvGTgUsR3dfS0E9iAiSHPWuk9BTPoxtilPzoozvWu5PdC1qSVgGcEg+VJZbS58I3ay80tw
+                oSAKgzSOumlhAfoXILQ97T7AAO/Yud1YvGccYrOCTUGajP011LdXKMqwxH48/M+50WNWoYFAdwxaCofA
+                5ahvqVROSp7QrKrPYx4HUoJV8AnfAZfQdVi090VFU4SnDzEIDIzdQ6ryDjJLEtn2EKpbBOiLsS9wNevV
+                P7WRXnCW1GIaAuOckF91kUB+H8tdJ6idoIAYF/jHOHNFcERcxklOwlPYfJCri8ck+EbuwvEYJxyLcSDF
+                sWMcEYau7jYNdJ9ZnMz26jc/5TmfyMvHscZjOqIzjqlHIu4JzD8Z6GqRZKd5TArT0dmEiItHlTHs/RYi
+                rfgcege7aXQCXQWoY1W6R+o9sKLjI9n1EFqwZC/BHLOPQWAnx0N79Pq2SjiTP9v4vov82jR6ZSMaSB8c
+                jy9XQK/jsey2yHNKYee9sNL1VXhH2KjAMjqDFMNjsuLdLfT0sjMTELuXIJ6ugC4UqbqlELvp0Z0CVxLo
+                8kX2EVxiwLiB4x8Q50wOnU4+vgC2R+YhvyYNPYNdKrA19BuUYyxmMLzd533sPr4CFU0F6B/oQf9gJ3oZ
+                iPYb9Q8qZVckY4vvLBwaA/SzlwKxzn2a0lGA/oV7dJEboEvDN3fVICjBGSvoYay83sXl4lgMMOiQR0u1
+                Z2cJpZiaIvrzX4kIeCTdHyJuRvS5ipIrmdjltwibPWchMecM2vtayd0HUE3Ou+f4MtgfnY+Kxjz1BZXq
+                ZgHnIuz2X4yqpkJ1N7uPzsgvRnj+eEReOoaW7jqcvRzEz6/A9cRqNLbX0GH14Ej0Lqwn35YfsJLtwMrG
+                XNgd/RB7ji0nhy9VW5Up+VFY5zEVR2P2kGOXwy9qJ+OB1xFCzl7fVkX60YZ2OsTu3g60dFbjgATEblMQ
+                cclPtdPZ104K1Yjevk6lW1ppHDZ5TecqY4PO3la1oxSRepgcfTIpzBFOXvP/mXXX8slA/7gIZ5KZbMcl
+                a8bmX8Dm0Ps4nx+Ojt5mNShmXq/STV7+/hUzyO8foJuhPsKAs4cAi8Bugt3W5wOCwhbBCe44EuWI1c5T
+                yceXq/+ooYtxUzQBtXLfRKza+zrCEn3R3HoFRmMf4jKDsN51GrZ7vgcvgs81ZANWu0zCJtepiLscjAu5
+                Z7Hday4W2b2AIKFBTcWISzuOlU4T2cZbSM48jdqmEgJ7DxbYPY8dXh/Q8ychqzwRjgHLscl9BlwC18P7
+                1HYcPr0LGQVJMNDDXy6Oxs4jC7CVVMQ1aDUOnt6Bw+H2yClN5opTQzq1D4scXoSV5zxklyahsiEX+09s
+                xIe7nocTaVlFXTbHRDB113JnQBcw9xhakZB5AraH5mGp4zhso2eXJx3lv0zXNwtMYFfv9z/QBdzyVTBJ
+                9xPQte3kKcURRRELqy7hdPJBHIrawaXeGoej7BTYk7JPo6OnGV0M5mRPOoA8OYB8OCE9GC1ttVxtjWju
+                rCVvDsaRcDscjdqN+JxgJOScwMlYF4I8CpcKYhAStx/HCbykzFMK6BmFseTtTkwuyCqOp1cvUNuRAaRQ
+                wbHuKGRg22dsRxFp06mkA/A5YwXvM5sRxLYLK9PJ+wdJU7qRy3yh8ft5fSsOMs+JeFf16xL11C02nfWR
+                MgXHe7B/F1HVkI/IVD9yeSeEpfgwtpBfVhDHeddyZ0Bnq+Rqw+gytOFSUTRcTq7Gkj0vYtfh+Ujnkicc
+                Up7dliBVe/a/LqDfPyJ203cMZUtAHIxwZPnPjLv6W9DaU4v23nry4nYYr8p3BfQz9kNX+zHAz5KGrsoN
+                l0Gel8kyzHz9nDAdpDKdPO5TeWW3ZUjyXmOSY1IH+Sz790JfBnhuYKQbw6qNQVVmcKSP5eSHRU11Ew9y
+                Y7FnsBVdA01qr1++LCNOT5L8Nr3ce+kZaEPXYBv6h3tUWfUFE1NdRrY7TJoi50XPQeonOko9bESb5O7k
+                zoEuRpdbue3dDUgvjSW3s4P7qc3qzldKThga2qvYwb8ej35/ithOACpAN62S6i4hj8WRqKcVadvrdFGS
+                OBZxMvqlj/UtfXXdnFfq4sQw//6LLief5byeYOb8MtbKaalrPK+SlDF9lp0K0UvpZtJH5ZU8pnpEB36W
+                6zqPJGlTQGyqRyVph5NHtSdlJYk+ku5a7hDobFR1nh1Td+YG5AsakfA760zvvh7bPGciKM4FTVwqZaYr
+                Qyg9xWCSPq60uSPmTt0rMddrFvNnSTIo4sGH7jMvPlb0QGurCQiYFLgFvJKkJ/JX9DeDZWwfzTnkpeuS
+                62oMZPxMx6N5TXmui+mcGZjXr5uTqW6pR4FYdDLllfrleIyY+yFtm68rXfgyX9X6mG+I8dBUxY01fW65
+                c6CrjvJNvIosOfmVFxAa541DEXaMlidhseNLjMrtef482rvquTzp/5pFG0TKSmFd1WiHtfHuXEwV3SSs
+                Uw0oD02DYY4fjEYDeno7YTD0EujiWe5f0b0z9dHUTW2zMeevp9vJ2Ovm0reSj5+/sdyNSYuuTV6fPH66
+                1I3lR3OPnrvx+J7K5wQ632U2y4M7BmMv2gjoqqYcBkg7Mcf6d/jQ/lk4Ba3AiQQXxGQEobw+HwOD8k10
+                WZZGPdDHX/dMFLh1kr1kozyxJ0/fDQ2gs7MVbe3N1MfA69IXizwAcqdAVxDnX1kytcdU7IS8UbaxSmoz
+                Cfbd2OW3AIfP2sPt1CasdJ3Ez4tx5sIR1LaUqyDHDHYzGLVXl+Xv8wHPXI9Z1GcqJh5b9mzbOhrRN9Cr
+                Hj3tM/SYQC59uIeTyyL3s9w50AUcikeZwK7AIp5ReDsDipbuK+px0sqGAoQkHsD7ts9i8ob/wvt2f1A8
+                /mJ+NDp65Be45GfIJGrXoFR13CHQBdDyvLM5wpedCalT/hNaAfMQgS00pau7Vf3al+RVlMast0UeFLlD
+                oAs2FD7GgsUEUAGqgI5UQZ6d6O/vQk5JInzDtsPBfzFs/d7FapfXsN5tKnwjbZGYewpVzQXoG5T/GYEc
+                3hS5j/XMnyaSV/4nhh5DF7p729FPemQY6ENbZxOa266gr79HXVeBsdLPAu4HVD4v0MeK+eQo4IXKiHcf
+                HO5Da3c9ahqLUF6XhfisIOwLXImVzm9gjcub6jn38AveSM4+hbTCaOSVp6C8Npecnxya3nhoWD+UJHdk
+                5TdW1G+UELjCtXv7u9HV147mjjrUNpSjrqlS3UYWsHd0NxPsDTwWimJS+Ca9LfIAyeehLrcTM+DNIhRH
+                v+SfeFO5OVDbXISYtEB4nbaBR7AVguJccTrZS327JOqSP0KTvBEU66xuW2eWJiGtIAZJGaHqywO1TWXo
+                6G1EdUMR8sszUN1YyvrK0dReq+4O9hH84r1ln1//H/EWdFtEyb0E+q3kRvALP5a7eIPDvfT0DQRphXoY
+                qLG9ChV1+civTkd0RiD2B6+Ga9BKnE7xQlLuafUEX1LWaZTXF6KmuUT9bntmcRIaCPAeUiR5yEl+xlnd
+                xld839SgRSyi5S8NdEnCw4WPS/A4xMCxX30hdtDYhy5Sj4a2ChRXpyGzMJ7gz0MvOXz3QBs6DS0wDBnQ
+                3tOqfjKvjROln59Hv+TLuk3syQJ0i3xMvmigf5KYJ4EZnQJ+4ffmXZRh9a5vNMkNJ30725xHnVc7P+Z6
+                LOi2yG3l/xXQx4JzFOgK7Ezqm00q6c96313uYg4xybHpnAXoFvls8pcG+lhQ3jqNPRKQj56RiSBefHRS
+                6PMWscinyv9L6nI3Yga/RSzymeSvFegWscgdiQXoFnkgxAJ0izwQooC+1ZIs6cud8PP/H6DUpcTe2qAQ
+                AAAAAElFTkSuQmCC
+</property>
+        </structure>
+    </list-property>
+</report>
