@@ -1,0 +1,819 @@
+.alertify .ajs-modal {
+   cursor: pointer;
+   pointer-events: none; 
+}
+.alertify.ajs-resizable .ajs-footer .ajs-buttons { 
+    cursor:pointer; 
+    pointer-events:all
+}
+.modal {
+    cursor: pointer;
+    pointer-events: none;
+}
+.modal .modal-dialog {
+    cursor:pointer;
+    pointer-events: all;
+}
+body.pri {
+    direction:ltr;
+}
+body.pri {
+    overflow-y:scroll;
+}
+.modal-dialog {
+    height:initial !important;
+}
+.modal-dialog .modal-content {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 32px;
+    width:auto;
+    max-height:100% !important;
+}
+.modal-backdrop.fade.show {
+    display:none;
+}
+.modal-dialog .modal-header {
+    padding: 32px 32px 0px 32px;
+}
+.modal-dialog h1 {
+  font-size: 22px;
+  color: #242424;
+  font-weight: 500;
+  letter-spacing: 0.66px;
+}
+body.pri {
+    overflow:scroll !important;
+}
+.success.residential-modal.show .modal-content {
+    padding:0px !important;
+    margin:32px !important;
+}
+.success .modal-dialog .modal-content {
+    margin:0px !important;
+}
+.login-pop.communicationpopup.popover {
+    width: 200px;
+    padding: 16px !important;
+    box-shadow: 0px 1px 16px rgb(0 0 0 / 29%);
+    // left: auto !important;
+    top: 10px !important;
+    left: -55px !important;
+}
+.login-pop.communicationpopup.popover:after {
+    margin-left: -10px;
+    border-bottom-color: #fff !important;
+    border-top-width: 0;
+    content: " ";
+    position: absolute;
+    display: block;
+    width: 0;
+    height: 0;
+    border-color: transparent;
+    border-style: solid;
+    top: -19px;
+    border-width: 10px;
+    left: auto;
+    right: 54px;
+}
+.notification.popover {
+    max-width: 500px;
+    color: #242424;
+    overflow: hidden;
+    top: 70px !important;
+    right: 70px !important;
+    left: auto !important;
+    z-index: 99999;
+    transform: initial !important;
+    opacity: 1 !important;
+}
+.notification.popover .crt-list > ul.pri > li {
+    padding: 1em 0.5em;
+}
+.ett-slct.pri.is-open.drdn-open.drdn-extspan.language {
+    left:914px !important;
+}
+.modalvalue.modalinput .modal-dialog {
+    overflow-y:scroll;
+}
+/** entering value is **/
+.single-col .crt-form.pri .elements-float .input-field {
+    display:inline-block !important;
+    float:none !important;
+}
+.adhar-modal.modal .modal-dialog .crt-form.pri .scb-col50 .after-uploaded, .app-type .crt-form.pri .scb-col50 .after-uploaded {
+    width: calc(100% + 7px);
+}
+.modal-content .crt-form.form-top .display-mainsec .card-display.backoffice-img {
+    left:64px;
+    top:10px;
+}
+.modal-open .modal {
+    z-index:9999;
+}
+.view-tooltip.progress-application {
+    right:15vw !important;
+    left:auto !important;
+    top:0rem !important;
+    
+}
+/** ipad media query -------------------------------------------------------------------------**/
+@media (min-device-width:768px) and (max-device-width: 1024px) {
+    .raphael-group-222-item {
+        clip-path:none;
+    }
+    .W-768-100 {
+        width:100% !important
+     }
+     .crt-list.card-list.pri ul {
+        grid-template-columns:repeat(2, 1fr);
+     }
+    //  .crt-list.card-list.pri ul {
+    //     grid-gap:0px 48px;
+    // }
+     .card-list ul li {
+         Width:100% !important;
+     }
+    .header .crt-navb.pri > ul > li.var2 {
+        float:left;
+     }
+     .dashboard-menu ul.pri li {
+       margin:0px;
+     }
+     .mob-search .ecn > .cir .ett-bttn {
+       padding-right:45px;
+     }
+     .dashboard_screen .paright {
+     grid-template-columns:repeat(2,1fr);
+     }
+     .apz-nav-horizontal.pnb-head .header {
+        padding: 1rem 50px 1rem 22px !important; 
+    }
+    .mob-search {
+        position:relative;
+    }
+    .mob-search .icon-downarrow.advance-search-icon {
+        position:absolute;
+        right:13px;
+        top:12px;
+    }
+    .crt-navb.communication-icon  .scb-col80{
+        width:60%;
+      }
+      .crt-navb.communication-icon  .faq-button{
+        float:right;
+      }
+      .nominee-model.modalvalue .input-field {
+         width:100%;
+      }
+      .modalvalue .input-field {
+        width:48%;
+      }
+      .nominee-modal.modalvalue .input-field {
+          width:60%;
+      }
+      .nominee-modal .input-field.input-date .error-block .err-msg {
+          bottom:-1.625rem;
+      }
+      .apz-nav-vertical.apz-nav-open .pst-simp.tsp {
+        padding: 40px 30px 7px 40px;
+     }
+      .apz-nav-vertical.apz-nav-open .pt2.pb2.hide-s {
+        padding:0px;
+      }
+      .apz-nav-vertical.apz-nav-open .ett-para .pri {
+        color:#ffffff;
+      }
+      .pnt-sdbr.lft {
+        left: -370px;
+     }
+      .apz-nav-horizontal.pnb-head .header .crt-navb li.rht.hide-s.var4.pri {
+        display:block;
+      }
+      .review.document {
+        padding:0px;
+      }
+      .login-body.var1 .login-left {
+        padding-top:5rem !important;
+      }
+    .product-first.product .product-detail-img li h2, .product-second.product .product-detail-img li h2{
+            font-size:32px !important;
+        }
+    .product-first.product .product-detail-img li p {
+        display:block;
+    }
+    .product-first.product .product-logo .language {
+            margin-left: 24px; 
+        }
+    .product-second.product .select-product-nav.crt-navb {
+        padding: 0px 23px;
+        }
+    .product-second.product .product-detail-img li p, .product-first.product .product-detail-img li p {
+            font-size:16px; display: block;
+        }
+    .login-body > .gcb-col5{
+          width:100% !important;
+        }
+    .login-body .login-left {
+            width:100% !important;
+        }
+    .login-otp .otp-block .ett-inpt.pri {
+            letter-spacing: 4.5rem; 
+        }
+    .login-body .login-img .ett-imge {
+            display: none;
+        }
+    .base-screen .custom-form-launch {
+            padding: 3.375rem 1rem 2rem;
+        }
+    .file-upload-block.var1 .upload-btn-adhar .ett-bttn.tsp {
+            bottom: 15px;
+        }
+    .single-col .crt-form.pri .elements-float .input-field {
+            // width: 45% !important; 
+            margin-bottom:36px;
+         }
+    .modal-dialog .single-col .crt-form.pri .elements-float .input-field {
+            width: 60% !important; 
+            margin-bottom:36px;
+         }
+    .input-name .inpt-slct {
+            width: 35%;
+        }
+    .input-name .inpt-name {
+            width: 64%;
+        }
+    .intl-tel-input .selected-flag .iti-arrow {
+            right:2% !important;
+        }
+    .ett-rdio.hor.pri > span {
+            margin: 0px 1em 1em 0em;
+        } 
+    .upload-box .gcb-col8 {
+            margin-top:0;
+        }
+    .file-upload-block .upload-btn:before {
+            bottom:15px; 
+        }
+    .input-field.input-date .error-block .err-msg {
+            bottom: -40px;
+        }
+    .input-field.input-date .error-block .err-msg .ett-para.pri {
+            padding:0px;
+        }
+    
+    .pending-app.kyc-mode .box-shadow-common {
+            width: 100%;
+        }
+    .deposit-flow > div {
+            width: 50%;
+        }
+    .deposit-flow .single-col.var1 .crt-form .input-field {
+            margin-bottom: 0.625rem;
+        }
+    .deposit-flow .single-col.var1 .crt-form .sub-head {
+            margin-bottom: 1.5rem;
+        }
+    .report-box .ett-para.pri {
+        font-size: 18px;
+    }
+     .login-body .login-left .input-field .error-block .scb-col35{
+         width: 13%;
+        }
+    .input-field.input-address .ett-para{
+        display: block;
+    }
+    .display-mainsec .card-display {
+        padding: 50px 0px 20px 10px; 
+        left:16px;
+    }
+    .file-upload-block.type1 .cardlogo-sec img {
+        float: left;
+        margin: 1.5em 0 0 20px;
+    }
+    .file-upload-block.type1 .cardlogo-sec .ett-para.pri {
+        margin: 12px 0 0 16px;
+    }
+    .file-upload-block.type1 .upload-info svg {
+        width:32px;margin:0px;height: 32px;
+    }
+    .file-upload-block.type1 .upload-info h3 {
+        margin: 0.25em 0 0rem;font-size: 0.75rem;
+     }
+    .file-upload-block.type1 > .cen.pri.scb-col100 {
+        height: auto;
+    }
+    .file-upload-block .upload-info {
+        padding: 5px 22px 37px 22px;
+    }
+    /* .display-mainsec .card-displayimg img { 
+        min-width: 260px;
+    } */
+    .upload-box .gcb-col4 {
+        width: 48.5%;margin-right: 1rem;
+    }
+    .upload-box .gcb-col8 {
+        width: 48%; 
+    }
+    .uploaded-file-detail {
+       margin-bottom: 1.7rem
+    }
+    .product-first.product .select-product-nav.crt-navb {
+        padding: 0px 23px;
+    }
+    .product-first.product .crt-list.grid-3 {
+        margin-left: 0.4%;
+        overflow-x:auto;
+    }
+    .base-screen .custom-form-launch.product-screen .common-header li {
+        width:100%
+    }
+    .base-screen .custom-sidebar.menu-list .form-progress-block {
+        padding-top:0px;
+    }
+    .base-screen .custom-sidebar.menu-list .menu-toggle-block {
+        margin-bottom:0;
+    }
+    .base-screen .custom-sidebar.menu-list {
+        padding: 12px 37px 12px 23px;
+    }
+    .product-second.product .crt-list {
+        margin-left: 4%;
+    }
+    .crt-navb.communication-icon li.phoneicon {
+        display: block;
+        height:auto;
+    }
+    .display-mainsec .card-displayimg img {
+        min-width: 350px !important;
+        height:230px;
+    }
+    .base-screen .custom-form-launch {
+        overflow: hidden;
+    }
+    .product-second.product .product-logo .language {
+        margin-left: 24px;
+    }
+    .product-second.product .product-logo .language {
+        margin-left: 24px;
+    }
+    .base-screen .custom-sidebar.menu-list .Sidemenu-list-block_search {
+        margin-top:20px !important;
+    }
+    .base-screen.close-menu .custom-sidebar .menu-toggle-block .menu-btn {
+        margin-bottom:20px;
+    }
+    .communication-icon .deposit-link {
+        margin-top:15px;
+    }
+    .modalvalue.input-field.input-address {
+        width:100%;
+    }
+    .modal-dialog .single-col .crt-form.pri .elements-float .input-field.phonenumber {
+        width:65%;
+    }
+    .amt-sec .review-confirm {
+        width:100%;
+    }
+    .display-mainsec .card-display .card-name {
+       margin-top:0.5em;
+       padding-left:10px;
+    }
+    .file-upload-block.type1 {
+        width:50%;
+        padding-left:10px;
+    }
+    .card-imgupoad .crt-list ul li {
+        width:100%;
+    }
+    .card-review .amt-sec .gcb-col4 .display-mainsec .card-displayimg img {
+        min-width:350px !important ; 
+        height:230px;
+    }
+    .card-review .amt-sec .gcb-col8 {
+        width:100%;
+    }
+    .report-box {
+        display: grid;
+        grid-template-columns: repeat(2,1fr);
+        padding-bottom:8px;
+    }
+    .report-box > span {
+        width:100%;
+        padding-bottom:16px !important;
+    }
+    .success .modal-dialog .modal-content {
+        padding: 3.2rem  0.6rem;
+    }
+    .arabic .ett-slct.pri.is-open.drdn-open.drdn-extspan.language {
+    left: 78px !important;
+    right:auto;
+}
+
+.ett-slct.pri.is-open.drdn-open.drdn-extspan.language {
+    left: auto !important;
+    right: 50px;
+}
+.product-first.product .crt-list.grid-3 ul li {
+    height:190px;
+}
+.success.residential-modal.show .modal-content {
+    overflow:visible;
+}
+.login-pop.popover.bs-popover-auto {
+    top:156px !important;
+}
+.pnt-sdbr.lft.apz-nav-open {
+    width:41.7%;
+}
+.pnt-sdbr.lft.apz-nav-open .ett-para.fs12 {
+    color:#ffffff;
+}
+.modal.faqmodel .modal-dialog .modal-content {
+    margin:0px;
+}
+.adhar-modal.modal .crt-form.pri .scb-col50 .after-uploaded {
+    left:0;
+}
+.common-btn.kyc-button {
+    margin-bottom:32px;
+}
+.elements-nofloat .input-field.radio-field {
+    width:50%;
+}
+.intl-tel-input.allow-dropdown .flag-container, .intl-tel-input.separate-dial-code .flag-container { 
+    border: 1px solid #d3d3d3; 
+}
+.single-col .crt-form.pri .elements-float .input-field {
+    width:46.5%;
+    margin-right:1rem;
+}
+.sub-head.input-field.input-as-dropdown.var3 { 
+    margin-bottom:16px;
+}
+.input-field.var3.radio-field {
+    margin-bottom:0px;
+}
+.nominee-detls .nominne-addnew.crt-list.pri li {
+    margin-top:8px;
+}
+.nominee-detls .crt-list.pri li .ett-para.pri {
+    margin-bottom:0px;
+}
+.input-field.radio-field.sub-head.var3 { 
+    margin-bottom:0;
+}
+.pst-simp.single-col.pa0 .single-col .crt-form.pri {
+    margin-bottom:2rem;
+}
+.social-security-number.input-field {
+    width:50%;
+}
+.social-security-number.input-field .ecn.etw-50 {
+    width:100%;
+}
+.branch-name-address {
+    display:flex !important;
+}
+.declaration.pst-simp > div {
+    padding:0px;
+}
+.crt-form .slider-deposit.mt2 .input-field {
+    width:40%;
+}
+.input-field .ecn.etw-50 {
+    width:100%;
+}
+.success.card-modal .display-mainsec .card-displayimg img {
+    min-width:360px !important;
+    height:230px;
+}
+.success.card-modal .acc-dtls.acc-info {
+    margin-bottom:24px;
+}
+.success.card-modal .crt-form.form-top .ett-hed4 { 
+    margin-bottom:24px;
+}
+.success.card-modal .modal-dialog .success-close .ett-bttn.tsp {
+    right:1rem;
+    top:-1rem;
+}
+.adhar-modal.modal .crt-form.pri .scb-col50 .after-uploaded.front {
+ left:-7px;
+}
+.login-pop.communicationpopup.popover {
+    top:10px !important;
+}
+.adhar-image.upload-done .crt-list ul li {
+ margin-bottom:32px;
+}
+.input-field.radio-field.sub-head.var3.facta {
+    margin-bottom:16px;
+}
+.single-col .crt-form.pri.facta-form {
+    margin-bottom: 2rem;
+}
+.modalvalue .ui-datepicker-calendar a {
+    padding:1em 0;
+}
+.loan.suc-btns {
+    width:60%;
+    margin:0 auto;
+    margin-top:24px;
+}
+.adhar-image.card-imgupoad .card-displayimg img {
+    min-width: 320px !important;
+    height: 220px;
+    margin-left: 10px;
+}
+.adhar-image.card-imgupoad .display-mainsec .card-display {
+    left: 16px;
+    padding: 50px 0px 20px 10px;
+}
+.single-col .card-flex {
+    margin-bottom:24px;
+}
+.nominee-detls .crt-list.pri.nominne-list-body.var1 li span.var2 {
+    display: flex;
+    align-items: center;
+}
+.nominee-detls .crt-list.nominne-list-body.var1 {
+   margin-bottom:16px;
+}
+.modal .single-col .crt-form.pri {
+  border-bottom: none;  
+}
+.custom-tabel .table-header.progress-application ul {
+    padding:0;
+}
+.custom-tabel .table-body.progress-application ul li {
+    padding:16px;
+}
+.custom-tabel .table-body.progress-application ul li span.var2 {
+    text-align: center;
+}
+.custom-tabel .table-body.progress-application ul li span.var3 {
+    width:10%;
+}
+.custom-tabel .table-body.progress-application ul li span.var5 {
+    width:20%;
+}
+.table-search.progress-application {
+    margin-top: 16px;
+}
+.view-tooltip.progress-application {
+    right: 15vw !important;
+    left: auto !important;
+    top: 13em !important;
+    transform:none !important;
+}
+/**-- arabic related CSS **/
+.arabic {
+    .product.compare .common-header .ett-bttn.pri {
+        float:left;
+    }
+    .modal-compare .crt-tabl.pri .tabl-ctr table th {
+        text-align:right; 
+        padding: 0 0px 24px 10px !important;
+    }
+    .pnt-sdbr.lft.apz-nav-open {
+        width:41.6%;
+    }
+   .ett-labl.pri {
+       text-align:right;
+   }
+   .modalvalue .input-field { 
+       text-align:right;
+   }
+   .toggle-question {
+       width:60.1%;
+   }
+   .success .modal-dialog .success-close .ett-bttn.tsp {
+       right: auto;
+       left: 1rem;
+       top: 1rem;
+       
+   }
+   .success .modal-window .acc-dtls .ett-labl.pri, .success .modal-dialog .acc-dtls .ett-labl.pri {
+       text-align:center;
+   }
+   .product-first.product .crt-list.grid-3 ul li:hover .gif-img {
+       margin-left:0;
+       margin-right:25px;
+   }
+   .success.var1 .modal-window .modal-cnt .header-success .ett-hed3, .success.var1 .modal-dialog .modal-content .header-success .ett-hed3 {
+       text-align:right;
+   }
+   .header .crt-navb.pri > ul > li.var2 {
+       float:right;
+   }
+   .add-tobtn {
+       text-align:right;
+   }
+   .adhar-modal.modal .crt-form.pri .scb-col50 .after-uploaded {
+       left:-7px;
+   }
+   .single-col .crt-form.pri .elements-float .input-field {
+       margin-left:1rem;
+       width:47%;
+   }
+   .upload-box .gcb-col8 .upload-info .ett-para.pri {
+       padding: 0 0 0 1rem;
+   }
+   .display-mainsec .card-display {
+       padding: 60px 39px 20px 10px;
+       left: auto;
+       right: 16px;
+   }
+   .file-upload-block.type1 {
+       width: 52%;
+       padding-left: 0px;
+       padding-right: 20px;
+   }
+   .adhar-image.card-imgupoad .card-displayimg img {
+       height: 220px;
+       margin-left: 0px;
+       margin-right: 10px;
+   }
+   .adhar-image.card-imgupoad .display-mainsec .card-display {
+       left: 16px;
+       padding: 50px 22px 20px 10px;
+   }
+   .card-review .amt-sec .gcb-col4 {
+       float:right;
+   }
+   .success.card-modal .modal-content .crt-form.form-top .display-mainsec .card-display.backoffice-img {
+       left: auto;
+       top: 10px;
+       text-align: right;
+       right: 32px;
+   }
+   .custom-tabel .table-body.progress-application ul li span.var5 {
+       text-align:left;
+   }
+   .custom-tabel .table-body.progress-application ul li span:last-child {
+     text-align: left;
+   }
+   .table-search.progress-application {
+    float: left;
+    margin-top: 16px;
+}
+.view-tooltip.progress-application {
+      right: auto !important;
+      left: 67px !important;
+      top: 18em !important;
+}
+.view-tooltip.view-tooltip.progress-application .crt-list > ul.pri li > span {
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+}
+.view-tooltip.view-tooltip.progress-application .crt-list > ul.pri li > span .ett-chek.hor.pri input[type=checkbox] + label::before {
+    margin-left:0px !important;
+}
+.custom-tabel .table-body.progress-application ul li span.view-img {
+    margin-right: 0;
+    margin-left:10px
+}
+.custom-tabel .table-body.progress-application ul li span.view-img svg {
+    padding-left:5px;
+}
+}
+.arabic .intl-tel-input.allow-dropdown input, .arabic .intl-tel-input.allow-dropdown input[type=text], .arabic .intl-tel-input.allow-dropdown input[type=tel], .arabic .intl-tel-input.separate-dial-code input, .arabic .intl-tel-input.separate-dial-code input[type=text], .arabic .intl-tel-input.separate-dial-code input[type=tel] {
+    padding-left: 16px !important;
+}
+.arabic .pending-app.kyc-mode .box-shadow-common:last-child {
+    margin-right:0;
+}
+/**-- arabic related end --**/
+}
+@media screen and (min-device-width: 320px) and (max-device-width: 480px) { 
+  .modalvalue.modal-compare .modal-dialog  {
+    margin: 0 auto !important;
+    border-radius: 10px !important;
+    top: 35%;
+}
+.modal.in .modal-dialog {
+    width: 90% !important;
+    border-radius: 10px !important;
+    margin: 0 auto !important;
+}
+.modal-dialog .modal-header {
+    padding: 24px 24px 0px 24px;
+}
+.modal-dialog .modal-content {
+    margin: 24px;
+}
+.modal-dialog .modal-content {
+    width: initial;
+    overflow: hidden;
+}
+.modal.faqmodel .modal-dialog .modal-content {
+    margin:0px;
+}
+.modal.faqmodel .modal-dialog .scb-col85.question {
+    padding-left:18px;
+}
+.login-pop.communicationpopup.popover {
+    top: 135px !important;
+    left: auto !important;
+    right: 18px !important;
+    transform: none !important;
+}
+.modal .modal-dialog {
+    overflow-y: inherit;
+}
+/*After add please check nominee screen */
+.success.residential-modal.show .modal-content {
+    padding: 0px !important;
+    margin: 24px !important;
+}
+.adhar-modal.modal .crt-form.pri .scb-col50 .after-uploaded, .app-type .crt-form.pri .scb-col50 .after-uploaded {
+    width: calc(100% + 7px);
+}
+.crt-list.declare-list {
+    padding:0px;
+}
+/*Declaration screen we have to check*/
+.pst-simp > div {
+    padding: 0;
+}
+.single-col .crt-form.pri .elements-float.psnl-emi-details .input-field.value-field {
+    width:100%;
+}
+.notification.popover {
+  right:0px;
+}
+.success .modal-dialog .success-close .ett-bttn.tsp {
+    top:0px;
+}
+.login-pop {
+    width: 90%;
+    left: 16px !important;
+    width: 90%;
+    transform: none !important;
+    top: inherit !important;
+}
+.success .modal-dialog .ett-bttn{
+    margin-top:0px;
+    margin-bottom:0px;
+}
+.success .modal-dialog .ett-bttn.pri {
+    margin-bottom:0px  
+}
+.success .modal-dialog .suc-btns > span {
+    width: 95%;
+    margin-top: 16px;
+}
+.success .modal-dialog .suc-btns {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+}
+.modalvalue.modal-compare .modal-dialog {
+    top:35%;
+}
+.modal.residential-modal .modal-dialog .searchbox .ett-bttn.med {
+    margin-top: 26px;
+    margin-left: -18px;
+}
+.modal-know .modal-dialog .ett-badg.sqr {
+    margin-left:0;
+}
+.login-body.var1 .login-left.login-otp {
+    padding: 6rem 1.5rem 1.5rem;
+}
+.popover.bs-popover-auto.login-pop {
+    bottom:18%;
+}
+.card-display {
+    padding: 32px !important;
+}
+.crt-list.card-list.pri ul {
+    margin-bottom:0;
+}
+.crt-list.card-list.pri ul li {
+    margin-bottom:0;
+}
+.upload-image-list .card-displayimg img{
+    height:220px !important;
+    width: 93% !important;
+}
+.upload-image-list .card-displayimg > span {
+    text-align:center;
+}
+.modal-dialog .modal-content .crt-form.form-top .display-mainsec .card-display.backoffice-img {
+     top:0;
+}
+.modal-dialog .modal-content .crt-form.form-top  .display-mainsec .success-tick.card-displayimg img {
+    height: 220px !important;
+    width: 320px;
+}
+.modal.success.card-modal {
+    z-index: 9999;
+}
+.success .modal-dialog .success-close .ett-bttn.tsp {
+    top: 0px;
+    right: -8px !important;
+}  
+}

@@ -1,0 +1,36 @@
+FROM registry.access.redhat.com/ubi8/openjdk-17-runtime:1.20-3.1721231685
+
+USER root
+
+#Base Package - openjdk-17-runtime:1.20-3.1721231685
+RUN microdnf update -y; microdnf install --nodocs procps unzip fontconfig -y; microdnf clean all;
+
+#Patch Update override by adding packages that needs upgrade
+#RUN microdnf update -y; microdnf install --nodocs nss nss-softokn nss-softokn-freebl nss-sysinit nss-util -y; microdnf clean all;
+
+ENV TZ="Asia/Kolkata"
+
+WORKDIR /opt
+ARG WAR_NAME
+
+ADD jws-5.7.0-application-server.zip .
+RUN \
+unzip -q jws-5.7.0-application-server.zip; \
+rm jws-5.7.0-application-server.zip; \
+mv jws-5.7 jws; \
+rm -rf jws/tomcat/webapps/*; \
+adduser appzillon; \
+chown -R appzillon:appzillon jws;
+
+COPY prometheus /opt/prometheus
+COPY setenv.sh jws/tomcat/bin/
+COPY $WAR_NAME jws/tomcat/webapps/
+
+RUN chown -R appzillon:appzillon /deployments/
+RUN chown -R appzillon:appzillon /opt/jws/
+RUN chown -R appzillon:appzillon /opt/prometheus/
+
+USER appzillon
+
+EXPOSE 8080
+CMD ["/opt/jws/tomcat/bin/catalina.sh",  "run"]

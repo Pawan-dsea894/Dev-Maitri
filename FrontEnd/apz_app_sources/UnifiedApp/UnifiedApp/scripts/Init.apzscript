@@ -1,0 +1,160 @@
+apz.app.Common = {};
+apz.app.CommonValidator = {};
+apz.app.BaseScreens = {};
+apz.app.SelectProduct = {};
+apz.app.CustomerVerification = {};
+apz.app.KYCVerification = {};
+apz.app.PersonalDetails = {};
+apz.app.NomineeDetails = {};
+apz.app.EmploymentDetails = {};
+apz.app.BankingFacilities = {};
+apz.app.UploadDocuments = {};
+apz.app.KYCMode = {};
+apz.app.Declaration = {};
+apz.app.ReviewConfirm = {};
+apz.app.EarningMemberDetails = {};
+apz.app.Login = {};
+apz.app.Widget = {};
+apz.app.viewallapplication = {};
+apz.app.SearchApplication = {};
+apz.app.Approvals = {};
+apz.app.InProgress = {};
+apz.app.KendriyaMeetings = {};
+apz.app.KMDashboard = {};
+apz.app.CollectionSubmission = {};
+apz.app.KMSucScreen = {};
+apz.app.Rejected = {};
+apz.app.AssignedLeads = {};
+apz.app.Completed = {};
+apz.app.Dashboard = {};
+apz.app.StatusReport = {};
+apz.app.FrequencyChange = {};
+apz.app.UpdateIncomeAssessment = {};
+apz.app.ProductStatusReport = {};
+apz.app.Landing = {};
+apz.app.ReviewConfirm = {};
+apz.app.SetPassword = {};
+apz.app.ForgotPassword = {};
+apz.app.FATCADeclaration = {};
+apz.app.CRSDeclaration = {};
+apz.app.FixedDeposit = {};
+apz.app.InitialFundRD = {};
+apz.app.AutoPayMI = {};
+apz.app.ReviewConfirmDP = {};
+apz.app.RecDeposit = {};
+apz.app.CardService = {};
+apz.app.LoanDetails = {};
+apz.app.EMIDetails = {};
+apz.app.CreditDetails = {};
+apz.app.ResPinCode = {};
+apz.app.LoanSanction = {};
+apz.app.SuccessScreen = {};
+apz.app.DetailedScreen = {};
+apz.app.NewLoanApplication = {};
+apz.app.AddLoanDetails = {};
+apz.app.CBCheckAndEligibility = {};
+apz.app.ConfirmMemberDetails = {};
+apz.app.FabNewLoanApplication = {};
+apz.app.LoanConfrimDetails = {};
+apz.app.AddLoanSummary = {};
+apz.app.EmergencyLoanApplications = {};
+apz.app.ELApplication = {};
+apz.app.LoanDisbursementList = {};
+apz.app.UpdateMobNumber = {};
+apz.app.SearchCustomerApplication = {};
+apz.app.CustomerDetails = {};
+apz.app.Registration = {};
+apz.app.OTPAuthentication = {};
+apz.app.KendraDetails = {};
+apz.app.IncomeAssessment = {};
+apz.app.MemberDetails = {};
+apz.app.AddHouseHoldDetails = {};
+apz.app.KendraAllocationJourney = {};
+apz.app.KendraDetailsBMApproval = {};
+apz.app.KMLeaveAllocation = {};
+apz.app.AddEarningFamilyMem = {};
+apz.app.MonthlyHouseHoldExp = {};
+apz.app.TotalIncomeSummary = {};
+apz.app.KycDetails = {};
+apz.app.KycSuccess = {};
+apz.app.UploadKyc = {};
+apz.app.EarningMemberDtls = {};
+apz.app.RPCMemberDetails = {};
+apz.app.CrtDetails = {};
+apz.app.CBCheckDetails = {};
+apz.app.EditLoanAndInsurance = {};
+apz.app.PendingTask = {};
+apz.app.CommonScript = {};
+apz.app.DashboardSearch = {};
+apz.app.FailureScreen = {};
+apz.app.BMApproval = {};
+apz.app.UserDetails = {}
+apz.app.KendraSRRequestUpdates = {};
+apz.app.RpcPending = {};
+apz.app.AllocationHistory = {};
+apz.app.UploadCBCheck = {};
+apz.app.AppSettings = {};
+apz.app.ChangePassword = {};
+apz.app.ZeroCollection = {};
+apz.app.DeathIntimationPendingList = {};
+apz.app.CheckLoanTrial = {};
+apz.app.DetailsPage = {};
+apz.app.ParMemberDetails = {};
+apz.app.ParMemberOverview = {};
+apz.app.AMApproval = {};
+apz.app.KendraAddressUpdate = {};
+apz.app.BranchDetails = {};
+apz.app.AllLoanApplication = {};
+apz.app.LoanApplicationPending = {};
+apz.app.AuditTrail = {};
+apz.app.DashboardActivity = {};
+apz.app.LoanEmiCalculator = {};
+let pwdMaxLength = 6,
+    LoanSanctionScrId = "",
+    updateMobScreenID = "NEWLOA__UpdateMobNumber__",
+    registrationScrId = 'Login__Registration__',
+    newLoanscreenId = "NEWLOA__NewLoanApplication__";
+setOrientation = function() { //TO SET THE MOBILE APP TO WORK ALWAYS IN PORTRAIT MODE
+    var json = {};
+    if ($(window).height() >= 1060 && $(window).width() >= 810) {
+        //do nothing
+    } else {
+        json.orientation = "PORTRAIT";
+    }
+    apz.ns.setOrientation(json);
+}
+if (apz.deviceType !== "WEB") {
+    setOrientation();
+}
+Array.prototype.show = function() {
+    $.map(this, function(item) {
+        $('#' + apz.currAppId + '__' + apz.childScr + '__' + item).removeClass('sno');
+    })
+}
+Array.prototype.hide = function() {
+    $.map(this, function(item) {
+        $('#' + apz.currAppId + '__' + apz.childScr + '__' + item).addClass('sno');
+    })
+}
+//changes for Kendra collections
+apz.app.CollectionsGroupData = {};
+apz.app.kenSuccessScreen = {};
+apz.app.GroupsData = {};
+apz.app.MarkAttendance = {};
+apz.app.DeathIntimation = {}; //Collection-kaushik
+apz.app.CollectionDeposit = {}; // CHANGES FOR COLLECTIONDEPOSIT -shashikala
+apz.app.SuccessScreen = {}; // CHANGES FOR COLLECTIONDEPOSIT -shashikala
+apz.app.Calculator = {}; // CHANGES FOR CALCULATOR -shashikala
+apz.app.RepeatCollection = {}; // CHANGES FOR RepeatCollection -shashikala
+apz.app.TodaysDueData = {};
+apz.app.RepeatCollScreen = {};
+apz.app.DepFailureScreen = {};
+apz.app.ParCollectionDetails = {};
+apz.app.CollectionSubmission = {}; //CHANGES FOR COLLECTIONSUBMISSIONWIDGET -shashikala
+apz.app.CashierScreen = {};
+apz.app.ViewKendraDetails = {};
+apz.app.ColletionApproveOrReject = {}; //CHANGES FOR CALLOECTION BM FLOW -Kasuhik
+apz.app.EditGroupsData = {};
+apz.app.NonMeetingDayColl = {};
+apz.app.KendraDetailsScreen = {};
+apz.app.quickTaskDashbord = {};

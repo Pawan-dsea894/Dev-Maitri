@@ -1,0 +1,255 @@
+//Global variables
+var FavouritesObj = {};
+var a, err;
+/* pan validation. */
+function pan(s) {
+    a = (/^([A-Z]){5}([0-9]){4}([A-Z]){1}?$/.test(s));
+    /* removing the length */
+    err = a ? 0 : 11;
+    return a;
+}
+function passport(s) {
+    /* pattern details ---
+        ^: Start of line;
+    [A-PR-WY]: One of A-P, R-W or Y - in other words, A-Z excluding Q, X and Z;
+    [1-9]: Any digit except 0, no repetitions;
+    \d: Any digit, no repetitions;
+    \s?: Zero or one white-space characters;
+    \d{4}: Exactly four digits;
+    [1-9]: Any digit except 0, no repetitions;
+    $: End of line;*/
+    a = (/^[A-PR-WY][1-9]\d\s?\d{4}[1-9]$/ig.test(s));
+    err = a ? 0 : 11;
+    return a;
+}
+
+function validateWithRegx(s) {
+    a = (/^\d{12}$/g.test(s));
+    err = a ? 0 : 11;
+    return a;
+}
+
+/*function aadhar(s) {
+    // Eg. 0000 0000 0000  (/^\d{4}\s\d{4}\s\d{4}$/g.test(s));
+    //Eg. 000000000000
+    return validateWithRegx(s);
+}*/
+function aadhaar(s){
+    a = (/^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}$/.test(s));
+    err = isNaN(a) ? 0 : 13;
+    return a;
+}
+
+//12 digits customer id
+function customerId(s) {
+    // Eg. 0000 0000 0000  (/^\d{4}\s\d{4}\s\d{4}$/g.test(s));
+    //Eg. 000000000000
+    return validateWithRegx(s);
+}
+//12 digits customer id
+function accountnumber(s) {
+    // Eg. 0000 0000 0000  (/^\d{4}\s\d{4}\s\d{4}$/g.test(s));
+    //Eg. 000000000000
+    a = (/^\d{16}$/g.test(s));
+    err = a ? 0 : 11;
+    return a;
+}
+/* text */
+function text(param) {
+    var s = trimwts(param);
+    var specials = /[*|\":<>[\]{}`\\()',;@&$]/;
+    err = !(specials.test(s)) && s.length ? 0 : 5;
+    return [s];
+}
+/* strict text */
+function strict_text(param) {
+    var s = trimwts(s);
+    // English letters, spaces and the following symbols ' - . are allowed first char is always alphabet
+    var specials = /^[a-zA-Z][a-zA-Z '.-]*$/;
+    err = (specials.test(s)) && s.length > 0 ? 0 : 5;
+    return [s];
+}
+
+function nullcheck(s) {
+    err = s.length ? 0 : 5;
+    return err;
+}
+
+function picNullCheckColumstructure(s) {
+    picNullCheck(s);
+}
+
+function picNullCheck(s) {
+    err = s.getAttribute("src").length === 0 || s.getAttribute("src") === "styles/ManappuramB2E/img/image4.png" ? 5 : 0;
+    return err;
+}
+
+function dob(s) {
+    var tempS;
+    var specials = /[*|\":<>[\]{}`\\()',;@&$]/;
+    if (!(specials.test(s)) && s.length > 0) {
+        //new code >> starts
+        var calDate = s, //"30-Dec-1999",
+            months = ["Jan", "Feb", "Mar", "Apr", , "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"],
+            calYear = parseInt(calDate.split("-")[2]),
+            calMonth = months.indexOf(calDate.split("-")[1]),
+            calDay = parseInt(calDate.split("-")[0]),
+            today = new Date(),
+            birthday = new Date(calYear, calMonth - 1, calDay),
+            differenceInMilisecond = today.valueOf() - birthday.valueOf(),
+            year_age = Math.floor(differenceInMilisecond / 31536000000);
+        if (year_age < 18) {
+            //below 18
+            err = 5;
+            tempS = "";
+            return [tempS];
+        } else {
+            //above 18
+            err = 0;
+            return [s];
+        }
+    } else {
+        err = 5;
+        tempS = "";
+        return [tempS];
+    }
+}
+/* date: same as text as of now */
+function date(params) {
+    var s = trimwts(params);
+    var specials = /[*|\":<>[\]{}`\\()',;@&$]/;
+    err = !(specials.test(s)) && s.length ? 0 : 5;
+    return [s];
+}
+/* number */
+function number(params) {
+    var s = params.replace(/,/g, "");
+    s = nwts(s) - 0;
+    //err = (s == 0) || isNaN(s) ? 10 : 0;
+    err = isNaN(s) ? 10 : 0;
+    return [err ? 0 : s];
+}
+/*stone number validation*/
+function numberStone(params) {
+    var s = nwts(params) - 0;
+    err = isNaN(s) ? 10 : 0;
+    return [err ? 0 : s];
+}
+/*float - 4,3 */
+function floatNum(paraS) {
+    var RE = /^[0-9]{1,4}(\.[0-9]{0,3})?$/;
+    var s = parseFloat(nwts(paraS));
+    err = RE.test(s) ? 0 : 10;
+    return err;
+}
+/* zip validation*/
+function zip(s) {
+    var a = nwts(s).match(/\d{5}(-?\d{4}){0,1}/g);
+    err = a != null && a.length ? 0 : 1;
+    return a;
+}
+/* mobile number validation */
+function tel(s,ccode, ccodeword) {
+    // var a = s.replace(/\D+/g, '-');
+    // a = a.match(/^[0]?[5-9]\d{9}$/);
+    // err = a != null && a.length ? 0 : 2;
+    // return a;//commented by praisy;
+     var countryCode,countryCordWord;
+    if(!apz.isNull(ccode) && !apz.isNull(ccodeword)){
+         countryCode = ccode;
+          countryCordWord = ccodeword;
+   
+    }else{
+          countryCode = $(".selected-flag").attr("title").split(": ")[1];
+          countryCordWord = $('.iti-flag').attr('class').split("iti-flag ")[1];
+    }
+   
+    // var number = countryCode + s;
+    var number = s;
+    if (intlTelInputUtils.isValidNumber(number, countryCordWord)) {
+        err = 0;
+        return true;
+    } else {
+        err = 2;
+        return null;
+    }
+}
+/* landline number validation */
+function landline(s) {
+    var a = s.replace(/\D+/g, '-');
+    a = a.match(/^\d{8,15}$/); //{8,15} any digit can be min 8 or max 15 digits holds valid
+    err = a != null && a.length ? 0 : 2;
+    return a;
+}
+/* email validation */
+function email(s) {
+    /*  mysite.ourearth.com [@ is not present]
+    mysite@.com.my [ tld (Top Level domain) can not start with dot "." ]
+    @you.me.net [ No character before @ ]
+    mysite123@gmail.b [ ".b" is not a valid tld ]
+    mysite@.org.org [ tld can not start with dot "." ]
+    .mysite@mysite.org [ an email should not be start with "." ]
+    mysite()*@gmail.com [ here the regular expression only allows character, digit, underscore, and dash ]
+    mysite..1234@yahoo.com [double dots are not allowed]*/
+    a = (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(s));
+    err = a ? 0 : 6;
+    return err;
+}
+
+function nwts(s) {
+    return s.replace(/\s+/g, '');
+}
+/* trim */
+function trimwts(s) {
+    return s.replace(/^\s+|\s+$/g, '');
+}
+/* drop down if val is -1 */
+function dropDown(s) {
+    //  var a = $(s).val();
+    err = s === "-1" || s === "Select" || s === "select" || s === "Please Select" || s === "Please select" ? 2 : 0;
+    return err;
+}
+//custom drop drown cases for cash balance updation
+function dropDownCashBal(s) {
+    var a = $(s).val();
+    err = a === "-1" || a === "0" ? 2 : 0;
+    return a;
+}
+/* radio button group */
+function radiogroup(s) {
+    var idName = $(s).attr("id");
+    return $('#' + idName + ' input[type="radio"]:checked').length === 0;
+}
+/* radio button */
+function radio(s) {
+    var a = $("#" + s.getAttribute("id") + " input[type='radio']:checked").length;
+    if (a !== 0) {
+        err = 0;
+    } else {
+        err = 8;
+    }
+    return err;
+}
+
+function pincode(s) {
+    a = s.match(/^[1-9][0-9]{5}$/);
+    err = a != null && a.length ? 0 : 7;
+    return a;
+}
+
+function IFSC(s) {
+    a = s.match(/^[A-Za-z]{4}[A-Za-z0-9]{7}$/);
+    err = a != null && a.length ? 0 : 8;
+    return a;
+}
+
+function pldgeNumber(s) {
+    err = s !== null && !isNaN(s) && s.length === 16 ? 0 : 11;
+    return err;
+}
+/*
+Once call this function
++ fetching the id or custom attribute (only applicable for cx search) from "form"
++ After getting that particular value fetching the key from "list"
++based on the verify key validating the input values
+*/

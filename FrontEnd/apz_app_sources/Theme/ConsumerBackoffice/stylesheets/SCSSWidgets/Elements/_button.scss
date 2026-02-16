@@ -1,0 +1,684 @@
+@use "../Abstract" as a;
+
+// button{
+//     color:a.$body-bg-color;
+//     background: a.$text-pri;
+// }
+
+/*Button Spinner*/
+
+.ett-bttn{
+        display: inline-block;
+    	-ms-touch-action: manipulation;
+    	touch-action: manipulation;
+    	-webkit-user-select: none;
+    	-moz-user-select: none;
+    	-ms-user-select: none;
+    	user-select: none;
+    	white-space: nowrap;
+    	vertical-align: middle;
+    	cursor: pointer;
+    	span {
+    	    vertical-align:middle;
+    	} 
+        &.btn-spn.is-loading {
+        position:  a.$position-relative;
+        padding-right: 2.625rem!important;
+        background-color: #f7f7f7 !important;
+        color: #666 !important;
+        border-color: #d9d9d9 !important;
+        cursor: default;
+        box-shadow: none;
+        }
+        &.btn-spn {
+                .loading1 {
+                top: 0;
+                position: relative;
+                right: 0;
+                left: 1.75em;
+                    }
+        }
+        &:focus {
+            outline: none; 
+            box-shadow: 0 0 0.375em #7fb9d2
+            
+        }
+        &:active:focus {
+            box-shadow: none
+            
+        }
+        &:hover,&:focus {
+            text-decoration: none
+            
+        }
+        &.disabled, &[disabled] {
+            cursor: not-allowed
+            
+        }
+        &.icl {
+            svg {
+            vertical-align:middle; 
+            margin-right:0.286em;  
+               }
+            }
+        &.icr{
+            svg {
+                vertical-align:middle; 
+                margin-left:0.286em; 
+                
+            }
+        }
+        &.lar {
+            	padding: 0.643em 1.071em;
+            	font-size:1.143em;	
+            }
+            
+            &.med {
+            	padding: 0.33em 0.857em;
+            	font-size: 1em;
+            	line-height: 1.99em;		
+            }
+            
+            &.sml {
+            	padding: 0.214em 0.643em; 
+            	font-size: 0.929em;	
+            }
+            
+            &.min {
+            	padding: 0.214em 0.643em; 
+            	font-size: 0.857em;		
+            }
+            &:active {
+                outline: 0
+            }
+        
+            &.pri{
+                @include a.button-def;
+                background-color: a.$button-bg-pri;
+            	border: 1px solid a.$button-bg-pri;
+            	border-radius: 3px;	
+            }
+            
+            &.pri {
+                  .ett-icon { fill:currentcolor;}
+                  } 
+            
+            &.pri:hover, 
+            &.pri:focus {
+              background-color: a.$button-pri-hover-focus;
+              border-color: a.$button-pri-hover-focus;
+              color: a.$button-pri-hover-focus-txt;
+                             }
+            
+            &.pri:hover ,
+            &.pri:focus {
+                        .ett-icon{
+                            fill:#FFF;
+                                 }
+                        }
+            
+            &.pri:active {
+              background-color: #0582d0;
+              color: #fff;  
+              border-color: #0582d0;
+            }
+            
+            &.pri:active{
+                    .ett-icon {
+                        fill:white; 
+                       }
+                }
+            
+            &.pri.disabled,
+            &.pri[disabled],
+            &.pri.disabled:focus,
+            &.pri[disabled]:focus {
+                       background-color: #d9d9d9;
+                       border-color: #d9d9d9;
+                       box-shadow: none;
+                       color: #999;
+                                }
+            
+            &.pri.disabled ,
+            &.pri[disabled] , 
+            &.pri.disabled:focus,
+            &.pri[disabled]:focus{
+                            .ett-icon{
+                                fill:#999;
+                            }
+            }
+            &.sec{
+                @include a.button-def;
+                @include a.button-sec-def;
+                background-color: a.$button-bg-sec;
+            	border: 1px solid a.$button-bg-sec;
+            		
+            }
+            
+            &.sec > .ett-icon { fill:#FFF }
+            
+            &.sec:hover, &.sec:focus {
+              background-color: #30a5ee;
+              border-color: #30a5ee;
+              color: #FFF;
+            }
+            
+            &.sec:hover > .ett-icon, &.sec:focus > .ett-icon { fill:#FFF }
+            
+            &.sec:active {
+              background-color: #0582d0;
+              color: #FFF;  
+              border-color: #0582d0;
+            }
+            
+            &.sec:active > .ett-icon { fill:#FFF }
+            
+            &.sec.disabled, &.sec[disabled], &.sec.disabled:focus, &.sec[disabled]:focus {
+               background-color: #d9d9d9;
+               border-color: #d9d9d9;
+               box-shadow: none;
+               color: #999;
+            }
+            
+            &.sec.disabled, 
+            &.sec[disabled], 
+            &.sec.disabled:focus,
+            &.sec[disabled]:focus {
+                .ett-icon{
+                    	fill:black
+                        }
+                    } 
+            &.ter{
+                @include a.button-def;
+                @include a.button-ter-def;
+                background-color: a.$button-bg-ter;
+            	border: 1px solid a.$button-bg-ter;
+            } 
+            &.ter{ 
+                .ett-icon{
+                    fill:#FFF
+                    }
+                } 
+            &.ter:hover,
+            &.ter:focus {
+              background-color: #30a5ee;
+              border-color: #30a5ee;
+              color: #FFF;
+            }
+            
+            &.ter:hover,
+            &.ter:focus {
+                    .ett-icon {
+                        fill:#FFF 
+                        }   
+            }
+            
+            &.ter:active {
+              background-color: #0582d0;
+              color: #FFF;  
+              border-color: #0582d0;
+            }
+            
+            &.ter:active{
+                    .ett-icon{
+                        fill:#FFF
+                        }
+            }  
+            &.ter.disabled,
+            &.ter[disabled],
+            &.ter.disabled:focus,
+            &.ter[disabled]:focus {
+                       background-color: #d9d9d9;
+                       border-color: #d9d9d9;
+                       box-shadow: none;
+                       color: #999;
+                        }
+            
+            &.ter.disabled,
+            &.ter[disabled],
+            &.ter.disabled:focus,
+            &.ter[disabled]:focus  {
+                .ett-icon{
+                    	fill:black
+                        }
+            }  
+            &.tsp{
+            	 @include a.button-def;
+            	@include a.button-tsp-def;
+            }
+            
+            &.tsp {
+                .ett-icon {
+                    fill:currentcolor 
+                  }
+                }
+            
+            &.tsp:hover{
+                      background-color: rgba(120, 120, 120, 0.1);
+                     color:currentcolor; 
+                    }
+            
+            &.tsp:hover ,
+            &.tsp:focus  {
+                        .ett-icon{
+                             fill:black 
+                                }
+                        }
+            
+            &.tsp:active {
+              background-color:rgba(80, 80, 80, 0.2);
+              color: #222;  
+              border-color: transparent;
+              box-shadow: none;
+            }
+            
+            &.tsp:active{
+                        .ett-icon{
+                            fill:black
+                            }
+                        }
+            
+            &.tsp.disabled,
+            &.tsp[disabled],
+            &.tsp.disabled:focus,
+            &.tsp[disabled]:focus {
+                               background-color:transparent;
+                               border-color:transparent;
+                               box-shadow: none;
+                               color: #999;
+                            }
+            
+            &.ter.disabled,
+            &.ter[disabled] ,
+            &.ter.disabled:focus ,
+            &.ter[disabled]:focus   {
+                            .ett-icon{
+                                	fill:black
+                                      }
+                                    } 
+            &.inf{
+                background-color:#FFF; 
+                color:#333;
+                border-color:#0693ea
+                }
+            &.inf{ 
+                .ett-icon{
+                    fill:#0693ea  
+                }
+            }
+            &.inf:hover,
+            &.inf:focus {
+                        background-color: #F2F2F2;
+                        border-color: #666666;
+                        color: #333
+                    }
+            &.inf:hover ,
+            &.inf:focus{
+                 .ett-icon {
+                      fill:#0693ea
+                        }
+               }
+            &.inf:active{ 
+                background-color: #e7e7e7;
+                color: #333;
+                border-color: #666666
+                }
+            &.inf:active{
+                .ett-icon { fill:white }
+            }
+            &.inf.disabled,
+            &.inf[disabled],
+            &.inf.disabled:focus,
+            &.inf[disabled]:focus {
+                background-color: #d9d9d9;
+                border-color: #d9d9d9;
+                box-shadow: none;
+                color: #999;
+            }
+            &.inf.disabled,
+            &.inf[disabled],
+            &.inf.disabled:focus,
+            &.inf[disabled]:focus  {
+                .ett-icon{
+                    fill:white
+                        }
+            }
+            &.suc{
+                background-color:#FFF; 
+                color:#0CC27E; 
+                border-color: #0CC27E;
+                }
+            &.suc{
+                .ett-icon{ 
+                    fill:#0CC27E 
+                }
+            } 
+            &.suc:hover,
+            &.suc:focus {
+                background-color: #F0FCF6;
+                border-color: #0CC27E;
+                color: #0CC27E;
+            }
+            &.suc:hover,
+            &.suc:focus{
+                 .ett-icon{
+                     fill:#0CC27E
+                    }
+                 }
+            &.suc:active{
+                background-color: #F0FCF6;
+                color: #0CC27E;
+                border-color: #0CC27E;
+            }
+            &.suc:active{
+                        .ett-icon{
+                            fill:white
+                            }
+                    }
+            &.suc.disabled,
+            &.suc[disabled],
+            &.suc.disabled:focus,
+            &.suc[disabled]:focus{
+                background-color: #d9d9d9;
+                border-color: #d9d9d9;
+                box-shadow: none;
+                color: #999
+            }
+            &.suc.disabled,
+            &.suc[disabled],
+            &.suc.disabled:focus,
+            &.suc[disabled]:focus{
+                            .ett-icon{
+                                fill:white
+                                     }
+                } 
+            &.war{
+                background-color:#FFF; 
+                color:#333; 
+                border-color: #ffa840;
+                }
+            &.war{
+                .ett-icon{
+                    fill:#ffa840
+                        }
+                    }
+            &.war:hover,
+            &.war:focus{
+                background-color: #fff5ea;
+                border-color: #FF8D60;
+                color: #FF8D60
+                
+            }
+            &.war:hover , &.war:focus {
+                .ett-icon{
+                    fill:#ffa840;
+                }
+            }
+            &.war:active {
+                background-color: #FFF0EB; 
+                color: #FF9D00;
+                border-color: #FF9D00 
+                
+            }
+            &.war:active { 
+                        .ett-icon{
+                          fill:black }  
+                        } 
+            &.war.disabled,
+            &.war[disabled],
+            &.war.disabled:focus,
+            &.war[disabled]:focus{
+                        background-color: #d9d9d9;
+                        border-color: #d9d9d9;
+                        box-shadow: none;
+                        color: #999
+                    }
+            &.war.disabled,
+            &.war[disabled],
+            &.war.disabled:focus,
+            &.war[disabled]:focus{
+                .ett-icon{
+                    fill:black;
+                }
+            }
+            &.err{
+                background-color:#fff;
+                color:#ff3434;
+                border-color: #ff3434;
+                }
+            &.err{
+                .ett-icon{
+                fill:#FF5252;
+                }
+            }
+            &.err:hover,
+            &.err:focus{
+                background-color: #FFEEEE;
+                border-color: #FF5252;
+                color: #FF5252;
+            }
+            &.err:hover,
+            &.err:focus{
+                .ett-icon{
+                    fill:#FF5252;
+                    }
+            }
+            &.err:active {
+                background-color: #FFEEEE;
+                color: #FF5252;
+                border-color: #FF5252
+            }
+            &.err:active{
+                .ett-icon{
+                    fill:white;
+                } 
+            }
+            &.err.disabled,
+            &.err[disabled],
+            &.err.disabled:focus,
+            &.err[disabled]:focus {
+                                background-color: #d9d9d9;
+                                border-color: #d9d9d9;
+                                box-shadow: none;
+                                color: #999
+                            }
+            &.err.disabled ,
+            &.err[disabled],
+            &.err.disabled:focus,
+            &.err[disabled]:focus{
+                 .ett-icon{
+                     fill:white
+                     }
+                 }
+            &.tsp.inf{
+                color:#0693ea;
+                border-color:transparent
+            }
+            &.tsp.inf{
+                 .ett-icon{
+                     fill:#0693ea }
+                 }  
+            &.tsp.inf:focus{
+                background-color: transparent;
+            }
+            &.tsp.inf:hover,
+            &.tsp.inf:focus{
+                        .ett-icon{
+                            fill:#0693ea;
+                                }
+                            }
+            &.tsp.inf:active {
+                background-color:transparent;
+            }
+            &.tsp.inf:active{
+                .ett-icon {
+                    fill:#0693ea;
+                     } 
+            }
+            &.tsp.inf.disabled,
+            &.tsp.inf[disabled],
+            &.tsp.inf.disabled:focus,
+            &.tsp.inf[disabled]:focus {
+                                    background-color:transparent;
+                                    color:#999
+                                }
+            &.tsp.inf.disabled,
+            &.tsp.inf[disabled],
+            &.tsp.inf.disabled:focus ,
+            &.tsp.inf[disabled]:focus  {
+                .ett-icon{	fill:#0693ea;
+                }
+            }
+            /*success*/
+            &.tsp.suc{
+                border-color:transparent;
+                color:#0cc27e;
+            }
+            &.tsp.suc{ 
+                 .ett-icon{ 
+                     fill:#0cc27e;
+                 }
+            }
+            &.tsp.suc:focus{
+                background-color: transparent;
+            }
+            &.tsp.suc:hover ,
+            &.tsp.suc:focus {
+                .ett-icon{
+                    fill:#0cc27e;
+                }
+            }
+            &.tsp.suc:active{
+                background-color:transparent;
+            }
+            &.tsp.suc:active {
+                            .ett-icon{
+                                fill:#0cc27e;
+                            }
+                        }
+            &.tsp.suc.disabled,
+            &.tsp.suc[disabled],
+            &.tsp.suc.disabled:focus,
+            &.tsp.suc[disabled]:focus{
+                background-color:transparent; 
+                color: #999;
+            }
+            &.tsp.suc.disabled,
+            &.tsp.suc[disabled],
+            &.tsp.suc.disabled:focus,
+            &.tsp.suc[disabled]:focus{
+                                    .ett-icon{
+                                    fill:#0cc27e;
+                                    }
+                                }
+            &.tsp.war{
+                border-color:transparent;
+                color:#b14f28;
+            }
+            &.tsp.war{
+                .ett-icon{
+                    fill:#b14f28;
+                }
+            }
+            &.tsp.war:focus{
+                background-color: transparent;
+            }
+            &.tsp.war:hover,
+            &.tsp.war:focus{
+                .ett-icon{
+                    fill:#b14f28;
+                  }
+                }
+            &.tsp.war:active{
+                background-color:transparent;
+            }
+            &.tsp.war:active{
+                        .ett-icon{ 
+                            fill:#b14f28;
+                            } 
+                    }
+            &.tsp.war.disabled,
+            &.tsp.war[disabled],
+            &.tsp.war.disabled:focus,
+            &.tsp.war[disabled]:focus {
+                        background-color:transparent;
+                        color: #999;
+                    }
+            &.tsp.war.disabled,
+            &.tsp.war[disabled],
+            &.tsp.war.disabled:focus,
+            &.tsp.war[disabled]:focus{
+                .ett-icon{
+                    fill:#FF530D;
+                    }
+                }
+            &.tsp.err{
+                border-color:transparent;
+                color:#E82C0C;
+            }
+            &.tsp.err{
+                .ett-icon{
+                    fill:#E82C0C;
+                    }
+                } 
+            &.tsp.err:focus{
+                background-color: transparent;
+            }
+            &.tsp.err:hover , &.tsp.err:focus{
+                 .ett-icon{
+                        fill:#E82C0C; 
+                 }
+                }
+            &.tsp.err:active{
+                background-color: transparent;
+            }
+            &.tsp.err:active{
+                .ett-icon{
+                    fill:#E82C0C ;
+                        }
+                } 
+            &.tsp.err.disabled,
+            &.tsp.err[disabled],
+            &.tsp.err.disabled:focus,
+            &.tsp.err[disabled]:focus{
+                background-color:transparent;
+                color: #999;
+                }
+            &.tsp.err.disabled,
+            &.tsp.err[disabled],
+            &.tsp.err.disabled:focus,
+            &.tsp.err[disabled]:focus{
+                                .ett-icon{
+                                    fill:#E82C0C;
+                                }
+                            }
+            &.btn-icn {
+                height: 2.75rem;
+                min-width: 2.75rem;
+                padding: 0;
+                padding-right: 0.5rem;
+                padding-left: 0.5rem;
+                border-radius: 31.25rem;
+            }
+            &.btn-icn.disabled,
+            &.btn-icn[disabled],
+            &.btn-icn.disabled:focus,
+            &.btn-icn[disabled]:focus{
+                            opacity:0.3;
+                            cursor:default;
+                                }
+            &.btn-icn.icr{
+                            svg{
+                                margin-left:0;
+                            }
+                        }
+            &.btn-icn.icl{
+                        svg{
+                            margin-right:0;
+                        }
+                    }        
+}  
+a.ett-bttn.disabled, 
+fieldset[disabled] a.ett-bttn { pointer-events: none;}
+
+ 

@@ -1,0 +1,102 @@
+
+
+/* T0 Framework theme start  */ 
+
+ /* Phones */
+//  @media (max-width: 640px) {
+// 	.crt-form.pri > .ttl, .crt-form.pri > .ttl > li.ttl-ctr, .crt-form.pri > .ttl > li.pgn-ctr  {display:block; clear: both; width:100%}
+// 	.crt-form.sec > .ttl, .crt-form.sec > .ttl > li.ttl-ctr, .crt-form.sec > .ttl > li.pgn-ctr  {display:block; clear: both; width:100%}
+// 	.crt-form.ter > .ttl, .crt-form.ter > .ttl > li.ttl-ctr, .crt-form.ter > .ttl > li.pgn-ctr  {display:block; clear: both; width:100%}
+//  }	
+
+ @media (min-width: 320px) {
+.sc2b-sml1, .sc2b-sml2, .sc2b-sml3, .sc2b-sml4, .sc2b-sml5, .sc2b-sml6, .sc2b-sml7, .sc2b-sml8, .sc2b-sml9, .sc2b-sml10, .sc2b-sml11, .sc2b-sml12 { 
+	float: left;  
+	min-height: 1px;
+}
+.sc2b-sml1 {width: 8.33333333%;}
+.sc2b-sml2 {width: 16.66666667%}
+.sc2b-sml3 {width: 25%}
+.sc2b-sml4 {width: 33.33333333%}
+.sc2b-sml5 {width: 41.66666667%}
+.sc2b-sml6 {width: 50%}
+.sc2b-sml7 {width: 58.33333333%}
+.sc2b-sml8 {width: 66.66666667%}
+.sc2b-sml9 {width: 75%}
+.sc2b-sml10 {width: 83.33333333%}
+.sc2b-sml11 {width: 91.66666667%}
+.sc2b-sml12 {width: 100%}	 
+		
+}
+
+
+
+ /* Tablets */
+ @media (min-width: 700px) {
+.sc2b-med1, .sc2b-med2, .sc2b-med3, .sc2b-med4, .sc2b-med5, .sc2b-med6, .sc2b-med7, .sc2b-med8, .sc2b-med9, .sc2b-med10, .sc2b-med11, .sc2b-med12 { 
+	float: left;  
+	min-height: 1px;
+}
+
+.sc2b-med1 {width: 8.33333333%;}
+.sc2b-med2 {width: 16.66666667%}
+.sc2b-med3 {width: 25%}
+.sc2b-med4 {width: 33.33333333%}
+.sc2b-med5 {width: 41.66666667%}
+.sc2b-med6 {width: 50%}
+.sc2b-med7 {width: 58.33333333%}
+.sc2b-med8 {width: 66.66666667%}
+.sc2b-med9 {width: 75%}
+.sc2b-med10 {width: 83.33333333%}
+.sc2b-med11 {width: 91.66666667%}
+.sc2b-med12 {width: 100%}			
+}
+
+ /* Desktops */
+ @media (min-width: 992px) {
+.sc2b-lar1, .sc2b-lar2, .sc2b-lar3, .sc2b-lar4, .sc2b-lar5, .sc2b-lar6, .sc2b-lar7, .sc2b-lar8, .sc2b-lar9, .sc2b-lar10, .sc2b-lar11, .sc2b-lar12 { 
+	float: left;  
+	min-height: 1px;
+}
+
+.sc2b-lar1 {width: 8.33333333%;}
+.sc2b-lar2 {width: 16.66666667%}
+.sc2b-lar3 {width: 25%}
+.sc2b-lar4 {width: 33.33333333%}
+.sc2b-lar5 {width: 41.66666667%}
+.sc2b-lar6 {width: 50%}
+.sc2b-lar7 {width: 58.33333333%}
+.sc2b-lar8 {width: 66.66666667%}
+.sc2b-lar9 {width: 75%}
+.sc2b-lar10 {width: 83.33333333%}
+.sc2b-lar11 {width: 91.66666667%}
+.sc2b-lar12 {width: 100%}			
+}			
+
+ /* Widescreen */
+ @media (min-width: 1200px) {
+.sc2b-xxl1, .sc2b-xxl2, .sc2b-xxl3, .sc2b-xxl4, .sc2b-xxl5, .sc2b-xxl6, .sc2b-xxl7, .sc2b-xxl8, .sc2b-xxl9, .sc2b-xxl10, .sc2b-xxl11, .sc2b-xxl12 { 
+	float: left;  
+	min-height: 1px;
+}
+
+.sc2b-xxl1 {width: 8.33333333%;}
+.sc2b-xxl2 {width: 16.66666667%}
+.sc2b-xxl3 {width: 25%}
+.sc2b-xxl4 {width: 33.33333333%}
+.sc2b-xxl5 {width: 41.66666667%}
+.sc2b-xxl6 {width: 50%}
+.sc2b-xxl7 {width: 58.33333333%}
+.sc2b-xxl8 {width: 66.66666667%}
+.sc2b-xxl9 {width: 75%}
+.sc2b-xxl10 {width: 83.33333333%}
+.sc2b-xxl11 {width: 91.66666667%}
+.sc2b-xxl12 {width: 100%}			
+}				
+
+
+.sr2b > .colcenter:first-child, .sr2b .sr2b > .colcenter:first-child, .colcenter:first-child {margin: auto}
+.sr2b .colcenter { margin:auto; float:none}
+.sr2b.colcenter > div {margin:auto; float:none}
+
+/* SECTION GRID 2 END */

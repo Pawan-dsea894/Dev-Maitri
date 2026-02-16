@@ -1,0 +1,126 @@
+[
+    {
+        "ItemDesc": "ANDHRA PRADESH",
+        "ID": 2
+    },
+    {
+        "ItemDesc": "ANDHRAPRADESH",
+        "ID": 2
+    },
+    {
+        "ItemDesc": "BIHAR",
+        "ID": 5
+    },
+    {
+        "ItemDesc": "CHATTISGARH",
+        "ID": 7
+    },
+    {
+        "ItemDesc": "GOA",
+        "ID": 11
+    },
+    {
+        "ItemDesc": "GUJARAT",
+        "ID": 12
+    },
+    {
+        "ItemDesc": "JHARKHAND",
+        "ID": 16
+    },
+    {
+        "ItemDesc": "KARNATAKA",
+        "ID": 17
+    },
+    {
+        "ItemDesc": "KERALA",
+        "ID": 18
+    },
+    {
+        "ItemDesc": "MAHARASHTRA",
+        "ID": 21
+    },
+    {
+        "ItemDesc": "PONDICHERRY",
+        "ID": 27
+    },
+    {
+        "ItemDesc": "RAJASTHAN",
+        "ID": 29
+    },
+    {
+        "ItemDesc": "MADHYA PRADESH",
+        "ID": 20
+    },
+    {
+        "ItemDesc": "MADHYAPRADESH",
+        "ID": 20
+    },
+    {
+        "ItemDesc": "ORISSA",
+        "ID": 26
+    },
+    {
+        "ItemDesc": "ODHISHA",
+        "ID": 26
+    },
+    {
+        "ItemDesc": "TAMILNADU",
+        "ID": 31
+    },
+    {
+        "ItemDesc": "TAMIL NADU",
+        "ID": 31
+    },
+    {
+        "ItemDesc": "TELANGANA",
+        "ID": 36
+    },
+    {
+        "ItemDesc": "UP",
+        "ID": 34
+    },
+    {
+        "ItemDesc": "UTTARPRADESH",
+        "ID": 34
+    },
+    {
+        "ItemDesc": "UTTAR PRADESH",
+        "ID": 34
+    },
+    {
+        "ItemDesc": "HARYANA",
+        "ID": 13
+    },
+    {
+        "ItemDesc": "ASSAM",
+        "ID": 4
+    },
+    {
+        "ItemDesc": "CHANDIGARH",
+        "ID": 6
+    },
+    {
+        "ItemDesc": "DELHI",
+        "ID": 10
+    },
+    {
+        "ItemDesc": "MANIPUR",
+        "ID": 23
+    },
+    {
+        "ItemDesc": "PUNJAB",
+        "ID": 28
+    },
+    {
+        "ItemDesc": "WB",
+        "ID": 35
+    },
+    {
+        "ItemDesc": "WESTBENGAL",
+        "ID": 35
+    },
+    {
+        "ItemDesc": "WEST BENGAL",
+        "ID": 35
+    }
+]

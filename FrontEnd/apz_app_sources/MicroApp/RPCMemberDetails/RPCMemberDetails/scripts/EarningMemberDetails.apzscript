@@ -1,0 +1,2195 @@
+var EarningDetailscrId = 'RPCMEM__EarningMemberDetails__';
+var screenDet = '';
+var memberDetails = '';
+var earningsDetails = '';
+var selparams;
+var onClickedit = false;
+var onClickUpload = false;
+var Validation = false;
+var ValidateResp = [];
+var ValResp = {};
+var OCRResp = [];
+var EditedREsp = [];
+var UpdatedResp = [];
+var selectedData = '';
+var memCount = [];
+var updatedMemCount = [];
+var finalResp = '';
+var Authen = 'false';
+var editRow = '';
+var UploadDocRow = '';
+var enteredKyc = '';
+var enteredKycType = '';
+var enteredDob = '';
+window.isMinor = false;
+var onHoldRow = '';
+var approveRowNo = '';
+var UpdateIncomePayload = [];
+var remarksList = [];
+var remarksStatus = '';
+var images = {};
+var fileSize = "200000";
+var scale = 1;
+var scaleStep = 0.1;
+var maxScale = 3;
+var minScale = 1;
+var rotation = 0;
+var rotationStep = 90;
+var FileTypesAllowed = ['png', 'jpg', 'jpeg'];
+var rpcBREUpdatedRecords = "";
+var kycDetailsList = [
+    /*{
+        desc: "Aadhaar Card",
+        value: "Aadhaar Card"
+    },*/
+    {
+        desc: "Pan Card",
+        val: "Pan Card"
+    }, {
+        desc: "Driver's License",
+        val: "Driver's License"
+    }, {
+        desc: "Voter-Id",
+        val: "Voter-Id"
+    }
+]
+var reasonList = [ {
+    "val": "Earning member KYC tampered/Overwritten"
+}, {
+    "val": "Earning member gender wrongly selected"
+}, {
+    "val": "Earning member details in KYC are blur/not clear"
+}, {
+    "val": "Earning member age should be less than member age"
+}, {
+    "val": "Others"
+}]
+var isReworkMakerCheckerEdit = false;
+var isMakerCheckerRework = "";
+var rpcOnHoldRecords = false;
+apz.app.onLoad_EarningMemberDetails = function(params) {
+    //initialization
+}
+apz.app.onShown_EarningMemberDetails = function(params) {
+    selparams = params
+    screenDet = !window.fromRPC ? params : params;
+    selPartData = !window.fromRPC ? params : params;
+    apz.populateDropdown(document.getElementById(EarningDetailscrId + "kycType"), kycDetailsList);
+    apz.populateDropdown(document.getElementById(EarningDetailscrId + "UploadKycType"), kycDetailsList);
+    // reasonList.unshift({
+    //     desc: "Please Select",
+    //     val: "%",
+    // })
+    // apz.populateDropdown(document.getElementById(EarningDetailscrId + "reasonDropdown"), reasonList);
+    let parsed = false;
+    if (typeof screenDet.payload !== 'object') {
+        screenDet.payload = JSON.parse(screenDet.payload);
+    }
+    memberDetails = screenDet.payload.memberProfile;
+    $("#" + BaseScrId + "sidebarController").addClass('sno');
+    $("#" + BaseScrId + "webHeader").removeClass('sno');
+    $("#" + BaseScrId + "ct_nav_17").addClass('sno');
+    $("#" + EarningDetailscrId + "onshownMemberDet").removeClass('sno');
+    $("#" + EarningDetailscrId + "editEarningMemRow").addClass('sno');
+    $("#" + EarningDetailscrId + "uploadDocumentRow").addClass('sno');
+    $("#" + EarningDetailscrId + "custName").text(apz.isNull(screenDet.customerName) ? "NA" : screenDet.customerName);
+    $("#" + EarningDetailscrId + "custId").text(apz.isNull(screenDet.customerId) ? "NA" : screenDet.customerId);
+    $("#" + EarningDetailscrId + "grpId").text(apz.isNull(memberDetails.groupId) ? "NA" : memberDetails.groupId);
+    $("#" + EarningDetailscrId + "phNum").text(apz.isNull(memberDetails.mobileNum) ? "NA" : memberDetails.mobileNum);
+    $("#" + EarningDetailscrId + "maritalStatus").text(apz.isNull(memberDetails.maritalStatus) ? "NA" : memberDetails.maritalStatus);
+    $("#" + EarningDetailscrId + "dateOfBirth").text(apz.isNull(memberDetails.dob) ? "NA" : ApzCOB.dateformatter(ApzCOB.dateStringToDate(
+        memberDetails.dob), 'd M Y') + "(" + ApzCOB.ageCalculator(memberDetails.dob) + ")");
+    if (memberDetails.maritalStatus === 'SEPARATED') {
+        $("#" + EarningDetailscrId + "spouseInfoRow1_li").addClass("sno");
+    } else {
+        if (screenDet.payload.hasOwnProperty('earnings')) {
+            let earnDet = screenDet.payload.earnings
+            if (earnDet.length > 0) {
+                earnDet.forEach(function(obj, i) {
+                    if (obj.memRelation === "SPOUSE") {
+                        memberDetails["memRelation"] = obj["memRelation"];
+                        memberDetails["spouseDob"] = obj["dob"];
+                    }
+                })
+                $("#" + EarningDetailscrId + "spNameDob").text(memberDetails["depname"] + ',' + ApzCOB.dateformatter(ApzCOB.dateStringToDate(
+                    memberDetails["depDob"]), 'd M Y'));
+                $("#" + EarningDetailscrId + "spouseInfoRow1_li").removeClass("sno");
+            }
+        }
+    }
+    $("#" + EarningDetailscrId + "save").addClass('sno');
+    //  $("#" + EarningDetailscrId + "submit").prop('disabled', true);
+    apz.app.EarningMemberDetails.paintEarningDataList();
+    $("#RPCMEM__EarningMemberDetails__FrontImgBrowse_ul").find('.ett-bttn.med.pri').html(
+        "<input id='RPCMEM__EarningMemberDetails__FrontImgBrowse' type='file' onchange='apz.setSelectedFileName(this); apz.app.EarningMemberDetails.FileBrowse(this,\"FRONT\");' multiple='multiple' class='' style='' enabled='enabled' value='1'>Click to Upload..."
+        );
+    $("#RPCMEM__EarningMemberDetails__BackImgBrowse_ul").find('.ett-bttn.med.pri').html(
+        "<input id='RPCMEM__EarningMemberDetails__BackImgBrowse' type='file' onchange='apz.setSelectedFileName(this); apz.app.EarningMemberDetails.FileBrowse(this,\"BACK\");' multiple='multiple' class='' style='' enabled='enabled' value='1'>Click to Upload..."
+        );
+    // $("#" + EarningDetailscrId + 'inputDob').attr('onblur', '');
+    // $("#" + EarningDetailscrId + 'UploadDob').attr('onblur', '');
+}
+apz.app.EarningMemberDetails.onClickHideAndShow = function() {
+    function formatDateField(dateString, format) {
+        var dateObj = ApzCOB.convertISOToDate(dateString);
+        return dateObj ? ApzCOB.dateformatter(dateObj, format) : "NA";
+    }
+    if ($("#" + EarningDetailscrId + "onshownMemberDet").is(":visible")) {
+        $("#" + EarningDetailscrId + "onshownMemberDet").addClass("sno");
+        $("#" + EarningDetailscrId + "customerName").text(apz.isNull(memberDetails.customerName) ? "NA" : memberDetails.customerName);
+        $("#" + EarningDetailscrId + "customerId").text(apz.isNull(memberDetails.customerId) ? "NA" : memberDetails.customerId);
+        $("#" + EarningDetailscrId + "groupId").text(apz.isNull(memberDetails.groupId) ? "NA" : memberDetails.groupId);
+        $("#" + EarningDetailscrId + "phoneNum").text(apz.isNull(memberDetails.mobileNum) ? "NA" : memberDetails.mobileNum);
+        $("#" + EarningDetailscrId + "kmId").text(screenDet.kmId);
+        var addInfo = JSON.parse(screenDet.addInfo);
+        $("#" + EarningDetailscrId + "kmName").text(addInfo.hasOwnProperty('kmName') ? addInfo.kmName : "NA");
+        $("#" + EarningDetailscrId + "branchID").text(screenDet.branchCode);
+        $("#" + EarningDetailscrId + "branchName").text(screenDet.branchName);
+        $("#" + EarningDetailscrId + "createdOn").text(
+            apz.isNull(screenDet.createTs) 
+                ? "NA" 
+                : formatDateField(screenDet.createTs, 'd M Y')
+        );
+        $("#" + EarningDetailscrId + "updatedOn").text(
+            apz.isNull(screenDet.updateTs) 
+                ? "NA" 
+                : formatDateField(screenDet.updateTs, 'd M Y')
+        );
+        // $("#" + EarningDetailscrId + "createdOn").text(screenDet.createTs);
+        // $("#" + EarningDetailscrId + "updatedOn").text(screenDet.updateTs);
+        $("#" + EarningDetailscrId + "requestType").text(screenDet.requestType);
+        $("#" + EarningDetailscrId + "kendraID").text(screenDet.kendraId.replace('#', ''));
+        $("#" + EarningDetailscrId + "kendraName").text(screenDet.kendraName);
+        if(screenDet.requestType =='New'){
+          $("#" + EarningDetailscrId + "status").text('Pending Maker');   
+        }else if(screenDet.requestType=='PENDING'){
+           $("#" + EarningDetailscrId + "status").text('Pending Checker');  
+        }else{
+            $("#" + EarningDetailscrId + "status").text(screenDet.requestType); 
+        }
+       /* $("#" + EarningDetailscrId + "status").text(screenDet.requestType.toUpperCase() === "NEW" || screenDet.requestType.toUpperCase() ===
+            "MOVE TO CHECKER" ? "Pending Checker" : screenDet.applicationStatus);*/
+        $("#" + EarningDetailscrId + "requestType").text(apz.isNull(screenDet.requestType) ? "NA" : screenDet.requestType);
+        $("#" + EarningDetailscrId + "dob").text(apz.isNull(memberDetails.dob) ? "NA" : ApzCOB.dateformatter(ApzCOB.dateStringToDate(memberDetails
+            .dob), 'd M Y') + "(" + ApzCOB.ageCalculator(memberDetails.dob) + ")");
+        if (memberDetails.maritalStatus === 'SEPARATED') {
+            $("#" + EarningDetailscrId + "spouseInfoRow2_li").addClass("sno");
+        } else {
+            $("#" + EarningDetailscrId + "spouseNameDob").text(memberDetails["depname"] + ',' + ApzCOB.dateformatter(ApzCOB.dateStringToDate(
+                memberDetails["depDob"]), 'd M Y'));
+            $("#" + EarningDetailscrId + "spouseInfoRow2_li").removeClass("sno");
+        }
+        $("#" + EarningDetailscrId + "maritalStatusOne").text(apz.isNull(memberDetails.maritalStatus) ? "NA" : memberDetails.maritalStatus);
+        $("#" + EarningDetailscrId + "gr_row_95").addClass('active');
+        $("#" + EarningDetailscrId + "allInfoMemberDet").removeClass("sno");
+    } else {
+        $("#" + EarningDetailscrId + "custName").text(apz.isNull(memberDetails.customerName) ? "NA" : memberDetails.customerName);
+        $("#" + EarningDetailscrId + "custId").text(apz.isNull(memberDetails.customerId) ? "NA" : memberDetails.customerId);
+        $("#" + EarningDetailscrId + "grpId").text(apz.isNull(memberDetails.groupId) ? "NA" : memberDetails.groupId);
+        $("#" + EarningDetailscrId + "phNum").text(apz.isNull(memberDetails.mobileNum) ? "NA" : memberDetails.mobileNum);
+        $("#" + EarningDetailscrId + "maritalStatus").text(apz.isNull(memberDetails.maritalStatus) ? "NA" : memberDetails.maritalStatus);
+        $("#" + EarningDetailscrId + "dateOfBirth").text(apz.isNull(memberDetails.dob) ? "NA" : ApzCOB.dateformatter(ApzCOB.dateStringToDate(
+            memberDetails.dob), 'd M Y') + "(" + ApzCOB.ageCalculator(memberDetails.dob) + ")");
+        if (memberDetails.maritalStatus === 'SEPARATED') {
+            $("#" + EarningDetailscrId + "spouseInfoRow1_li").addClass("sno");
+        } else {
+            $("#" + EarningDetailscrId + "spNameDob").text(memberDetails["depname"] + ',' + ApzCOB.dateformatter(ApzCOB.dateStringToDate(
+                memberDetails["depDob"]), 'd M Y'));
+            $("#" + EarningDetailscrId + "spouseInfoRow1_li").removeClass("sno");
+        }
+        $("#" + EarningDetailscrId + "allInfoMemberDet").addClass("sno");
+        $("#" + EarningDetailscrId + "gr_row_95").removeClass('active');
+        $("#" + EarningDetailscrId + "onshownMemberDet").removeClass("sno");
+    }
+}
+apz.app.EarningMemberDetails.onClickEdit = function(pthis) {
+    onClickedit = true;
+    isReworkMakerCheckerEdit = true;
+    editRow = $(pthis).attr("rowno");
+    selectedData = apz.data.scrdata.RPCMEM__EarningMembersList_Res.UpdatedFetchData[editRow];
+    apz.app.EarningMemberDetails.EditErrHideFunc();
+    $("#" + EarningDetailscrId + "inputName").val(selectedData.name);
+    if (selectedData.dob.includes('(')) {
+        selectedData.dob = apz.app.EarningMemberDetails.ConvertDate(selectedData.dob.split('(')[0]);
+    }
+    $("#" + EarningDetailscrId + "inputDob").val(ApzCOB.dateformatter(ApzCOB.dateStringToDate(selectedData.dob), 'd/m/Y'));
+    apz.setElmValue(EarningDetailscrId + "kycType", selectedData.legaldocName);
+    $("#" + EarningDetailscrId + "kycId").val(selectedData.legaldocId);
+    if (apz.isNull(memCount[editRow].forntImg)) {
+        $("#" + EarningDetailscrId + "editFrontImgCol").addClass('sno');
+    } else {
+        $("#" + EarningDetailscrId + "editFrontImg").attr('src', 'data:image/' + 'png' + ';base64,' + memCount[editRow].forntImg);
+        rotation = 0;
+        $("#" + EarningDetailscrId + "editFrontImg").css("transform", "rotate(" + rotation + "deg)");
+    }
+    if (apz.isNull(memCount[editRow].backImg)) {
+        $("#" + EarningDetailscrId + "editBackImgCol").addClass('sno');
+    } else {
+        $("#" + EarningDetailscrId + "editBackImg").attr('src', 'data:image/' + 'png' + ';base64,' + memCount[editRow].backImg);
+    }
+    $("#" + EarningDetailscrId + "headertext").text('Edit Earning Member Details');
+    $("#" + EarningDetailscrId + "editEarningMemRow").removeClass('sno');
+    $("#" + EarningDetailscrId + "uploadDocumentRow").addClass('sno');
+    $("#" + EarningDetailscrId + "FirstMemberInfo").addClass('sno');
+    $("#" + EarningDetailscrId + "kycVerifyBtn_ul").addClass('sno');
+    $("#" + EarningDetailscrId + "kycVerifiedBtn_ul").addClass('sno');
+    $("#" + EarningDetailscrId + "save").removeClass('sno');
+    // $("#" + EarningDetailscrId + "save").prop('disabled', true);
+    $("#" + EarningDetailscrId + "submit").addClass('sno');
+}
+// Function to check if any fields are empty
+apz.app.EarningMemberDetails.checkEmptyFields = function(pthis) {
+    let uploadcase = false;
+    // Selecting input elements
+    let uploadNameInput = document.getElementById('RPCMEM__EarningMemberDetails__UploadName');
+    let uploadDobInput = document.getElementById('RPCMEM__EarningMemberDetails__UploadDob');
+    let uploadKycIdInput = document.getElementById('RPCMEM__EarningMemberDetails__UploadKycId');
+    if (uploadNameInput.value === '') {
+        $("#" + EarningDetailscrId + 'uploadErrMsgName_ul').removeClass('sno');
+        $("#" + EarningDetailscrId + 'uploadErrMsgName').text('Please enter Name');
+        //ApzCOB.fnDisplayMsg("Name field data is empty", "E");
+        uploadcase = true;
+    }
+    if (uploadDobInput.value === '') {
+        $("#" + EarningDetailscrId + 'uploadErrMsgDob_ul').removeClass('sno');
+        $("#" + EarningDetailscrId + 'uploadErrMsgDob').text('Please enter Dob');
+        // ApzCOB.fnDisplayMsg("Date of Birth field data is empty", "E");
+        uploadcase = true;
+    }
+    if (uploadKycIdInput.value === '') {
+        $("#" + EarningDetailscrId + 'uploadErrMsgKycId_ul').removeClass('sno');
+        $("#" + EarningDetailscrId + 'uploadErrMsgKycId').text('Please enter Kyc Id');
+        //  ApzCOB.fnDisplayMsg("KYC ID field data is empty", "E");
+        uploadcase = true;
+    }
+    apz.app.EarningMemberDetails.isMinor('UPLOAD');
+    if (window.isMinor) {
+        uploadcase = true;
+    }
+    return uploadcase;
+}
+apz.app.EarningMemberDetails.checkIfDataExists = function(pthis) {
+    let data = apz.data.scrdata.RPCMEM__EarningMembersList_Res.UpdatedFetchData[UploadDocRow];;
+    let uploadNameInput = document.getElementById('RPCMEM__EarningMemberDetails__UploadName');
+    let uploadDobInput = document.getElementById('RPCMEM__EarningMemberDetails__UploadDob');
+    let uploadKycTypeValue = apz.getElmValue("RPCMEM__EarningMemberDetails__UploadKycType");
+    let uploadKycIdInput = document.getElementById('RPCMEM__EarningMemberDetails__UploadKycId');
+    if (uploadNameInput.value === data.name && uploadDobInput.value === ApzCOB.dateformatter(ApzCOB.dateStringToDate(data.dob), 'd/m/Y') &&
+        uploadKycTypeValue === data.legaldocName && uploadKycIdInput.value === data.legaldocId) {
+        ApzCOB.fnDisplayMsg("No Changes to save", "E");
+        return true;
+    } else if (uploadKycIdInput.value === data.legaldocId && !$("#RPCMEM__EarningMemberDetails__UploadKycVerifiedBtn").is(':visible')) {
+        $("#" + EarningDetailscrId + "UploadFrontImg").attr('src', '');
+        $("#" + EarningDetailscrId + "UploadBackImg").attr('src', '');
+        $("#" + EarningDetailscrId + "UploadKycVerifyBtn_ul").addClass('sno');
+        $("#" + EarningDetailscrId + "UploadKycVerifiedBtn_ul").removeClass('sno');
+        $("#" + EarningDetailscrId + "UploadImagesRow").removeClass('sno');
+        if (uploadKycTypeValue === 'PAN') {
+            $("#" + EarningDetailscrId + "UploadFrontImgCol").removeClass('sno');
+            $("#" + EarningDetailscrId + "UploadBackImgCol").addClass('sno');
+        } else {
+            $("#" + EarningDetailscrId + "UploadFrontImgCol").removeClass('sno');
+            $("#" + EarningDetailscrId + "UploadBackImgCol").removeClass('sno');
+        }
+        return true;
+    } else if (uploadKycTypeValue === 'Pan Card' && !$("#RPCMEM__EarningMemberDetails__deleteFrontBtn").is(':visible')) {
+        ApzCOB.fnDisplayMsg("Please Upload Id before procceding It", "E");
+        return true;
+    } else if ($("#RPCMEM__EarningMemberDetails__UploadFrontImgCol").is(':visible') && !$("#RPCMEM__EarningMemberDetails__deleteFrontBtn").is(
+            ':visible')) {
+        ApzCOB.fnDisplayMsg("Please Upload Front Image", "E");
+        return true;
+    } else if ($("#RPCMEM__EarningMemberDetails__UploadBackImgCol").is(':visible') && !$("#RPCMEM__EarningMemberDetails__deleteBackBtn").is(
+            ':visible')) {
+        ApzCOB.fnDisplayMsg("Please Upload Back Image", "E");
+        return true;
+    } else if ($("#RPCMEM__EarningMemberDetails__UploadKycVerifiedBtn").is(':visible')) {
+        return false;
+    } else {
+        ApzCOB.fnDisplayMsg("Please Verify the KYC ID.", "E");
+        return true;
+    }
+}
+apz.app.EarningMemberDetails.EditcheckEmptyFields = function(pthis) {
+    let editcase = false;
+    let EditNameInput = document.getElementById('RPCMEM__EarningMemberDetails__inputName');
+    let EditDobInput = document.getElementById('RPCMEM__EarningMemberDetails__inputDob');
+    let EditKycIdInput = document.getElementById('RPCMEM__EarningMemberDetails__kycId');
+    if (EditNameInput.value === '') {
+        $("#" + EarningDetailscrId + 'editErrMsgName_ul').removeClass('sno');
+        $("#" + EarningDetailscrId + 'editErrMsgName').text('Please enter Name');
+        //ApzCOB.fnDisplayMsg("Name field data is empty", "E");
+        editcase = true;
+    }
+    if (EditDobInput.value === '') {
+        $("#" + EarningDetailscrId + 'editErrMsgDob_ul').removeClass('sno');
+        $("#" + EarningDetailscrId + 'editErrMsgDob').text('Please enter Dob');
+        // ApzCOB.fnDisplayMsg("Date of Birth field data is empty", "E");
+        editcase = true;
+    } else {
+        var dobarr = EditDobInput.value.split('/');
+        var isDob = true;
+        if (dobarr.length === 3) {
+            dobarr.forEach(function(obj) {
+                if (!obj.match(/^-?\d+$/)) {
+                    isDob = false;
+                }
+                if (dobarr[2].length !== 4) {
+                    isDob = false;
+                }
+            });
+            if (!isDob) {
+                editcase = true;
+                $("#" + EarningDetailscrId + 'editErrMsgDob_ul').removeClass('sno');
+                $("#" + EarningDetailscrId + 'editErrMsgDob').text('Please select the valid Dob');
+            }
+        } else {
+            editcase = true;
+            $("#" + EarningDetailscrId + 'editErrMsgDob_ul').removeClass('sno');
+            $("#" + EarningDetailscrId + 'editErrMsgDob').text('Please select the valid Dob');
+        }
+    }
+    if (EditKycIdInput.value === '') {
+        $("#" + EarningDetailscrId + 'editErrMsgKycId_ul').removeClass('sno');
+        $("#" + EarningDetailscrId + 'editErrMsgKycId').text('Please enter Kyc Id');
+        //  ApzCOB.fnDisplayMsg("KYC ID field data is empty", "E");
+        editcase = true;
+    }
+    apz.app.EarningMemberDetails.isMinor('EDIT');
+    if (window.isMinor) {
+        editcase = true;
+    }
+    return editcase;
+}
+apz.app.EarningMemberDetails.EditcheckIfDataExists = function(pthis) {
+    let data = apz.data.scrdata.RPCMEM__EarningMembersList_Res.UpdatedFetchData[editRow];;
+    let EditNameInput = document.getElementById('RPCMEM__EarningMemberDetails__inputName');
+    let EditDobInput = document.getElementById('RPCMEM__EarningMemberDetails__inputDob');
+    let EditKycIdInput = document.getElementById('RPCMEM__EarningMemberDetails__kycId');
+    let EditKycTypeInput = apz.getElmValue("RPCMEM__EarningMemberDetails__kycType");
+    if (EditNameInput.value === data.name && EditDobInput.value === ApzCOB.dateformatter(ApzCOB.dateStringToDate(data.dob), 'd/m/Y') &&
+        EditKycTypeInput === data.legaldocName && EditKycIdInput.value === data.legaldocId) {
+        ApzCOB.fnDisplayMsg("No Changes to save", "E");
+        return true;
+    } else if (EditKycIdInput.value !== data.legaldocId && !$("#RPCMEM__EarningMemberDetails__kycVerifiedBtn").is(':visible')) {
+        ApzCOB.fnDisplayMsg("Please Verify the KYC ID.", "E");
+        return true;
+    }
+}
+apz.app.EarningMemberDetails.uploadDocument = function(pthis) {
+    onClickUpload = true;
+    isReworkMakerCheckerEdit = true;
+    UploadDocRow = $(pthis).attr("rowno");
+    let selectedData = apz.data.scrdata.RPCMEM__EarningMembersList_Res.UpdatedFetchData[UploadDocRow];
+    apz.app.EarningMemberDetails.UploadErrHideFunc();
+    $("#" + EarningDetailscrId + "UploadName").val(selectedData.name);
+    if (selectedData.dob.includes('(')) {
+        selectedData.dob = apz.app.EarningMemberDetails.ConvertDate(selectedData.dob.split('(')[0]);
+    }
+    $("#" + EarningDetailscrId + "UploadDob").val(ApzCOB.dateformatter(ApzCOB.dateStringToDate(selectedData.dob), 'd/m/Y'));
+    apz.setElmValue(EarningDetailscrId + "UploadKycType", selectedData.legaldocName);
+    $("#" + EarningDetailscrId + "UploadKycId").val(selectedData.legaldocId);
+    $("#" + EarningDetailscrId + "UploadKycVerifyBtn_ul").addClass('sno');
+    $("#" + EarningDetailscrId + "UploadKycVerifiedBtn_ul").addClass('sno');
+    // $("#"+EarningDetailscrId+"UploadFrontImg").attr('src', 'data:image/' + 'png' + ';base64,' + memCount[UploadDocRow].forntImg);
+    //  $("#"+EarningDetailscrId+"UploadBackImg").attr('src', 'data:image/' + 'png' + ';base64,' + memCount[UploadDocRow].backImg);
+    $("#" + EarningDetailscrId + "uploadDocumentRow").removeClass('sno');
+    $("#" + EarningDetailscrId + "UploadImagesRow").addClass('sno');
+    $("#" + EarningDetailscrId + "FirstMemberInfo").addClass('sno');
+    $("#" + EarningDetailscrId + "FirstMemRow").addClass('sno');
+    $("#" + EarningDetailscrId + "gr_row_91").addClass('sno');
+    $("#" + EarningDetailscrId + "save").removeClass('sno');
+    // $("#" + EarningDetailscrId + "save").prop('disabled', true);
+    $("#" + EarningDetailscrId + "submit").addClass('sno');
+}
+apz.app.EarningMemberDetails.backIcon = function() {
+    if (window.fromRPC && !onClickedit) {
+        rpcOnHoldRecords = false;
+        // ApzCOB.launchMicroApp("RPCMEM", "RPCMemberDetails", "APZCBO__BaseScreens__BaseDIV", selparams[0]);
+        ApzCOB.FetchIncomeApplicationList();
+    } else if (window.fromWidget && !onClickedit) {
+        ApzCOB.launchMicroApp('Dashbo', 'dashboard', "APZCBO__BaseScreens__BaseDIV", '');
+    } else if (onClickedit) {
+        $("#" + EarningDetailscrId + "kycVerifiedBtn_ul").addClass('sno');
+        $("#" + EarningDetailscrId + "UploadKycVerifiedBtn_ul").addClass('sno');
+        $("#" + EarningDetailscrId + "FirstMemberInfo").removeClass('sno');
+        $("#" + EarningDetailscrId + "FirstMemRow").removeClass('sno');
+        $("#" + EarningDetailscrId + "headertext").text('Earning Member Details');
+        $("#" + EarningDetailscrId + "editEarningMemRow").addClass('sno');
+        $("#" + EarningDetailscrId + "submit").removeClass('sno');
+        // $("#" + EarningDetailscrId + "submit").prop('disabled', true);
+        $("#" + EarningDetailscrId + "save").addClass('sno');
+        onClickedit = false;
+        isReworkMakerCheckerEdit = false;
+        rpcOnHoldRecords = false;
+    }
+}
+apz.app.EarningMemberDetails.isFormatted = function(date) {
+    var dateFormatRegex = /^(0[1-9]|[12][0-9]|3[01]) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}$/;
+    // Test the date string against the regex
+    return dateFormatRegex.test(date);
+}
+apz.app.EarningMemberDetails.paintEarningDataList = function() {
+    var resp = screenDet.payload.earnings;
+    earningsDetails
+    memCount = [];
+    resp.forEach(function(obj, i) {
+        if (obj.isEdited === true) {
+            if (!obj.hasOwnProperty("status")) {
+                obj["status"] = "PENDING";
+                obj["EarnmemCount"] = memCount.length + 1;
+                obj["EarnmemName"] = "(" + obj.memRelation + ")";
+                // if (!apz.app.EarningMemberDetails.isFormatted(obj.OCRData.dob)) {
+                if (!apz.isNull(obj.ValidateResp.dob) && !obj.ValidateResp.dob === '-') {
+                    obj.ValidateResp.dob = ApzCOB.dateformatter(obj.ValidateResp.dob, 'd M Y') + "(" + ApzCOB.ageCalculator(obj
+                        .ValidateResp.dob) + ")";
+                }
+                //}
+                // if (!apz.app.EarningMemberDetails.isFormatted(obj.InputData.dob)) {
+                if (obj.InputData.dob.includes('(')) {
+                    obj.InputData.dob = apz.app.EarningMemberDetails.ConvertDate(obj.InputData.dob.split('(')[0]);
+                    obj.InputData.dob = ApzCOB.dateformatter(ApzCOB.dateStringToDate(obj.InputData.dob), 'd M Y') + "(" + ApzCOB
+                        .ageCalculator(obj.InputData.dob) + ")";
+                } else {
+                    obj.InputData.dob = ApzCOB.dateformatter(ApzCOB.dateStringToDate(ApzCOB.formattedtoPlain(obj.InputData.dob)),
+                        'd M Y') + "(" + ApzCOB.ageCalculator(obj.InputData.dob) + ")";
+                }
+                if (obj.InputData.dob.length == 8) {
+                    var customsdob = ApzCOB.plaintoDateformat(obj.InputData.dob);
+                    obj.InputData.dob = ApzCOB.dateformatter(ApzCOB.dateStringToDate(ApzCOB.formattedtoPlain(customsdob)),
+                        'd M Y') + "(" + ApzCOB.ageCalculator(customsdob) + ")";
+                }
+                // }
+                ValidateResp.push(obj.ValidateResp);
+                UpdatedResp.push(obj.InputData);
+                memCount.push(obj);
+            } else if (obj.hasOwnProperty("status")) {
+                obj["EarnmemCount"] = memCount.length + 1;
+                obj["EarnmemName"] = "(" + obj.memRelation + ")";
+                // if (!apz.app.EarningMemberDetails.isFormatted(obj.OCRData.dob)) {
+                if (!apz.isNull(obj.ValidateResp.dob) && !obj.ValidateResp.dob === '-') {
+                    obj.ValidateResp.dob = ApzCOB.dateformatter(obj.ValidateResp.dob, 'd M Y') + "(" + ApzCOB.ageCalculator(obj
+                        .ValidateResp.dob) + ")";
+                }
+                // }
+                // if (!apz.app.EarningMemberDetails.isFormatted(obj.InputData.dob)) {
+                if (obj.InputData.dob.includes('(')) {
+                    obj.InputData.dob = apz.app.EarningMemberDetails.ConvertDate(obj.InputData.dob.split('(')[0]);
+                    obj.InputData.dob = ApzCOB.dateformatter(ApzCOB.dateStringToDate(obj.InputData.dob), 'd M Y') + "(" + ApzCOB
+                        .ageCalculator(obj.InputData.dob) + ")";
+                } else {
+                    obj.InputData.dob = ApzCOB.dateformatter(ApzCOB.dateStringToDate(ApzCOB.formattedtoPlain(obj.InputData.dob)),
+                        'd M Y') + "(" + ApzCOB.ageCalculator(obj.InputData.dob) + ")";
+                }
+                if (obj.InputData.dob.length == 8) {
+                    var customsdob = ApzCOB.plaintoDateformat(obj.InputData.dob);
+                    obj.InputData.dob = ApzCOB.dateformatter(ApzCOB.dateStringToDate(ApzCOB.formattedtoPlain(customsdob)),
+                        'd M Y') + "(" + ApzCOB.ageCalculator(customsdob) + ")";
+                }
+                // }
+                ValidateResp.push(obj.ValidateResp);
+                UpdatedResp.push(obj.InputData);
+                memCount.push(obj);
+            }
+        }
+    })
+    var dataList = document.getElementById(EarningDetailscrId + 'earningMemListDet').querySelectorAll('input');
+    dataList.forEach(function(obj, i) {
+        $("#" + dataList[i].id).prop('disabled', false);
+    })
+    apz.data.scrdata.RPCMEM__EarningMembersList_Res = {};
+    apz.data.scrdata.RPCMEM__EarningMembersList_Res.OCRFetchData = ValidateResp;
+    apz.data.scrdata.RPCMEM__EarningMembersList_Res.UpdatedFetchData = UpdatedResp;
+    apz.data.loadData("EarningMembersList", 'RPCMEM');
+    $("#" + EarningDetailscrId + "uploadBtn_" + i).removeClass("sno");
+    $("#" + EarningDetailscrId + "editBtn_" + i).removeClass("sno");
+    for (i = 0; i < memCount.length; i++) {
+        if (memCount[i].status.toUpperCase() === "ON HOLD") {
+            $("#" + EarningDetailscrId + "onHoldCheckBox_" + i).prop('checked', true);
+            $("#" + EarningDetailscrId + "onHoldCheckBox_" + i).attr('disabled', true);
+            rpcOnHoldRecords = true;
+            $("#" + EarningDetailscrId + "status_" + i).removeClass('pndng');
+            $("#" + EarningDetailscrId + "status_" + i).addClass('vrfed');
+            $("#" + EarningDetailscrId + "uploadBtn_" + i).parent().removeClass('sno');
+            $("#" + EarningDetailscrId + "uploadBtn_" + i).removeClass('sno');
+            for (j = 0; j < screenDet.payload.remarks.length; j++) {
+                if (memCount[i].EarnmemCount === screenDet.payload.remarks[j].earningmemCount) {
+                    $("#" + EarningDetailscrId + "reasonPaintList_" + i).parent().parent().removeClass('sno');
+                    let remarksWithNewLines = screenDet.payload.remarks[j].remarks.replace(/(\d\.)/g, '<br>$1').trim();
+                    $("#" + EarningDetailscrId + "reasonPaintList_" + i).html(remarksWithNewLines);
+                }
+            }
+            if (!apz.isNull(screenDet.updatedBy)) {
+                if (screenDet.updatedBy === LoggedInUserDetails.loginResponse.userDet.id) {
+                    $("#" + EarningDetailscrId + "approvedCheckBox_" + i).parent().parent().parent().addClass('sno');
+                    $("#" + EarningDetailscrId + "makerCheckBox_" + i).parent().parent().parent().addClass('sno');
+                } else if (screenDet.updatedBy !== LoggedInUserDetails.loginResponse.userDet.id) {
+                    $("#" + EarningDetailscrId + "approvedCheckBox_" + i).parent().parent().parent().removeClass('sno');
+                    $("#" + EarningDetailscrId + "makerCheckBox_" + i).parent().parent().parent().addClass('sno');
+                }
+            }
+        } else if (memCount[i].status.toUpperCase() === "MOVE TO CHECKER" || memCount[i].status.toUpperCase() === "MOVE TO MAKER") {
+            if (!apz.isNull(screenDet.updatedBy)) {
+                if (screenDet.updatedBy === LoggedInUserDetails.loginResponse.userDet.id) {
+                    $("#" + EarningDetailscrId + "approvedCheckBox_" + i).parent().parent().parent().addClass('sno');
+                    $("#" + EarningDetailscrId + "onHoldCheckBox_" + i).parent().parent().parent().addClass('sno');
+                    $("#" + EarningDetailscrId + "makerCheckBox_" + i).parent().parent().parent().removeClass('sno');
+                    $("#" + EarningDetailscrId + "makerCheckBox_" + i).prop('checked', true);
+                    $("#" + EarningDetailscrId + "makerCheckBox_" + i).attr('disabled', true);
+                } else if (screenDet.updatedBy !== LoggedInUserDetails.loginResponse.userDet.id) {
+                    $("#" + EarningDetailscrId + "approvedCheckBox_" + i).parent().parent().parent().removeClass('sno');
+                    $("#" + EarningDetailscrId + "onHoldCheckBox_" + i).parent().parent().parent().removeClass('sno');
+                    $("#" + EarningDetailscrId + "makerCheckBox_" + i).parent().parent().parent().addClass('sno');
+                    if (screenDet.hasOwnProperty('requestPrevType')) {
+                        memCount[i].status = "PENDING";
+                        $("#" + EarningDetailscrId + "status_" + i).text('PENDING');
+                    }
+                }
+                rpcOnHoldRecords = false;
+            }
+        } else if (memCount[i].status.toUpperCase() === "PENDING") {
+            rpcOnHoldRecords = false;
+            $("#" + EarningDetailscrId + "status_" + i).addClass('pndng');
+            $("#" + EarningDetailscrId + "status_" + i).removeClass('vrfed');
+        } else if (memCount[i].status === "APPROVED") {
+            rpcOnHoldRecords = false;
+            $("#" + EarningDetailscrId + "approvedCheckBox_" + i).parent().parent().parent().addClass('sno');
+            $("#" + EarningDetailscrId + "onHoldCheckBox_" + i).parent().parent().parent().addClass('sno');
+            $("#" + EarningDetailscrId + "makerCheckBox_" + i).parent().parent().parent().addClass('sno');
+            $("#" + EarningDetailscrId + "editBtn_" + i).addClass("sno");
+            $("#" + EarningDetailscrId + "uploadBtn_" + i).addClass("sno");
+        }else{
+            rpcOnHoldRecords = false;
+        }
+    }
+    memCount.forEach(function(obj1, i) {
+        if(obj1.status === "MOVE TO MAKER"){
+            $("#" + EarningDetailscrId + "status_" + i).text('MOVE TO CHECKER')
+        }else if(obj1.status === ""){
+            $("#" + EarningDetailscrId + "status_" + i).text('MOVE TO CHECKER')
+        }else{
+            $("#" + EarningDetailscrId + "status_" + i).text(obj1.status);
+        }
+        if (obj1.status.toUpperCase() === "PENDING") {
+            $("#" + EarningDetailscrId + "status_" + i).addClass('pndng');
+        }
+        $("#" + EarningDetailscrId + "EarnmemCount_" + i).text(obj1.EarnmemCount);
+        $("#" + EarningDetailscrId + "EarnmemName_" + i).text(obj1.EarnmemName);
+        $("#" + EarningDetailscrId + "labelChange1_" + i).addClass('sno');
+        $("#" + EarningDetailscrId + "labelChange2_" + i).addClass('sno');
+        $("#" + EarningDetailscrId + "backImg_" + i).addClass('sno');
+        $("#" + EarningDetailscrId + "frontImg_" + i).attr('src', 'data:image/' + 'png' + ';base64,' + obj1.forntImg);
+        $("#" + EarningDetailscrId + "backImg_" + i).attr('src', 'data:image/' + 'png' + ';base64,' + obj1.backImg);
+        if (!apz.isNull($("#" + EarningDetailscrId + "backImg_" + i).attr('src').split(',')[1])) {
+            $("#" + EarningDetailscrId + "labelChange2_" + i).removeClass('sno');
+            $("#" + EarningDetailscrId + "labelChange1_" + i).addClass('sno');
+        }
+        let mismatchedKeys1 = [];
+        let inpData = obj1.InputData;
+        let ValidateResp = obj1.OCRData;
+        for (let key in inpData) {
+            if (inpData.hasOwnProperty(key)) {
+			if(key!=='memRelation'){
+                if (inpData[key] !== ValidateResp[key]) {
+                    mismatchedKeys1.push(key);
+                    $("#RPCMEM__EarningMembersList__o__UpdatedFetchData__" + key + "_" + i).parent().addClass('vrfed');
+                }else{
+                    $("#RPCMEM__EarningMembersList__o__UpdatedFetchData__" + key + "_" + i).parent().removeClass('vrfed'); 
+                }
+				}
+            }
+        }
+    })
+}
+apz.app.EarningMemberDetails.save = function() {
+    if (onClickedit) {
+        if (!apz.app.EarningMemberDetails.EditcheckEmptyFields()) {
+            if (!apz.app.EarningMemberDetails.EditcheckIfDataExists()) {
+                let det = {
+                    name: $("#" + EarningDetailscrId + "inputName").val(),
+                    dob: $("#" + EarningDetailscrId + "inputDob").val(),
+                    legaldocName: $("#" + EarningDetailscrId + "kycType").val(),
+                    legaldocId: $("#" + EarningDetailscrId + "kycId").val(),
+                    memRelation: memCount[editRow].memRelation
+                }
+                if (apz.app.EarningMemberDetails.compareValues(apz.data.scrdata.RPCMEM__EarningMembersList_Res.UpdatedFetchData[editRow], det)) {
+                    ApzCOB.fnDisplayMsg("No Changes to save");
+                    return;
+                } else {
+                    det.dob = ApzCOB.formattedtoPlain(det.dob);
+                    det.dob = ApzCOB.dateformatter(ApzCOB.dateStringToDate(det.dob), 'd M Y') + "(" + ApzCOB.ageCalculator(det.dob) + ")";
+                    apz.data.scrdata.RPCMEM__EarningMembersList_Res.UpdatedFetchData[editRow] = det;
+                    if (!apz.isObjectEmpty(ValResp)) {
+                        apz.data.scrdata.RPCMEM__EarningMembersList_Res.OCRFetchData[editRow] = ValResp;
+                    }
+                    apz.data.loadData("EarningMembersList", 'RPCMEM');
+                    updatedMemCount = JSON.parse(JSON.stringify(memCount)).map((inp, i) => {
+                        if (inp.EarnmemCount - 1 === parseInt(editRow)) {
+                            inp.InputData = apz.data.scrdata.RPCMEM__EarningMembersList_Res.UpdatedFetchData[editRow];
+                        }
+                        return inp;
+                    });
+                    $("#" + EarningDetailscrId + "approvedCheckBox_" + editRow).parent().parent().parent().addClass('sno');
+                    $("#" + EarningDetailscrId + "onHoldCheckBox_" + editRow).parent().parent().parent().addClass('sno');
+                    $("#" + EarningDetailscrId + "makerCheckBox_" + editRow).parent().parent().parent().removeClass('sno');
+                    $("#" + EarningDetailscrId + "reasonPaintList_" + editRow).parent().parent().addClass('sno');
+                    $("#" + EarningDetailscrId + "makerCheckBox_" + editRow).prop('checked', false);
+                    $("#" + EarningDetailscrId + "makerCheckBox_" + editRow).prop('disabled', false);
+                    if(rpcOnHoldRecords){
+                        $("#" + EarningDetailscrId + "status_" + editRow).text("MOVE TO MAKER");
+                        $('#RPCMEM__EarningMemberDetails__el_txt_826_0').text('MOVE TO MAKER');
+                    }else{
+                        $("#" + EarningDetailscrId + "status_" + editRow).text("MOVE TO CHECKER");
+                    }
+                    $("#" + EarningDetailscrId + "FirstMemberInfo").removeClass('sno');
+                    $("#" + EarningDetailscrId + "FirstMemRow").removeClass('sno');
+                    $("#" + EarningDetailscrId + "headertext").text('Earning Member Details');
+                    $("#" + EarningDetailscrId + "editEarningMemRow").addClass('sno');
+                    $("#" + EarningDetailscrId + "save").addClass('sno');
+                    $("#" + EarningDetailscrId + "submit").removeClass('sno');
+                    let mismatchedKeys1 = [];
+                    let inpData = apz.data.scrdata.RPCMEM__EarningMembersList_Res.UpdatedFetchData[editRow];
+                    let ValidateResp = updatedMemCount[editRow].OCRData;
+                    for (let key in ValidateResp) {
+                        if (ValidateResp.hasOwnProperty(key)) {
+                            if (ValidateResp[key] !== inpData[key]) {
+                                mismatchedKeys1.push(key);
+                                $("#RPCMEM__EarningMembersList__o__UpdatedFetchData__" + mismatchedKeys1 + "_" + editRow).parent().addClass(
+                                    'vrfed');
+                            } else {
+                                $("#RPCMEM__EarningMembersList__o__UpdatedFetchData__" + key + "_" + editRow).parent().addClass('vrfed');
+                            }
+                        }
+                    }
+                    onClickedit = false;
+                }
+            }
+        }
+    } else if (onClickUpload) {
+        if (!apz.app.EarningMemberDetails.checkEmptyFields()) {
+            if (!apz.app.EarningMemberDetails.checkIfDataExists()) {
+                let det = {
+                    name: $("#" + EarningDetailscrId + "UploadName").val(),
+                    dob: $("#" + EarningDetailscrId + "UploadDob").val(),
+                    legaldocName: $("#" + EarningDetailscrId + "UploadKycType").val(),
+                    legaldocId: $("#" + EarningDetailscrId + "UploadKycId").val(),
+                    memRelation: memCount[UploadDocRow].memRelation
+                }
+                if (apz.app.EarningMemberDetails.compareValues(apz.data.scrdata.RPCMEM__EarningMembersList_Res.UpdatedFetchData[UploadDocRow],
+                        det)) {
+                    ApzCOB.fnDisplayMsg("No Changes to save");
+                    return;
+                } else {
+                    det.dob = ApzCOB.formattedtoPlain(det.dob);
+                    det.dob = ApzCOB.dateformatter(ApzCOB.dateStringToDate(det.dob), 'd M Y') + "(" + ApzCOB.ageCalculator(det.dob) + ")";
+                    apz.data.scrdata.RPCMEM__EarningMembersList_Res.UpdatedFetchData[UploadDocRow] = det;
+                    if (!apz.isObjectEmpty(ValResp)) {
+                        apz.data.scrdata.RPCMEM__EarningMembersList_Res.OCRFetchData[UploadDocRow] = ValResp;
+                    }
+                    $("#" + EarningDetailscrId + "frontImg_" + UploadDocRow).attr('src', '');
+                    $("#" + EarningDetailscrId + "backImg_" + UploadDocRow).attr('src', '');
+                    // if (!apz.isNull(images.forntImg) && $("#" + EarningDetailscrId + 'UploadFrontImgCol').is(':visible')) {
+                    $("#" + EarningDetailscrId + "frontImg_" + UploadDocRow).attr('src', 'data:image/' + 'png' + ';base64,' + images.frontImg);
+                    /* } else {
+                         ApzCOB.fnDisplayMsg("Please Upload Image", "E");
+                         return;
+                     }*/
+                    //if (!apz.isNull(images.backImg) && $("#" + EarningDetailscrId + 'UploadBackImgCol').is(':visible')) {
+                    $("#" + EarningDetailscrId + "backImg_" + UploadDocRow).attr('src', 'data:image/' + 'png' + ';base64,' + images.backImg);
+                    /*} else {
+                        ApzCOB.fnDisplayMsg("Please Upload Image", "E");
+                        return;
+                    }*/
+                    apz.data.loadData("EarningMembersList", 'RPCMEM');
+                    updatedMemCount = memCount.map((inp, i) => {
+                        if (inp.EarnmemCount - 1 === parseInt(UploadDocRow)) {
+                            return {
+                                ...inp,
+                                InputData: apz.data.scrdata.RPCMEM__EarningMembersList_Res.UpdatedFetchData[UploadDocRow],
+                                forntImg: $("#" + EarningDetailscrId + "frontImg_" + parseInt(UploadDocRow)).attr('src').split(',')[1],
+                                backImg: $("#" + EarningDetailscrId + "backImg_" + parseInt(UploadDocRow)).attr('src').split(',')[1]
+                            };
+                        } else {
+                            return inp;
+                        }
+                    });
+                    $("#" + EarningDetailscrId + "approvedCheckBox_" + UploadDocRow).parent().parent().parent().addClass('sno');
+                    $("#" + EarningDetailscrId + "onHoldCheckBox_" + UploadDocRow).parent().parent().parent().addClass('sno');
+                    $("#" + EarningDetailscrId + "makerCheckBox_" + UploadDocRow).parent().parent().parent().removeClass('sno');
+                    $("#" + EarningDetailscrId + "reasonPaintList_" + UploadDocRow).parent().parent().addClass('sno');
+                    if(rpcOnHoldRecords){
+                        $("#" + EarningDetailscrId + "status_" + UploadDocRow).text('MOVE TO MAKER');
+                        $('#RPCMEM__EarningMemberDetails__el_txt_826_0').text('MOVE TO MAKER');
+                    }else{
+                        $("#" + EarningDetailscrId + "status_" + UploadDocRow).text('MOVE TO CHECKER');
+                    }
+                    $("#" + EarningDetailscrId + "FirstMemberInfo").removeClass('sno');
+                    $("#" + EarningDetailscrId + "FirstMemRow").removeClass('sno');
+                    $("#" + EarningDetailscrId + "headertext").text('Earning Member Details');
+                    $("#" + EarningDetailscrId + "uploadDocumentRow").addClass('sno');
+                    $("#" + EarningDetailscrId + "save").addClass('sno');
+                    $("#" + EarningDetailscrId + "submit").removeClass('sno');
+                    let mismatchedKeys1 = [];
+                    let inpData = apz.data.scrdata.RPCMEM__EarningMembersList_Res.UpdatedFetchData[UploadDocRow];
+                    let ValidateResp = updatedMemCount[UploadDocRow].OCRData;
+                    for (let key in ValidateResp) {
+                        if (ValidateResp.hasOwnProperty(key)) {
+                            if (ValidateResp[key] !== inpData[key]) {
+                                mismatchedKeys1.push(key);
+                                $("#RPCMEM__EarningMembersList__o__UpdatedFetchData__" + mismatchedKeys1 + "_" + UploadDocRow).parent().addClass(
+                                    'vrfed');
+                            } else {
+                                $("#RPCMEM__EarningMembersList__o__UpdatedFetchData__" + key + "_" + UploadDocRow).parent().removeClass('vrfed');
+                            }
+                        }
+                    }
+                    onClickUpload = false;
+                }
+            }
+        }
+    }
+}
+apz.app.EarningMemberDetails.holdCase = function(pthis) {
+    onHoldRow = $(pthis).attr("rowno");
+    // $("#" + EarningDetailscrId + "reasonDropdown").val('');
+    $("#" + EarningDetailscrId + "reasonTextBox").val('');
+    $("#" + EarningDetailscrId + "otherReasonRow").addClass('sno');
+    //apz.populateDropdown(document.getElementById(EarningDetailscrId + "reasonDropdown"), reasonList);
+    // var checkbox = $('#RPCMEM__EarningMemberDetails__reasonDropdown_option_Please\\ Select_input');
+    // checkbox.prop('disabled', true);
+    // checkbox.prop('checked', false);
+    if ($("#" + EarningDetailscrId + "onHoldCheckBox_" + onHoldRow).is(":checked")) {
+        rpcOnHoldRecords = true;
+        $("#" + EarningDetailscrId + "approvedCheckBox_" + onHoldRow).prop('checked', false);
+        //$("#" + EarningDetailscrId + "otherReasonRow").removeClass('sno');
+        ApzCOB.toggleModal(EarningDetailscrId + 'reasonModal');
+        apz.data.scrdata.RPCMEM__EarningMembersList_Res.IPaintReasonHoldList = reasonList;
+        apz.data.loadData("EarningMembersList", 'RPCMEM');
+        apz.data.scrdata.RPCMEM__EarningMembersList_Res.IPaintReasonHoldList.forEach((d, idx) => {
+            $("#" + EarningDetailscrId + 'onHoldChkBox_' + idx).prop('checked', false);
+        })
+        $("#" + EarningDetailscrId + 'otherReasonRow').addClass('sno');
+        $("#" + EarningDetailscrId + 'reasonsList').addClass('sno');
+        apz.setElmValue(EarningDetailscrId + 'reasonTextBox', '');
+        apz.setElmValue(EarningDetailscrId + 'reasonInputBox', '');
+    } else {
+         rpcOnHoldRecords = false;
+        $("#" + EarningDetailscrId + "onHoldCheckBox_" + onHoldRow).prop('checked', false);
+        $("#" + EarningDetailscrId + "reasonPaintList_" + onHoldRow).parent().parent().addClass('sno');
+        $("#" + EarningDetailscrId + "status_" + onHoldRow).text(memCount[onHoldRow].status);
+        if (memCount[onHoldRow].status.toUpperCase() === 'PENDING') {
+            $("#" + EarningDetailscrId + "status_" + onHoldRow).addClass('pndng');
+        }
+        $("#" + EarningDetailscrId + "reasonPaintList_" + onHoldRow).text('');
+    }
+}
+apz.app.EarningMemberDetails.onholdCancel = function(pthis) {
+    rpcOnHoldRecords = false;
+    ApzCOB.toggleModal(EarningDetailscrId + 'reasonModal')
+    //apz.populateDropdown(document.getElementById(EarningDetailscrId + "reasonDropdown"), reasonList);
+    var checkbox = $('#RPCMEM__EarningMemberDetails__reasonDropdown_option_Please\\ Select_input');
+    checkbox.prop('disabled', true);
+    checkbox.prop('checked', false);
+    $("#" + EarningDetailscrId + "reasonTextBox").val('');
+    $("#" + EarningDetailscrId + "otherReasonRow").addClass('sno');
+    $("#" + EarningDetailscrId + "onHoldCheckBox_" + onHoldRow).prop('checked', false);
+    $("#" + EarningDetailscrId + "status_" + onHoldRow).text(memCount[onHoldRow].status);
+    if (memCount[onHoldRow].status === "ON HOLD") {
+        $("#" + EarningDetailscrId + "onHoldCheckBox_" + onHoldRow).prop('checked', true);
+    }
+    $("#" + EarningDetailscrId + "reasonErrMsgRow").addClass('sno');
+}
+apz.app.EarningMemberDetails.onSelectReason = function() {
+    let selReason = $("#" + EarningDetailscrId + "reasonDropdown").val();
+    if (selReason === "Others" || selReason.includes('Others')) {
+        $("#" + EarningDetailscrId + "otherReasonRow").removeClass('sno')
+    } else {
+        $("#" + EarningDetailscrId + "otherReasonRow").addClass('sno');
+    }
+    if (selReason != "Please Select" && selReason != "") {
+        let updatedReasons = selReason.replace(/Please Select,?\s*/g, '');
+        updatedReasons = updatedReasons.replace(/^\s*,\s*|\s*,\s*$/g, '');
+        $("#" + EarningDetailscrId + "reasonDropdown").val(updatedReasons);
+    } else {
+        $("#" + EarningDetailscrId + "reasonDropdown").val("Please Select");
+    }
+}
+apz.app.EarningMemberDetails.onKeyUpOther = function() {
+    $("#" + EarningDetailscrId + "reasonErrMsgRow").addClass('sno');
+}
+apz.app.EarningMemberDetails.submitReason = function() {
+    let ReasonError = true;
+    // rpcOnHoldRecords = true;
+    if ($("#" + EarningDetailscrId + "otherReasonRow").is(':visible')) {
+        if (apz.isNull($("#" + EarningDetailscrId + "reasonTextBox").val())) {
+            $("#" + EarningDetailscrId + "reasonErrMsgTxt").text("Please enter reason");
+            $("#" + EarningDetailscrId + "reasonErrMsgRow").removeClass('sno');
+            ReasonError = false;
+        }
+    }
+    if (ReasonError) {
+        let data = apz.getElmValue(EarningDetailscrId + 'reasonInputBox').split(",");
+        if (apz.isNull(apz.getElmValue(EarningDetailscrId + 'reasonInputBox'))) {
+            ApzCOB.fnDisplayMsg("Please enter reason", "E");
+        } else if (data.length > 5) {
+            ApzCOB.fnDisplayMsg("Maximum 5 options can be selected", "E");
+        } else {
+            $("#" + EarningDetailscrId + "reasonErrMsgRow").addClass('sno');
+            ApzCOB.toggleModal(EarningDetailscrId + 'reasonModal');
+            ApzCOB.toggleModal(EarningDetailscrId + 'onHoldModal');
+        }
+    }
+}
+apz.app.EarningMemberDetails.onHoldClickfunc = function() {
+    let resultArray = [];
+    let selReason = $("#" + EarningDetailscrId + "reasonInputBox").val();
+    let selReasonArray = selReason.split(",");
+    selReasonArray.forEach(function(item, i) {
+        if (item.trim() === 'Others') {
+            item = $("#" + EarningDetailscrId + "reasonTextBox").val();
+        }
+        item = i + 1 + '. ' + item.trim();
+        resultArray.push(item);
+    });
+    let result = resultArray.join('<br>');
+    $("#" + EarningDetailscrId + "reasonPaintList_" + onHoldRow).html('<br>' + result);
+    apz.data.loadData("EarningMembersList", 'RPCMEM');
+    $("#" + EarningDetailscrId + "status_" + onHoldRow).text("ON HOLD");
+    $("#" + EarningDetailscrId + "status_" + onHoldRow).removeClass('pndng');
+    $("#" + EarningDetailscrId + "status_" + onHoldRow).addClass('vrfed');
+    $("#" + EarningDetailscrId + "reasonPaintList_" + onHoldRow).parent().parent().removeClass('sno');
+    ApzCOB.toggleModal(EarningDetailscrId + 'onHoldModal');
+}
+apz.app.EarningMemberDetails.onMoveToMaker = function(pthis) {
+    let prowno = $(pthis).attr("rowno");
+    if ($("#" + EarningDetailscrId + "makerCheckBox_" + prowno).is(":checked")) {
+        if(rpcOnHoldRecords){
+            $("#" + EarningDetailscrId + "status_" + prowno).text("MOVE TO MAKER");
+        }else{
+            $("#" + EarningDetailscrId + "status_" + prowno).text("MOVE TO CHECKER");
+        }
+        $("#" + EarningDetailscrId + "status_" + prowno).addClass('vrfed');
+        //$("#" + EarningDetailscrId + "reasonPaintList_" + prowno).parent().parent().addClass('sno');
+        // $("#" + EarningDetailscrId + "reasonPaintList_" + prowno).text('');
+        // $("#" + EarningDetailscrId + "onHoldCheckBox_" + prowno).prop('checked', false)
+    } else {
+        $("#" + EarningDetailscrId + "status_" + prowno).text(memCount[prowno].status);
+        if (memCount[prowno].status.toUpperCase() === 'PENDING') {
+            $("#" + EarningDetailscrId + "status_" + prowno).removeClass('pndng');
+        }
+    }
+}
+apz.app.EarningMemberDetails.UploadBackIcon = function() {
+    $("#" + EarningDetailscrId + "FirstMemberInfo").removeClass('sno');
+    $("#" + EarningDetailscrId + "FirstMemRow").removeClass('sno');
+    $("#" + EarningDetailscrId + "headertext").text('Earning Member Details');
+    $("#" + EarningDetailscrId + "uploadDocumentRow").addClass('sno');
+    $("#" + EarningDetailscrId + "gr_row_91").removeClass('sno');
+    $("#" + EarningDetailscrId + "submit").removeClass('sno');
+    $("#" + EarningDetailscrId + "save").addClass('sno');
+    $("#" + EarningDetailscrId + "UploadImagesRow").addClass('sno');
+    $("#" + EarningDetailscrId + "UploadFrontImg").attr('src', '');
+    $("#" + EarningDetailscrId + "UploadBackImg").attr('src', '');
+    onClickUpload = false;
+    isReworkMakerCheckerEdit = false;
+}
+apz.app.EarningMemberDetails.deleteUploadedImg = function(flow) {
+    let deleteflow = flow;
+    if (deleteflow === "FRONT") {
+        images.frontImg = '';
+        $("#" + EarningDetailscrId + "UploadFrontImg").attr('src', '');
+        $("#" + EarningDetailscrId + "deleteFrontBtn_ul").addClass('sno');
+        $("#" + EarningDetailscrId + "files1").removeClass('sno');
+        $("#" + EarningDetailscrId + "UploadKycVerifiedBtn_ul").addClass('sno');
+        $('#RPCMEM__EarningMemberDetails__FrontImgBrowse').val('');
+    } else if (deleteflow === "BACK") {
+        images.backImg = '';
+        $("#" + EarningDetailscrId + "UploadBackImg").attr('src', '');
+        $("#" + EarningDetailscrId + "deleteBackBtn_ul").addClass('sno');
+        $("#" + EarningDetailscrId + "files2").removeClass('sno');
+        $("#" + EarningDetailscrId + "UploadKycVerifiedBtn_ul").addClass('sno');
+        $('#RPCMEM__EarningMemberDetails__BackImgBrowse').val('');
+    }
+}
+apz.app.EarningMemberDetails.DrivingLicencsFunc = function(encodedImage, type, selKycType) {
+    if (type === 'FRONT') {
+        images = {};
+        $("#" + EarningDetailscrId + "UploadFrontImg").attr('src', 'data:image/' + 'png' + ';base64,' + encodedImage);
+        images.frontImg = encodedImage;
+        $("#" + EarningDetailscrId + "deleteFrontBtn_ul").removeClass('sno');
+        $("#" + EarningDetailscrId + "files1").addClass('sno');
+    } else {
+        $("#" + EarningDetailscrId + "UploadBackImg").attr('src', 'data:image/' + 'png' + ';base64,' + encodedImage);
+        images.backImg = encodedImage;
+        $("#" + EarningDetailscrId + "deleteBackBtn_ul").removeClass('sno');
+        $("#" + EarningDetailscrId + "files2").addClass('sno');
+    }
+    if (!apz.isNull(images.frontImg) && !apz.isNull(images.backImg)) {
+        apz.app.EarningMemberDetails.getBase64(images, type, selKycType);
+    }
+}
+apz.app.EarningMemberDetails.FileBrowse = function(pthis, type) {
+    var fileDtls = pthis.files[0];
+    let Ftype = pthis.files[0]["name"].split('.')[1].trim();
+    if (fileDtls.size < (fileSize)) {
+        if (FileTypesAllowed.indexOf(Ftype.toLowerCase()) !== -1) {
+            apz.startLoader();
+            let FR = new FileReader();
+            FR.readAsDataURL(pthis.files[0]);
+            FR.onload = function(e) {
+                let encodedImage = "";
+                encodedImage = e.target.result.substr(e.target.result.indexOf(',') + 1, e.target.result.length);
+                let selKycType = $("#" + EarningDetailscrId + "UploadKycType").val();
+                if (selKycType !== "Driver's License") {
+                    apz.app.EarningMemberDetails.getBase64(encodedImage, type, selKycType);
+                } else {
+                    apz.app.EarningMemberDetails.DrivingLicencsFunc(encodedImage, type, selKycType);
+                }
+                if (Validation) {
+                    if (type === "FRONT") {
+                        $("#" + EarningDetailscrId + "UploadFrontImg").attr('src', 'data:image/' + 'png' + ';base64,' + encodedImage);
+                        images.frontImg = '';
+                        images.frontImg = encodedImage;
+                        $("#" + EarningDetailscrId + "deleteFrontBtn_ul").removeClass('sno');
+                        $("#" + EarningDetailscrId + "files1").addClass('sno');
+                    } else {
+                        $("#" + EarningDetailscrId + "UploadBackImg").attr('src', 'data:image/' + 'png' + ';base64,' + encodedImage);
+                        // images.backImg = '';
+                        images.backImg = encodedImage;
+                        $("#" + EarningDetailscrId + "deleteBackBtn_ul").removeClass('sno');
+                        $("#" + EarningDetailscrId + "files2").addClass('sno');
+                    }
+                }
+                apz.stopLoader();
+            }
+        } else {
+            ApzCOB.fnDisplayMsg("Please select png,jped,jpg file format");
+        }
+    } else {
+        ApzCOB.fnDisplayMsg("Selected file size should not exceed more than 200kB", "E");
+    }
+}
+apz.app.EarningMemberDetails.updateRpcDetails = function() {
+     screenDet.payload.earnings = finalResp;
+    screenDet.payload.remarks = remarksList;
+    IncomeApp.workflow = {};
+    IncomeApp.workflow.remarks = '';
+    let addInfo = screenDet.addInfo ? JSON.parse(screenDet.addInfo) : {}; 
+    if (addInfo.isRework && isReworkMakerCheckerEdit) {
+        addInfo.isReworkByMakerChecker = true;
+    }
+    if(isReworkMakerCheckerEdit && !addInfo.isRework){
+        addInfo.isReworkByMakerChecker = true;
+    }
+    // else {
+    //     addInfo.isReworkByMakerChecker = false;
+    // }
+    if(rpcOnHoldRecords && isReworkMakerCheckerEdit){
+        addInfo.isOnholdRpc = true;
+    }else if(rpcOnHoldRecords && !addInfo.isRework){
+        addInfo.isOnholdRpc = true;
+    }else if(rpcOnHoldRecords && !isReworkMakerCheckerEdit){
+        addInfo.isOnholdRpc = true;
+    }
+    else{
+        addInfo.isOnholdRpc = false;
+    }
+    var req = {
+        "apiRequest": {
+            "interfaceName": "UpdateIncomeAssessment",
+            "appId": gAppId,
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "appId": gAppId,
+                "applicationId": screenDet.applicationId,
+                "versionNum": screenDet.latestVersionNo,
+                "status": screenDet.status,
+                "userId": LoggedInUserDetails.userID,
+                "remarks": remarksStatus,
+                "updatedBy": LoggedInUserDetails.userID,
+                "incAssessmentPayload": screenDet.payload,
+                "updatedBy": LoggedInUserDetails.userID,
+                "workflow": IncomeApp.workflow,
+                "addInfo":addInfo
+            }
+        }
+    }
+    apz.startLoader();
+    rpcOnHoldRecords = false;
+    ApzCOB.serverBuildParam(gAppId, "UpdateIncomeAssessment", "N", "N", req, true, apz.app.EarningMemberDetails.updateRpcDetailsCB);
+}
+apz.app.EarningMemberDetails.updateRpcDetailsCB = function(params) {
+    ApzCOB.toggleModal(EarningDetailscrId + "confModal");
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            var ifaceName = ApzCOB.GetInterfaceResMap(params);
+            if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "0") {
+                var response = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+                $("#" + EarningDetailscrId + "RefNo").text(response.applicationId);
+                if (params.req.apiRequest.requestObj.status === "MOVE TO CHECKER") {
+                    $("#" + EarningDetailscrId + "successMsgText").text("Earning Member details moved to checker successfully");
+                    ApzCOB.toggleModal(EarningDetailscrId + "successModal");
+                    apz.stopLoader();
+                } else if (params.req.apiRequest.requestObj.status === "MOVE TO MAKER") {
+                    $("#" + EarningDetailscrId + "successMsgText").text("Earning Member details moved to maker successfully");
+                    ApzCOB.toggleModal(EarningDetailscrId + "successModal");
+                    apz.stopLoader();
+                }else if (params.req.apiRequest.requestObj.status === "ON HOLD") {
+                    $("#" + EarningDetailscrId + "successMsgText").text("Earning Member details pushed to onhold successfully");
+                    ApzCOB.toggleModal(EarningDetailscrId + "successModal");
+                    apz.stopLoader();
+                } else if (params.req.apiRequest.requestObj.status === "ON HOLD") {
+                    $("#" + EarningDetailscrId + "successMsgText").text("Earning Member details approved successfully");
+                    ApzCOB.toggleModal(EarningDetailscrId + "successModal");
+                    apz.stopLoader();
+                } else {
+                    //console.log('ApprovedApplication')
+                    var d = new Date();
+                    console.log('ApprovedApplication',d.getHours(),d.getMinutes(),d.getSeconds())
+                    rpcLoanapplication = true;
+                    apz.app.EarningMemberDetails.fetchLoanApplicationDetails(screenDet.customerId)
+                    $("#" + EarningDetailscrId + "successMsgText").text("Earning member details submitted successfully.");
+                    //ApzCOB.toggleModal(EarningDetailscrId + "successModal");
+                }
+            } else {
+                apz.stopLoader();
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_TECHNICALDIFF"), "E");
+            }
+        } else {
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_TECHNICALDIFF"), "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_TECHNICALDIFF"), "E");
+    }
+}
+apz.app.EarningMemberDetails.onClickApprove = function(pthis) {
+    let prowno = $(pthis).attr("rowno");
+    if ($("#" + EarningDetailscrId + "approvedCheckBox_" + prowno).is(":checked")) {
+        $("#" + EarningDetailscrId + "status_" + prowno).removeClass('pndng');
+        $("#" + EarningDetailscrId + "status_" + prowno).addClass('vrfed');
+        $("#" + EarningDetailscrId + "status_" + prowno).text("APPROVED");
+        $("#" + EarningDetailscrId + "reasonPaintList_" + prowno).parent().parent().addClass('sno');
+        $("#" + EarningDetailscrId + "reasonPaintList_" + prowno).text('');
+        $("#" + EarningDetailscrId + "onHoldCheckBox_" + prowno).prop('checked', false)
+    } else {
+        $("#" + EarningDetailscrId + "status_" + prowno).text(memCount[prowno].status);
+        $("#" + EarningDetailscrId + "status_" + prowno).removeClass('vrfed');
+        $("#" + EarningDetailscrId + "status_" + prowno).addClass('pndng');
+    }
+}
+apz.app.EarningMemberDetails.alertModalFunc = function() {
+    $("#" + EarningDetailscrId + "alertMsg").text("Are you sure, you want to submit earning member details?");
+    ApzCOB.toggleModal(EarningDetailscrId + "confModal");
+}
+apz.app.EarningMemberDetails.kycVerification = function(flow) {
+    let selFlow = flow;
+    if (selFlow === "EDIT") {
+        enteredKyc = $("#" + EarningDetailscrId + "kycId").val();
+        enteredKycType = $("#" + EarningDetailscrId + "kycType").val();
+    } else if (selFlow === "UPLOAD") {
+        enteredKyc = $("#" + EarningDetailscrId + "UploadKycId").val();
+        enteredKycType = $("#" + EarningDetailscrId + "UploadKycType").val();
+        $("#" + EarningDetailscrId + "deleteFrontBtn_ul").addClass('sno');
+        $("#" + EarningDetailscrId + "files1").removeClass('sno');
+        $("#" + EarningDetailscrId + "deleteBackBtn_ul").addClass('sno');
+        $("#" + EarningDetailscrId + "files2").removeClass('sno');
+    }
+    var req = {
+        "apiRequest": {
+            "interfaceName": "DedupeCheck",
+            "appId": gAppId,
+            "serviceName": "kyc",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "kycId": enteredKyc
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "DedupeCheck", "N", "N", req, true, apz.app.EarningMemberDetails.kycIdsServiceCB);
+}
+apz.app.EarningMemberDetails.kycIdsServiceCB = function(params) {
+    apz.stopLoader();
+    let kycType = $("#" + EarningDetailscrId + "UploadKycType").val();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            var ifaceName = ApzCOB.GetInterfaceResMap(params);
+            var response = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+            if (response.response === "Success" || response.msg === "No records available") {
+                apz.app.EarningMemberDetails.PanVoterFunc();
+                if (Authen) {
+                    if (onClickedit) {
+                        $("#" + EarningDetailscrId + "kycVerifyBtn_ul").addClass('sno');
+                        $("#" + EarningDetailscrId + "kycVerifiedBtn_ul").removeClass('sno');
+                    } else {
+                        $("#" + EarningDetailscrId + "UploadFrontImg").attr('src', '');
+                        $("#" + EarningDetailscrId + "UploadBackImg").attr('src', '');
+                        $("#" + EarningDetailscrId + "UploadKycVerifyBtn_ul").addClass('sno');
+                        $("#" + EarningDetailscrId + "UploadKycVerifiedBtn_ul").removeClass('sno');
+                        $("#" + EarningDetailscrId + "UploadImagesRow").removeClass('sno');
+                        if (kycType === 'Pan Card') {
+                            $("#" + EarningDetailscrId + "UploadFrontImgCol").removeClass('sno');
+                            $("#" + EarningDetailscrId + "UploadBackImgCol").addClass('sno');
+                        } else {
+                            $("#" + EarningDetailscrId + "UploadFrontImgCol").removeClass('sno');
+                            $("#" + EarningDetailscrId + "UploadBackImgCol").removeClass('sno');
+                        }
+                    }
+                } else {
+                    $("#" + EarningDetailscrId + "kycVerifiedBtn_ul").addClass('sno');
+                    $("#" + EarningDetailscrId + "UploadImagesRow").addClass('sno');
+                    $("#" + EarningDetailscrId + "UploadKycVerifiedBtn_ul").addClass('sno');
+                }
+            } else {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("Already records available!"), "E");
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_TECHNICALDIFF"), "E");
+    }
+}
+/***********Function to verify the enterd kycId starts here **************/
+apz.app.EarningMemberDetails.enterKycIds = function(pthis) {
+    pthis.value = pthis.value.toUpperCase();
+    var inputValue = pthis.value.trim(); // Get the input value and remove leading/trailing spaces
+    $("#" + EarningDetailscrId + "kycVerifiedBtn_ul").addClass('sno');
+    $("#" + EarningDetailscrId + "UploadKycVerifiedBtn_ul").addClass('sno');
+    $("#" + EarningDetailscrId + "UploadImagesRow").addClass('sno');
+    let isValid = false;
+    let errormsg, errormsgRow, verifyBtn, kycType = '';
+    if (onClickedit) {
+        enteredDob = $("#" + EarningDetailscrId + "inputDob").val();
+        kycType = $("#" + EarningDetailscrId + "kycType").val();
+        errormsg = "kycErrorText";
+        errormsgRow = "KycErrorRow";
+        verifyBtn = "kycVerifyBtn_ul";
+    } else {
+        enteredDob = $("#" + EarningDetailscrId + "UploadDob").val();
+        kycType = $("#" + EarningDetailscrId + "UploadKycType").val();
+        errormsg = "UploadKycErrorText";
+        errormsgRow = "UploadKycErrorRow";
+        verifyBtn = "UploadKycVerifyBtn_ul";
+    }
+    switch (kycType) {
+        case 'Aadhaar Card':
+            ApzCOB.fnValidatealphanumeric(pthis);
+            // Remove non-numeric characters and restrict to 12 digits
+            pthis.value = inputValue.replace(/\D/g, '').slice(0, 12);
+            isValid = /^\d{12}$/.test(pthis.value); // Ensure exactly 12 digits
+            $("#" + EarningDetailscrId + errormsg).text(ApzCOB.getDescfromLitCode("LIT_AADHARERRORMSG"));
+            if (inputValue.length <= 12) {
+                $("#" + EarningDetailscrId + errormsgRow).addClass('sno');
+            } else {
+                $("#" + EarningDetailscrId + errormsgRow).removeClass('sno');
+            }
+            if (isValid) {
+                $("#" + EarningDetailscrId + errormsgRow).addClass('sno');
+                $("#" + EarningDetailscrId + verifyBtn).removeClass('sno');
+            } else {
+                $("#" + EarningDetailscrId + errormsgRow).removeClass('sno');
+                $("#" + EarningDetailscrId + verifyBtn).addClass('sno');
+            }
+            if (inputValue.length === 0) {
+                $("#" + EarningDetailscrId + errormsgRow).addClass('sno');
+                $("#" + EarningDetailscrId + verifyBtn).addClass('sno');
+            }
+            break;
+        case 'Pan Card':
+            ApzCOB.fnValidatealphanumeric(pthis);
+            if (inputValue.length > 10) {
+                pthis.value = inputValue.slice(0, 10); // Restrict to 10 characters
+            }
+            //errorMessage = "PAN number must be a 10-character alphanumeric code (e.g., ABCDE1234F).";
+            $("#" + EarningDetailscrId + errormsg).text(ApzCOB.getDescfromLitCode("LIT_PANERRORMSG"));
+            if (inputValue.length <= 10) {
+                $("#" + EarningDetailscrId + errormsgRow).addClass('sno');
+            } else {
+                $("#" + EarningDetailscrId + errormsgRow).removeClass('sno');
+            }
+            isValid = /^[A-Z]{5}\d{4}[A-Z]{1}$/.test(inputValue); // Ensure proper PAN format
+            if (isValid) {
+                $("#" + EarningDetailscrId + errormsgRow).addClass('sno');
+                $("#" + EarningDetailscrId + verifyBtn).removeClass('sno');
+            } else {
+                $("#" + EarningDetailscrId + errormsgRow).removeClass('sno');
+                $("#" + EarningDetailscrId + verifyBtn).addClass('sno');
+            }
+            if (inputValue.length === 0) {
+                $("#" + EarningDetailscrId + errormsgRow).addClass('sno');
+                $("#" + EarningDetailscrId + verifyBtn).addClass('sno');
+            }
+            break;
+        case 'Driver\'s License':
+            ApzCOB.fnValidatealphanumeric(pthis);
+            // Ensure proper driver's license format
+            if (inputValue.length > 15) {
+                pthis.value = inputValue.slice(0, 15); // Restrict to 15 characters
+            }
+            $("#" + EarningDetailscrId + errormsg).text(ApzCOB.getDescfromLitCode("LIT_DRIVINGLICERRORMSG"));
+            isValid = /^([A-Z]{2}\d{2} ?\d{11})$/.test(inputValue);
+            if (inputValue.length <= 15) {
+                $("#" + EarningDetailscrId + errormsgRow).addClass('sno');
+            } else {
+                $("#" + EarningDetailscrId + errormsgRow).removeClass('sno');
+            }
+            if (isValid) {
+                $("#" + EarningDetailscrId + errormsgRow).addClass('sno');
+                $("#" + EarningDetailscrId + verifyBtn).removeClass('sno');
+            } else {
+                $("#" + EarningDetailscrId + errormsgRow).removeClass('sno');
+                $("#" + EarningDetailscrId + verifyBtn).addClass('sno');
+            }
+            if (inputValue.length === 0) {
+                $("#" + EarningDetailscrId + errormsgRow).addClass('sno');
+                $("#" + EarningDetailscrId + verifyBtn).addClass('sno');
+            }
+            break;
+        case 'Voter-Id':
+            ApzCOB.fnValidatealphanumericvoter(pthis);
+            if (inputValue.length >= 10) {
+                isValid = true;
+                pthis.value = inputValue.slice(0, 20); // Restrict to 20 characters
+            }
+            $("#" + EarningDetailscrId + errormsg).text(ApzCOB.getDescfromLitCode("LIT_VOTERIDERRORMSG"));
+            //isValid = /^[A-Z]{3}[0-9]{7}$/.test(inputValue);
+            if (inputValue.length >= 10) {
+                $("#" + EarningDetailscrId + errormsgRow).addClass('sno');
+            } else {
+                $("#" + EarningDetailscrId + errormsgRow).removeClass('sno');
+            }
+            if (isValid) {
+                $("#" + EarningDetailscrId + errormsgRow).addClass('sno');
+                $("#" + EarningDetailscrId + verifyBtn).removeClass('sno');
+            } else {
+                $("#" + EarningDetailscrId + errormsgRow).removeClass('sno');
+                $("#" + EarningDetailscrId + verifyBtn).addClass('sno');
+            }
+            if (inputValue.length === 0) {
+                $("#" + EarningDetailscrId + errormsgRow).addClass('sno');
+                $("#" + EarningDetailscrId + verifyBtn).addClass('sno');
+            }
+            break;
+        default:
+            isValid = false;
+    }
+}
+/***********Function to verify the enterd kycId ends here **************/
+apz.app.EarningMemberDetails.getBase64 = function(obj, type, selKycType) {
+    apz.startLoader();
+    let docType = '';
+    var imgSide = "N";
+    if (selKycType === "Aadhaar Card") {
+        docType = "Aadhar"
+    } else if (selKycType === "Pan Card") {
+        docType = "Pan"
+    } else if (selKycType === "Driver's License") {
+        docType = "Driving_License"
+    } else if (selKycType.toUpperCase() === "VOTER-ID") {
+        docType = "Voter"
+    }
+    if (type === "FRONT") {
+        imgSide = "Y"
+    }
+    if (selKycType === "Driver's License") {
+        var req = {
+            "apiRequest": {
+                "interfaceName": "FetchOCR",
+                "appId": gAppId,
+                "serviceName": "kyc",
+                "userId": LoggedInUserDetails.userID,
+                "requestObj": {
+                    "imageUrl": '',
+                    "doctype": docType, //"Voter" // Pan // Aadhar
+                    "isFront": '', // N 
+                    "files": [obj.frontImg, obj.backImg]
+                }
+            }
+        }
+    } else {
+        var req = {
+            "apiRequest": {
+                "interfaceName": "FetchOCR",
+                "appId": gAppId,
+                "serviceName": "kyc",
+                "userId": LoggedInUserDetails.userID,
+                "requestObj": {
+                    "imageUrl": obj,
+                    "doctype": docType, //"Voter" // Pan // Aadhar
+                    "isFront": imgSide // N 
+                }
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "FetchOCR", "N", "N", req, false, apz.app.EarningMemberDetails.getBase64CB);
+}
+apz.app.EarningMemberDetails.getBase64CB = function(params) {
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            var ifaceName = ApzCOB.GetInterfaceResMap(params);
+            if (!apz.isNull(params.res[ifaceName])) {
+                if (!apz.isObjectEmpty(JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj))) {
+                    if (JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).status === "success") {
+                        var response = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+                        let enterdValue = $("#" + EarningDetailscrId + 'UploadKycId').val();
+                        let nodeType = '';
+                        if (response.result[0].details.hasOwnProperty('voterid')) {
+                            nodeType = 'voterid';
+                        } else if (response.result[0].details.hasOwnProperty('pan_no')) {
+                            nodeType = 'pan_no';
+                        } else if (response.result[0].details.hasOwnProperty('aadhaar')) {
+                            nodeType = 'aadhaar';
+                        }
+                        Validation = true;
+                        if (nodeType === 'voterid') {
+                            // if (params.req.apiRequest.requestObj.isFront === "Y") {
+                            //     response.result[0].type === "voterid_front_old"
+                            // }
+                            let detectedType = response.result[0].type;
+                            let expectedType = params.req.apiRequest.requestObj.isFront === "Y" ? "voterid_front_old" : "voterid_back_old";
+                            if (detectedType !== expectedType) {
+                                Validation = false;
+                                ApzCOB.fnDisplayMsg("Incorrect Voter ID side uploaded. Please upload the correct front or back side.", "E");
+                                return;
+                            }
+                        }
+                        $("#" + EarningDetailscrId + "save").prop('disabled', false);
+                        if (response.result[0].details[nodeType].value.trim() === enterdValue.trim()) {
+                            if (nodeType === 'voterid' && response.result[0].type === "voterid_front_old" || nodeType === "pan_no" && response
+                                .result[0].type === 'pan') {
+                                apz.setElmValue(EarningDetailscrId + "UploadKycId", response.result[0].details[nodeType].value);
+                                apz.setElmValue(EarningDetailscrId + "UploadName", response.result[0].details.name.value);
+                                if (response.result[0].details.hasOwnProperty('date')) {
+                                    apz.setElmValue(EarningDetailscrId + "UploadDob", response.result[0].details.date.value);
+                                } else if (response.result[0].details.hasOwnProperty('dob')) {
+                                    apz.setElmValue(EarningDetailscrId + "UploadDob", response.result[0].details.dob.value);
+                                }
+                                apz.stopLoader();
+                            }
+                        } else {
+                            Validation = false;
+                            $("#" + EarningDetailscrId + 'UploadKycId').val('');
+                            $("#" + EarningDetailscrId + "save").prop('disabled', false);
+                            apz.setElmValue(EarningDetailscrId + "UploadKycType", apz.data.scrdata.RPCMEM__EarningMembersList_Res
+                                .UpdatedFetchData[UploadDocRow].legaldocName);
+                            $("#" + EarningDetailscrId + "UploadKycVerifyBtn_ul").addClass('sno');
+                            $("#" + EarningDetailscrId + "UploadKycVerifiedBtn_ul").addClass('sno');
+                            $("#" + EarningDetailscrId + "UploadImagesRow").addClass('sno');
+                            apz.stopLoader();
+                            ApzCOB.fnDisplayMsg("KycId and Selected Image KycId does not match.Please upload correct Image", 'E');
+                        }
+                    }
+                } else {
+                    apz.stopLoader();
+                    Validation = false;
+                    ApzCOB.fnDisplayMsg("Uploaded document type is wrong, Upload the correct KYC type", "E");
+                }
+            } else {
+                apz.stopLoader();
+                Validation = false;
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_TECHNICALDIFF"), "E");
+            }
+        } else {
+            apz.stopLoader();
+            Validation = false;
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_TECHNICALDIFF"), "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        Validation = false;
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_TECHNICALDIFF"), "E");
+    }
+}
+//Function for final validation 
+apz.app.EarningMemberDetails.FinalValidation = function() {
+    let originalPayload = JSON.parse(JSON.stringify(screenDet.payload.earnings));
+    // isReworkMakerCheckerEdit = true;
+    var isValid = true;
+    finalResp = [];
+    if (updatedMemCount.length !== 0) {
+        finalResp = updatedMemCount;
+    } else {
+        finalResp = JSON.parse(JSON.stringify(memCount));
+    }
+    finalResp.forEach(function(Obj, i) {
+        let approvedChecked = $("#" + EarningDetailscrId + "approvedCheckBox_" + i).is(":checked");
+        let onHoldChecked = $("#" + EarningDetailscrId + "onHoldCheckBox_" + i).is(":checked");
+        let onmakerChecked = $("#" + EarningDetailscrId + "makerCheckBox_" + i).is(":checked");
+        if ($("#" + EarningDetailscrId + "approvedCheckBox_" + i).is(':visible') && $("#" + EarningDetailscrId + "onHoldCheckBox_" + i)
+            .is(':visible')) {
+            if ((approvedChecked && onHoldChecked) || (!approvedChecked && !onHoldChecked)) {
+                isValid = false;
+                ApzCOB.fnDisplayMsg("Please select the earning member details status");
+                return;
+            } else {
+                Obj.status = $("#" + EarningDetailscrId + "status_" + i).text();
+                if (Obj.status === "ON HOLD") {
+                    let det = {
+                        dob: apz.app.EarningMemberDetails.ConvertDate(Obj.dob),
+                        memRelation: "(" + Obj.memRelation + ")",
+                        remarks: $("#" + EarningDetailscrId + "reasonPaintList_" + i).text().replace(/\n/g, ", "),
+                        earningmemCount: Obj.EarnmemCount
+                    }
+                    remarksList.push(det);
+                }
+            }
+        } else if ($("#" + EarningDetailscrId + "makerCheckBox_" + i).is(':visible')) {
+            if (!onmakerChecked) {
+                isValid = false;
+                ApzCOB.fnDisplayMsg("Please approve the earning members details");
+            } else {
+                Obj.status = $("#" + EarningDetailscrId + "status_" + i).text();
+                if (Obj.status === "ON HOLD") {
+                    let det = {
+                        dob: apz.app.EarningMemberDetails.ConvertDate(Obj.dob),
+                        remarks: $("#" + EarningDetailscrId + "reasonPaintList_" + i).text().replace(/\n/g, ", "),
+                        earningmemCount: Obj.EarnmemCount
+                    }
+                    remarksList.push(det);
+                }
+            }
+        } else {
+            //do nothing
+        }
+        if (Obj.InputData.dob.includes('(')) {
+            var customdob = apz.app.EarningMemberDetails.ConvertDate(Obj.InputData.dob.split('(')[0]);
+            Obj.InputData.dob = ApzCOB.dateformatter(ApzCOB.dateStringToDate(customdob), 'd/m/Y');
+        }  else if (Obj.InputData.dob.length == 8) {
+            var customsdob = ApzCOB.plaintoDateformat(Obj.InputData.dob);
+            Obj.InputData.dob = customsdob;
+        }
+        if (Obj.isEdited) {
+            var dobarr = Obj.InputData.dob.split('/');
+            if (dobarr.length !== 3) {
+                ApzCOB.fnDisplayMsg("Please update the dob for the earning members");
+                isValid = false;
+            }
+        }
+    });
+    var hasMaker = false;
+    var hasOnHold = false;
+    finalResp.forEach(function(obj) {
+        if (obj.status === "MOVE TO CHECKER" || obj.status === "MOVE TO MAKER" ) {
+            hasMaker = true;
+        } else if (obj.status === "ON HOLD") {
+            remarksStatus = 'isavailable';
+            hasOnHold = true;
+            rpcOnHoldRecords = true;
+        }
+    });
+    if (hasMaker && hasOnHold) {
+        screenDet.status = "ON HOLD";
+        screenDet.requestType = "ON HOLD";
+    } else if (hasMaker) {
+        screenDet.status = "MOVE TO CHECKER";
+        screenDet.requestType = "MOVE TO CHECKER";
+    } else if (hasOnHold) {
+        screenDet.status = "ON HOLD";
+        screenDet.requestType = "ON HOLD";
+    } else {
+        screenDet.status = "APPROVED";
+        screenDet.requestType = "COMPLETED";
+    }
+    if (isValid) {
+        originalPayload.forEach(function(obj, i) {
+            if (obj.isEdited === false) {
+                finalResp.push(obj)
+            }
+        });
+        if (apz.app.EarningMemberDetails.compareValues(originalPayload, finalResp)) {
+            ApzCOB.fnDisplayMsg("No Changes to save");
+            return;
+        } else {
+            apz.app.EarningMemberDetails.onClickFinalSubmit();
+        }
+    }
+}
+apz.app.EarningMemberDetails.onClickFinalSubmit = function() {
+    $("#" + EarningDetailscrId + "alertMsg").text("Are you sure, you want to submit earning member details?");
+    ApzCOB.toggleModal(EarningDetailscrId + "confModal");
+}
+apz.app.EarningMemberDetails.onChangekycDet = function(pthis) {
+    if (onClickedit) {
+        $("#" + EarningDetailscrId + "kycId").val('');
+        $("#" + EarningDetailscrId + "kycVerifyBtn_ul").addClass('sno');
+        $("#" + EarningDetailscrId + "kycVerifiedBtn_ul").addClass('sno');
+    } else if (onClickUpload) {
+        $("#" + EarningDetailscrId + "UploadKycId").val('');
+        $("#" + EarningDetailscrId + "UploadKycVerifyBtn_ul").addClass('sno');
+        $("#" + EarningDetailscrId + "UploadKycVerifiedBtn_ul").addClass('sno');
+        $("#" + EarningDetailscrId + "UploadFrontImgCol").addClass('sno');
+        $("#" + EarningDetailscrId + "UploadImagesRow").addClass('sno');
+        $("#" + EarningDetailscrId + "UploadBackImgCol").addClass('sno');
+    }
+}
+//Function to compare the two JSON for any changes 
+apz.app.EarningMemberDetails.compareValues = function(prevValue, currValue) {
+    if (typeof prevValue !== typeof currValue) {
+        return false;
+    }
+    if (typeof prevValue === 'object') {
+        const keys1 = Object.keys(prevValue);
+        const keys2 = Object.keys(currValue);
+        if (keys1.length !== keys2.length) {
+            return false;
+        }
+        for (const key of keys1) {
+            if (!apz.app.EarningMemberDetails.compareValues(prevValue[key], currValue[key])) {
+                return false;
+            }
+        }
+        return true;
+    }
+    if (Array.isArray(prevValue)) {
+        if (prevValue.length !== currValue.length) {
+            return false;
+        }
+        for (let i = 0; i < prevValue.length; i++) {
+            if (!apz.app.EarningMemberDetails(prevValue[i], currValue[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+    return prevValue === currValue;
+}
+apz.app.EarningMemberDetails.onSuccess = function() {
+    // ApzCOB.FetchApplicationList();
+    $('body').removeClass('modal-open')
+    applicationResp = applicationResp.filter(function(e, i) {
+        return ((e.applicationId !== screenDet.applicationId));
+    });
+    ApzCOB.launchMicroApp('Dashbo', 'dashboard', gAppId + '__BaseScreens__BaseDIV', '');
+    screenDet = {};
+    /*setTimeout(function() {
+        ApzCOB.FetchApplicationList();
+        ApzCOB.launchMicroApp('Dashbo', 'dashboard', gAppId + '__BaseScreens__BaseDIV', '');
+    }, 100);*/
+}
+apz.app.EarningMemberDetails.PanVoterFunc = function() {
+    var ifaceName = '';
+    if (enteredKycType === "Pan Card") {
+        ifaceName = "PanAuth";
+        var req = {
+            "apiRequest": {
+                "interfaceName": ifaceName,
+                "appId": gAppId,
+                "userId": LoggedInUserDetails.userID,
+                "requestObj": {
+                    "pan": enteredKyc
+                }
+            }
+        }
+    } else if (enteredKycType === "Voter-Id") {
+        ifaceName = "VoterAuth";
+        var req = {
+            "apiRequest": {
+                "interfaceName": ifaceName,
+                "appId": gAppId,
+                "userId": LoggedInUserDetails.userID,
+                "requestObj": {
+                    "requestId": "1226266363636363",
+                    "voterId": enteredKyc
+                }
+            }
+        }
+    } else if (enteredKycType === "Driver\'s License") {
+        ifaceName = "DriverLicenseVerify";
+        var req = {
+            "apiRequest": {
+                "interfaceName": ifaceName,
+                "appId": gAppId,
+                "userId": LoggedInUserDetails.userID,
+                "requestObj": {
+                    "client_ref_num": "1226266363636363",
+                    "dl_number": enteredKyc,
+                    "dob": enteredDob
+                }
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, ifaceName, "N", "N", req, false, apz.app.EarningMemberDetails.PanVoterFuncCB);
+}
+apz.app.EarningMemberDetails.PanVoterFuncCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            var ifaceName = ApzCOB.GetInterfaceResMap(params);
+            if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === '0') {
+                var response = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+                if (!apz.isObjectEmpty(response)) {
+                    if (!response.hasOwnProperty('message')) {
+                        if (response.hasOwnProperty('result')) {
+                            //   if (response.message === 'Success') {
+                            //SelGender = response.result.gender;
+                            let kycType = '';
+                            if (onClickedit) {
+                                kycType = $("#" + EarningDetailscrId + "kycType").val()
+                            } else {
+                                kycType = $("#" + EarningDetailscrId + "UploadKycType").val();
+                            }
+                            if (enteredKycType === "Driver\'s License") {
+                                ValResp.name = !apz.isNull(response.result.details_of_driving_licence.name) ? response.result
+                                    .details_of_driving_licence.name : '-';
+                            } else {
+                                ValResp.name = !apz.isNull(response.result.name) ? response.result.name : '-';
+                            }
+                            ValResp.dob = response.result.hasOwnProperty('dob') ? response.result.dob : "-";
+                            ValResp.legaldocName = kycType;
+                            ValResp.legaldocId = enteredKyc;
+                            Authen = true;
+                        } else {
+                            Authen = false;
+                            ApzCOB.fnDisplayMsg(response.error.message, "E");
+                            apz.app.EarningMemberDetails.KycIdShowHide();
+                        }
+                    } else {
+                        Authen = false;
+                        ApzCOB.fnDisplayMsg(response.error.message, "E");
+                        apz.app.EarningMemberDetails.KycIdShowHide();
+                    }
+                } else {
+                    Authen = false;
+                    ApzCOB.toggleModal(EarningDetailscrId + "FailureModal");
+                    apz.app.EarningMemberDetails.KycIdShowHide();
+                }
+            } else {
+                Authen = false;
+                ApzCOB.toggleModal(EarningDetailscrId + "FailureModal");
+                apz.app.EarningMemberDetails.KycIdShowHide();
+            }
+        } else {
+            Authen = false;
+            ApzCOB.toggleModal(EarningDetailscrId + "FailureModal");
+            apz.app.EarningMemberDetails.KycIdShowHide();
+        }
+    } catch (e) {
+        apz.stopLoader();
+        Authen = false;
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_TECHNICALDIFF"), "E");
+    }
+}
+apz.app.EarningMemberDetails.KycIdShowHide = function() {
+    if (onClickedit) {
+        $("#" + EarningDetailscrId + "kycId").val('');
+        $("#" + EarningDetailscrId + "kycVerifyBtn_ul").addClass('sno');
+        $("#" + EarningDetailscrId + "kycVerifiedBtn_ul").addClass('sno');
+    } else if (onClickUpload) {
+        $("#" + EarningDetailscrId + "UploadKycId").val('');
+        $("#" + EarningDetailscrId + "UploadKycVerifyBtn_ul").addClass('sno');
+        $("#" + EarningDetailscrId + "UploadKycVerifiedBtn_ul").addClass('sno');
+    }
+}
+//Function thats checks age is > 18 for entered DOB
+apz.app.EarningMemberDetails.isMinor = function(type) { //Determine if the user is minor
+   let DOB = '';
+    if (type === 'EDIT') {
+        DOB = $('#RPCMEM__EarningMemberDetails__inputDob').val();
+    } else if (type === 'UPLOAD') {
+        DOB = $('#RPCMEM__EarningMemberDetails__UploadDob').val();
+    }
+    if (!apz.isNull(DOB)) {
+        var age = '';
+        var Minor = 18;
+        age = ApzCOB.ageCalculator(DOB);
+        window.isMinor = (age < parseInt(Minor));
+        if (isMinor) {
+            if (type === 'UPLOAD') {
+                $("#" + EarningDetailscrId + 'uploadErrMsgDob_ul').removeClass('sno');
+                $("#" + EarningDetailscrId + 'uploadErrMsgDob').text('Earning member must be 18 years or older to upload details.');
+            } else {
+                $("#" + EarningDetailscrId + 'editErrMsgDob_ul').removeClass('sno');
+                $("#" + EarningDetailscrId + 'editErrMsgDob').text('Earning member must be 18 years or older to edit details.');
+            }
+            $('#RPCMEM__EarningMemberDetails__save').prop('disabled', true);
+        } else {
+            $("#" + EarningDetailscrId + 'uploadErrMsgDob_ul').addClass('sno');
+            $("#" + EarningDetailscrId + 'editErrMsgDob_ul').addClass('sno');
+            $('#RPCMEM__EarningMemberDetails__save').prop('disabled', false);
+        }
+    }
+};
+//Convert Date from 15 Jun 1988 to 19880815
+apz.app.EarningMemberDetails.ConvertDate = function(dateS) {
+    var dateString = dateS;
+    var date = new Date(dateString);
+    // Extract year, month, and day
+    var year = date.getFullYear();
+    var month = String(date.getMonth() + 1).padStart(2, '0');
+    var day = String(date.getDate()).padStart(2, '0');
+    // Format as YYYYMMDD
+    var formattedDate = `${year}${month}${day}`;
+    return formattedDate;
+}
+/**********Function for Zoomin,zoomout and rotatefunc starts here for edit case ************/
+apz.app.EarningMemberDetails.editClickzoomIn = function(pthis, type) {
+    let prowno = $(pthis).attr("rowno");
+    var ImageType = type;
+    if (scale < maxScale) {
+        scale += scaleStep;
+        if (ImageType === "FRONT") {
+            $("#" + EarningDetailscrId + "editFrontImg").css("transform", "scale(" + scale + ")");
+            $("#" + EarningDetailscrId + "editFrontImg").css("transform-origin", "0 0");
+        } else {
+            $("#" + EarningDetailscrId + "editBackImg").css("transform", "scale(" + scale + ")");
+            $("#" + EarningDetailscrId + "editBackImg").css("transform-origin", "0 0");
+        }
+    }
+}
+apz.app.EarningMemberDetails.editClickzoomOut = function(pthis, type) {
+    let prowno = $(pthis).attr("rowno");
+    var ImageType = type;
+    if (scale > minScale) {
+        scale -= scaleStep;
+        if (ImageType === "BACK") {
+            $("#" + EarningDetailscrId + "editBackImg").css("transform", "scale(" + scale + ")");
+            $("#" + EarningDetailscrId + "editBackImg").css("transform-origin", "0 0");
+        } else {
+            $("#" + EarningDetailscrId + "editFrontImg").css("transform", "scale(" + scale + ")");
+            $("#" + EarningDetailscrId + "editFrontImg").css("transform-origin", "0 0");
+        }
+    }
+}
+apz.app.EarningMemberDetails.editClickrotateFunc = function(pthis, type) {
+    let prowno = $(pthis).attr("rowno");
+    rotation += rotationStep;
+    var ImageType = type;
+    if (ImageType === "BACK") {
+        $("#" + EarningDetailscrId + "editBackImg").css("transform", "rotate(" + rotation + "deg)");
+        $("#" + EarningDetailscrId + "editBackImg").css("transform-origin", "40% 65%");
+    } else {
+        $("#" + EarningDetailscrId + "editFrontImg").css("transform", "rotate(" + rotation + "deg)");
+        $("#" + EarningDetailscrId + "editFrontImg").css("transform-origin", "40% 65%");
+    }
+}
+/*************Function for Zoomin,zoomout and rotatefunc ends here ************/
+/*************Function for Zoomin,zoomout and rotatefunc starts here for all earning members ************/
+apz.app.EarningMemberDetails.onClickzoomIn = function(pthis) {
+    let prowno = $(pthis).attr("rowno");
+    if (scale < maxScale) {
+        scale += scaleStep;
+        if ($("#" + EarningDetailscrId + "frontImg_" + prowno).is(':visible')) {
+            $("#" + EarningDetailscrId + "frontImg_" + prowno).css("transform", "scale(" + scale + ")");
+            $("#" + EarningDetailscrId + "frontImg_" + prowno).css("transform-origin", "0 0");
+        } else {
+            $("#" + EarningDetailscrId + "backImg_" + prowno).css("transform", "scale(" + scale + ")");
+            $("#" + EarningDetailscrId + "backImg_" + prowno).css("transform-origin", "0 0");
+        }
+    }
+}
+apz.app.EarningMemberDetails.onClickzoomOut = function(pthis) {
+    let prowno = $(pthis).attr("rowno");
+    if (scale > minScale) {
+        scale -= scaleStep;
+        if ($("#" + EarningDetailscrId + "backImg_" + prowno).is(":visible")) {
+            $("#" + EarningDetailscrId + "backImg_" + prowno).css("transform", "scale(" + scale + ")");
+            $("#" + EarningDetailscrId + "backImg_" + prowno).css("transform-origin", "0 0");
+        } else {
+            $("#" + EarningDetailscrId + "frontImg_" + prowno).css("transform", "scale(" + scale + ")");
+            $("#" + EarningDetailscrId + "frontImg_" + prowno).css("transform-origin", "0 0");
+        }
+    }
+}
+apz.app.EarningMemberDetails.onClickrotateFunc = function(pthis) {
+    let prowno = $(pthis).attr("rowno");
+    rotation += rotationStep;
+    if ($("#" + EarningDetailscrId + "backImg_" + prowno).is(':visible')) {
+        $("#" + EarningDetailscrId + "backImg_" + prowno).css("transform", "rotate(" + rotation + "deg)");
+        $("#" + EarningDetailscrId + "backImg_" + prowno).css("transform-origin", "40% 65%");
+    } else {
+        $("#" + EarningDetailscrId + "frontImg_" + prowno).css("transform", "rotate(" + rotation + "deg)");
+        $("#" + EarningDetailscrId + "frontImg_" + prowno).css("transform-origin", "40% 65%");
+    }
+}
+/*************Function for Zoomin,zoomout and rotatefunc ends here for all earning members ************/
+/*********Function for View Front and Back Images starts here ************/
+apz.app.EarningMemberDetails.viewFrontFunc = function(pthis) {
+    let Prowno = $(pthis).attr("rowno");
+    scale = 1;
+    if (!apz.isNull($("#" + EarningDetailscrId + "backImg_" + Prowno).attr('src').split(',')[1])) {
+        $("#" + EarningDetailscrId + "labelChange2_" + Prowno).removeClass('sno');
+        $("#" + EarningDetailscrId + "labelChange1_" + Prowno).addClass('sno');
+        $("#" + EarningDetailscrId + "frontImg_" + Prowno).removeClass('sno');
+        $("#" + EarningDetailscrId + "backImg_" + Prowno).addClass('sno');
+    }
+}
+apz.app.EarningMemberDetails.viewBackFunc = function(pthis) {
+    let Prowno = $(pthis).attr("rowno");
+    scale = 1;
+    if (!apz.isNull($("#" + EarningDetailscrId + "frontImg_" + Prowno).attr('src').split(',')[1])) {
+        $("#" + EarningDetailscrId + "labelChange1_" + Prowno).removeClass('sno');
+        $("#" + EarningDetailscrId + "labelChange2_" + Prowno).addClass('sno');
+        $("#" + EarningDetailscrId + "backImg_" + Prowno).removeClass('sno');
+        $("#" + EarningDetailscrId + "frontImg_" + Prowno).addClass('sno');
+    }
+}
+/*********Function for View Front and Back Images ends here ************/
+apz.app.EarningMemberDetails.EditErrHideFunc = function() {
+    $("#" + EarningDetailscrId + 'editErrMsgName_ul').addClass('sno');
+    $("#" + EarningDetailscrId + 'editErrMsgDob_ul').addClass('sno');
+    $("#" + EarningDetailscrId + 'editErrMsgKycId_ul').addClass('sno');
+}
+apz.app.EarningMemberDetails.UploadErrHideFunc = function() {
+    $("#" + EarningDetailscrId + 'uploadErrMsgName_ul').addClass('sno');
+    $("#" + EarningDetailscrId + 'uploadErrMsgDob_ul').addClass('sno');
+    $("#" + EarningDetailscrId + 'uploadErrMsgKycId_ul').addClass('sno');
+}
+apz.app.EarningMemberDetails.onClickOfReasonHoldCheckBox = function(pthis) {
+    let paintArr = [];
+    let row = pthis.id.split("_").at(-1);
+    let selData = apz.data.scrdata.RPCMEM__EarningMembersList_Res.IPaintReasonHoldList[row].val;
+    if ($("#" + EarningDetailscrId + 'onHoldChkBox_' + row).prop('checked')) {
+        if (selData === 'Others') {
+            $("#" + EarningDetailscrId + 'otherReasonRow').removeClass('sno');
+        }
+    } else if ((selData === 'Others') && !($("#" + EarningDetailscrId + 'onHoldChkBox_' + row).prop('checked'))) {
+        $("#" + EarningDetailscrId + 'otherReasonRow').addClass('sno');
+    }
+    apz.data.scrdata.RPCMEM__EarningMembersList_Res.IPaintReasonHoldList.forEach((d, idx) => {
+        if ($("#" + EarningDetailscrId + 'onHoldChkBox_' + idx).prop('checked')) {
+            paintArr.push(d.val);
+        }
+    })
+    apz.setElmValue(EarningDetailscrId + 'reasonInputBox', paintArr.length > 0 ? paintArr.join(", ") : '');
+}
+apz.app.EarningMemberDetails.onClickOfReasonInputBox = function() {
+    if ($("#" + EarningDetailscrId + 'reasonsList').hasClass('sno')) {
+        $("#" + EarningDetailscrId + 'reasonsList').removeClass('sno');
+    } else {
+        $("#" + EarningDetailscrId + 'reasonsList').addClass('sno');
+    }
+}
+apz.app.EarningMemberDetails.alertOnHold = function() {
+    ApzCOB.toggleModal(EarningDetailscrId + "onHoldModal");
+    ApzCOB.toggleModal(EarningDetailscrId + 'reasonModal');
+    apz.app.EarningMemberDetails.onholdCancel();
+}
+apz.app.EarningMemberDetails.fetchLoanApplicationDetails = function(customerId) {
+    //apz.startLoader();
+    var req = {
+        "apiRequest": {
+            "appId": gAppId,
+            "interfaceName": "FetchLoanApplication",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "customerId": customerId,
+                "versionNum": ""
+            }
+        }
+    }
+    ApzCOB.serverBuildParam(gAppId, 'FetchLoanApplication', 'N', 'N', req, 'Y', apz.app.EarningMemberDetails.fetchLoanApplicationDetailsCB);
+}
+apz.app.EarningMemberDetails.fetchLoanApplicationDetailsCB = function(params) {
+    //console.log('ApprovedfetchLoanApplicationDetailsCB', params)
+     var d = new Date();
+     console.log('ApprovedfetchLoanApplicationDetailsCB',d.getHours(),d.getMinutes(),d.getSeconds(),params);
+    // apz.stopLoader();
+    if (ApzCOB.handleServiceCallBacks(params)) {
+        if (!apz.isNull(params.res.APZCBO__FetchLoanApplication_Res.apiResponse.ResponseBody.responseObj)) {
+            let custResp = params.res.APZCBO__FetchLoanApplication_Res.apiResponse.ResponseBody.responseObj;
+            custResp = JSON.parse(custResp);
+            if (custResp.hasOwnProperty("applicationdtls") && custResp.applicationdtls.length > 0) {
+                let tempArray = custResp.applicationdtls.filter(val => (val.applicationType !== "INCOMEASSESSMENT"));
+                if (tempArray.length > 0) {
+                    tempArray = tempArray.filter(val => (val.status.toUpperCase() == "INITIATE"));
+                    rpcBREUpdatedRecords = tempArray;
+                    if (tempArray.length > 0) {
+                        KendraApp.currentLoanAppRequest = {};
+                        KendraApp.currentLoanAppRequest.applicationdtls = {};
+                        KendraApp.currentLoanAppRequest.applicationdtls = tempArray[0];
+                        if (screenDet.payload.earnings.length != 0) {
+                            var earnings = [];
+                            if (KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.earnings.length != 0) {
+                                earnings.push(KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.earnings[0])
+                            }
+                            // earnings = JSON.parse(JSON.stringify(KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.earnings));
+                            screenDet.payload.earnings.forEach(function(o) {
+                                var docName = 'VOTER-ID';
+                                if (o.InputData.legaldocName == 'PAN' || o.InputData.legaldocName == 'PANCARD' || o.InputData
+                                    .legaldocName == 'Pan Card') {
+                                    docName = 'PAN-CARD'
+                                } else if (o.InputData.legaldocName == 'VOTER' || o.InputData.legaldocName == 'VOTERID' || o.InputData
+                                    .legaldocName == 'VOTER-ID' || o.InputData.legaldocName=='Voter-Id') {
+                                    docName = 'VOTER-ID';
+                                } else {
+                                    docName = 'DRIVING-LICENCE';
+                                }
+                                var earnMemDetails = {
+                                    "customerId": screenDet.customerId,
+                                    "name": o.InputData.name,
+                                    "dob": ApzCOB.formattedtoPlain(o.InputData.dob),
+                                    "memRelation": o.InputData.memRelation,
+                                    "legaldocId": o.InputData.legaldocId,
+                                    "legaldocName": docName,
+                                };
+                                earnings.push(earnMemDetails);
+                            });
+                            KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.earnings = earnings;
+                            KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.income = screenDet.payload.income;
+                            if (KendraApp.currentLoanAppRequest.applicationdtls.applicationDate.includes("-")) {
+                                var applnDate = KendraApp.currentLoanAppRequest.applicationdtls.applicationDate.split("-");
+                                KendraApp.currentLoanAppRequest.applicationdtls.applicationDate = applnDate[1] + "/" + applnDate[2] + "/" +
+                                    applnDate[0];
+                            }
+                            window.KendraApp.remarks='The Loan updated by '+LoggedInUserDetails.userID +' ('+currentUserRole +').';
+                            ApzCOB.saveLoan();
+                        }
+                    } else {
+                        ApzCOB.toggleModal(EarningDetailscrId + "successModal");
+                        apz.stopLoader();
+                    }
+                } else {
+                    ApzCOB.toggleModal(EarningDetailscrId + "successModal");
+                    apz.stopLoader();
+                }
+            } else {
+                ApzCOB.toggleModal(EarningDetailscrId + "successModal");
+                apz.stopLoader();
+            }
+        }
+    }
+}
+apz.app.EarningMemberDetails.cbCheck = function() {
+    // apz.startLoader();
+    var req = {
+        "apiRequest": {
+            "appId": gAppId,
+            "interfaceName": "loanCBCheck",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "applicationId": KendraApp.currentLoanAppRequest.applicationdtls.applicationId,
+                "versionNo": KendraApp.currentLoanAppRequest.applicationdtls.versionNo,
+                "schedulerEnabled": "",
+                "custDtlId": KendraApp.currentLoanAppRequest.applicationdtls.customerId
+            }
+        }
+    }
+    ApzCOB.serverBuildParam(gAppId, 'loanCBCheck', 'N', 'N', req, 'Y', apz.app.EarningMemberDetails.cbCheckCB);
+}
+var rpcCbCheckResponse = '';
+var rpcCbParams = '';
+apz.app.EarningMemberDetails.cbCheckCB = function(params) {
+    console.log('ApprovedCBcheckCB', params);
+    rpcCbCheckResponse = params;
+    //apz.stopLoader();
+    if (ApzCOB.handleServiceCallBacks(params)) {
+        if (!apz.isNull(params.res.APZCBO__loanCBCheck_Res.apiResponse.ResponseBody.responseObj)) {
+            rpcCbParams = JSON.parse(params.res.APZCBO__loanCBCheck_Res.apiResponse.ResponseBody.responseObj)
+            var approvedAmt = 0;
+            if (!apz.isNull(rpcCbParams.Approved_Loan_Amount)) {
+                approvedAmt = rpcCbParams.Approved_Loan_Amount;
+            }
+            eligibleAmt = approvedAmt;
+            if (rpcCbParams.IRIS_message == 'success' || (rpcCbParams.IRIS_message == 'SUCCESS' || rpcCbParams.IRIS_message == 'success' )) {
+                if (rpcCbParams.Final_Decision === 'Approved' || rpcCbParams.Final_Decision === 'Approved with Pre-closure') {
+                    var d = new Date();
+                    apz.app.EarningMemberDetails.saveData();
+                    //  ApzCOB.kmActionPostCBCheck();
+                } else if (rpcCbParams.Final_Decision === 'REJECT' && (rpcCbParams.IRIS_message == 'SUCCESS' || rpcCbParams.IRIS_message == 'success')) {
+                    apz.stopLoader();
+                    if (rpcCbParams.Rejection_reason === 'Reject - Eligible for NQA, Do Re-income assessment') {
+                        ApzCOB.fnDisplayMsg("Application is Rejcted.Customer is eligible for Grameen Vishesh loan.", "E", apz.app.EarningMemberDetails.deleteApplication);
+                    } else {
+                        ApzCOB.toggleModal(EarningDetailscrId + "successModal");
+                    }
+                   // ApzCOB.toggleModal(EarningDetailscrId + "successModal");
+                }
+            }else{
+                 ApzCOB.fnDisplayMsg(rpcCbParams.error, "E");
+                  apz.stopLoader();
+            }
+        }
+    }
+}
+apz.app.EarningMemberDetails.deleteApplication = function() {
+    console.log(params);
+    var currentAppId = KendraApp.currentLoanAppRequest.applicationdtls.applicationId;
+    let reqObj = {
+        "apiRequest": {
+            "appId": apz.appId,
+            "interfaceId": "DeleteApplication",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "applicationId": currentAppId
+            }
+        }
+    }
+    ApzCOB.serverBuildParam(gAppId, "DeleteApplication", "N", "N", reqObj, false, apz.app.EarningMemberDetails.deleteApplicationCB);
+}
+apz.app.EarningMemberDetails.deleteApplicationCB = function(params) {
+    try {
+        if (params.status && apz.isNull(params.errors)) {
+            if (params.res.APZCBO__DeleteApplication_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+                if (params.res.APZCBO__DeleteApplication_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                    apz.app.EarningMemberDetails.onSuccess();
+                }
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.EarningMemberDetails.onClickCancel = function() {
+    if (onClickedit) {
+        $("#" + EarningDetailscrId + "editEarningMemRow").addClass('sno');
+        $("#" + EarningDetailscrId + "uploadDocumentRow").addClass('sno');
+        $("#" + EarningDetailscrId + "FirstMemberInfo").removeClass('sno');
+        $("#" + EarningDetailscrId + "save").addClass('sno');
+        $("#" + EarningDetailscrId + "submit").removeClass('sno');
+        $("#" + EarningDetailscrId + "kycVerifiedBtn_ul").addClass('sno');
+        $("#" + EarningDetailscrId + "UploadKycVerifiedBtn_ul").addClass('sno');
+        $("#" + EarningDetailscrId + "headertext").text('Earning Member Details');
+        onClickedit = false;
+        isReworkMakerCheckerEdit = false;
+    } else if (onClickUpload) {
+        $("#" + EarningDetailscrId + "uploadDocumentRow").addClass('sno');
+        $("#" + EarningDetailscrId + "UploadImagesRow").addClass('sno');
+        $("#" + EarningDetailscrId + "FirstMemberInfo").removeClass('sno');
+        $("#" + EarningDetailscrId + "UploadKycVerifyBtn_ul").addClass('sno');
+        $("#" + EarningDetailscrId + "UploadKycVerifiedBtn_ul").addClass('sno');
+        $("#" + EarningDetailscrId + "FirstMemRow").removeClass('sno');
+        $("#" + EarningDetailscrId + "save").addClass('sno');
+        $("#" + EarningDetailscrId + "submit").removeClass('sno');
+        onClickUpload = false;
+        isReworkMakerCheckerEdit = false;
+    } else {
+        ApzCOB.launchMicroApp('Dashbo', 'dashboard', gAppId + '__BaseScreens__BaseDIV', '');
+    }
+}
+apz.app.EarningMemberDetails.saveData = function(params) {
+     window.cbApproveManual = '';
+     var insDet = KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.loanDtls.insurDtls;
+    var insurAmt = 0;
+    if (insDet.member === 'Y' && insDet.Spouse === 'Y') {
+        insurAmt = cbResponse.Insurance_Charge_Spouse + cbResponse.Insurance_Charge_Member;
+        insDet.applicant_insurance_amt = cbResponse.Insurance_Charge_Member;
+        insDet.spouse_insurance_amt = cbResponse.Insurance_Charge_Spouse;
+    } else if (insDet.member === 'Y') {
+        insurAmt = cbResponse.Insurance_Charge_Member;
+        insDet.applicant_insurance_amt = cbResponse.Insurance_Charge_Member;
+        insDet.spouse_insurance_amt = "";
+    } else if (insDet.Spouse === 'Y') {
+        insurAmt = cbResponse.Insurance_Charge_Spouse;
+        insDet.applicant_insurance_amt = "";
+        insDet.spouse_insurance_amt = cbResponse.Insurance_Charge_Spouse;
+    } else {
+        insurAmt = 0;
+        insDet.applicant_insurance_amt = "";
+        insDet.spouse_insurance_amt = "";
+    }
+    insDet.insurCharges = insurAmt;
+    KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.loanDtls.insurDtls = insDet;
+    var aprxloancharges = parseInt((cbResponse.GST + cbResponse.Processing_fees_without_GST));
+    var aprxloanchargeswithins = aprxloancharges + insurAmt;
+    var aprxloanamount = ((parseInt(KendraApp.currentLoanAppRequest.applicationdtls.amount)) - parseInt((cbResponse.GST + cbResponse
+        .Processing_fees_without_GST + insurAmt)));
+    KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.loanDtls.chargeAndBreakupDtls.loanAmt = cbResponse.Approved_Loan_Amount;
+    KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.loanDtls.chargeAndBreakupDtls.GST = cbResponse.GST;
+    KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.loanDtls.chargeAndBreakupDtls.addInfo1 = aprxloanchargeswithins;
+    KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.loanDtls.chargeAndBreakupDtls.aprxLoanCharges = aprxloancharges;
+    KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.loanDtls.chargeAndBreakupDtls.loanProcessingFee = cbResponse
+        .Processing_fees_without_GST;
+    KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.loanDtls.chargeAndBreakupDtls.aprxLoanAmt = aprxloanamount;
+    //KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.loanDtls.chargeAndBreakupDtls.aprxInstallmentAmt=cbResponse.approved_loan_emi;
+    KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.loanDtls.chargeAndBreakupDtls.iscbUpdated = true;
+    if (KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.loanDtls.productType == 'EL') {
+        KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.loanDtls.chargeAndBreakupDtls.interest_Fee = cbResponse.Interest_Fee ?? "0";
+        KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.loanDtls.chargeAndBreakupDtls.upfront_Fee = cbResponse.Upfront_Fee ?? "0";
+    } else {
+        KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.loanDtls.chargeAndBreakupDtls.interest_Fee = "";
+        KendraApp.currentLoanAppRequest.applicationdtls.customerDtls.loanDtls.chargeAndBreakupDtls.upfront_Fee = "";
+    }
+    window.KendraApp.remarks = 'Loan updated by ' + LoggedInUserDetails.userID + ' (' + currentUserRole + ') ~ BRE fee charges applied.';
+    apz.app.EarningMemberDetails.saveLoan();
+}
+apz.app.EarningMemberDetails.saveLoan = function () {
+    var req = {
+        "apiRequest": {
+            "appId": gAppId,
+            "interfaceName": "CreateLoanApplication",
+            "requestObj": {
+                "applicationdtls": rpcBREUpdatedRecords
+            }
+        }
+    }
+    if (apz.deviceType !== 'WEB') {
+        apz.app.BaseScreens.UEstartTimer("UpdateApplication", req);
+        apz.app.BaseScreens.UElogevent("UpdateApplication", req);
+    }
+    req.apiRequest.requestObj.userRole = currentUserRole;
+    req.apiRequest.requestObj.appVersion = appVersion;
+    req.apiRequest.requestObj.userName = LoggedInUserDetails.loginResponse.userDet.name;
+    req.apiRequest.requestObj.userId = LoggedInUserDetails.userID;
+    req.apiRequest.requestObj.remarks = window.KendraApp.remarks;
+
+    ApzCOB.serverBuildParam(gAppId, 'CreateLoanApplication', 'N', 'N', req, 'Y', apz.app.EarningMemberDetails.saveLoanCB);
+}
+apz.app.EarningMemberDetails.saveLoanCB = function (params) {
+    if (apz.deviceType !== 'WEB') {
+        apz.app.BaseScreens.UEstopTimer("UpdateApplication ", params.req);
+    }
+    if (ApzCOB.handleServiceCallBacks(params)) {
+        if (!apz.isNull(params.res.APZCBO__CreateLoanApplication_Res.apiResponse.ResponseBody.responseObj)) {
+           apz.stopLoader();
+            ApzCOB.fnDisplayMsg('Application Approved Successfully', "I", apz.app.EarningMemberDetails.rpcAutoSubmit);
+        } else {
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    } else {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.EarningMemberDetails.rpcAutoSubmit = function() {
+    if (window.loanProduct ==='Emergency Loan') {
+        workflow = {
+            "currentRole": "KM",
+            "action": "NEXT",
+            "workflowId": "SANCTION",
+            "stage": "SANCTIONED",
+            "remarks": ""
+        };
+    } else {
+        workflow = {};
+    }
+    var applicationDetails = [];
+    applicationDetails.push({
+        "applicationId": KendraApp.currentLoanAppRequest.applicationId,
+        "versionNum": KendraApp.currentLoanAppRequest.versionNo
+    });
+    var req = {
+        "apiRequest": {
+            "appId": gAppId,
+            "interfaceName": "KMActionPostCBCheck",
+            "requestObj": {
+                "workflow": workflow,
+                "createdBy": LoggedInUserDetails.userID, 
+                "applicationId": "",
+                "applicationStatus": 'Move to BM',
+                "appId": gAppId,
+                "cbApproveManual":'',
+                "versionNum": "",
+                "applicationDetailList": applicationDetails
+            }
+        }
+    }
+    req.apiRequest.requestObj.userRole = currentUserRole;
+    req.apiRequest.requestObj.appVersion = appVersion;
+    req.apiRequest.requestObj.userName = LoggedInUserDetails.loginResponse.userDet.name;
+    req.apiRequest.requestObj.userId = LoggedInUserDetails.userID;
+    if (apz.deviceType !== 'WEB') {
+        apz.app.BaseScreens.UEstartTimer("WorkflowUpdate", req);
+        apz.app.BaseScreens.UElogevent("WorkflowUpdate", req);
+    }
+    ApzCOB.serverBuildParam(gAppId, 'KMActionPostCBCheck', 'N', 'N', req, 'Y', apz.app.EarningMemberDetails.rpcAutoSubmitCB);
+}
+apz.app.EarningMemberDetails.rpcAutoSubmitCB = function(params) {
+    console.log(params);
+    ApzCOB.FetchIncomeApplicationList();
+}

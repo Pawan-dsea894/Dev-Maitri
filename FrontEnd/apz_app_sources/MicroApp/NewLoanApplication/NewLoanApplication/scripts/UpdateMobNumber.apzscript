@@ -1,0 +1,297 @@
+//var UpdateMobNumberScrId = "Widget__UpdateMobNumber__"
+var data, updatedMobNum;
+window.KendraApp.Transpayload = {};
+apz.app.onLoad_UpdateMobNumber = function() {
+    //updateMobScreenID
+}
+apz.app.onShown_UpdateMobNumber = function(params) {
+    data = params.selectedCust;
+    childScr = params.childScr
+    apz.app.UpdateMobNumber.paintDetails();
+}
+apz.app.UpdateMobNumber.paintDetails = function() {
+    apz.setElmValue(updateMobScreenID + "name", data.customerName ?? "NO DATA");
+    apz.setElmValue(updateMobScreenID + "custId", data.customerId ?? "NO DATA");
+    apz.setElmValue(updateMobScreenID + "conuserprof", data.customerName.slice(0, 1));
+    apz.setElmValue(updateMobScreenID + "kendraName", 'KID '+data.kendraId ?? "NO DATA");
+    apz.setElmValue(updateMobScreenID + "groupId", data.groupId ?? "NO DATA");
+    apz.setElmValue(updateMobScreenID + "mobileNum", data.mobileNum ?? "NO DATA");
+    if(data.mobileNum == ''){
+        $('#NEWLOA__UpdateMobNumber__sc_row_95').addClass('sno');
+    }else{
+        $('#NEWLOA__UpdateMobNumber__sc_row_95').removeClass('sno');
+    }
+    if (childScr === 'LoanDisbursementList') {
+        apz.setElmValue(updateMobScreenID + "mobileNum", data.customerDtls.mobileNum ?? "NO DATA");
+    }
+    if($('body').hasClass('modal-open')){
+        $('body').removeClass('modal-open');
+    }
+}
+apz.app.UpdateMobNumber.backNavigation = function() {
+    if (childScr === 'AddLoanDetails') {
+        $('#APZCBO__BaseScreens__STAGE1').removeClass('sno');
+        $('#APZCBO__BaseScreens__STAGE15').addClass('sno');
+        if($('#NEWLOA__AddLoanDetails__mobConfirmModal').is(":visible")){
+            ApzCOB.toggleModal("NEWLOA__AddLoanDetails__mobConfirmModal");
+        }
+    } else if (childScr === 'LoanDisbursementList' || childScr === 'IncomeAssessment' || childScr === 'CustomerDetails') {
+        $('#APZCBO__BaseScreens__BaseDIV').removeClass('sno');
+        $('#APZCBO__BaseScreens__STAGE15').addClass('sno');
+        if(childScr === 'IncomeAssessment'){
+            apz.childScr = 'IncomeAssessment'
+        }
+    }
+}
+var mandField = [updateMobScreenID + "updateMobNum"];
+apz.app.UpdateMobNumber.updateMobileNum = function() {
+    let phoneRegex = /^[9876]\d*$/;
+    if (ApzCOB.customeValidateFields(mandField)) {
+        updatedMobNum = parseInt(apz.getElmValue(updateMobScreenID + "updateMobNum"));
+        if (apz.getElmValue(updateMobScreenID + "updateMobNum").length === 10 && phoneRegex.test(updatedMobNum)) {
+            var req = {
+                "apiRequest": {
+                    "interfaceName": "DedupeCheck",
+                    "appId": gAppId,
+                    "serviceName": "mobile",
+                    "userId": LoggedInUserDetails.userID,
+                    "requestObj": {
+                        "mobileNo": updatedMobNum
+                    }
+                }
+            }
+            apz.startLoader();
+            ApzCOB.serverBuildParam(gAppId, "DedupeCheck", "N", "N", req, true, apz.app.UpdateMobNumber.updateMobileNumCB);
+        } else {
+            ApzCOB.fnDisplayMsg("Please Enter Valid Mobile Number", "E");
+        }
+    }
+    }
+apz.app.UpdateMobNumber.updateMobileNumCB = function(params) {
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__DedupeCheck_Res.apiResponse.ResponseBody.responseObj)) {
+                var otpRes = JSON.parse(params.res.APZCBO__DedupeCheck_Res.apiResponse.ResponseBody.responseObj);
+                if (otpRes.response === 'Success') {
+                    try {
+                        if (apz.isObjectEmpty(otpRes.result[0])) {
+                            /*var req = {
+                                "apiRequest": {
+                                    "interfaceName": "MobileDedupeCheckAndGenerateOTP",
+                                    "appId": gAppId,
+                                    "userId": LoggedInUserDetails.userID,
+                                    "requestObj": {
+                                        "actionType": "OTP_SEND",
+                                        "mobileNo": updatedMobNum,
+                                        "type": "PRE_LOGIN"
+                                    }
+                                }
+                            }*/
+                            var req = {
+                                "apiRequest": {
+                                    "interfaceName": "GenerateOTPAndSendSMS",
+                                    "appId": apz.appId,
+                                    "userId": LoggedInUserDetails.userID,
+                                    "requestObj": {
+                                        "payload": {}
+                                    }
+                                }
+                            }
+                            req.apiRequest.requestObj.actionType = "OTP_SEND";
+                            req.apiRequest.requestObj.mobileNo = updatedMobNum;
+                            req.apiRequest.requestObj.branchId = ''
+                            req.apiRequest.requestObj.type = "PRE_LOGIN";
+                            req.apiRequest.requestObj.workflowId = "GenerateOTPAndSendSMS";
+                            req.apiRequest.requestObj.interfaceName = "GenerateOTPAndSendSMS";
+                            req.apiRequest.workflowId = "GenerateOTPAndSendSMS";
+                            req.apiRequest.interfaceName = "GenerateOTPAndSendSMS";
+                            apz.startLoader();
+                            /* req.apiRequest.workflowId = "MobileDedupeCheckAndGenerateOTP";
+                             req.apiRequest.interfaceName = "MobileDedupeCheckAndGenerateOTP";*/
+                            window.KendraApp.Transpayload.req = req;
+                            ApzCOB.serverBuildParam(gAppId, "WorkFlowService", "N", "N", req, true, apz.app.UpdateMobNumber.getOtpCB);
+                        } else {
+                            apz.stopLoader();
+                            //ApzCOB.fnDisplayMsg('Mobile number exists in data base', "E");
+                            ApzCOB.fnDisplayMsg('Phone Number Already Used By Other Customer. Customer ID: ' + otpRes.result[0].customer_id, "E");
+                        }
+                    } catch (e) {
+                        apz.stopLoader();
+                        //ApzCOB.fnDisplayMsg('Mobile number exists in data base', "E");
+                        ApzCOB.fnDisplayMsg('Phone Number Already Used By Other Customer. Customer ID: ' + otpRes.result[0].customer_id, "E");
+                    }
+                } else {
+                    apz.stopLoader();
+                    ApzCOB.fnDisplayMsg('The Dedupe Service is unavailable!', "E");
+                }
+            }
+        } else {
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg('The Dedupe Service is unavailable!', "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg('The Dedupe Service is unavailable!', "E");
+    }
+}
+apz.app.UpdateMobNumber.getOtpCB = function(params) {
+    try {
+        var branchId, memberId;
+        generateOtpResponse = params;
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__WorkFlowService_Res.apiResponse.ResponseBody.responseObj)) {
+                var otpRes = JSON.parse(params.res.APZCBO__WorkFlowService_Res.apiResponse.ResponseBody.responseObj);
+                otpRes = JSON.parse(otpRes.apiResponse.ResponseBody.responseObj);
+                otpResObj = otpRes.GenerateOTP;
+                window.KendraApp.Transpayload.otpResObj = otpResObj;
+                window.KendraApp.Transpayload.Module = "UPDATEMOBILENUM";
+                if (childScr === 'IncomeAssessment') {
+                    branchId = KendraApp.selectedKendra.branchId;
+                    memberId = KendraApp.selectedCustomer.customerId;
+                    applicationId = '';
+                    versionNo = '';
+                } else if (childScr === 'AddLoanDetails') {
+                    branchId = KendraApp.currentLoanAppRequest.applicationdtls.branchId;
+                    memberId = KendraApp.currentLoanAppRequest.applicationdtls.customerId;
+                    applicationId = KendraApp.currentLoanAppRequest.applicationdtls.applicationId;
+                    versionNo = KendraApp.currentLoanAppRequest.applicationdtls.versionNo;
+                } else if (childScr === 'LoanDisbursementList') {
+                    branchId = data.branchId;
+                    memberId = data.customerId;
+                    applicationId = data.applicationId;
+                    versionNo = data.versionNo;
+                } else if (childScr === 'CustomerDetails') {
+                    branchId = LoggedInUserDetails.loginResponse.addInfo2;
+                    memberId = KendraApp.selectedCustomer.customerId;
+                    applicationId = '';
+                    versionNo = '';
+                }
+                var req = {
+                    "apiRequest": {
+                        "interfaceName": "ValidateOTPAndMobileUpdate",
+                        "serviceName": "ValidateOTPAndMobileUpdate",
+                        "appId": gAppId,
+                        "userId": LoggedInUserDetails.userID,
+                        "branchId": branchId,
+                        "requestObj": {
+                            "applicationId": applicationId,
+                            "versionNo": versionNo,
+                            "schedulerEnabled": 'N',
+                            "phone": updatedMobNum,
+                            "memberId": memberId,
+                            "otp": '',
+                            "RefNo": '',
+                        }
+                    }
+                }
+                req.apiRequest.workflowId = "ValidateOTPAndMobileUpdate";
+                req.apiRequest.interfaceName = "ValidateOTPAndMobileUpdate";
+                KendraApp.WorkflowRequest = req;
+                var launchDiv = 'NEWLOA__UpdateMobNumber__custDetailsRow';
+                ApzCOB.LaunchAuthentication(launchDiv, '', "NEWLOA__UpdateMobNumber__AuthenticateBaseDiv",
+                    "apz.app.UpdateMobNumber.cancelAuthentication", "apz.app.UpdateMobNumber.validateOTPAndMobileUpdateCB", req, 'OTP',
+                    "apz.app.UpdateMobNumber.Failure");
+            } else {
+                apz.stopLoader();
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        } else {
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+        apz.stopLoader();
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg('The SMS Service is unavailable!', "E");
+    }
+    apz.stopLoader();
+    // apz.app.UpdateMobNumber.CBcheckold();
+    console.log("otpparams", params);
+}
+apz.app.UpdateMobNumber.validateOTPAndMobileUpdateCB = function(params) {
+    mobileUpdateResponse = params;
+    apz.stopLoader();
+    if (ApzCOB.handleServiceCallBacks(params)) {
+        if (!apz.isNull(params.res.APZCBO__WorkFlowService_Res.APZCBO__MobileNumberUpdate.apiResponse.ResponseBody.responseObj)) {
+            mobResponse = JSON.parse(params.res.APZCBO__WorkFlowService_Res.APZCBO__MobileNumberUpdate.apiResponse.ResponseBody.responseObj)
+            if (mobResponse.header && mobResponse.header.status) {
+                if (mobResponse.header.status === 'success') {
+                    apz.setElmValue(updateMobScreenID + "updatedMobNum", updatedMobNum);
+                    $('#NEWLOA__UpdateMobNumber__custDetailsRow').addClass('sno');
+                    $('#NEWLOA__UpdateMobNumber__successRow').removeClass('sno');
+                    setTimeout(function() {
+                        $('#APZCBO__BaseScreens__STAGE15').addClass('sno');
+                        if (childScr === 'AddLoanDetails') {
+                            $('#APZCBO__BaseScreens__STAGE1').removeClass('sno');
+                            KendraApp.selectedCustomer.mobileNum = mobResponse.body.phone ?? updatedMobNum;
+                            selectedAppObj.mobileNum = mobResponse.body.phone ?? updatedMobNum;
+                            apz.app.AddLoanDetails.onUpdateMobNum();
+                        } else if (childScr === 'IncomeAssessment') {
+                            $('#APZCBO__BaseScreens__BaseDIV').removeClass('sno');
+                            KendraApp.selectedCustomer.mobileNum = mobResponse.body.phone ?? updatedMobNum;
+                            apz.app.IncomeAssessment.onUpdateMobNum();
+                        } else if (childScr === 'LoanDisbursementList') {
+                            $('#APZCBO__BaseScreens__BaseDIV').removeClass('sno');
+                            custData.customerDtls.mobileNum = mobResponse.body.phone;
+                            if (KendraLoans?.custFetchLoanAppRes?.applicationdtls?.[0]?.customerDtls?.kycDtls) {
+                                KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.kycDtls.mobileNum = mobResponse.body.phone;
+                            }
+                            apz.app.LoanDisbursementList.onUpdateMobNum();
+                        }else if (childScr === 'CustomerDetails') {
+                            $('#APZCBO__BaseScreens__BaseDIV').removeClass('sno');
+                            KendraApp.selectedCustomer.mobileNum = mobResponse.body.phone;
+                            apz.app.CustomerDetails.onUpdateMobNum();
+                        }
+                    }, 3000);
+                     kendraResponse.forEach(function(el) {
+                        if (!el.kendraDtls || !Array.isArray(el.kendraDtls.customerDtls)) return;
+                    
+                        el.kendraDtls.customerDtls.forEach(function(ele) {
+                            if (ele.customerId == KendraApp.selectedCustomer.customerId) {
+                                ele.mobileNum = mobResponse.body.phone ?? updatedMobNum;
+                                // console.log(ele.mobileNum);
+                            }
+                        });
+                    });
+                    KendraApp.KendraResponsenew.forEach(function(el) {
+                        if (!el.kendraDtls || !Array.isArray(el.kendraDtls.customerDtls)) return;
+                    
+                        el.kendraDtls.customerDtls.forEach(function(ele) {
+                            if (ele.customerId == KendraApp.selectedCustomer.customerId) {
+                                ele.mobileNum = mobResponse.body.phone ?? updatedMobNum;
+                                // console.log(ele.mobileNum);
+                            }
+                        });
+                    });
+                } else if (mobResponse.header.status === 'failed') {
+                    if (mobResponse.hasOwnProperty('error')) {
+                        if (mobResponse.error.errorDetails.length > 0) {
+                            apz.stopLoader();
+                            ApzCOB.fnDisplayMsg(mobResponse.error.errorDetails[0].message, "E");
+                        }
+                    }
+                } else {
+                    apz.stopLoader();
+                    ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+                }
+            } else if (mobResponse.hasOwnProperty('error')) {
+                if (mobResponse.error.errorDetails.length > 0) {
+                    apz.stopLoader();
+                    ApzCOB.fnDisplayMsg(mobResponse.error.errorDetails[0].message, "E");
+                }
+            } else {
+                apz.stopLoader();
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        }
+    } else {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.UpdateMobNumber.cancelAuthentication = function(params) {
+    apz.stopLoader();
+}
+apz.app.UpdateMobNumber.Failure = function(params) {
+    apz.stopLoader();
+}

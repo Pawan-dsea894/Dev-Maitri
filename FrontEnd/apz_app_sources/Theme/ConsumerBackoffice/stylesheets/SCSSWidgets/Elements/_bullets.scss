@@ -1,0 +1,75 @@
+@use "../Abstract" as a;
+
+/*! Element - Bullets - Sathish Updated SCSS - Aug 09,2021*/
+/* bullets start */
+.ett-blt {
+    .unol{
+        padding-left: 30px;   
+    }
+    .ordl {
+        padding-left: 30px;
+        li {
+            font-size: 1em;
+            line-height: 1.6;
+            display: list-item;
+        }
+    }
+    ul.unol li {
+        font-size: 1em;
+        line-height: 1.6;
+        display: list-item;
+    }
+	&.pri {
+		.unol {
+			list-style-type: disc;
+		}
+		.ordl {
+			padding-left: 30px;
+			li {
+				list-style-type: inherit;
+				color: a.$ordered-list-color-pri;
+			}
+		}
+		ul.unol li {
+			list-style-type: disc;
+			color: a.$unordered-list-color-pri;
+		}
+	}
+	&.sec {
+		.unol {
+			list-style-type: square;
+		}
+		.ordl {
+			padding-left: 30px;
+			li {
+				list-style-type: upper-roman;
+				color: a.$ordered-list-color-sec;
+			}
+		}
+		ul.unol li {
+			list-style-type: square;
+			color: a.$unordered-list-color-sec;
+
+		}
+	}
+	&.ter {
+		.unol {
+			list-style-type: circle;
+		}
+		.ordl {
+			padding-left: 30px;
+			li {
+				list-style-type: lower-alpha;
+				color: a.$ordered-list-color-ter;
+			}
+		}
+		ul.unol li {
+			list-style-type: circle;
+			color: a.$unordered-list-color-ter;
+		}
+	}
+}
+ 
+/* bullets end */
+
+

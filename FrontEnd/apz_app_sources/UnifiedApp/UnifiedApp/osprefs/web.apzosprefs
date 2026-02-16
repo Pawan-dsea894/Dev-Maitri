@@ -1,0 +1,1 @@
+{"typeclass":"OS_OSPREFS_WEB","name":"web","type":"OS_OSPREFS_WEB","childs":[],"weblogdir":"/home/cagl/logs/UnifiedWeb","websessiontimeout":"3000","buildmode":"WEB","httponlycookie":"N","securecookie":"N","csrfprevention":"N","overrideotp":"N","keepsignedin":"N","codecoverage":"N","sessionstickyness":"N"}

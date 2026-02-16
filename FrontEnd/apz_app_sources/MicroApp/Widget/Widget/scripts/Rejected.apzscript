@@ -1,0 +1,542 @@
+var RejectedWidgetId = 'Widget__Rejected__';
+var ApplsBasedOnConf = [];
+var growNo = "";
+apz.app.onLoad_Rejected = function(params) {
+    apz.app.Rejected.loadWidgetData();
+    apz.app.Rejected.fetchData();
+    if (userRole === "KM"  ||(window.userRole == 'BM' && isSelfAssigned)) {
+        let disbursementPending = disbursementList.filter(item => item.status === "Move to BM")
+        apz.setElmValue(RejectedWidgetId + "disbursementCount", disbursementPending.length + '/' + disbursementList.length);
+    }else if(userRole === "BM" && !isSelfAssigned) {
+        let disbursementPendings = disbursementList.filter(item => item.status === 'Pending')
+        apz.setElmValue(RejectedWidgetId + "disbursementCount", disbursementPendings.length + '/' + disbursementList.length);
+    }
+}
+apz.app.Rejected.loadWidgetData = function() {
+    apz.startLoader();
+    WidgetConf.forEach(function(el, index) {
+        //  if (Object.getOwnPropertyNames(el)[0] === "Rejected") {
+        //  for (var p = 0; p < el["Rejected"]["noOfApplns"]; p++) {
+        $("#" + RejectedWidgetId + "displayName").text(ApzCOB.getDescfromLitCode(el["Rejected"]["displayName"]))
+        /*if (!apz.isNull(WidgetDateReject[p])) {
+                ApplsBasedOnConf.push(WidgetDateReject[p]);
+                $("#" + RejectedWidgetId + "displayName").text(ApzCOB.getLitsDescfromServer(el["Rejected"]["displayName"]))
+            }*/
+        // }
+        //  }
+    })
+    if (gApzCOB.WidgetRejected.length > 0) {
+        $("#" + RejectedWidgetId + "noRejectedRecordForm").addClass("sno");
+        $("#" + RejectedWidgetId + "rejectedList").removeClass("sno");
+        $("#" + RejectedWidgetId + "viewAllRejected").removeClass("sno");
+        apz.data.scrdata.Widget__IPaintWidgetReject_Res = {
+            WidgetDateReject: ApplsBasedOnConf,
+        };
+        apz.app.Rejected.configureFields();
+        apz.data.loadData('IPaintWidgetReject', apz.currAppId);
+        apz.app.Rejected.loadArrayData();
+    }
+    if (gApzCOB.WidgetRejected.length === 0 || ApplsBasedOnConf.length === 0) {
+        $("#" + RejectedWidgetId + "noRejectedRecordForm").removeClass("sno");
+        $("#" + RejectedWidgetId + "rejectedList").addClass("sno");
+        $("#" + RejectedWidgetId + "viewAllRejected").addClass("sno");
+    }
+    apz.stopLoader();
+};
+apz.app.Rejected.loadArrayData = function() {
+    ApplsBasedOnConf = [];
+    apz.data.scrdata.Widget__IPaintWidgetReject_Res = {};
+    gApzCOB.WidgetRejected.forEach(function(widgetData, index) {
+        if (apz.isNull(window.selectedDashboProduct) || window.selectedDashboProduct === 'ALL' || widgetData.productGroupCode === window
+            .selectedDashboProduct) {
+            if (!apz.isNull(new Date(widgetData.applicationDate).format('d M').split(' ')[1])) {
+                widgetData.applicationDate = new Date(widgetData.applicationDate).format('d M');
+            }
+            widgetData.productIcon = apz.app.BaseScreens.getProductIcon(widgetData.productGroupCode);
+            /*if (!apz.isNull(widgetData.applicantsCount) && widgetData.applicantsCount > 1) {
+                $("#" + RejectedWidgetId + "JointAccountIcon_" + index).removeClass("sno");
+                $("#" + RejectedWidgetId + "singleAccountIcon_" + index).addClass("sno");
+            } else {
+                $("#" + RejectedWidgetId + "JointAccountIcon_" + index).addClass("sno");
+                $("#" + RejectedWidgetId + "singleAccountIcon_" + index).removeClass("sno");
+            }*/
+            if (apz.isNull(widgetData.createdBy)) {
+                widgetData.createdBy = 'Customer'
+            }
+            ApplsBasedOnConf.push(widgetData);
+        }
+    });
+    apz.data.scrdata.Widget__IPaintWidgetReject_Res = {
+        WidgetDateReject: ApplsBasedOnConf,
+    };
+    apz.data.loadData('IPaintWidgetReject', apz.currAppId);
+}
+apz.app.Rejected.viewAllInProgress = function() {
+    ApzCOB.launchMicroApp('Dashbo', 'viewallapplication', gAppId + '__BaseScreens__BaseDIV', {
+        "screenType": "Rejected",
+    });
+};
+apz.app.Rejected.clickList = function(ev) {
+    window.viewAllClicked = false;
+    window.clickList = true;
+    growNo = $(ev).attr('rowno');
+    window.pendingApplication = true;
+    gApzCOB.requestNodes = [];
+    var customerName = apz.data.scrdata.Widget__IPaintWidgetReject_Res.WidgetDateReject[growNo].createdBy;
+    gApzCOB.userDetails.appId = apz.data.scrdata.Widget__IPaintWidgetReject_Res.WidgetDateReject[growNo].appId;
+    gApzCOB.userDetails.applicationId = apz.data.scrdata.Widget__IPaintWidgetReject_Res.WidgetDateReject[growNo].applicationId;
+    gApzCOB.userDetails.versionNum = apz.data.scrdata.Widget__IPaintWidgetReject_Res.WidgetDateReject[growNo].versionNum;
+    gApzCOB.userDetails.applicationStatus = apz.data.scrdata.Widget__IPaintWidgetReject_Res.WidgetDateReject[growNo].applicationStatus;
+    gApzCOB.userDetails.createdBy = apz.data.scrdata.Widget__IPaintWidgetReject_Res.WidgetDateReject[growNo].createdBy;
+    gApzCOB.userDetails.wfCreatedBy = apz.data.scrdata.Widget__IPaintWidgetReject_Res.WidgetDateReject[growNo].wfCreatedBy;
+    gApzCOB.userDetails.wfCreateTs = apz.data.scrdata.Widget__IPaintWidgetReject_Res.WidgetDateReject[growNo].wfCreateTs;
+    gApzCOB.queueStatus = apz.data.scrdata.Widget__IPaintWidgetReject_Res.WidgetDateReject[growNo].queueStatus;
+    gApzCOB.mainProductGroupCode = apz.data.scrdata.Widget__IPaintWidgetReject_Res.WidgetDateReject[growNo].productGroupCode;
+    gApzCOB.product = apz.data.scrdata.Widget__IPaintWidgetReject_Res.WidgetDateReject[growNo].productGroupCode;
+    gApzCOB.ExistingCustomer = apz.data.scrdata.Widget__IPaintWidgetReject_Res.WidgetDateReject[growNo].applicationType === 'ETB' ? true : false;
+    $('#' + BaseScrId + 'headerText').text(customerName + " (" + gApzCOB.userDetails.applicationId + ")");
+    gApzCOB.userDetails.customerId = apz.data.scrdata.Widget__IPaintWidgetReject_Res.WidgetDateReject[growNo].customerId;
+    apz.app.BaseScreens.getCommomCodeBasedOnProduct();
+    if (gApzCOB.mainProductGroupCode === 'CASA') {
+        apz.app.Rejected.LoadOnClickForCASAProducts();
+        /*if (apz.isNull(window.CURRENT_STAGE_NAME) && !apz.isNull(gApzCOB.userDetails.customerId)) {
+            ApzCOB.FetchCustomerDetails(growNo);
+        } else {
+            ApzCOB.FetchApplication(growNo);
+        }*/
+    } else if (gApzCOB.mainProductGroupCode === 'DEPOSIT') {
+        apz.app.Rejected.LoadOnClickForDepositProducts();
+        /*if (apz.isNull(window.CURRENT_STAGE_NAME) && !apz.isNull(gApzCOB.userDetails.customerId)) {
+            ApzCOB.FetchCustomerDetails(growNo);
+        } else {
+            if (gApzCOB.ExistingCustomer) {
+                ApzCOB.DepositFetchApplication(growNo);
+            } else {
+                ApzCOB.FetchApplication(growNo);
+            }
+        }*/
+    } else if (gApzCOB.mainProductGroupCode === 'LOAN') {
+        apz.app.Rejected.LoadOnClickForLoanProducts();
+        /*if (apz.isNull(window.CURRENT_STAGE_NAME) && !apz.isNull(gApzCOB.userDetails.customerId)) {
+            //ApzCOB.FetchCustomerDetailsforLoan(growNo);
+            ApzCOB.FetchCustomerDetailsforLoan(growNo);
+        } else {
+            if (gApzCOB.ExistingCustomer) {
+                ApzCOB.LoanFetchApplication(growNo);
+            } else {
+                ApzCOB.FetchApplication(growNo);
+            }
+        }*/
+    } else if (gApzCOB.mainProductGroupCode === 'CARDS') {
+        if (apz.isNull(window.CURRENT_STAGE_NAME) && !apz.isNull(gApzCOB.userDetails.customerId)) {
+            ApzCOB.FetchCustomerDetailsForcards(growNo);
+        } else {
+            ApzCOB.CardsFetchApplication(growNo);
+        }
+    } else {
+        if (apz.isNull(window.CURRENT_STAGE_NAME) && !apz.isNull(gApzCOB.userDetails.customerId)) {
+            ApzCOB.FetchCustomerDetails(growNo);
+        } else {
+            ApzCOB.FetchApplication(growNo);
+        }
+    }
+    /* ApzCOB.launchMicroApp('Dashbo', 'ReviewConfirm', gAppId + '__BaseScreens__BaseDIV', {
+        "screenType": "Rejected",
+        "rowNum": rowNum
+    });*/
+};
+apz.app.Rejected.getWidgetData = function() {
+    var WidgetDateReject = gApzCOB.WidgetRejected.map(function(widgetData, index) {
+        var listValue = {
+            appId: widgetData.appId,
+            id: widgetData.applicationId,
+            customerName: widgetData.createdBy,
+            mobileNum: widgetData.mobileNumber,
+            createdAt: widgetData.createdBy,
+            subDate: new Date(widgetData.createTs).format('d M'),
+            product: "Savings Account",
+            refNo: widgetData.applicationId,
+            iconCode: "Webcam.svg",
+            versionNum: widgetData.versionNum
+        };
+        return listValue;
+    });
+    return WidgetDateReject;
+}
+apz.app.Rejected.configureFields = function() {
+    var fieldMapArray = [];
+    var a = {
+        'fieldName': 'applicationDate',
+        //'fieldId': [RejectedWidgetId + 'title'],
+        'fieldDivId': [RejectedWidgetId + 'applicationDateDIV_row']
+    };
+    var b = {
+        'fieldName': 'applicationId',
+        //'fieldId': [paintKYCId + 'name'],
+        'fieldDivId': [RejectedWidgetId + 'applicationIdDIV_row']
+    };
+    var c = {
+        'fieldName': 'applicationStatus',
+        //'fieldId': [paintKYCId + 'dob'],
+        'fieldDivId': [RejectedWidgetId + 'applicationStatusDIV_row']
+    };
+    var d = {
+        'fieldName': 'queueStatus',
+        //'fieldId': [paintKYCId + 'gender'],
+        'fieldDivId': [RejectedWidgetId + 'queueStatusDIV_row']
+    };
+    var e = {
+        'fieldName': 'createdBy',
+        //'fieldId': [paintKYCId + 'mobNum'],
+        'fieldDivId': [RejectedWidgetId + 'createdByDIV_row']
+    };
+    var f = {
+        'fieldName': 'emailId',
+        //'fieldId': [RejectedWidgetId + 'email'],
+        'fieldDivId': [RejectedWidgetId + 'emailIdDIV_row']
+    };
+    var g = {
+        'fieldName': 'mobileNumber',
+        // 'fieldId': [paintKYCId + 'addressasPerAadhar'],
+        'fieldDivId': [RejectedWidgetId + 'mobileNumberDIV_row']
+    };
+    var h = {
+        'fieldName': 'pan',
+        // 'fieldId': [RejectedWidgetId + 'addressType'],
+        'fieldDivId': [RejectedWidgetId + 'panDIV_row']
+    };
+    var i = {
+        'fieldName': 'productCode',
+        //'fieldId': [RejectedWidgetId + 'pin'],
+        'fieldDivId': [RejectedWidgetId + 'productCodeDIV_row']
+    };
+    var j = {
+        'fieldName': 'productGroupCode',
+        //'fieldId': [RejectedWidgetId + 'state'],
+        'fieldDivId': [RejectedWidgetId + 'productGroupCodeDIV_row']
+    };
+    var k = {
+        'fieldName': 'searchCode1',
+        //'fieldId': [RejectedWidgetId + 'city'],
+        'fieldDivId': [RejectedWidgetId + 'searchCode1DIV_row']
+    };
+    fieldMapArray.push(a, b, c, d, e, f, g, h, i, j, k);
+    var CONFCODE = ApzCOB.GetCommonCodes("WIDGETSBO")["WIDGETSBO"][0]["Rejected"]["displayFields"]
+    fieldMapArray.forEach(function(p, i) {
+        CONFCODE.forEach(function(elm4, ind) {
+            //  e.fieldName.forEach(function(a, b) {
+            if (typeof(elm4) === 'object') {
+                Object.getOwnPropertyNames(elm4).forEach(function(el4) {
+                    ApzCOB.ConfigureFieldsObjectType(p, el4);
+                })
+            } else {
+                ApzCOB.ConfigureFieldsNonObjectType(p, elm4);
+            }
+            // })
+        })
+    })
+    /*CONFCODE.forEach(function(elm, ind) {
+             $(RejectedWidgetId + elm + "DIV").removeClass("sno");
+         })*/
+}
+apz.app.Rejected.LoadOnClickForCASAProducts = function() {
+    if (apz.isNull(window.CURRENT_STAGE_NAME) && !apz.isNull(gApzCOB.userDetails.customerId)) {
+        ApzCOB.FetchCustomerDetails(growNo);
+    } else {
+        ApzCOB.FetchApplication(growNo);
+    }
+}
+apz.app.Rejected.LoadOnClickForDepositProducts = function() {
+    if (apz.isNull(window.CURRENT_STAGE_NAME) && !apz.isNull(gApzCOB.userDetails.customerId)) {
+        ApzCOB.FetchCustomerDetails(growNo);
+    } else {
+        if (gApzCOB.ExistingCustomer) {
+            ApzCOB.DepositFetchApplication(growNo);
+        } else {
+            ApzCOB.FetchApplication(growNo);
+        }
+    }
+}
+apz.app.Rejected.LoadOnClickForLoanProducts = function() {
+    if (apz.isNull(window.CURRENT_STAGE_NAME) && !apz.isNull(gApzCOB.userDetails.customerId)) {
+        //ApzCOB.FetchCustomerDetailsforLoan(growNo);
+        ApzCOB.FetchCustomerDetailsforLoan(growNo);
+    } else {
+        if (gApzCOB.ExistingCustomer) {
+            ApzCOB.LoanFetchApplication(growNo);
+        } else {
+            ApzCOB.FetchApplication(growNo);
+        }
+    }
+}
+var disbursement = '#Widget__Rejected__disbursement';
+apz.app.Rejected.onClickHideAndShow = function() {
+    if ($(disbursement).is(":visible")) {
+        $(disbursement).addClass("sno");
+        //modified below functionality by Sathish on 10-02-2025
+        //for ordering based on collecitons flows
+        // $('#Dashbo__dashboard__Widget4').removeClass("active");
+        $('#Dashbo__dashboard__Widget7').removeClass("active");
+        //$("#" + "Widget__InProgress__loanApp").removeClass("sno");
+    } else {
+        $(disbursement).removeClass("sno");
+        //modified below functionality by Sathish on 10-02-2025
+        //for ordering based on collecitons flows
+        // $('#Dashbo__dashboard__Widget4').addClass("active");
+        $('#Dashbo__dashboard__Widget7').addClass("active");
+    }
+}
+var data = {
+    "kendraDtls": {
+        "kendraId": 9522079,
+        "kendraName": "hampasagara 03 02",
+        "kmName": "KALLESH PALAKSHAPPA NAGALIK",
+        "branchId": "IN0012008",
+        "villageType": "EXISTING",
+        "kendraAddr": "ANJINEYA TEMPLE NEAR HAMPASAGARA 3",
+        "state": "KARNATAKA",
+        "district": "BELLARY",
+        "taluk": " ",
+        "areaType": "RURAL",
+        "village": "HAMPASAGARA",
+        "pincode": "583214",
+        "meetingFrequency": "WEEKLY",
+        "firstMeetingDate": "2009-03-27",
+        "nextMeetingDate": "2024-04-18",
+        "meetingDay": "THU",
+        "meetingPlace": "HAMPASAGARA",
+        "meetingStartTime": "730",
+        "endingTime": "800",
+        "distance": "22",
+        "leader": "10017952",
+        "secretary": "",
+        "createdBy": "GK26216",
+        "createdTS": "2024-03-10 08:34:16",
+        "updatedBy": "GK26216",
+        "kendraStatus": "ACTIVE",
+        "activationDate": "2009-03-26",
+        "kmId": "GK26216"
+    },
+    "customerDtls": [{
+        "groupId": "9658100",
+        "kendraId": "9522079",
+        "customerId": "10017949",
+        "customerName": "GEETHAVVA MAGALA",
+        "primarytype": "VOTER-ID",
+        "primaryId": "RRK3433489",
+        "dob": "19880101",
+        "maritalStatus": "MARRIED",
+        "address": "84 ANJINEYA TEMPLE HAMPASAGAR,3 HAMPASAGARA BELLARY KARNAT,AKA 583214",
+        "bankAcNo": "10622101042872",
+        "bankAcName": "GEETHAVVA T",
+        "bankBrnName": "HAMPASAGAR",
+        "bankname": "PRAGATHI KRISHNA GRAMIN BANK ",
+        "bankIfsc": "PKGB0010622",
+        "memRelation": "SPOUSE,FATHER",
+        "mobileNumber": "8722243176",
+        "permAddress": ["84 ANJINEYA TEMPLE HAMPASAGAR|3 HAMPASAGARA BELLARY KARNAT|AKA 583214",
+            "84 ANJINEYA TEMPLE HAMPASAGAR|3 HAMPASAGARA BELLARY KARNAT|AKA 583214", ""
+        ],
+        "commAddress": ["84 ANJINEYA TEMPLE HAMPASAGAR|3 HAMPASAGARA BELLARY KARNAT|AKA 583214",
+            "84 ANJINEYA TEMPLE HAMPASAGAR|3 HAMPASAGARA BELLARY KARNAT|AKA 583214", ""
+        ],
+        "loanDtls": [{
+            "customerId": "10017949",
+            "loanId": "LN078300335",
+            "amount": "30000.000",
+            "approvedAmt": "30000.000",
+            "status": "Sanctationed",
+            "product": "GL.PRAGATI.SUPL.PLUS",
+            "valueDt": "20230920",
+            "maturityDt": "20250917",
+            "overduePrn": "",
+            "overdueInt": "",
+            "intRate": "",
+            "freq": "WEEKLY",
+            "term": "104"
+        }, {
+            "customerId": "10017949",
+            "loanId": "LN078300337",
+            "amount": "40000.000",
+            "approvedAmt": "40000.000",
+            "status": "DISBURSED",
+            "product": "GL.PRAGATI.SUPL.PLUS",
+            "valueDt": "20230920",
+            "maturityDt": "20250917",
+            "overduePrn": "",
+            "overdueInt": "",
+            "intRate": "",
+            "freq": "WEEKLY",
+            "term": "104"
+        }, {
+            "customerId": "10017949",
+            "loanId": "LN078300338",
+            "amount": "20000.000",
+            "approvedAmt": "20000.000",
+            "status": "DISBURSED",
+            "product": "GL.PRAGATI.SUPL.PLUS",
+            "valueDt": "20230920",
+            "maturityDt": "20250917",
+            "overduePrn": "",
+            "overdueInt": "",
+            "intRate": "",
+            "freq": "WEEKLY",
+            "term": "104"
+        }],
+        "eligibleLoan": [{
+            "customerId": "10017949",
+            "cbAmt": "84000",
+            "caglAmt": "50000",
+            "product": "SPL"
+        }, {
+            "customerId": "10017949",
+            "cbAmt": "84000",
+            "caglAmt": "50000",
+            "product": "SPL"
+        }],
+        "income": [{
+            "customerId": "10017949",
+            "totIncome": "300000",
+            "totExpense": "10",
+            "assesmentDt": "20240117"
+        }],
+        "earnings": [{
+            "customerId": "",
+            "name": "",
+            "dob": "",
+            "memRelation": "",
+            "legaldocName": "",
+            "legaldocId": ""
+        }]
+    }]
+}
+// apz.app.Rejected.fetchData = function() {
+//     var disbursement = [];
+//     var disbursementData = data.customerDtls;
+//     disbursementData[0].loanDtls.forEach(function(k, i) {
+//         if (disbursementData[0].loanDtls[i].status === 'DISBURSED') {
+//             var obj = {
+//                 'name':disbursementData[0].customerName,
+//                 'idAndAddr':'#'+disbursementData[0].customerId + ' '+'|'+' '+data.kendraDtls.kendraName,
+//                 'pendingBy':disbursementData[0].loanDtls[i].status,
+//                 'amount':disbursementData[0].loanDtls[i].amount,
+//                 'IGL':"IGL"
+//             }
+//             disbursement.push(obj);
+//         }
+//     })
+//     if (disbursement.length > 0) {
+//         apz.data.scrdata.Widget__IPaintDisbursment_Res = {};
+//         apz.data.scrdata.Widget__IPaintDisbursment_Res.WidgetDisbursement = disbursement;
+//         apz.data.loadData('IPaintDisbursment', apz.currAppId);
+//     }
+// }
+apz.app.Rejected.fetchData = function() {
+    disbursementList = [];
+    if (dashboardAppList.response.length > 0) {
+        var data = JSON.stringify(dashboardAppList.response);
+        var disbursementData = JSON.parse(data);
+        disbursementData.forEach(function(k, i) {
+            if (k.applicationType !== 'INCOMEASSESSMENT') {
+                k.loanAmt = ApzCOB.fn_FormatAmount(k.amount);
+                k.productType = k.productCode;
+                if (k.applicationStatus == "DISBURSED") {
+                    k.status = 'Disbursed';
+                    disbursementList.push(k);
+                } else {
+                    if (k.wfStatus === 'INITDISBURSE' && (userRole == 'KM'|| (window.userRole == 'BM' && isSelfAssigned))) {
+                        k.status = 'Move to BM';
+                        disbursementList.push(k);
+                    } else if (k.wfStatus === 'DISBURSEINPROGRESS') {
+                        if (userRole == 'KM' || (window.userRole == 'BM' && isSelfAssigned)) {
+                            k.status = 'Pending by BM';
+                        } else {
+                            k.status = 'Pending';
+                        }
+                        disbursementList.push(k);
+                    } else if (k.wfStatus === 'DISBURSED') {
+                        k.status = 'Disbursed';
+                        disbursementList.push(k);
+                    } else if (k.wfStatus === 'DISBURSEDREJECT') {
+                        k.status = 'DisbursedReject';
+                        disbursementList.push(k);
+                    }
+                }
+            }
+        })
+        if (disbursementList.length > 0) {
+            if (disbursementList.length <= 4) {
+                apz.data.scrdata.Widget__IPaintDisbursment_Res = {};
+                apz.data.scrdata.Widget__IPaintDisbursment_Res.WidgetDisbursement = disbursementList;
+                apz.data.loadData('IPaintDisbursment', apz.currAppId);
+            } else {
+                const slicedDisbursementArr = disbursementList.slice(0, 4);
+                apz.data.scrdata.Widget__IPaintDisbursment_Res = {};
+                apz.data.scrdata.Widget__IPaintDisbursment_Res.WidgetDisbursement = slicedDisbursementArr;
+                apz.data.loadData('IPaintDisbursment', apz.currAppId);
+                $('#' + RejectedWidgetId + 'ct_nav_viewMore').removeClass("sno");
+                $('#' + RejectedWidgetId + 'disbursementRemCount').text("VIEW " + (disbursementList.length - 4) + " MORE");
+            }
+            apz.data.scrdata.Widget__IPaintDisbursment_Res.WidgetDisbursement.forEach(function(m, n) {
+                var addinfo = m.addInfo;
+                //below further conditions added as script is breaking if we got plain string format and to check whether string is exactly a stringify format
+                if (typeof addinfo == 'string' && !apz.isNull(addinfo) && addinfo.startsWith('{')) {
+                    addinfo = JSON.parse(addinfo)
+                }
+                if (apz.isNull(addinfo.isApprovedCRT)) {
+                    $('#Widget__Rejected__crtFlag_' + n).addClass('sno')
+                } else {
+                    if (addinfo.isApprovedCRT) {
+                        // console.log('true'); 
+                        $('#Widget__Rejected__crtFlag_' + n).removeClass('sno')
+                    } else {
+                        $('#Widget__Rejected__crtFlag_' + n).addClass('sno')
+                    }
+                }
+                if (typeof addinfo.isQuestionComplete === "undefined") {
+                     $('#Widget__Rejected__iaqFlag_' + n).addClass('sno')
+                } else {
+                    if (addinfo.isQuestionComplete == 'Update' || addinfo.isQuestionComplete == 'Insert') {
+                         $('#Widget__Rejected__iaqFlag_' + n).addClass('sno')
+                       
+                    } else {
+                        $('#Widget__Rejected__iaqFlag_' + n).removeClass('sno')
+                    }
+                }
+                // console.log(addinfo.isApprovedCRT,n)
+            });
+        } else {
+            $('#Widget__Rejected__loanApp').addClass('sno');
+            $('#Widget__Rejected__noRecord').removeClass('sno');
+        }
+    } else {
+        $('#Widget__Rejected__loanApp').addClass('sno');
+        $('#Widget__Rejected__noRecord').removeClass('sno');
+    }
+}
+apz.app.Rejected.onClickViewMore = function() {
+    ApzCOB.launchMicroApp("LoanDi", "LoanDisbursementList", "APZCBO__BaseScreens__BaseDIV", disbursementList);
+    window.KendraLoans.scr = 'ViewAll'
+}
+apz.app.Rejected.onClickSelectedCustomer = function(pthis) {
+    let rowNo = $(pthis).attr('rowno');
+    KendraApp.selectedDisbursement = disbursementList[rowNo];
+    ApzCOB.fetchLoanApplication(KendraApp.selectedDisbursement, 'dashboardDisbursement');
+    //ApzCOB.launchMicroApp("LoanDi", "LoanDisbursementList", "APZCBO__BaseScreens__BaseDIV", disbursementList);
+}
+apz.app.Rejected.CustomerDtls = function(pthis) {
+    event.preventDefault();
+    event.stopPropagation();
+    let rowNo = $(pthis).attr('rowno');
+    viewCustomer = true;
+    var selData =   apz.data.scrdata.Widget__IPaintDisbursment_Res.WidgetDisbursement[rowNo]
+    //KendraApp.selectedCustomer = selData;
+    let selectedData = {};
+    selectedData.scr = 'Rejected'
+    selectedData.childScrId = apz.currAppId;
+    window.isViewCustFromDisbursemet = true
+    selectedDataFromLoanDisbursementList = selectedData;
+    ApzCOB.FetchCustomerDetails(selData.customerId);
+    $("#header").addClass("sno");
+    $('#footer').addClass('sno');
+}

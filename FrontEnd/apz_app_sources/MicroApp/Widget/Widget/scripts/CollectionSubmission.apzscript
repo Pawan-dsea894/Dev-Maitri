@@ -1,0 +1,2861 @@
+var CollectionSubmissionScrId = "Widget__CollectionSubmission__"
+var CashierDetails = '';
+var paintDet = '';
+var SelectedDet = [];
+var collectedKendraCount = 0;
+var totalAmountCollected = 0;
+var nonMetKendraCollCount = 0;
+var selectedWidget = '';
+var WidgetStatus = "#Widget__IPaintColSubmissionData__o__CashierData__collStatus_";
+//userRole = "Cashier";
+var collecSubPaintRecords = [];
+var RepeatSubPaintRecords = [];
+var nonMetSubPaintRecords = [];
+var MeetingReasonText = '';
+var RepeatReasonText = '';
+var NonMeetReasonText = '';
+var FinalPaintRec = [];
+var rejectedRes = [];
+var isFetchedDeposit = false;
+var isCashierPushBack = false;
+var RisCashierPushBack = false;
+var NisCashierPushBack = false;
+var NisCashierPushBack = false;
+var isCashierApproved = false;
+var RisCashierApproved = false;
+var NisCashierApproved = false;
+var KMPushbackRes = [];
+var RepKMPushbackRes = [];
+var NonKMPushbackRes = {};
+var isBMPushBack = false;
+var isRepBMPusBack = false;
+var isNonBMPusBack = false;
+var ViewApplnProgress = [];
+var ViewRepeatApplnProgress = [];
+var ViewMeetingApplnProgress = [];
+var ViewNonMeetApplnProgress = [];
+var latestCashDeposit = false;
+var recollectAmt = false;
+var ReprecollectAmt = false;
+var NonMetcollectAmt = false;
+var kendras = [];
+var RepeatColSubPaintRec = [];
+var RepeatRes = [];
+var NonMeetingRes = [];
+var ViewNonMeetingApplnProgress = [];
+var previousRow = '';
+var isNonMeetingBMPusBack = false;
+var nonMetCashierPushBack = false;
+var hideReasonForRepeat = false;
+var pushBackRecSubFlag = false;
+var KMRecordTypes = [{
+    "types": "Pending"
+}, {
+    "types": "Pushback(Cashier)"
+}, {
+    "types": "Pushback(BM)"
+}, {
+    "types": "Pending(Cashier)"
+}, {
+    "types": "Pending(BM)"
+}, {
+    "types": "Approved"
+}]
+var CashierRecordTypes = [{
+    "types": "Pending"
+}, {
+    "types": "Pending(BM)"
+}, {
+    "types": "Pushback"
+}, {
+    "types": "Approved"
+}]
+var BMRecordTypes = [{
+    "types": "Pending"
+}, {
+    "types": "Approved"
+}, {
+    "types": "Pushback"
+}];
+var MeetingDayRecords = {};
+var NonMeetingDayRecords = {};
+var RepeatRecords = {};
+var MeetingSubRec = [];
+var NonMeetingSubRec = [];
+var repeatSubRec = [];
+var displayStatusMsg = "";
+var isPendingRecClick = false;
+var toRemoveRepeatReason = false;
+apz.app.onLoad_CollectionSubmission = function(params) {
+    //Initialization
+}
+apz.app.onShown_CollectionSubmission = function(params) {
+    // ApzCOB.FetchLov('MEETINGDATE');
+    ApzCOB.FetchLov('MEETINGTYPES');
+    // apz.data.loadJsonData("PostRepeatColData", "APZCBO");
+    // RepeatRes = apz.data.scrdata.collectionObj;
+    let statusTypes = [];
+    if (userRole == 'KM') {
+        isCashierSubmission = false;
+        isFromFinalCashier = false;
+        apz.app.CollectionSubmission.fetchAppWFData();
+        CollectionsCommon.fetchFromCashDepositSQLLite();
+        setTimeout(() => {
+            CollectionsCommon.fetchCashSubNonMeetingCollectionsSQLLite();
+        }, 500);
+        $("#" + CollectionSubmissionScrId + "meetingTypeList").addClass('sno');
+        statusTypes = KMRecordTypes;
+        // apz.app.CollectionSubmission.paintCollSubmissionForKM();
+    }
+    /*else if (userRole === "BM") {
+           apz.app.CollectionSubmission.fetchCashierCollections();
+       } else if (userRole === "CASHIER") {
+           apz.app.CollectionSubmission.fetchCashierCollections();
+       }*/
+    else if (userRole === "CASHIER" || userRole === "BM") {
+        let items = $("#Widget__CollectionSubmission__meetingTypeList li");
+        for (i = 0; i < items.length; i++) {
+            $("#Widget__CollectionSubmission__meetingTypeList_row_" + i).removeClass('active')
+        }
+        apz.data.scrdata.Widget__IPaintMeetingTypes_Res = {};
+        apz.data.scrdata.Widget__IPaintMeetingTypes_Res = meetingTypes;
+        apz.data.loadData("IPaintMeetingTypes", 'Widget');
+        $("#" + CollectionSubmissionScrId + "meetingTypeList").removeClass('sno');
+        $("#" + CollectionSubmissionScrId + "meetingTypeList_row_0").addClass('active');
+        previousRow = 0;
+        selectedWidget = 'MEETING';
+        apz.app.CollectionSubmission.fetchCashierCollections();
+        if (userRole.toUpperCase() === "CASHIER") {
+            statusTypes = CashierRecordTypes;
+        } else if (userRole === "BM") {
+            statusTypes = BMRecordTypes;
+        }
+    }
+    //added below changes by sathish for new FSD modification
+    apz.data.scrdata.Widget__IPaintStatusTypes_Res = {};
+    apz.data.scrdata.Widget__IPaintStatusTypes_Res = statusTypes;
+    apz.data.loadData("IPaintStatusTypes", 'Widget');
+    /*apz.data.loadJsonData("CashierResponse", "APZCBO");
+    CashierDetails = apz.data.scrdata.collectionObj;
+    paintDet = CashierDetails.map((obj, i) => {
+        obj.totalColAmt = ApzCOB.fn_FormatAmount(obj.totalColAmt);
+        return {
+            ...obj,
+            totalKendra: obj.kendraCount,
+            submittedKendra: obj.kendraDtls.length,
+            status: obj.hasOwnProperty('status') ? obj.status : "APPROVAL PENDING"
+        };
+    });
+    if (paintDet.length > 0) {
+        apz.data.scrdata.Widget__IPaintColSubmissionData_Res = {};
+        $("#" + CollectionSubmissionScrId + "noRecordForm").addClass('sno');
+        $("#" + CollectionSubmissionScrId + "listData").removeClass('sno');
+        apz.data.scrdata.Widget__IPaintColSubmissionData_Res.CashierData = paintDet;
+        apz.data.loadData("IPaintColSubmissionData", 'Widget');
+        for (i = 0; i < paintDet.length; i++) {
+            if (paintDet[i].status === "APPROVAL PENDING BY BM" || paintDet[i].status === 'PUSHBACK') {
+                $("#" + CollectionSubmissionScrId + 'verifyText_' + i).addClass('sno');
+                if (paintDet[i].status === 'PUSHBACK') {
+                    $(WidgetStatus + i).addClass('bg-dark-err');
+                    $(WidgetStatus + i).removeClass('bg-err');
+                } else {
+                    $(WidgetStatus + i).addClass('bg-info');
+                    $(WidgetStatus + i).removeClass('bg-err');
+                }
+            }
+        }
+    } else {
+        $("#" + CollectionSubmissionScrId + "noRecordForm").removeClass('sno');
+        $("#" + CollectionSubmissionScrId + "listData").addClass('sno');
+    }*/
+    // apz.app.CollectionSubmission.paintCollSubmissionHeader();
+}
+apz.app.CollectionSubmission.onClickdropdown = function() {
+    if ($("#" + CollectionSubmissionScrId + "collectSubmissionRow").is(':visible')) {
+        $("#" + CollectionSubmissionScrId + "collectSubmissionRow").addClass('sno');
+        $('#Dashbo__dashboard__Widget3').removeClass("active");
+        // $('#Dashbo__dashboard__Widget8').removeClass("active");
+    } else {
+        $("#" + CollectionSubmissionScrId + "collectSubmissionRow").removeClass('sno');
+        $('#Dashbo__dashboard__Widget3').addClass("active");
+        // $('#Dashbo__dashboard__Widget8').addClass("active");
+        if (userRole === "BM" || userRole === "CASHIER") {
+            apz.data.scrdata.Widget__IPaintMeetingTypes_Res = {};
+            apz.data.scrdata.Widget__IPaintMeetingTypes_Res = meetingTypes;
+            apz.data.loadData("IPaintMeetingTypes", 'Widget');
+            let items = $("#Widget__CollectionSubmission__meetingTypeList li");
+            for (i = 0; i < items.length; i++) {
+                $("#Widget__CollectionSubmission__meetingTypeList_row_" + i).removeClass('active')
+            }
+            $("#" + CollectionSubmissionScrId + "meetingTypeList").removeClass('sno');
+            $("#" + CollectionSubmissionScrId + "meetingTypeList_row_0").addClass('active');
+            $("#" + CollectionSubmissionScrId + "lst_roleStatusTypesId").removeClass('sno');
+            $("#" + CollectionSubmissionScrId + "lst_roleStatusTypesId li").removeClass('active');
+            // $("#" + CollectionSubmissionScrId + "lst_roleStatusTypesId_row_0").addClass('active');
+            apz.app.CollectionSubmission.fetchCashierCollections();
+        } else if (userRole === "KM") {
+            $('#' + CollectionSubmissionScrId + 'totalRpeatAmtCol').closest('li').addClass('sno');
+            $('#' + CollectionSubmissionScrId + 'txt_nonMeCollAmtId').closest('li').addClass('sno');
+            if (!apz.isObjectEmpty(collectionInfoParams)) {
+                // apz.app.CollectionSubmission.fetchCashierCollections();
+                setTimeout(function() {
+                    apz.app.CollectionSubmission.fetchCashierCollectionsCB(collectionInfoParams);
+                }, 300);
+            } else {
+                //apz.app.CollectionSubmission.paintCollSubmissionForKM();
+                apz.app.CollectionSubmission.showNoRecordForColSubWidget();
+            }
+            if (!apz.isObjectEmpty(RepeatCollectInfoParams)) {
+                setTimeout(function() {
+                    apz.app.CollectionSubmission.fetchCashierCollectionsCB(RepeatCollectInfoParams);
+                }, 300);
+            } else {
+                RepeatRecords = {
+                    "pendingRec": [],
+                    "pendByCashierRec": [],
+                    "pendByBMRec": [],
+                    "pushBackCashierRec": [],
+                    "approvedRec": [],
+                    "pushbackBMRec": []
+                }
+            }
+            if (!apz.isObjectEmpty(NonMeetingCollectionInfoParams)) {
+                setTimeout(function() {
+                    apz.app.CollectionSubmission.fetchCashierCollectionsCB(NonMeetingCollectionInfoParams);
+                }, 300);
+            }
+            $("#" + CollectionSubmissionScrId + "lst_roleStatusTypesId").removeClass('sno');
+            $("#" + CollectionSubmissionScrId + "lst_roleStatusTypesId li").removeClass('active');
+            // $("#" + CollectionSubmissionScrId + "lst_roleStatusTypesId_row_0").addClass('active');
+        }
+        // }
+        setTimeout(() => {
+            $('#Widget__IPaintStatusTypes__o__Widget__IPaintStatusTypes_Res__types_0').click();
+        }, 400);
+    }
+    let meetingCol = document.getElementById(CollectionSubmissionScrId + 'txt_kmCollAmtId').innerText;
+    let repeatCol = document.getElementById(CollectionSubmissionScrId + 'totalRpeatAmtCol').innerText;
+    document.getElementById(CollectionSubmissionScrId + 'txt_kmCollectedCash').innerText = ApzCOB.fn_FormatAmount(parseInt(String(meetingCol)
+        .replace(/,/g, ''), 10) + parseInt(String(repeatCol).replace(/,/g, ''), 10));
+}
+apz.app.CollectionSubmission.onClickselectedRow = function(pthis) {
+    let rowNo = $(pthis).attr('rowno');
+    let selectedType;
+    apz.data.scrdata.Widget__IPaintStatusTypes_Res.forEach((d, i) => {
+        if (document.getElementById("Widget__CollectionSubmission__lst_roleStatusTypesId_row_" + i).classList.contains("active")) {
+            selectedType = d.types;
+        }
+    });
+    let kmId;
+    isPendingRecClick = false;
+    // if (selectedType === "Approved") {
+    //     kmId = MeetingDayRecords.approvedRec[rowNo].kmId;
+    // } else if (selectedType === 'Pending') {
+    //     isPendingRecClick = true;
+    //     kmId = MeetingDayRecords.pending[rowNo].kmId;
+    // } else if (selectedType === "Pending(BM)") {
+    //     kmId = MeetingDayRecords.pendByBMRec[rowNo].kmId;
+    // } else if (selectedType === "Pushback(BM)") {
+    //     kmId = MeetingDayRecords.pushbackBMRec[rowNo].kmId;
+    // } else if (selectedType === "Pushback") {
+    //     kmId = MeetingDayRecords.pushbackRec[rowNo].kmId;
+    // }
+    // let cashierRecord = apz.app.CollectionSubmission.returnKmIdData(kmId);
+    if (selectedType === 'Pending') {
+        isPendingRecClick = true;
+    }
+    let cashierRecord = apz.data.scrdata.Widget__IPaintColSubmissionData_Res.CashierData[rowNo];
+    if (window.userRole === 'CASHIER') {
+        ApzCOB.launchMicroApp("CasCol", "CashierScreen", "APZCBO__BaseScreens__BaseDIV", cashierRecord);
+    } else if (window.userRole === 'BM') {
+        ApzCOB.launchMicroApp("CollBM", "ColletionApproveOrReject", "APZCBO__BaseScreens__BaseDIV", cashierRecord);
+    }
+}
+apz.app.CollectionSubmission.returnKmIdData = function(kmId) {
+    let records = paintDet.find((d) => d.kmId === kmId);
+    return records;
+};
+apz.app.CollectionSubmission.paintNonMeetingDayCollForKM = function(params) {
+    if (params.length === 0) {
+        document.getElementById(CollectionSubmissionScrId + "txt_nonMeCollAmtId").innerText = 0;
+    } else {
+        nonMettingSubFilterData = params;
+        let data = apz.app.CollectionSubmission.nonMeetingDataSubmissionForatFun(params);
+        let sum = data.length === 0 ? 0 : data.reduce((total, item) => total + (item.colldtls.totCollAmt || 0), 0);
+        document.getElementById(CollectionSubmissionScrId + "txt_nonMeetColAmt").innerText = data.length;
+        document.getElementById(CollectionSubmissionScrId + "txt_nonMeCollAmtId").innerText = ApzCOB.fn_FormatAmount(sum);
+        //document.getElementById(CollectionSubmissionScrId + 'nonMetWidgetDiv').classList.remove('sno');
+        if (data.length > 0) {
+            document.getElementById("Widget__CollectionSubmission__nonMeeColSubmit_li").classList.remove('sno');
+        } else {
+            document.getElementById("Widget__CollectionSubmission__nonMeeColSubmit_li").classList.add('sno');
+        }
+        $("#" + CollectionSubmissionScrId + "icn_NViewDetailed").removeClass('sno');
+        nonMeeColSubData = data;
+    }
+    CollectionsCommon.fetchNonMetCustRecDts();
+}
+apz.app.CollectionSubmission.nonMeetingDataSubmissionForatFun = function(params) {
+    let nonMeetcolSubData = [];
+    let collectionData = apz.app.CollectionSubmission.transformNonMeetingCollData(params);
+    collectionData.forEach((d) => {
+        let kendraDts = {};
+        kendraDts.kendraId = d.KENDRAID;
+        kendraDts.branchId = d.BRANCHID;
+        kendraDts.kendraName = apz.app.CollectionSubmission.getKendraDetails(d.KENDRAID, 'KendraName');
+        kendraDts.meetingDate = d.MEETINGDATE;
+        kendraDts.meetingDay = d.MEETINGDAY;
+        kendraDts.kmId = apz.userId;
+        kendraDts.colldtls = {};
+        kendraDts.colldtls.collId = d.KENDRACOLID;
+        kendraDts.colldtls.appId = d.KENSUBCOLID;
+        kendraDts.colldtls.groups = [];
+        d.PAYLOAD.groupedDetails.forEach((cust) => {
+            let groupDts = {};
+            groupDts.id = cust.groupId;
+            groupDts.members = cust.customers;
+            groupDts.netDue = cust.totals.netDue;
+            groupDts.totCollAmt = cust.totals.totCollAmt;
+            groupDts.totalAdv = cust.totals.totalAdv;
+            groupDts.totalDue = cust.totals.totalDue;
+            groupDts.parAmt = cust.totals.parAmt;
+            groupDts.totalCash = cust.totals.totalCash;
+            kendraDts.colldtls.groups.push(groupDts);
+        });
+        kendraDts.colldtls.totCollAmt = d.PAYLOAD.kendraTotals.totCollAmt;
+        kendraDts.colldtls.advAmt = d.PAYLOAD.kendraTotals.totalAdv;
+        kendraDts.colldtls.netDue = d.PAYLOAD.kendraTotals.netDue;
+        kendraDts.colldtls.totalDue = d.PAYLOAD.kendraTotals.totalDue;
+        kendraDts.colldtls.totalCash = d.PAYLOAD.kendraTotals.totalCash;
+        kendraDts.type = d.TYPE;
+        nonMeetcolSubData.push(kendraDts);
+    });
+    return nonMeetcolSubData;
+}
+apz.app.CollectionSubmission.getKendraDetails = function(kendraId, type) {
+    let kenD = kendraResponse.find((d) => d.kendraDtls.kendraId == kendraId);
+    if (type === 'KendraName') {
+        return kenD.kendraDtls.kendraName;
+    }
+}
+apz.app.CollectionSubmission.transformNonMeetingCollData = function(data) {
+    let result = data.map(item => {
+        let groupedByGroupId = {};
+        // Group customerDetails by groupId
+        item.PAYLOAD.customerDetails.forEach(customer => {
+            let {
+                groupId,
+            } = customer;
+            if (!groupedByGroupId[groupId]) {
+                groupedByGroupId[groupId] = {
+                    groupId: groupId,
+                    groupName: customer.groupName,
+                    kendraId: customer.kendraId,
+                    customers: [],
+                    totals: {
+                        netDue: 0,
+                        totCollAmt: 0,
+                        totalAdv: 0,
+                        totalDue: 0,
+                        parAmt: 0,
+                        totalCash: 0
+                    }
+                };
+            }
+            // Add customer to the group
+            groupedByGroupId[groupId].customers.push(customer);
+            // Update group totals
+            let {
+                loans,
+                cashCollected,
+                advAmt,
+                totalDue,
+                parAmt
+            } = customer;
+            let loanArray = Array.isArray(loans) ? loans : [];
+            let loanTotals = loanArray.reduce(
+                (totals, loan) => {
+                    totals.cashAmt += loan.cashAmt || 0;
+                    totals.advAmt += loan.upiAmt || 0;
+                    totals.dueAmt += parseFloat(loan.dueAmt) || 0;
+                    return totals;
+                }, {
+                    cashAmt: 0,
+                    advAmt: 0,
+                    dueAmt: 0
+                });
+            groupedByGroupId[groupId].totals.netDue += parseFloat(customer.netDue) || 0;
+            groupedByGroupId[groupId].totals.totCollAmt += parseFloat(cashCollected) || 0;
+            groupedByGroupId[groupId].totals.totalAdv += parseFloat(advAmt) || loanTotals.advAmt;
+            groupedByGroupId[groupId].totals.totalDue += parseFloat(totalDue) || loanTotals.dueAmt;
+            groupedByGroupId[groupId].totals.parAmt += parseFloat(parAmt) || 0;
+            groupedByGroupId[groupId].totals.totalCash += parseFloat(cashCollected) || 0; // Summing totalCash
+        });
+        // Convert groupedByGroupId into an array
+        let groupedDetails = Object.values(groupedByGroupId);
+        // Calculate totals for kendraId level
+        let kendraTotals = groupedDetails.reduce(
+            (totals, group) => {
+                totals.netDue += group.totals.netDue;
+                totals.totCollAmt += group.totals.totCollAmt;
+                totals.totalAdv += group.totals.totalAdv;
+                totals.totalDue += group.totals.totalDue;
+                totals.totalCash += group.totals.totalCash;
+                return totals;
+            }, {
+                netDue: 0,
+                totCollAmt: 0,
+                totalAdv: 0,
+                totalDue: 0,
+                totalCash: 0
+            });
+        return {
+            KMID: item.KMID,
+            BRANCHID: item.BRANCHID,
+            DOWNLOADTS: item.DOWNLOADTS,
+            PAYLOAD: {
+                groupedDetails: groupedDetails,
+                kendraTotals: kendraTotals
+            },
+            MEETINGDAY: item.MEETINGDAY,
+            MEETINGDATE: item.MEETINGDATE,
+            KENDRAID: item.KENDRAID,
+            KENDRACOLID: item.KENDRACOLLID,
+            KENSUBCOLID: item.APPLICATIONID,
+            TYPE: item.TYPE
+        };
+    });
+    return result;
+}
+apz.app.CollectionSubmission.paintCollSubmissionForKM = function() {
+    $("#" + CollectionSubmissionScrId + "listData").addClass('sno');
+    let totCollAmt = 0;
+    collectedKendraCount = 0;
+    if (collectionKendraData.length > 0) {
+        $("#" + CollectionSubmissionScrId + "lst_kmCollListId").removeClass('sno');
+        $("#" + CollectionSubmissionScrId + "noRecordForm").addClass('sno');
+        if (collecSubPaintRecords.length > 0) {
+            collectionKendraData.forEach((obj, indx) => {
+                collecSubPaintRecords.forEach((res, m) => {
+                    if ((res.hasOwnProperty('id') && res.id === obj.kendraId) || (res.hasOwnProperty('kendraId') && res
+                            .kendraId === obj.kendraId)) {
+                        obj.colldtls = res.colldtls;
+                        if (res.colldtls.hasOwnProperty('totCollAmt')) {
+                            /*res.colldtls.groups.forEach((grp, k) => {
+                                totCollAmt = totCollAmt + grp.totCollAmt;
+                            })*/
+                            //totalAmountCollected = totCollAmt;
+                            totCollAmt += obj.colldtls.totCollAmt;
+                            collectedKendraCount++;
+                        }
+                    }
+                })
+            });
+        }
+        document.getElementById(CollectionSubmissionScrId + 'txt_noOfKendraId').innerText = collectedKendraCount;
+        document.getElementById(CollectionSubmissionScrId + 'txt_kmCollAmtId').innerText = ApzCOB.fn_FormatAmount(totCollAmt);
+        document.getElementById(CollectionSubmissionScrId + 'txt_kmCollectedCash').innerText = ApzCOB.fn_FormatAmount(totCollAmt);
+        if (collectedKendraCount > 0) {
+            $("#" + CollectionSubmissionScrId + "col_meetCollSubmitBtn_li").removeClass('sno');
+        } else {
+            $("#" + CollectionSubmissionScrId + "col_meetCollSubmitBtn_li").addClass('sno');
+            $("#" + CollectionSubmissionScrId + "col_submitAllKenColId_li").addClass('sno');
+        }
+        // $('#' + CollectionSubmissionScrId + 'txt_colSubCountId').text(collecSubPaintRecords.length + '/' + collectionKendraData.length);
+    } else {
+        apz.app.CollectionSubmission.showNoRecordForColSubWidget();
+    }
+}
+apz.app.CollectionSubmission.showNoRecordForColSubWidget = function() {
+    document.getElementById(CollectionSubmissionScrId + 'txt_kmCollAmtId').innerText = 0;
+    document.getElementById(CollectionSubmissionScrId + 'txt_kmCollectedCash').innerText = 0;
+    document.getElementById(CollectionSubmissionScrId + 'txt_noOfKendraId').innerText = 0;
+    $("#" + CollectionSubmissionScrId + "col_meetCollSubmitBtn_li").addClass('sno');
+    $("#" + CollectionSubmissionScrId + "noRecordForm").addClass('sno');
+    document.getElementById(CollectionSubmissionScrId + 'lst_kmCollListId').classList.remove('sno')
+};
+apz.app.CollectionSubmission.launchSubmitToCashier = function(type) {
+    let widgetType = type;
+    $('#footer').addClass('sno');
+    let statusTypeRowNo = $('#' + CollectionSubmissionScrId + 'lst_roleStatusTypesId li.active').attr('rowno');
+    let launchObj = {};
+    launchObj.records = {};
+    let statusType = "";
+    statusType = apz.data.scrdata.Widget__IPaintStatusTypes_Res[statusTypeRowNo].types;
+    launchObj.statusType = statusType;
+    if (widgetType === 'MEETING') {
+        launchObj.records = MeetingSubRec;
+        launchObj.oldRecords = JSON.parse(JSON.stringify(MeetingSubRec));
+        launchObj.type = "MEETING";
+        if (MeetingSubRec.length > 0) {
+            ApzCOB.launchMicroApp("KenMet", "CollectionSubmission", 'APZCBO__BaseScreens__BaseDIV', launchObj);
+        } else {
+            ApzCOB.fnDisplayMsg("Please Collect atleast one Kendra", "E");
+        }
+    } else if (widgetType === "REPEAT") {
+        launchObj.records = repeatSubRec;
+        launchObj.oldRecords = JSON.parse(JSON.stringify(repeatSubRec));
+        launchObj.type = "REPEAT";
+        hideReasonForRepeat = true;
+        apz.data.scrdata.Widget__IPaintStatusTypes_Res.forEach((val, i) => {
+            if (val.types === "Pushback(Cashier)" && document.getElementById("Widget__CollectionSubmission__lst_roleStatusTypesId_row_" +
+                    i)?.classList.contains("active")) {
+                pushBackRecSubFlag = true;
+            }
+        });
+        ApzCOB.launchMicroApp("KenMet", "CollectionSubmission", 'APZCBO__BaseScreens__BaseDIV', launchObj);
+    } else if (widgetType === 'NONMEETING') {
+        launchObj.records = NonMeetingSubRec;
+        launchObj.type = "NONMEETING";
+        ApzCOB.launchMicroApp("KenMet", "CollectionSubmission", 'APZCBO__BaseScreens__BaseDIV', launchObj);
+    }
+}
+apz.app.CollectionSubmission.fetchAppWFData = function() {
+    isFromCollSubWidget = true;
+    isFromRepeatCollSubWidget = true;
+    // fromCollWidget = true;
+    CollectionsCommon.fetchCollAppWFSQLLite()
+    // if (!apz.isObjectEmpty(RepeatMeetDetails)) {
+    CollectionsCommon.fetchRepeatCollAppWFSQLLite();
+    CollectionsCommon.fetchFromRepeatCollectionSQLLite();
+    CollectionsCommon.fetchNonMetAppWFSQLLite();
+    //CollectionsCommon.fetchRepeatMetCustRecDts();
+    //  }
+    // CollectionsCommon.fetchFromCashDepositSQLLite();
+}
+apz.app.CollectionSubmission.paintCollSubData = function() {
+    /*isFromCollSubWidget = false;
+    collecSubPaintRecords = [];
+    if (colAppWFData.length > 0) {
+        colAppWFData.forEach((obj, i) => {
+            if (obj.NEXTWFSTAGEID === "SENDFORAPPROVAL" /* || obj.NEXTWFSTAGEID === "CASHHANDOVER"* / ) {
+                collectionKendraData.forEach((kend, j) => {
+                    if (obj.KENDRAID === kend.kendraId) {
+                        collecSubPaintRecords.push(kend)
+                    }
+                })
+                // } else if (ViewMeetingApplnProgress[0].kendraDtls.length > 0) {
+                // ViewMeetingApplnProgress[0].kendraDtls.forEach((res, k) => {
+                //     if(res.kendraDtls[0].id !== obj.KENDRAID) {
+                //         collecSubPaintRecords.push(res)
+                //     }
+                // })
+            }
+        })
+        let otherDeviceKen = [];
+        if (ViewMeetingApplnProgress.length > 0) {
+            otherDeviceKen = ViewMeetingApplnProgress[0].kendraDtls.filter(ken => {
+                if (collectionKendraData.some(localItem => localItem.kendraId === ken.id && ken.applnDtls.appStatus !== "APPROVED")) {
+                    return ken;
+                }
+            })
+            otherDeviceKen.forEach(othKen => {
+                collecSubPaintRecords.push(othKen);
+            });
+           /*collecSubPaintRecords = collecSubPaintRecords.filter(obj => !ViewMeetingApplnProgress[0].kendraDtls.some(obj2 => obj2.id === obj.id && obj2.applnDtls.appStatus === "APPROVED"));* /
+        }
+    } else if (ViewMeetingApplnProgress.length > 0 && ViewMeetingApplnProgress[0].kendraDtls.length > 0) {
+        collecSubPaintRecords = ViewMeetingApplnProgress[0].kendraDtls;
+    }*/
+    isFromCollSubWidget = false;
+    collecSubPaintRecords = [];
+    var showSubmitToCashier = false;
+    let approvedAppln = [];
+    let otherDeviceKen = [];
+    let isSubmitToCashierCount = 0;
+    // if (ViewMeetingApplnProgress.length > 0) {
+    //     let otherDeviceKen = [];
+    //     apporvedAppln = ViewMeetingApplnProgress[0].kendraDtls.filter(obj => obj.applnDtls.appStatus === "APPROVED");
+    //     otherDeviceKen = ViewMeetingApplnProgress[0].kendraDtls.filter(ken => {
+    //         if (collectionKendraData.some(localItem => localItem.kendraId === ken.id && ken.applnDtls.appStatus !== "APPROVED")) {
+    //             return ken;
+    //         }
+    //     })
+    //     if (otherDeviceKen.length > 0) {
+    //         isSubmitToCashierCount++;
+    //         otherDeviceKen.forEach(othKen => {
+    //             collecSubPaintRecords.push(othKen);
+    //         });
+    //     }
+    // }
+     if (window.currentUserRole === 'DEO') {
+         if (ViewMeetingApplnProgress.length > 0) {
+             otherDeviceKen = [];
+             ViewMeetingApplnProgress.forEach(kmObj => {
+                 if (!apz.isNull(kmObj.kendraDtls) && Array.isArray(kmObj.kendraDtls) && kmObj.kendraDtls.length > 0) {
+                     kmObj.kendraDtls.forEach(ken => {
+                         if (ken.applnDtls && ken.applnDtls.appStatus === "APPROVED") {
+                             approvedAppln.push(ken);
+                         }
+                         if (ken.applnDtls && ken.applnDtls.appStatus !== "APPROVED" && collectionKendraData.some(localItem => localItem
+                                 .kendraId === ken.id)) {
+                             otherDeviceKen.push(ken);
+                         }
+                     });
+                 }
+             });
+             if (otherDeviceKen.length > 0) {
+                 isSubmitToCashierCount++;
+                 otherDeviceKen.forEach(othKen => {
+                     collecSubPaintRecords.push(othKen);
+                 });
+             }
+         }
+     } else if (userRole === 'KM') {
+         if (ViewMeetingApplnProgress.length > 0) {
+              otherDeviceKen = [];
+             approvedAppln = ViewMeetingApplnProgress[0].kendraDtls.filter(obj => obj.applnDtls.appStatus === "APPROVED");
+             otherDeviceKen = ViewMeetingApplnProgress[0].kendraDtls.filter(ken => {
+                 if (collectionKendraData.some(localItem => localItem.kendraId === ken.id && ken.applnDtls.appStatus !== "APPROVED")) {
+                     return ken;
+                 }
+             })
+             if (otherDeviceKen.length > 0) {
+                 isSubmitToCashierCount++;
+                 otherDeviceKen.forEach(othKen => {
+                     collecSubPaintRecords.push(othKen);
+                 });
+             }
+         }
+     }
+    if (colAppWFData.length > 0 && colAppWFData.filter(obj1 => obj1.NEXTWFSTAGEID === "SENDFORAPPROVAL")) {
+        if (colAppWFData.length > 0) {
+            colAppWFData.forEach((obj, i) => {
+                if (obj.NEXTWFSTAGEID === "SENDFORAPPROVAL") {
+                    collectionKendraData.forEach((kend, j) => {
+                        if (obj.KENDRAID === kend.kendraId) {
+                            collecSubPaintRecords.push(kend);
+                            isSubmitToCashierCount++;
+                        }
+                    })
+                }
+            });
+        }
+    } else {
+        if (window.currentUserRole === 'DEO' && ViewMeetingApplnProgress.length > 0) {
+            let totalKendraCount = 0;
+            ViewMeetingApplnProgress.forEach(kmObj => {
+                if (!apz.isNull(kmObj.kendraDtls) && Array.isArray(kmObj.kendraDtls) && kmObj.kendraDtls.length > 0) {
+                    totalKendraCount += kmObj.kendraDtls.length;
+                }
+            });
+            if (approvedAppln.length === totalKendraCount) {
+                ViewMeetingApplnProgress.forEach(kmObj => {
+                    if (!apz.isNull(kmObj.kendraDtls) && Array.isArray(kmObj.kendraDtls) && kmObj.kendraDtls.length > 0) {
+                        collecSubPaintRecords.push(...kmObj.kendraDtls);
+                    }
+                });
+            }
+        }
+        else{
+            if (userRole === 'KM' && ViewMeetingApplnProgress.length > 0 && approvedAppln.length === ViewMeetingApplnProgress[0].kendraDtls.length) {
+                collecSubPaintRecords = ViewMeetingApplnProgress[0].kendraDtls;
+            }
+        }
+    }
+    // } else if (ViewMeetingApplnProgress.length > 0 && apporvedAppln.length === ViewMeetingApplnProgress[0].kendraDtls.length) {
+    //     collecSubPaintRecords = ViewMeetingApplnProgress[0].kendraDtls;
+    // }
+    if (isSubmitToCashierCount > 0) {
+        $("#" + CollectionSubmissionScrId + "txt_submitOnlyKendras").removeClass('sno');
+        $("#" + CollectionSubmissionScrId + "icn_ViewDetailed").addClass('sno');
+    } else {
+        $("#" + CollectionSubmissionScrId + "txt_submitOnlyKendras").addClass('sno');
+        $("#" + CollectionSubmissionScrId + "icn_ViewDetailed").removeClass('sno');
+    }
+    apz.app.CollectionSubmission.paintCollSubmissionForKM();
+    //apz.app.CollectionSubmission.paintCollSubmissionHeader();
+}
+apz.app.CollectionSubmission.RepeatpaintCollSubData = function() {
+    isFromRepeatCollSubWidget = false;
+    RepeatSubPaintRecords = [];
+    if (RepeatcolAppWFData.length > 0) {
+        RepeatcolAppWFData.forEach((obj, i) => {
+            if (obj.NEXTWFSTAGEID === "SENDFORAPPROVAL" /* || obj.NEXTWFSTAGEID === "CASHHANDOVER"*/ ) {
+                kendras.forEach((kend, j) => {
+                    if (obj.KENDRAID === kend.kendraId) {
+                        RepeatSubPaintRecords.push(kend)
+                    }
+                })
+            }
+        })
+        // let otherKendraDet = [];
+        // if (ViewRepeatApplnProgress.length > 0) {
+        //     otherKendraDet = ViewRepeatApplnProgress[0].kendraDtls.filter(ken => {
+        //         if (kendras.some(localItem => localItem.kendraId !== ken.id)) {
+        //             return ken;
+        //         }
+        //     })
+        //     otherKendraDet.forEach(othKen => {
+        //         RepeatSubPaintRecords.push(othKen);
+        //     })
+        // }
+    }else {
+         if (window.currentUserRole === "DEO") {
+             ViewRepeatApplnProgress.forEach((progressObj) => {
+                 if (progressObj.kendraDtls && progressObj.kendraDtls.length > 0) {
+                     RepeatSubPaintRecords.push(...progressObj.kendraDtls);
+                 }
+             });
+         } else {
+             if (ViewRepeatApplnProgress.length > 0 && ViewRepeatApplnProgress[0].kendraDtls.length > 0) {
+                 RepeatSubPaintRecords = ViewRepeatApplnProgress[0].kendraDtls;
+             }
+         }
+    }
+    function getUniqueValues(arr1, arr2) {
+        const combinedArray = [...arr1, ...arr2];
+        const uniqueValues = [...new Set(combinedArray)];
+        return uniqueValues;
+    }
+    if (ViewRepeatApplnProgress.length > 0) {
+        //const array1 = JSON.parse(JSON.stringify(ViewRepeatApplnProgress[0].kendraDtls));
+        // for (i = 0; i < array1.length; i++) {
+        //     let filterRec = RepeatSubPaintRecords.filter(e => e.kendraId === array1[i].id);
+        //     if (array[i] !== 1 && array1[i].applnWFDtls[0].nextWFStage === 'APPROVED' && array1[i].applnDtls.appStatus === 'APPROVED') {
+        //         array1.splice(i, 1);
+        //     }
+        // }
+        let array1 = [];
+        if (window.currentUserRole === 'DEO') {
+            ViewRepeatApplnProgress.forEach((progressObj) => {
+                if (progressObj.kendraDtls && progressObj.kendraDtls.length > 0) {
+                    progressObj.kendraDtls.forEach((kendra) => {
+                        if (kendra.applnWFDtls[0].nextWFStage !== 'APPROVED' && kendra.applnDtls.appStatus !== 'APPROVED') {
+                            array1.push(kendra);
+                        }
+                    });
+                }
+            });
+        } else {
+            for (i = 0; i < ViewRepeatApplnProgress[0].kendraDtls.length; i++) {
+                if (ViewRepeatApplnProgress[0].kendraDtls[i].applnWFDtls[0].nextWFStage !== 'APPROVED' && ViewRepeatApplnProgress[0].kendraDtls[i]
+                    .applnDtls.appStatus !== 'APPROVED') {
+                    array1.push(ViewRepeatApplnProgress[0].kendraDtls[i]);
+                }
+            }
+        }
+        let array2 = RepeatSubPaintRecords;
+        // for (i = 0; i < RepeatSubPaintRecords.length; i++) {
+        //     // RepeatSubPaintRecords.filter(e => e.kendraId === ViewRepeatApplnProgress[0].kendraDtls[i].id || e.kendraId === ViewRepeatApplnProgress[0].kendraDtls[i].kendraId);
+        //     if (RepeatSubPaintRecords[i].hasOwnProperty('applnWFDtls') && RepeatSubPaintRecords[i].applnWFDtls[0].nextWFStage !== 'APPROVED' &&
+        //         RepeatSubPaintRecords[i].hasOwnProperty('applnDtls') && RepeatSubPaintRecords[i].applnDtls.appStatus !== 'APPROVED') {
+        //         array2.push(RepeatSubPaintRecords[i]);
+        //     }
+        // }
+        FinalPaintRec = getUniqueValues(array1, array2);
+    } else if (RepeatSubPaintRecords.length > 0) {
+        FinalPaintRec = RepeatSubPaintRecords;
+        //commented below as length or repeat collections is 0 but still taking the values
+        // } else {
+        //     FinalPaintRec = ViewRepeatApplnProgress[0].kendraDtls;
+    }
+    apz.app.CollectionSubmission.filteredMembers();
+    apz.app.CollectionSubmission.paintCollRepeatData();
+}
+apz.app.CollectionSubmission.filteredMembers = function() {
+    const existingMembers = new Set();
+    if (window.currentUserRole === 'DEO') {
+        if (ViewRepeatApplnProgress.length > 0) {
+            ViewRepeatApplnProgress.forEach(progressObj => {
+                if (progressObj.kendraDtls && progressObj.kendraDtls.length > 0) {
+                    progressObj.kendraDtls.forEach(item => {
+                        if (item.applnWFDtls && item.applnWFDtls.length > 0 && item.applnWFDtls[0].nextWFStage !== 'APPROVED') {
+                            item.colldtls.groups.forEach(group => {
+                                group.members.forEach(member => {
+                                    const kendraOrId = item.hasOwnProperty('kendraId') ? item.kendraId : (item
+                                        .hasOwnProperty('id') ? item.id : null);
+                                    if (kendraOrId) {
+                                        existingMembers.add(kendraOrId + "-" + member.id);
+                                    }
+                                });
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    } else {
+        if (ViewRepeatApplnProgress.length > 0) {
+            ViewRepeatApplnProgress[0].kendraDtls.forEach(item => {
+                if (item.applnWFDtls && item.applnWFDtls.length > 0 && item.applnWFDtls[0].nextWFStage !== 'APPROVED') {
+                    item.colldtls.groups.forEach(group => {
+                        group.members.forEach(member => {
+                            const kendraOrId = item.hasOwnProperty('kendraId') ? item.kendraId : (item.hasOwnProperty('id') ?
+                                item.id : null);
+                            if (kendraOrId) {
+                                existingMembers.add(kendraOrId + "-" + member.id);
+                            }
+                        });
+                    });
+                }
+            });
+        }
+    }
+    FinalPaintRec.map(item => {
+        // If the item does not have applnWFDtls, filter out members that are already in `existingMembers`
+        if (!item.applnWFDtls || item.applnWFDtls.length === 0) {
+            item.colldtls.groups.forEach(group => {
+                // Filter members that are not already in existingMembers
+                group.members = group.members.filter(member => {
+                    const kendraOrId = item.hasOwnProperty('kendraId') ? item.kendraId : (item.hasOwnProperty('id') ? item
+                        .id : null);
+                    return !existingMembers.has(kendraOrId + "-" + member.id);
+                });
+                group.netDue = group.members.reduce((sum, member) => sum + member.netDue, 0);
+                group.parAmt = group.members.reduce((sum, member) => sum + member.parAmt, 0);
+                group.totCollAmt = group.members.reduce((sum, member) => sum + member.collAmount, 0);
+                //group.totalAdv = group.members.reduce((sum, member) => sum + member.advAmt, 0);
+                group.totalDue = group.members.reduce((sum, member) => sum + member.totalDue, 0);
+            });
+            item.colldtls.netDue = item.colldtls.groups.reduce((sum, grp) => sum + grp.netDue, 0);
+            item.colldtls.totalAdv = item.colldtls.groups.reduce((sum, grp) => sum + grp.totalAdv, 0);
+            item.colldtls.totCollAmt = item.colldtls.groups.reduce((sum, grp) => sum + grp.totCollAmt, 0);
+            item.colldtls.totalDue = item.colldtls.groups.reduce((sum, grp) => sum + grp.totalDue, 0);
+        }
+        return item;
+    });
+}
+apz.app.CollectionSubmission.nonMeetingpaintCollSubData = function() {
+    nonMetSubPaintRecords = [];
+    if (nonMeetColWFData.length > 0) {
+        let mergedData = new Map();
+        nonMeetColWFData.forEach((obj, i) => {
+            if (obj.NEXTWFSTAGEID === "SENDFORAPPROVAL") {
+                nonMeeColSubData.forEach((kend, j) => {
+                    if (obj.KENDRAID === kend.kendraId) {
+                        let newKendra = JSON.parse(JSON.stringify(kend));
+                        if (!mergedData.has(kend.kendraId)) {
+                            mergedData.set(kend.kendraId, {
+                                ...newKendra,
+                                colldtls: {
+                                    ...newKendra.colldtls,
+                                    groups: []
+                                }
+                            });
+                        }
+                        let existingKendra = mergedData.get(kend.kendraId);
+                        newKendra.colldtls.groups.forEach(newGroup => {
+                            let existingGroup = existingKendra.colldtls.groups.find(group => group.id === newGroup.id);
+                            if (existingGroup) {
+                                let existingCust = existingGroup.members.flatMap((d) => d.id);
+                                let newCustList = newGroup.members.flatMap((d) => d.id);
+                                let isPresent = newCustList.every(id => existingCust.includes(id));
+                                if (!isPresent) {
+                                    existingGroup.members = [...existingGroup.members, ...newGroup.members];
+                                    existingGroup.netDue += newGroup.netDue;
+                                    existingGroup.totCollAmt += newGroup.totCollAmt;
+                                    existingGroup.totalAdv += newGroup.totalAdv;
+                                    existingGroup.totalDue += newGroup.totalDue;
+                                }
+                            } else {
+                                existingKendra.colldtls.groups.push({
+                                    ...newGroup
+                                });
+                            }
+                        });
+                        existingKendra.colldtls.netDue = 0;
+                        existingKendra.colldtls.totCollAmt = 0;
+                        existingKendra.colldtls.totalAdv = 0;
+                        existingKendra.colldtls.totalDue = 0;
+                        existingKendra.colldtls.netDue += newKendra.colldtls.netDue;
+                        existingKendra.colldtls.totCollAmt += newKendra.colldtls.totCollAmt;
+                        existingKendra.colldtls.totalAdv += newKendra.colldtls.totalAdv;
+                        existingKendra.colldtls.totalDue += newKendra.colldtls.totalDue;
+                    }
+                });
+            }
+        });
+        nonMetSubPaintRecords = Array.from(mergedData.values());
+        nonMetSubPaintRecords.forEach((d) => {
+            d.id = d.kendraId;
+            d.name = d.kendraName;
+            let totalGroupCollAmt = 0;
+            d.colldtls.groups.forEach(group => {
+                const groupCollAmt = group.members.reduce((sum, member) => sum + (parseInt(member.collAmount) || 0), 0);
+                totalGroupCollAmt += groupCollAmt;
+            });
+            d.colldtls.totCollAmt = totalGroupCollAmt;
+        })
+        let otherKendraDet = [];
+        if (ViewNonMeetingApplnProgress.length > 0) {
+            otherKendraDet = ViewNonMeetingApplnProgress[0].kendraDtls.filter(ken => {
+                return !kendras.some(localItem => localItem.kendraId === ken.id);
+            });
+            // otherKendraDet.forEach(othKen => {
+            //     nonMetSubPaintRecords.push(apz.app.CollectionSubmission.transSubPaintRecordsDataToSmres(othKen));
+            // });
+            let otherDeviceSts = (otherKendraDet);
+            otherDeviceSts.forEach((data) => {
+                data.kendraId = data.id;
+                data.kendraName = data.name;
+                if (data.applnDtls.appStatus !== "APPROVED") {
+                    nonMetSubPaintRecords.push(data);
+                }
+            });
+        }
+    } else if (ViewNonMeetingApplnProgress.length > 0 && ViewNonMeetingApplnProgress[0].kendraDtls.length > 0) {
+        nonMetSubPaintRecords = apz.app.CollectionSubmission.returnNonMetPendingRecord();
+    }
+    apz.app.CollectionSubmission.paintNonMeetingCollectionAmount();
+}
+apz.app.CollectionSubmission.returnNonMetPendingRecord = function() {
+    let inProgressRec = [];
+    let kendraDetails = ViewNonMeetingApplnProgress[0].kendraDtls;
+    let approvedRecords = kendraDetails.filter(d => d.applnDtls && d.applnDtls.appStatus === "APPROVED");
+    let pushBackRecords = kendraDetails.filter(d => d.applnDtls && d.applnDtls.currStage === "PUSHBACK");
+    let inProgressRecords = kendraDetails.filter(d => d.applnDtls && d.applnDtls.appStatus === "IN_PROGRESS");
+    if (approvedRecords.length === kendraDetails.length) {
+        // All records are approved
+        inProgressRec = approvedRecords;
+    } else if (pushBackRecords.length > 0) {
+        // Some records are in progress and in push back stage
+        inProgressRec = pushBackRecords;
+    } else if (inProgressRecords.length > 0) {
+        // Some records are in progress but not in push back stage
+        inProgressRec = inProgressRecords;
+    } else {
+        // Default case: include all records
+        inProgressRec = kendraDetails;
+    }
+    inProgressRec = inProgressRec.map(d => ({
+        ...d,
+        kendraId: d.id,
+        kendraName: d.name
+    }));
+    return inProgressRec;
+}
+apz.app.CollectionSubmission.paintRepeatCollSubData = function() {
+    isFromRepeatCollSubWidget = false;
+    RepeatColSubPaintRec = JSON.parse(JSON.stringify(RepeatSubData));
+    kendras = [];
+    if (RepeatColSubPaintRec.length > 0) {
+        RepeatColSubPaintRec.forEach(data => {
+            // if (data.hasOwnProperty('kendraEdited')) {
+            let groups = {};
+            let OneKendra = {
+                kendraId: data.kendraId,
+                branchId: data.branchId,
+                kendraName: data.kendraName,
+                meetingDate: data.meetingDate,
+                meetingDay: data.meetingDay,
+                startTime: data.meetingTime.split(' ')[0].includes(':') ? data.meetingTime.split(' ')[0].replace(':', '') : data
+                    .meetingTime.split(' ')[0],
+                kmId: data.handledBy,
+                lat: data.lat,
+                long: data.long,
+                updLoc: data.updLoc || "",
+                colldtls: {
+                    collId: data.RepeatApplnId,
+                    collDate: data.meetingDate.replace(/-/g, ''),
+                    applnId: data.applnId,
+                    groups: [],
+                    totCollAmt: 0,
+                    totalAdv: 0,
+                    totalDue: 0,
+                    netDue: 0
+                }
+            };
+            // Initialize group structures
+            data.groupDetails.forEach(group => {
+                if (!groups[group.groupId]) {
+                    groups[group.groupId] = {
+                        id: group.groupId,
+                        members: [],
+                        netDue: 0,
+                        totCollAmt: 0,
+                        totalAdv: 0,
+                        totalDue: 0,
+                        parAmt: 0
+                    };
+                }
+            });
+            // Loop through customers
+            data.customerDetails.forEach(customer => {
+                const loans = (customer.loans || []).map(loan => ({
+                    id: loan.id,
+                    prodCode: loan.prodCode,
+                    dueAmt: loan.dueAmt,
+                    osAmt: loan.osAmt,
+                    cashAmt: loan.cashAmt,
+                    upiAmt: loan.upiAmt,
+                    parAmt: loan.parAmt,
+                    prevParAmt: loan.prevParAmt || loan.parAmt // Assuming if prevParAmt not provided, use parAmt
+                }));
+                const collAmount = parseInt(customer.cashCollected, 10) || 0;
+                const upiCollected = parseInt(customer.upiCollected, 10) || 0;
+                const member = {
+                    id: customer.customerId,
+                    name: customer.customerName,
+                    depname: customer.depname,
+                    mobileNumber: customer.mobileNumber || "",
+                    primaryId: customer.primaryId || "",
+                    totalDue: parseInt(customer.cusTotalDue, 10) || 0,
+                    //totalAdv: customer.advAmt,
+                    // totalAdvInCurMet: customer.hasOwnProperty("advanceColl") ? customer.advanceColl : 0,
+                    totalAdvInCurMet: customer.hasOwnProperty("advAmt") ? customer.advAmt : 0,
+                    netDue: parseInt(customer.cusNetDue, 10) || 0,
+                    collAmount: collAmount,
+                    cashCollected: collAmount,
+                    dueAmount: parseInt(customer.cusTotalDue, 10) || 0,
+                    isZeroCollection: customer.isZeroCollection || false,
+                    isCurrentCustPar: true, // Based on context
+                    attend: customer.hasOwnProperty('collectedAmt') || customer.hasOwnProperty('isZeroCollection') ?
+                        "P" : "A",
+                    parFlg: customer.parFlg,
+                    parAmt: customer.parAmt,
+                    prevParAmt: customer.prevParAmt || customer.parAmt,
+                    advAmt: customer.advAmt,
+                    loans: loans,
+                    customerName: customer.customerName,
+                    outstandingAmt: parseInt(customer.cusTotalDue, 10) || 0,
+                    upiCollected: upiCollected,
+                    paymentFlg: customer.paymentFlg,
+                    advAdj: customer.advAdj,
+                    totalUPI: upiCollected,
+                    seqNo: customer.seqNo || null
+                };
+                const grpId = customer.customerGroupId.includes('Group') ? customer.customerGroupId.replaceAll('Group', '')
+                .trim() : customer.customerGroupId;
+                if (groups[grpId]) {
+                    groups[grpId].members.push(member);
+                    groups[grpId].totalDue += member.totalDue;
+                    groups[grpId].totalAdv += member.totalAdvInCurMet;
+                    groups[grpId].netDue += member.netDue;
+                    groups[grpId].parAmt += member.parAmt;
+                    groups[grpId].totCollAmt += member.cashCollected + member.upiCollected;
+                    //Sort members by seqNo after each push (optional but safe)
+                    groups[grpId].members.sort((a, b) => (a.seqNo || 0) - (b.seqNo || 0));
+                }
+            });
+            // Finalize and sort group properties based on first member's seqNo
+            let sortedGroups = Object.values(groups);
+            // Sort by first member's seqNo
+            sortedGroups.sort((a, b) => {
+                const seqA = (a.members[0] && a.members[0].seqNo) || 0;
+                const seqB = (b.members[0] && b.members[0].seqNo) || 0;
+                return seqA - seqB;
+            });
+            sortedGroups.forEach(group => {
+                group.isCollected = group.totCollAmt > 0;
+                group.GrpZeroCol = group.members.every(m => m.isZeroCollection === true);
+                OneKendra.colldtls.groups.push(group);
+            });
+            // Finalize collection totals
+            OneKendra.colldtls.totCollAmt = OneKendra.colldtls.groups.reduce((sum, g) => sum + g.totCollAmt, 0);
+            OneKendra.colldtls.totalAdv = OneKendra.colldtls.groups.reduce((sum, g) => sum + g.totalAdv, 0);
+            OneKendra.colldtls.totalDue = OneKendra.colldtls.groups.reduce((sum, g) => sum + g.totalDue, 0);
+            OneKendra.colldtls.netDue = OneKendra.colldtls.groups.reduce((sum, g) => sum + g.netDue, 0);
+            kendras.push(OneKendra);
+            // }
+        });
+    }
+};
+apz.app.CollectionSubmission.paintCollNonMetColtData = function() {
+    let isToNShowNxtBtn = false;
+    let totalAmt = 0;
+    if (ViewNonMeetingApplnProgress.length > 0) {
+        let checkKendraMatch = ViewNonMeetingApplnProgress[0].kendraDtls.some(item1 => nonMetSubPaintRecords.some(item2 => item1.id === item2
+            .kendraId));
+        if (ViewNonMeetingApplnProgress[0].kendraDtls.length === nonMetSubPaintRecords.length && !checkKendraMatch) {
+            isToNShowNxtBtn = true;
+        }
+    }
+    if (nonMetSubPaintRecords.length > 0) {
+        document.getElementById(CollectionSubmissionScrId + 'txt_nonMeetColAmt').innerText = nonMetSubPaintRecords.length;
+        let totAmt1 = nonMetSubPaintRecords.map(g => applnDtls[0].colldtls.totCollAmt).reduce((a, s) => a + s, 0);
+        document.getElementById(CollectionSubmissionScrId + 'txt_nonMeCollAmtId').innerText = ApzCOB.fn_FormatAmount(totAmt1);
+    }
+    if (nonMetSubPaintRecords.length > 0 && !isToNShowNxtBtn) {
+        $("#" + CollectionSubmissionScrId + "txt_NsubmitBtn").removeClass('sno');
+        $("#" + CollectionSubmissionScrId + "icn_NViewDetailed").addClass('sno');
+        document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').innerText = ApzCOB.getDescfromLitCode("LIT_COL_LBL_SUBM_PEND")
+        document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').classList.remove('bg-dark-err');
+    } else {
+        $("#" + CollectionSubmissionScrId + "txt_NsubmitBtn").addClass('sno');
+        $("#" + CollectionSubmissionScrId + "icn_NViewDetailed").removeClass('sno');
+    }
+    if (nonMetSubPaintRecords.length > 0) {
+        document.getElementById(CollectionSubmissionScrId + 'txt_nonMeetColAmt').innerText = nonMetSubPaintRecords.length;
+        let totAmt1 = nonMeeColSubData.map(g => g.colldtls.totCollAmt).reduce((a, s) => a + s, 0);
+        $("#" + CollectionSubmissionScrId + "txt_NsubmitBtn").removeClass('sno');
+        document.getElementById(CollectionSubmissionScrId + 'txt_nonMeCollAmtId').innerText = ApzCOB.fn_FormatAmount(totAmt1);
+        $("#" + CollectionSubmissionScrId + "txt_NsubmitBtn").removeClass('sno');
+        $("#" + CollectionSubmissionScrId + "icn_NViewDetailed").addClass('sno');
+    }
+}
+apz.app.CollectionSubmission.paintCollRepeatData = function() {
+    let isToRShowNxtBtn = false;
+    let totalAmt = 0;
+    // if (ViewRepeatApplnProgress.length > 0) {
+    //     let checkKendraMatch = ViewRepeatApplnProgress[0].kendraDtls.some(item1 => RepeatSubPaintRecords.some(item2 => item1.id === item2
+    //         .kendraId));
+    //     if (ViewRepeatApplnProgress[0].kendraDtls.length === RepeatSubPaintRecords.length && !checkKendraMatch) {
+    //         isToRShowNxtBtn = true;
+    //     }
+    // }
+    // // if (RepeatSubPaintRecords.length > 0) {
+    // //     for (j = 0; j < obj.kendraDtls.length; j++) {
+    // //         totalAmt = totalAmt + obj.kendraDtls[j].colldtls.totCollAmt
+    // //         document.getElementById(CollectionSubmissionScrId + 'totalNoKendra').innerText = obj.kendraDtls.length;
+    // //         document.getElementById(CollectionSubmissionScrId + 'totalRpeatAmtCol').innerText = ApzCOB.fn_FormatAmount(totalAmt);
+    // //     }
+    // //   $("#" + CollectionSubmissionScrId + "txt_RsubmitBtn").addClass('sno');
+    // //   $("#" + CollectionSubmissionScrId + "icn_RViewDetailed").removeClass('sno');
+    // //}
+    // if (RepeatSubPaintRecords.length > 0) {
+    //     $('#' + RepeatCollScrId + 'txt_RepeatColSubData').text(kendras.length);
+    //     document.getElementById(CollectionSubmissionScrId + 'totalNoKendra').innerText = RepeatSubPaintRecords.length;
+    //     let totAmt1 = RepeatSubPaintRecords.map(g => g.colldtls.totCollAmt).reduce((a, s) => a + s, 0);
+    //     //   $("#" + CollectionSubmissionScrId + "txt_RsubmitBtn").removeClass('sno');
+    //     document.getElementById(CollectionSubmissionScrId + 'totalRpeatAmtCol').innerText = ApzCOB.fn_FormatAmount(totAmt1);
+    //     //  $("#" + CollectionSubmissionScrId + "icn_RViewDetailed").addClass('sno');
+    // }
+    // // kendras = RepeatSubPaintRecords;
+    // if (RepeatSubPaintRecords.length > 0 && !isToRShowNxtBtn) {
+    //     $("#" + CollectionSubmissionScrId + "txt_RsubmitBtn").removeClass('sno');
+    //     $("#" + CollectionSubmissionScrId + "icn_RViewDetailed").addClass('sno');
+    //     document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').innerText = ApzCOB.getDescfromLitCode("LIT_COL_LBL_SUBM_PEND")
+    //     document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').classList.remove('bg-dark-err');
+    // } else {
+    //     $("#" + CollectionSubmissionScrId + "txt_RsubmitBtn").addClass('sno');
+    //     $("#" + CollectionSubmissionScrId + "icn_RViewDetailed").removeClass('sno');
+    // }
+    // // if (kendras.length > 0) {
+    // //     $('#' + RepeatCollScrId + 'txt_RepeatColSubData').text(kendras.length);
+    // //     document.getElementById(CollectionSubmissionScrId + 'totalNoKendra').innerText = kendras.length;
+    // //     let totAmt1 = kendras.map(g => g.colldtls.totCollAmt).reduce((a, s) => a + s, 0);
+    // //     $("#" + CollectionSubmissionScrId + "txt_RsubmitBtn").removeClass('sno');
+    // //     document.getElementById(CollectionSubmissionScrId + 'totalRpeatAmtCol').innerText = ApzCOB.fn_FormatAmount(totAmt1);
+    // //     $("#" + CollectionSubmissionScrId + "txt_RsubmitBtn").removeClass('sno');
+    // //     $("#" + CollectionSubmissionScrId + "icn_RViewDetailed").addClass('sno');
+    // // }
+    // if (RepeatSubPaintRecords.length === 0 && kendras.length === 0) {
+    //     $("#" + CollectionSubmissionScrId + "txt_RsubmitBtn").addClass('sno');
+    //     $("#" + CollectionSubmissionScrId + "icn_RViewDetailed").addClass('sno');
+    // }
+    let toShowBtn = false;
+    for (i = 0; i < FinalPaintRec.length; i++) {
+        if (!FinalPaintRec[i].hasOwnProperty('applnDtls')) {
+            toShowBtn = true;
+        }
+    }
+    if (toShowBtn) {
+        document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').innerText = ApzCOB.getDescfromLitCode("LIT_COL_LBL_SUBM_PEND");
+        $("#" + CollectionSubmissionScrId + "txt_RsubmitBtn").removeClass('sno');
+        $("#" + CollectionSubmissionScrId + "icn_RViewDetailed").addClass('sno');
+        $('#' + RepeatCollScrId + 'txt_RepeatColSubData').text(kendras.length);
+    } else {
+        $("#" + CollectionSubmissionScrId + "txt_RsubmitBtn").addClass('sno');
+        $("#" + CollectionSubmissionScrId + "icn_RViewDetailed").removeClass('sno');
+    }
+    let uniqueKendraCount = new Set(FinalPaintRec.map(item => (item.hasOwnProperty('kendraId') ? item.kendraId : item.hasOwnProperty('id') ? item
+        .id : null))).size;
+    document.getElementById(CollectionSubmissionScrId + 'totalNoKendra').innerText = uniqueKendraCount;
+    let totAmt1 = FinalPaintRec.map(g => g.colldtls.totCollAmt).reduce((a, s) => a + s, 0);
+    document.getElementById(CollectionSubmissionScrId + 'totalRpeatAmtCol').innerText = ApzCOB.fn_FormatAmount(totAmt1);
+    if (FinalPaintRec.length === 0) {
+        $("#" + CollectionSubmissionScrId + "txt_RsubmitBtn").addClass('sno');
+        $("#" + CollectionSubmissionScrId + "icn_RViewDetailed").addClass('sno');
+    }
+}
+apz.app.CollectionSubmission.paintCollSubmissionHeader = function() {
+    let collectedKendLen = 0;
+    if (colAppWFData.length > 0 || ViewMeetingApplnProgress.length > 0 && ViewMeetingApplnProgress[0].kendraDtls.length > 0) {
+        if (colAppWFData.length > 0) {
+            colAppWFData.forEach((obj, i) => {
+                if (obj.NEXTWFSTAGEID === "SENDFORAPPROVAL" || obj.NEXTWFSTAGEID === "CASHHANDOVER") {
+                    collectedKendLen++;
+                }
+            })
+            $('#' + CollectionSubmissionScrId + 'txt_colSubCountId').text(collectedKendLen + '/' + collectionKendraData.length);
+        } else if (ViewMeetingApplnProgress[0].kendraDtls.length > 0) {
+            $('#' + CollectionSubmissionScrId + 'txt_colSubCountId').text(ViewMeetingApplnProgress[0].kendraDtls.length + '/' +
+                collectionKendraData.length);
+        }
+    } else {
+        $('#' + CollectionSubmissionScrId + 'txt_colSubCountId').text(0 + '/' + collectionKendraData.length);
+        // apz.app.CollectionSubmission.paintCollSubmissionForKM();
+        // apz.app.CollectionSubmission.paintCollSubmissionHeader();
+        apz.app.CollectionSubmission.showNoRecordForColSubWidget();
+    }
+}
+apz.app.CollectionSubmission.paintDepositDetails = function() {
+    if (CashDepFlow.length > 0) {
+        apz.childScr = 'CollectionSubmission';
+        // CollectionsCommon.fetchFromCashDepositSQLLite();
+        $("#" + CollectionSubmissionScrId + "collSubHeaderTxt").text(ApzCOB.getDescfromLitCode("LIT_COL_HDR_CASHVERIFICATIONHDR"));
+        $("#" + CollectionSubmissionScrId + 'orCond').removeClass('sno');
+        $("#" + CollectionSubmissionScrId + 'depositText').removeClass('sno');
+    } else {
+        $("#" + CollectionSubmissionScrId + 'orCond').addClass('sno');
+        $("#" + CollectionSubmissionScrId + 'depositText').addClass('sno');
+    }
+}
+apz.app.CollectionSubmission.fetchCashierCollections = function(params) {
+     if (window.currentUserRole === 'DEO') {
+        var req = {
+            "apiRequest": {
+                "interfaceName": "FetchKendraInfo",
+                "appId": gAppId,
+                "userId": apz.userId,
+                "requestObj": {
+                    "kendraId": "",
+                    "applicationId": "",
+                    "branchId": LoggedInUserDetails.loginResponse.addInfo2,
+                    "versionNo": "",
+                    "meetingDate": FetchMeetingDtRecord,
+                    "kmUserRole": "DEO"
+                }
+            }
+        }
+    } else if(userRole === 'KM') {
+        var req = {
+            "apiRequest": {
+                "interfaceName": "FetchKendraInfo",
+                "appId": gAppId,
+                "userId": apz.userId,
+                "requestObj": {
+                    "kendraId": "",
+                    "applicationId": "",
+                    "branchId": LoggedInUserDetails.loginResponse.addInfo2,
+                    "versionNo": "",
+                    "meetingDate": FetchMeetingDtRecord,
+                    "kmUserRole": "KM"
+                }
+            }
+        }
+    } else if(userRole === 'CASHIER') {
+        var req = {
+            "apiRequest": {
+                "interfaceName": "FetchKendraInfo",
+                "appId": gAppId,
+                "userId": apz.userId,
+                "requestObj": {
+                    "kendraId": "",
+                    "applicationId": "",
+                    "branchId": LoggedInUserDetails.loginResponse.addInfo2,
+                    "versionNo": "",
+                    "meetingDate": FetchMeetingDtRecord,
+                    "kmUserRole": "CASHIER"
+                }
+            }
+        }
+    } else if(userRole === 'BM'){
+        var req = {
+            "apiRequest": {
+                "interfaceName": "FetchKendraInfo",
+                "appId": gAppId,
+                "userId": apz.userId,
+                "requestObj": {
+                    "kendraId": "",
+                    "applicationId": "",
+                    "branchId": LoggedInUserDetails.loginResponse.addInfo2,
+                    "versionNo": "",
+                    "meetingDate": FetchMeetingDtRecord,
+                    "kmUserRole": "BM"
+                }
+            }
+        }
+    }
+    if (selectedWidget === 'Repeat') {
+        req.apiRequest.requestObj.applicationType = 'Repeat'
+    } else if (selectedWidget === 'NONMEETING') {
+        req.apiRequest.requestObj.applicationType = 'NonMeeting';
+        req.apiRequest.requestObj.meetingDate = '';
+    } else if (userRole === 'CASHIER') {
+        req.apiRequest.requestObj.applicationType = 'Meeting';
+        req.apiRequest.requestObj.kmUserRole = "CASHIER";
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, 'FetchCollectionInfo', 'N', 'N', req, false, apz.app.CollectionSubmission.fetchCashierCollectionsCB);
+}
+apz.app.CollectionSubmission.fetchCashierCollectionsCB = function(params) {
+    console.log(params);
+    var ifaceName = ApzCOB.GetInterfaceResMap(params);
+    if (ApzCOB.handleServiceCallBacks(params)) {
+        apz.stopLoader();
+        if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "0") {
+            if (userRole === "KM") {
+                if (params.req.apiRequest.requestObj.hasOwnProperty('applicationType')) {
+                    if (params.req.apiRequest.requestObj.applicationType === "Meeting" && !apz.isObjectEmpty(collectionInfoParams)) {
+                        apz.app.CollectionSubmission.showCashierRejectionData(collectionInfoParams);
+                    }
+                    if (params.req.apiRequest.requestObj.applicationType === 'NonMeeting' && !apz.isObjectEmpty(NonMeetingCollectionInfoParams)) {
+                        apz.app.CollectionSubmission.paintNonMeetingCollection(NonMeetingCollectionInfoParams);
+                    }
+                    if (params.req.apiRequest.requestObj.applicationType === 'Repeat' && !apz.isObjectEmpty(RepeatCollectInfoParams)) {
+                        apz.app.CollectionSubmission.paintRepeatCollection(RepeatCollectInfoParams);
+                    }
+                }
+            } else {
+                CashierDetails = JSON.parse(params.res.APZCBO__FetchCollectionInfo_Res.apiResponse.ResponseBody.responseObj).collectionData;
+                //  apz.data.loadJsonData("CashierResponse", "APZCBO");
+                //  CashierDetails = apz.data.scrdata.collectionData;
+                SelectedDet = CashierDetails.filter(obj => obj.kendraDtls.length > 0).map((obj, i) => {
+                    obj.totalColAmt = ApzCOB.fn_FormatAmount(obj.totalColAmt);
+                    return {
+                        ...obj,
+                        submittedKendra: obj.kendraDtls.length,
+                    };
+                });
+                paintDet = '';
+                if (SelectedDet.length > 0) {
+                    if (selectedWidget === 'Repeat') {
+                        paintDet = SelectedDet.filter(obj => obj.kendraDtls[0].applnDtls.applnId.charAt(0) === 'R')
+                        // paintDet = RepeatRes;
+                    } else if (selectedWidget === 'MEETING') {
+                        paintDet = SelectedDet.filter(obj => obj.kendraDtls[0].applnDtls.applnId.charAt(0) === 'S')
+                    } else if (selectedWidget === 'NONMEETING') {
+                        paintDet = SelectedDet.filter(obj => obj.kendraDtls[0].applnDtls.applnId.charAt(0) === 'N')
+                    }
+                }
+                if (userRole === "BM") {
+                    MeetingDayRecords = {
+                        "pending": [],
+                        "Approved": [],
+                        "Rejected": []
+                    };
+                } else if (userRole === "Cashier") {
+                    MeetingDayRecords = {
+                        "pending": [],
+                        "pendByBMRec": [],
+                        "pushbackBMRec": [],
+                        "approvedRec": []
+                    };
+                }
+                if (paintDet.length > 0) {
+                    //     let AtOneKendraApprPend = 0;
+                    //     for (i = 0; i < paintDet.length; i++) {
+                    //         if (paintDet[i].kendraDtls.length > 0) {
+                    //             AtOneKendraInProgress = 0;
+                    //             AtOneKendraApproved = 0;
+                    //             let KendDetInProgress = [];
+                    //             paintDet[i].kendraDtls.forEach(obj => {
+                    //                 if (obj.applnDtls.appStatus === "INPROGRESS") {
+                    //                     AtOneKendraInProgress++
+                    //                     KendDetInProgress.push(obj)
+                    //                 } else if (obj.applnDtls.appStatus === "COMPLETED" || obj.applnDtls.appStatus === "APPROVED") {
+                    //                     AtOneKendraApproved++
+                    //                 }
+                    //             })
+                    //             let AtleastOneAppPend = 0;
+                    //             let AtOnePushBackByCash = 0;
+                    //             let AtOnePushBackByBM = 0;
+                    //             let AtleastOnePendCash = 0;
+                    //             if (AtOneKendraInProgress > 0) {
+                    //                 if (userRole === "BM") {
+                    //                     KendDetInProgress.forEach(pendKen => {
+                    //                         if (pendKen.applnDtls.currStage === "SENDFORAPPROVAL" || pendKen.applnDtls.currStage ===
+                    //                        "FAILED") {
+                    //                             AtleastOneAppPend++;
+                    //                         } else if (pendKen.applnDtls.currStage === "CASHHANDOVER") {
+                    //                             AtleastOnePendCash++
+                    //                         } else if (pendKen.applnWFDtls.length > 0 && pendKen.applnWFDtls[0].nextWFStage === 'PUSHBACK') {
+                    //                             if (pendKen.applnWFDtls[0].usrRole === 'CASHIER') {
+                    //                                 AtOnePushBackByCash++;
+                    //                             } else if (pendKen.applnWFDtls[0].usrRole === 'BM') {
+                    //                                 AtOnePushBackByBM++;
+                    //                             }
+                    //                         }
+                    //                     })
+                    //                     if (AtleastOneAppPend > 0) {
+                    //                         paintDet[i].collStatus = "APPROVAL PENDING";
+                    //                     } else if (AtleastOnePendCash > 0) {
+                    //                         paintDet[i].collStatus = "VERIFICATION PENDING BY CASHIER";
+                    //                     } else if (AtOnePushBackByBM > 0) {
+                    //                         paintDet[i].collStatus = "PUSHBACK BY BM";
+                    //                     } else if (AtOnePushBackByCash) {
+                    //                         paintDet[i].collStatus = "PUSHBACK BY CASHIER";
+                    //                         if (selectedWidget === 'MEETING') {
+                    //                             isCashierPushBack = true;
+                    //                         } else if (selectedWidget === 'NONMEETING') {
+                    //                             nonMetCashierPushBack = true;
+                    //                         } else {
+                    //                             RisCashierPushBack = true;
+                    //                         }
+                    //                     }
+                    //                 } else if (userRole === "CASHIER") {
+                    //                     KendDetInProgress.forEach(pendKen => {
+                    //                         if (pendKen.applnDtls.currStage === "CASHHANDOVER") {
+                    //                             if (pendKen.applnWFDtls.length > 0 && pendKen.applnWFDtls[0].nextWFStage === 'PUSHBACK') {
+                    //                                 AtOnePushBackByCash++;
+                    //                             } else if (pendKen.applnWFDtls.length > 0 && pendKen.applnWFDtls[0].nextWFStage ===
+                    //                                 'SENDFORAPPROVAL') {
+                    //                                 AtleastOneAppPend++;
+                    //                             } else {
+                    //                                 AtleastOnePendCash++;
+                    //                             }
+                    //                         } else if (pendKen.applnDtls.currStage === "SENDFORAPPROVAL") {
+                    //                             AtleastOneAppPend++;
+                    //                         } else if (pendKen.applnWFDtls.length > 0 && pendKen.applnWFDtls[0].nextWFStage === 'PUSHBACK') {
+                    //                             if (pendKen.applnWFDtls[0].usrRole === 'CASHIER') {
+                    //                                 AtOnePushBackByCash++;
+                    //                             } else if (pendKen.applnWFDtls[0].usrRole === 'BM') {
+                    //                                 AtOnePushBackByBM++
+                    //                             }
+                    //                         } else if (pendKen.applnDtls.currStage === "FAILED" && pendKen.applnWFDtls.length > 0 && pendKen
+                    //                        .applnWFDtls[0].nextWFStage === 'SENDFORAPPROVAL') {
+                    //                        AtleastOneAppPend++;
+                    //                    }
+                    //                     });
+                    //                     if (AtleastOnePendCash > 0) {
+                    //                         paintDet[i].collStatus = "VERIFICATION PENDING";
+                    //                     } else if (AtleastOneAppPend > 0) {
+                    //                         paintDet[i].collStatus = "APPROVAL PENDING BY BM";
+                    //                     } else if (AtOnePushBackByBM > 0) {
+                    //                         paintDet[i].collStatus = "PUSHBACK BY BM";
+                    //                         if (selectedWidget === 'MEETING') {
+                    //                             isBMPushBack = true;
+                    //                         } else if (selectedWidget === 'NONMEETING') {
+                    //                             isNonMeetingBMPusBack = true;
+                    //                         } else {
+                    //                             isRepBMPusBack = true;
+                    //                         }
+                    //                     } else if (AtOnePushBackByCash) {
+                    //                         paintDet[i].collStatus = "PUSHBACK";
+                    //                         if (selectedWidget === 'MEETING') {
+                    //                             isCashierPushBack = true;
+                    //                         } else if (selectedWidget === 'NONMEETING') {
+                    //                             nonMetCashierPushBack = true;
+                    //                         } else {
+                    //                             RisCashierPushBack = true;
+                    //                         }
+                    //                     }
+                    //                 }
+                    //             } else if (AtOneKendraApproved > 0) {
+                    //                 paintDet[i].collStatus = "APPROVED";
+                    //             }
+                    //        if (AtOneKendraInProgress > 0) {
+                    //            var filKendra = paintDet[i].kendraDtls.filter(obj => obj.applnDtls.appStatus === "INPROGRESS");
+                    //            paintDet[i].kendraDtls = filKendra;
+                    //            paintDet[i].totalColAmt = ApzCOB.fn_FormatAmount(filKendra.reduce((sum, obj1) => sum + obj1.colldtls.totCollAmt,
+                    //                0));
+                    //            paintDet[i].submittedKendra = paintDet[i].kendraDtls.length;
+                    //        }
+                    //         } else {
+                    //             paintDet[i].collStatus = "SUBMISSION PENDING BY KM"
+                    //         }
+                    //     }
+                    apz.data.scrdata.Widget__IPaintColSubmissionData_Res = {};
+                    $("#" + CollectionSubmissionScrId + "noRecordForm").addClass('sno');
+                    $("#" + CollectionSubmissionScrId + "listData").removeClass('sno');
+                    //Sorting of kendras based on the data
+                    let statusPriority = {};
+                    let pendingMsgDisp = ""
+                    if (userRole === "CASHIER") {
+                        statusPriority = {
+                            'VERIFICATION PENDING': 0,
+                            'PUSHBACK BY CASHIER': 1,
+                            'PUSHBACK BY BM': 2
+                        };
+                        pendingMsgDisp = "Verification Pending";
+                    } else if (userRole === "BM") {
+                        statusPriority = {
+                            'APPROVAL PENDING': 0,
+                            'PUSHBACK BY BM': 1,
+                            'PUSHBACK BY CASHIER': 2
+                        };
+                        pendingMsgDisp = "Approval Pending";
+                    }
+                    paintDet = paintDet.sort((a, b) => {
+                        return (statusPriority[a.collStatus] ?? 99) - (statusPriority[b.collStatus] ?? 99);
+                    });
+                    // apz.data.scrdata.Widget__IPaintColSubmissionData_Res.CashierData = paintDet;
+                    // apz.data.loadData("IPaintColSubmissionData", 'Widget');
+                    // MeetingDayRecords = apz.app.CollectionSubmission.returnSpecificStatusForCashier(paintDet);
+                    let pendRecords = apz.app.CollectionSubmission.getAllKMsKendrasByStatus(paintDet, "Pending");
+                    apz.app.CollectionSubmission.loadCashierData(pendRecords, apz.data.scrdata.Widget__IPaintStatusTypes_Res[0].types,
+                        pendingMsgDisp, "bg-info");
+                    apz.data.scrdata.Widget__IPaintStatusTypes_Res.forEach((d, i) => {
+                        $("#" + CollectionSubmissionScrId + "lst_roleStatusTypesId li").removeClass('active');
+                        $("#" + CollectionSubmissionScrId + "lst_roleStatusTypesId_row_" + i).removeClass('active');
+                    });
+                    $("#" + CollectionSubmissionScrId + "lst_roleStatusTypesId li").removeClass('active');
+                    $("#" + CollectionSubmissionScrId + "lst_roleStatusTypesId_row_" + 0).addClass('active');
+                    // for (i = 0; i < paintDet.length; i++) {
+                    //     if (paintDet[i].collStatus === "SUBMISSION PENDING BY KM") {
+                    //         $("#" + CollectionSubmissionScrId + 'verifyText_' + i).addClass('sno');
+                    //         $("#" + CollectionSubmissionScrId + 'verifyTxtIcon_' + i).addClass('sno');
+                    //         $(WidgetStatus + i).addClass('bg-err');
+                    //         $(WidgetStatus + i).removeClass('inf');
+                    //         $(WidgetStatus + i).removeClass('bg-dark-err');
+                    //         $(WidgetStatus + i).removeClass('bg-info');
+                    //     }
+                    //     if (paintDet[i].collStatus === 'PUSHBACK' || paintDet[i].collStatus === 'PUSHBACK BY BM' || paintDet[i].collStatus ===
+                    //         'PUSHBACK BY CASHIER') {
+                    //         $(WidgetStatus + i).addClass('bg-dark-err');
+                    //         $(WidgetStatus + i).removeClass('bg-err');
+                    //         $(WidgetStatus + i).removeClass('inf');
+                    //         $(WidgetStatus + i).removeClass('bg-info');
+                    //         $("#" + CollectionSubmissionScrId + 'verifyText_' + i).addClass('sno');
+                    //         $("#" + CollectionSubmissionScrId + 'verifyTxtIcon_' + i).removeClass('sno');
+                    //     }
+                    //     if (paintDet[i].collStatus === "APPROVAL PENDING BY BM") {
+                    //         $("#" + CollectionSubmissionScrId + 'verifyText_' + i).addClass('sno');
+                    //         $("#" + CollectionSubmissionScrId + 'verifyTxtIcon_' + i).removeClass('sno');
+                    //         $(WidgetStatus + i).removeClass('inf');
+                    //         $(WidgetStatus + i).removeClass('bg-err');
+                    //         $(WidgetStatus + i).addClass('bg-info');
+                    //     }
+                    //     if (paintDet[i].collStatus === "APPROVED") {
+                    //         $("#" + CollectionSubmissionScrId + 'verifyText_' + i).addClass('sno');
+                    //         $("#" + CollectionSubmissionScrId + 'verifyTxtIcon_' + i).removeClass('sno');
+                    //         $(WidgetStatus + i).removeClass('inf');
+                    //         $(WidgetStatus + i).removeClass('bg-err');
+                    //         $(WidgetStatus + i).removeClass('bg-info');
+                    //         $(WidgetStatus + i).removeClass('bg-dark-err');
+                    //         $(WidgetStatus + i).addClass('vrfed brd-rd');
+                    //     }
+                    //     if (paintDet[i].collStatus === "APPROVAL PENDING") {
+                    //         $("#" + CollectionSubmissionScrId + 'verifyText_' + i).removeClass('sno');
+                    //         $("#" + CollectionSubmissionScrId + 'verifyTxtIcon_' + i).addClass('sno');
+                    //         $(WidgetStatus + i).removeClass('inf');
+                    //         $(WidgetStatus + i).addClass('bg-err');
+                    //         $(WidgetStatus + i).removeClass('bg-info');
+                    //         $(WidgetStatus + i).removeClass('bg-dark-err');
+                    //     }
+                    //     if (paintDet[i].collStatus === "VERIFICATION PENDING BY CASHIER") {
+                    //         if (userRole === "CASHIER") {
+                    //             $("#" + CollectionSubmissionScrId + 'verifyText_' + i).removeClass('sno');
+                    //             $("#" + CollectionSubmissionScrId + 'verifyTxtIcon_' + i).addClass('sno');
+                    //         } else {
+                    //             $("#" + CollectionSubmissionScrId + 'verifyText_' + i).addClass('sno');
+                    //             $("#" + CollectionSubmissionScrId + 'verifyTxtIcon_' + i).addClass('sno');
+                    //         }
+                    //         $(WidgetStatus + i).removeClass('bg-err');
+                    //         $(WidgetStatus + i).removeClass('inf');
+                    //         $(WidgetStatus + i).removeClass('bg-dark-err');
+                    //         $(WidgetStatus + i).addClass('bg-info');
+                    //     }
+                    // }
+                    $('#' + CollectionSubmissionScrId + 'txt_colSubCountId').text(paintDet.length + '/' + CashierDetails.length);
+                } else {
+                    $("#" + CollectionSubmissionScrId + "noRecordForm").removeClass('sno');
+                    $("#" + CollectionSubmissionScrId + "listData").addClass('sno');
+                }
+            }
+        } else {
+            $("#" + CollectionSubmissionScrId + "noRecordForm").removeClass('sno');
+            $("#" + CollectionSubmissionScrId + "listData").addClass('sno');
+        }
+    } else if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "NR100") {
+        apz.stopLoader();
+        if (userRole === "KM") {
+            //apz.app.CollectionSubmission.paintCollSubmissionForKM();
+            apz.app.CollectionSubmission.showNoRecordForColSubWidget();
+        } else {
+            $("#" + CollectionSubmissionScrId + "noRecordForm").removeClass('sno');
+            $("#" + CollectionSubmissionScrId + "listData").addClass('sno');
+        }
+    } else {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E", ApzCOB.dashboardAppListAPI);
+    }
+}
+apz.app.CollectionSubmission.showCashierRejectionData = function(params) {
+    try {
+        rejectedRes = JSON.parse(params.res.APZCBO__FetchCollectionInfo_Res.apiResponse.ResponseBody.responseObj).collectionData;
+        // ViewMeetingApplnProgress = rejectedRes.filter(e => e.kmId === apz.userId);
+        // if (ViewMeetingApplnProgress.length > 0 && ViewMeetingApplnProgress[0].kendraDtls.length > 0) {
+        //     if (ViewMeetingApplnProgress[0].kendraDtls[0].hasOwnProperty('cashDepositPoints') && ViewMeetingApplnProgress[0].kendraDtls[0]
+        //         .cashDepositPoints.length > 0) {
+        //         CurrCashDepVer = ViewMeetingApplnProgress[0].kendraDtls[0].cashDepositPoints[0].versionNo;
+        //         latestCashDeposit = true;
+        //     }
+        // }
+        // if ((ViewMeetingApplnProgress.length > 0 && ViewMeetingApplnProgress[0].kendraDtls.length > 0) || colAppWFData.length > 0) {
+        //     //UNAP-1290
+        //     if (!apz.isNull(collectionKendraData) && collectionKendraData.length > 0) {
+        //         if (ViewMeetingApplnProgress.length > 0) {
+        //             var kendraMap = new Map(ViewMeetingApplnProgress[0].kendraDtls.map(obj => [obj.id, obj]));
+        //             // Update matched entries
+        //             collectionKendraData.forEach(obj => {
+        //                 if (kendraMap.has(obj.kendraId)) {
+        //                     obj.colldtls.groups = kendraMap.get(obj.kendraId).colldtls.groups;
+        //                 }
+        //             });
+        //         }
+        //     }
+        if (window.currentUserRole === 'DEO') {
+            ViewMeetingApplnProgress = rejectedRes;
+        } else if (userRole === 'KM') {
+            ViewMeetingApplnProgress = rejectedRes.filter(e => e.kmId === apz.userId);
+        }
+        if (window.currentUserRole === 'DEO') {
+            for (let km of ViewMeetingApplnProgress) {
+                if (Array.isArray(km.kendraDtls)) {
+                    for (let kendra of km.kendraDtls) {
+                        if (Array.isArray(kendra.cashDepositPoints) && kendra.cashDepositPoints.length > 0) {
+                            CurrCashDepVer = kendra.cashDepositPoints[0].versionNo;
+                            latestCashDeposit = true;
+                            break;
+                        }
+                    }
+                }
+                if (latestCashDeposit) break;
+            }
+        } else if (userRole === 'KM') {
+            if (ViewMeetingApplnProgress.length > 0 && Array.isArray(ViewMeetingApplnProgress[0].kendraDtls) && ViewMeetingApplnProgress[0].kendraDtls
+                .length > 0) {
+                let kendra = ViewMeetingApplnProgress[0].kendraDtls[0];
+                if (Array.isArray(kendra.cashDepositPoints) && kendra.cashDepositPoints.length > 0) {
+                    CurrCashDepVer = kendra.cashDepositPoints[0].versionNo;
+                    latestCashDeposit = true;
+                }
+            }
+        }
+        let hasValidKendraData = ViewMeetingApplnProgress.some(km => Array.isArray(km.kendraDtls) && km.kendraDtls.length > 0);
+        if ((hasValidKendraData || colAppWFData.length > 0) && !apz.isNull(collectionKendraData) && collectionKendraData.length > 0) {
+            var kendraMap = new Map();
+            ViewMeetingApplnProgress.forEach(km => {
+                if (Array.isArray(km.kendraDtls)) {
+                    km.kendraDtls.forEach(kendra => {
+                        if (kendra && kendra.id) {
+                            kendraMap.set(kendra.id, kendra);
+                        }
+                    });
+                }
+            });
+            collectionKendraData.forEach(obj => {
+                if (kendraMap.has(obj.kendraId)) {
+                    obj.colldtls.groups = kendraMap.get(obj.kendraId).colldtls.groups;
+                }
+            });
+            document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').classList.remove('bg-info', 'bg-dark-err', 'vrfed',
+                'brd-rd', 'pen');
+            //added below changes for FSD changes
+            apz.app.CollectionSubmission.segregateRecords("Meeting")
+            // $('#Widget__IPaintStatusTypes__o__Widget__IPaintStatusTypes_Res__types_0').click();
+            //change end here for new FSD
+            //comment start here for new FSD changes 27-02-2025
+            // var atlOneInProgress = 0;
+            // var atlOneApproved = 0;
+            // var atOneSubPending = 0;
+            // //var atOneSubmitted = 0;
+            // var AtOnePushBackByBM = 0;
+            // var AtOnePushBackByCash = 0;
+            // var AtleastOnePendCash = 0;
+            // var AtleastOnePendBM = 0;
+            // ViewMeetingApplnProgress[0].kendraDtls.forEach(function(kendraObj) {
+            //     if (kendraObj.applnDtls.appStatus === "INPROGRESS") {
+            //         atlOneInProgress++;
+            //         if (!apz.isNull(kendraObj.applnWFDtls) && kendraObj.applnWFDtls.length > 0 && kendraObj.applnWFDtls[0].nextWFStage ===
+            //             "PUSHBACK") {
+            //             if (kendraObj.applnWFDtls[0].usrRole === 'CASHIER') {
+            //                 AtOnePushBackByCash++;
+            //             } else if (kendraObj.applnWFDtls[0].usrRole === 'BM') {
+            //                 AtOnePushBackByBM++;
+            //             }
+            //            MeetingReasonText = kendraObj.applnWFDtls[0].remarks;
+            //             KMPushbackRes = ViewMeetingApplnProgress[0];
+            //            isCashierPushBack = true;
+            //         } else if (!apz.isNull(kendraObj.applnWFDtls) && kendraObj.applnWFDtls.length > 0 && kendraObj.applnWFDtls[0]
+            //             .nextWFStage === "SENDFORAPPROVAL" && kendraObj.applnWFDtls[0].usrRole === 'CASHIER') {
+            //             AtleastOnePendBM++;
+            //         } else if (!apz.isNull(kendraObj.applnWFDtls) && kendraObj.applnWFDtls.length > 0 && kendraObj.applnWFDtls[0]
+            //             .nextWFStage === "CASHHANDOVER" && kendraObj.applnWFDtls[0].usrRole === 'KM') {
+            //             AtleastOnePendCash++;
+            //         } else {
+            //             atOneSubPending++;
+            //         }
+            //     } else if (kendraObj.applnDtls.appStatus === "APPROVED") {
+            //         atlOneApproved++;
+            //     }
+            // });
+            // if (atlOneInProgress > 0) {
+            //     var text = "LIT_COL_LBL_SUBM_PEND";
+            //     var classTxt = "bg-dark-err";
+            //     if (AtOnePushBackByCash > 0) {
+            //         //Pushback by Cashier
+            //         text = "LIT_COL_LBL_CASHPUSHBACKERR";
+            //         classTxt = "bg-dark-err";
+            //         isCashierPushBack = true;
+            //     } else if (AtOnePushBackByBM > 0) {
+            //         text = "LIT_COL_LBL_BMPUSHBACKERR";
+            //         classTxt = "bg-dark-err";
+            //         isBMPushBack = true;
+            //     } else if (AtleastOnePendCash > 0) {
+            //         text = "LIT_COL_LBL_APPR_PEND_CASHIER";
+            //         classTxt = "bg-info";
+            //     } else if (AtleastOnePendBM > 0) {
+            //         text = "LIT_COL_LBL_APPR_PEND_BM";
+            //         classTxt = "bg-info";
+            //         isCashierApproved = true;
+            //     }
+            //     document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').innerText = ApzCOB.getDescfromLitCode(text);
+            //     document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').classList.add(classTxt);
+            //     ViewMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode(text);
+            // } else if (atlOneApproved === ViewMeetingApplnProgress[0].kendraDtls.length) {
+            //     document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+            //         "LIT_COL_LBL_BM_APPROVED");
+            //     document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').classList.add('vrfed', 'brd-rd');
+            //     ViewMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_BM_APPROVED");
+            //    $("#" + CollectionSubmissionScrId + "txt_submitOnlyKendras").addClass('sno');
+            //   $("#" + CollectionSubmissionScrId + "icn_ViewDetailed").removeClass('sno');
+            // }
+            //comment en here for New FSD 27-02-2025
+            /*rejectedRes.forEach((obj, i) => {
+                if (obj.kmId === apz.userId) {
+                    if (obj.kendraDtls.length > 0) {
+                        if (obj.kendraDtls[0].applnWFDtls[0].nextWFStage === "PUSHBACK") {
+                            document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').innerText = ApzCOB
+                                .getDescfromLitCode("LIT_COL_LBL_CASHPUSHBACKERR");
+                            ViewMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_CASHPUSHBACKERR");
+                            if (obj.kendraDtls[0].applnWFDtls[0].usrRole === "BM") {
+                                document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').innerText = ApzCOB
+                                    .getDescfromLitCode("LIT_COL_LBL_BMPUSHBACKERR");
+                                isBMPushBack = true;
+                                ViewMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_BMPUSHBACKERR");
+                            }
+                            document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').classList.add('bg-dark-err');
+                            // collecSubPaintRecords = colAppWFData;
+                            KMPushbackRes = obj;
+                            isCashierPushBack = true;
+                        } else if (obj.kendraDtls[0].applnWFDtls[0].nextWFStage === "SENDFORAPPROVAL") {
+                            if (obj.kendraDtls[0].applnWFDtls[0].usrRole === "CASHIER") {
+                                isCashierApproved = true;
+                                document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').innerText = ApzCOB
+                                    .getDescfromLitCode("LIT_COL_LBL_APPR_PEND_BM");
+                                document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').classList.add('bg-info');
+                                ViewMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_APPR_PEND_BM");
+                            } else if (obj.kendraDtls[0].applnWFDtls[0].usrRole === "BM") {
+                                document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').innerText = ApzCOB
+                                    .getDescfromLitCode("LIT_COL_LBL_APPR_PEND_BM");
+                                document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').classList.add('bg-info');
+                                ViewMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_APPR_PEND_BM");
+                            } else if (obj.kendraDtls[0].applnWFDtls[0].usrRole === "KM") {
+                                document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').innerText = ApzCOB
+                                    .getDescfromLitCode("LIT_COL_LBL_VER_PEND_CASHIER");
+                                ViewMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_VER_PEND_CASHIER");
+                            }
+                        } else if (obj.kendraDtls[0].applnWFDtls[0].nextWFStage === "APPROVED") {
+                            if (obj.kendraDtls[0].applnWFDtls[0].usrRole === "BM") {
+                                document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').innerText = ApzCOB
+                                    .getDescfromLitCode("LIT_COL_LBL_BM_APPROVED");
+                                ViewMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_BM_APPROVED");
+                                document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').classList.add('vrfed',
+                                    'brd-rd');
+                                document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').classList.remove('pen');
+                            }
+                        } else if (obj.kendraDtls[0].applnWFDtls[0].nextWFStage === "CASHHANDOVER") {
+                            document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').innerText = ApzCOB
+                                .getDescfromLitCode("LIT_COL_LBL_APPR_PEND_CASHIER");
+                            ViewMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_APPR_PEND_CASHIER");
+                            document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').classList.add('bg-info');
+                        }
+                    }
+                }
+                // if (obj.hasOwnProperty('applnDtls') && obj.applnDtls.currStage === "PUSHBACK") {
+                //     document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').innerText = ApzCOB.getDescfromLitCode("LIT_COL_LBL_CASHPUSHBACKERR");
+                //     document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').classList.add('bg-dark-err');
+                // }
+                // collecSubPaintRecords.forEach((ken, j) => {
+                // })
+            })*/
+            if (colAppWFData.length > 0 && $("#" + CollectionSubmissionScrId + "txt_submitOnlyKendras").is(':visible')) {
+                document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+                    "LIT_COL_LBL_SUBM_PEND")
+                document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').classList.remove('bg-dark-err');
+                document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').classList.add('pen');
+                recollectAmt = true;
+            }
+            if (colAppWFData.length > 0 && colAppWFData.filter(obj => obj.NEXTWFSTAGEID === "SENDFORAPPROVAL").length > 0) {
+                $("#" + CollectionSubmissionScrId + "txt_submitOnlyKendras").removeClass('sno');
+                $("#" + CollectionSubmissionScrId + "icn_ViewDetailed").addClass('sno');
+                document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+                    "LIT_COL_LBL_SUBM_PEND");
+                document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').classList.remove('bg-dark-err', 'bg-info');
+                document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').classList.add('pen');
+            }
+            apz.app.CollectionSubmission.paintCollSubData();
+        } else {
+            //apz.app.CollectionSubmission.paintCollSubmissionForKM();
+            apz.app.CollectionSubmission.showNoRecordForColSubWidget();
+        }
+    } catch (e) {
+        //modified for UAT JIRA issue UNAP-1260
+        // ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E", ApzCOB.dashboardAppListAPI);
+        console.log(e);
+    }
+}
+apz.app.CollectionSubmission.onClickTypes = function(pthis) {
+    var ptext = $(pthis).text();
+    var rowno = $(pthis).attr('rowno');
+    $("#" + CollectionSubmissionScrId + "lst_roleStatusTypesId li").removeClass('active');
+    $("#" + CollectionSubmissionScrId + "lst_roleStatusTypesId_row_0").addClass('active');
+    if (ptext === "Repeat Collection") {
+        selectedWidget = 'Repeat';
+    } else if (ptext === "Meeting Day") {
+        selectedWidget = 'MEETING';
+    } else if (ptext === "NonMeeting Day") {
+        selectedWidget = 'NONMEETING';
+    }
+    $("#" + CollectionSubmissionScrId + "meetingTypeList_row_" + rowno).addClass('active');
+    $("#" + CollectionSubmissionScrId + "meetingTypeList_row_" + previousRow).removeClass('active');
+    apz.app.CollectionSubmission.fetchCashierCollections();
+    previousRow = rowno;
+}
+apz.app.CollectionSubmission.paintRepeatCollection = function(params) {
+    RepKMPushbackRes = [];
+    RepeatRes = JSON.parse(params.res.APZCBO__FetchCollectionInfo_Res.apiResponse.ResponseBody.responseObj).collectionData;
+        if (window.currentUserRole === 'DEO') {
+        ViewRepeatApplnProgress = RepeatRes;
+    } else if (window.currentUserRole === 'KM') { // changed userRole → window.currentUserRole
+        ViewRepeatApplnProgress = RepeatRes.filter(e => e.kmId === apz.userId);
+    }
+
+    let hasValidRepeatKendraData = ViewRepeatApplnProgress.some(
+        km => Array.isArray(km.kendraDtls) && km.kendraDtls.length > 0
+    );
+	  document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').classList.remove('bg-info', 'bg-dark-err', 'vrfed', 'brd-rd',
+            'pen');
+        var atlOneInProgress = 0;
+        var atlOneApproved = 0;
+        var atOneSubPending = 0;
+        //var atOneSubmitted = 0;
+        var AtOnePushBackByBM = 0;
+        var AtOnePushBackByCash = 0;
+        var AtleastOnePendCash = 0;
+        var AtleastOnePendBM = 0;
+    if (hasValidRepeatKendraData || RepeatcolAppWFData.length > 0) {
+        ViewRepeatApplnProgress.forEach(function(progressObj) {
+            if (!apz.isNull(progressObj.kendraDtls) && progressObj.kendraDtls.length > 0) {
+                progressObj.kendraDtls.forEach(function(kendraObj) {
+                    if (kendraObj.applnDtls && kendraObj.applnDtls.appStatus === "INPROGRESS") {
+                        atlOneInProgress++;
+
+                        if (!apz.isNull(kendraObj.applnWFDtls) && kendraObj.applnWFDtls.length > 0) {
+                            let wf = kendraObj.applnWFDtls[0];
+
+                            if (wf.nextWFStage === "PUSHBACK") {
+                                if (wf.usrRole === 'CASHIER') {
+                                    AtOnePushBackByCash++;
+                                } else if (wf.usrRole === 'BM') {
+                                    AtOnePushBackByBM++;
+                                }
+                                RepeatReasonText = wf.remarks;
+                                RepKMPushbackRes = progressObj;
+                                RisCashierPushBack = true;
+
+                            } else if (wf.nextWFStage === "SENDFORAPPROVAL" && wf.usrRole === 'CASHIER') {
+                                AtleastOnePendBM++;
+
+                            } else if (wf.nextWFStage === "CASHHANDOVER" && wf.usrRole === 'KM') { // fixed missing &&
+                                AtleastOnePendCash++;
+
+                            } else {
+                                atOneSubPending++;
+                            }
+                        }
+
+                    } else if (kendraObj.applnDtls && kendraObj.applnDtls.appStatus === "APPROVED") {
+                        atlOneApproved++;
+                    }
+                });
+            }
+        });
+
+        ViewRepeatApplnProgress.forEach(function(progressObj) {
+            if (atlOneInProgress > 0) {
+                var text = "LIT_COL_LBL_SUBM_PEND";
+                var classTxt = "bg-dark-err";
+
+                if (AtOnePushBackByCash > 0) {
+                    text = "LIT_COL_LBL_CASHPUSHBACKERR";
+                    classTxt = "bg-dark-err";
+                    RisCashierPushBack = true;
+                } else if (AtOnePushBackByBM > 0) {
+                    text = "LIT_COL_LBL_BMPUSHBACKERR";
+                    classTxt = "bg-dark-err";
+                    isRepBMPusBack = true;
+                } else if (AtleastOnePendCash > 0) {
+                    text = "LIT_COL_LBL_APPR_PEND_CASHIER";
+                    classTxt = "bg-info";
+                } else if (AtleastOnePendBM > 0) {
+                    text = "LIT_COL_LBL_APPR_PEND_BM";
+                    classTxt = "bg-info";
+                    RisCashierApproved = true;
+                }
+
+                document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').innerText =
+                    ApzCOB.getDescfromLitCode(text);
+                document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').classList.add(classTxt);
+                progressObj.collStatus = ApzCOB.getDescfromLitCode(text);
+
+            } else if (atlOneApproved === progressObj.kendraDtls.length) {
+                document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').innerText =
+                    ApzCOB.getDescfromLitCode("LIT_COL_LBL_BM_APPROVED");
+                document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus')
+                    .classList.add('vrfed', 'brd-rd');
+                progressObj.collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_BM_APPROVED");
+            }
+
+            if ($("#" + CollectionSubmissionScrId + "txt_RsubmitBtn").is(':visible')) {
+                document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').innerText =
+                    ApzCOB.getDescfromLitCode("LIT_COL_LBL_SUBM_PEND");
+                document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').classList.remove('bg-dark-err');
+                document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').classList.add('pen');
+                ReprecollectAmt = true;
+            }
+
+            apz.app.CollectionSubmission.paintRepeatCollSubData();
+            apz.app.CollectionSubmission.RepeatpaintCollSubData();
+            apz.app.CollectionSubmission.segregateRecords("Repeat");
+        });
+
+    } else {
+        apz.app.CollectionSubmission.paintRepeatCollSubData();
+        apz.app.CollectionSubmission.RepeatpaintCollSubData();
+        apz.app.CollectionSubmission.segregateRecords("Repeat");
+    }
+    // ViewRepeatApplnProgress = RepeatRes.filter(e => e.kmId === apz.userId);
+    // if ((ViewRepeatApplnProgress.length > 0 && ViewRepeatApplnProgress[0].kendraDtls.length > 0) || RepeatcolAppWFData.length > 0) {
+    //     // if (RepeatcolAppWFData.length > 0 || ViewMeetingApplnProgress[0].kendraDtls.length > 0) {
+    //     /*RepeatRes.forEach((obj, i) => {
+    //         if (obj.kmId === apz.userId) {
+    //             if (obj.kendraDtls.length > 0) {
+    //                 // let totalAmt = 0;
+    //                 // if (!RepeatcolAppWFData.length > 0) {
+    //                 //     for (j = 0; j < obj.kendraDtls.length; j++) {
+    //                 //         totalAmt = totalAmt + obj.kendraDtls[j].colldtls.totCollAmt
+    //                 //         document.getElementById(CollectionSubmissionScrId + 'totalNoKendra').innerText = obj.kendraDtls.length;
+    //                 //         document.getElementById(CollectionSubmissionScrId + 'totalRpeatAmtCol').innerText = ApzCOB.fn_FormatAmount(
+    //                 //             totalAmt);
+    //                 //     }
+    //                 //     $("#" + CollectionSubmissionScrId + "txt_RsubmitBtn").addClass('sno');
+    //                 //     $("#" + CollectionSubmissionScrId + "icn_RViewDetailed").removeClass('sno');
+    //                 // }
+    //                 if (obj.kendraDtls[0].applnWFDtls.length > 0 && obj.kendraDtls[0].applnWFDtls[0].nextWFStage === "PUSHBACK") {
+    //                     document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+    //                         "LIT_COL_LBL_CASHPUSHBACKERR");
+    //                     ViewRepeatApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_CASHPUSHBACKERR");
+    //                     if (obj.kendraDtls[0].applnWFDtls[0].usrRole === "BM") {
+    //                         document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').innerText = ApzCOB
+    //                             .getDescfromLitCode("LIT_COL_LBL_BMPUSHBACKERR");
+    //                         isRepBMPusBack = true;
+    //                         ViewRepeatApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_BMPUSHBACKERR");
+    //                     }
+    //                     document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').classList.add('bg-dark-err');
+    //                     // collecSubPaintRecords = colAppWFData;
+    //                     RepKMPushbackRes = obj;
+    //                     RisCashierPushBack = true;
+    //                 } else if (obj.kendraDtls[0].applnWFDtls.length > 0 && obj.kendraDtls[0].applnWFDtls[0].nextWFStage ===
+    //                     "SENDFORAPPROVAL") {
+    //                     if (obj.kendraDtls[0].applnWFDtls[0].usrRole === "CASHIER") {
+    //                         RisCashierApproved = true;
+    //                         document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').innerText = ApzCOB
+    //                             .getDescfromLitCode("LIT_COL_LBL_APPR_PEND_BM");
+    //                         document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').classList.add('bg-info');
+    //                         ViewRepeatApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_APPR_PEND_BM");
+    //                     } else if (obj.kendraDtls[0].applnWFDtls[0].usrRole === "BM") {
+    //                         document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').innerText = ApzCOB
+    //                             .getDescfromLitCode("LIT_COL_LBL_APPR_PEND_BM");
+    //                         document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').classList.add('bg-info');
+    //                         ViewRepeatApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_APPR_PEND_BM");
+    //                     } else if (obj.kendraDtls[0].applnWFDtls[0].usrRole === "KM") {
+    //                         document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').innerText = ApzCOB
+    //                             .getDescfromLitCode("LIT_COL_LBL_VER_PEND_CASHIER");
+    //                         ViewRepeatApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_VER_PEND_CASHIER");
+    //                     }
+    //                 } else if (obj.kendraDtls[0].applnWFDtls.length > 0 && obj.kendraDtls[0].applnWFDtls[0].nextWFStage === "APPROVED") {
+    //                     if (obj.kendraDtls[0].applnWFDtls[0].usrRole === "BM") {
+    //                         document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').innerText = ApzCOB
+    //                             .getDescfromLitCode("LIT_COL_LBL_BM_APPROVED");
+    //                         ViewRepeatApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_BM_APPROVED");
+    //                         document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').classList.add('vrfed', 'brd-rd');
+    //                         document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').classList.remove('pen');
+    //                     }
+    //                 } else if (obj.kendraDtls[0].applnWFDtls.length > 0 && obj.kendraDtls[0].applnWFDtls[0].nextWFStage ===
+    //                     "CASHHANDOVER") {
+    //                     document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+    //                         "LIT_COL_LBL_APPR_PEND_CASHIER");
+    //                     ViewRepeatApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_APPR_PEND_CASHIER");
+    //                     document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').classList.add('bg-info');
+    //                     $("#" + CollectionSubmissionScrId + "txt_RsubmitBtn").addClass('sno');
+    //                     $("#" + CollectionSubmissionScrId + "icn_RViewDetailed").removeClass('sno');
+    //                 }
+    //             }
+    //         }
+    //         // if (obj.hasOwnProperty('applnDtls') && obj.applnDtls.currStage === "PUSHBACK") {
+    //         //     document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').innerText = ApzCOB.getDescfromLitCode("LIT_COL_LBL_CASHPUSHBACKERR");
+    //         //     document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').classList.add('bg-dark-err');
+    //         // }
+    //         // collecSubPaintRecords.forEach((ken, j) => {
+    //         // })
+    //     });*/
+    //     document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').classList.remove('bg-info', 'bg-dark-err', 'vrfed', 'brd-rd',
+    //         'pen');
+    //     var atlOneInProgress = 0;
+    //     var atlOneApproved = 0;
+    //     var atOneSubPending = 0;
+    //     //var atOneSubmitted = 0;
+    //     var AtOnePushBackByBM = 0;
+    //     var AtOnePushBackByCash = 0;
+    //     var AtleastOnePendCash = 0;
+    //     var AtleastOnePendBM = 0;
+    //     ViewRepeatApplnProgress[0].kendraDtls.forEach(function(kendraObj) {
+    //         if (kendraObj.applnDtls.appStatus === "INPROGRESS") {
+    //             atlOneInProgress++;
+    //             if (!apz.isNull(kendraObj.applnWFDtls) && kendraObj.applnWFDtls.length > 0 && kendraObj.applnWFDtls[0].nextWFStage ===
+    //                 "PUSHBACK") {
+    //                 if (kendraObj.applnWFDtls[0].usrRole === 'CASHIER') {
+    //                     AtOnePushBackByCash++;
+    //                 } else if (kendraObj.applnWFDtls[0].usrRole === 'BM') {
+    //                     AtOnePushBackByBM++;
+    //                 }
+    //                 RepeatReasonText = kendraObj.applnWFDtls[0].remarks;
+    //                 RepKMPushbackRes = ViewRepeatApplnProgress[0];
+    //                 RisCashierPushBack = true;
+    //             } else if (!apz.isNull(kendraObj.applnWFDtls) && kendraObj.applnWFDtls.length > 0 && kendraObj.applnWFDtls[0]
+    //                 .nextWFStage === "SENDFORAPPROVAL" && kendraObj.applnWFDtls[0].usrRole === 'CASHIER') {
+    //                 AtleastOnePendBM++;
+    //             } else if (!apz.isNull(kendraObj.applnWFDtls) && kendraObj.applnWFDtls.length > 0 && kendraObj.applnWFDtls[0]
+    //                 .nextWFStage === "CASHHANDOVER" && kendraObj.applnWFDtls[0].usrRole === 'KM') {
+    //                 AtleastOnePendCash++;
+    //             } else {
+    //                 atOneSubPending++;
+    //             }
+    //         } else if (kendraObj.applnDtls.appStatus === "APPROVED") {
+    //             atlOneApproved++;
+    //         }
+    //     });
+    //     if (atlOneInProgress > 0) {
+    //         var text = "LIT_COL_LBL_SUBM_PEND";
+    //         var classTxt = "bg-dark-err";
+    //         if (AtOnePushBackByCash > 0) {
+    //             //Pushback by Cashier
+    //             text = "LIT_COL_LBL_CASHPUSHBACKERR";
+    //             classTxt = "bg-dark-err";
+    //             RisCashierPushBack = true;
+    //         } else if (AtOnePushBackByBM > 0) {
+    //             text = "LIT_COL_LBL_BMPUSHBACKERR";
+    //             classTxt = "bg-dark-err";
+    //             isRepBMPusBack = true;
+    //         } else if (AtleastOnePendCash > 0) {
+    //             text = "LIT_COL_LBL_APPR_PEND_CASHIER";
+    //             classTxt = "bg-info";
+    //         } else if (AtleastOnePendBM > 0) {
+    //             text = "LIT_COL_LBL_APPR_PEND_BM";
+    //             classTxt = "bg-info";
+    //             RisCashierApproved = true;
+    //         }
+    //         document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').innerText = ApzCOB.getDescfromLitCode(text);
+    //         document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').classList.add(classTxt);
+    //         ViewRepeatApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode(text);
+    //     } else if (atlOneApproved === ViewRepeatApplnProgress[0].kendraDtls.length) {
+    //         document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+    //             "LIT_COL_LBL_BM_APPROVED");
+    //         document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').classList.add('vrfed', 'brd-rd');
+    //         ViewRepeatApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_BM_APPROVED");
+    //     }
+    //     if ($("#" + CollectionSubmissionScrId + "txt_RsubmitBtn").is(':visible')) {
+    //         document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+    //             "LIT_COL_LBL_SUBM_PEND")
+    //         document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').classList.remove('bg-dark-err');
+    //         document.getElementById(CollectionSubmissionScrId + 'txt_RSubPendStatus').classList.add('pen');
+    //         ReprecollectAmt = true;
+    //     }
+    //     apz.app.CollectionSubmission.paintRepeatCollSubData();
+    //     apz.app.CollectionSubmission.RepeatpaintCollSubData();
+    //     apz.app.CollectionSubmission.segregateRecords("Repeat");
+    // } else {
+    //     apz.app.CollectionSubmission.paintRepeatCollSubData();
+    //     apz.app.CollectionSubmission.RepeatpaintCollSubData();
+    //     apz.app.CollectionSubmission.segregateRecords("Repeat");
+    // }
+    //need to uncomment for New FSD changes
+    // } else {}
+}
+apz.app.CollectionSubmission.filterNotSubmittedDetails = function(details) {
+    details.map(kendra => {
+        kendra.kendraDtls = kendra.kendraDtls.map(kendraDtl => {
+            kendraDtl.colldtls.groups = kendraDtl.colldtls.groups.map(group => {
+                group.members = group.members.filter(member => member.collAmount && member.collAmount !== 0);
+                return group;
+            });
+            return kendraDtl;
+        });
+        return kendra;
+    });
+}
+apz.app.CollectionSubmission.paintNonMeetingCollection = function(params) {
+    nonMetKendraCollCount = 0;
+    NonMeetingRes = JSON.parse(params.res.APZCBO__FetchCollectionInfo_Res.apiResponse.ResponseBody.responseObj).collectionData;
+    ViewNonMeetingApplnProgress = NonMeetingRes.filter(e => e.kmId === apz.userId);
+    //ViewNonMeetingApplnProgress = apz.app.CollectionSubmission.reArrWorkFlowBasedOnsecNo(NonMeetingRes);
+    if (ViewNonMeetingApplnProgress.length > 0 && ViewNonMeetingApplnProgress[0].kendraDtls.length > 0) {
+        if (ViewNonMeetingApplnProgress[0].kendraDtls[0].hasOwnProperty('cashDepositPoints') && ViewNonMeetingApplnProgress[0].kendraDtls[0]
+            .cashDepositPoints.length > 0) {
+            CurrCashDepVer = ViewNonMeetingApplnProgress[0].kendraDtls[0].cashDepositPoints[0].versionNo;
+            latestCashDeposit = true;
+        }
+    }
+    if ((ViewNonMeetingApplnProgress.length > 0 && ViewNonMeetingApplnProgress[0].kendraDtls.length > 0) || nonMeetColWFData.length > 0) {
+        let atlOneInProgress = 0;
+        let atlOneApproved = 0;
+        let atOneSubPending = 0;
+        let atOneSubmitted = 0;
+        let AtOnePushBackByBM = 0;
+        let AtOnePushBackByCash = 0;
+        let atOneApproved = 0;
+        let atInProgress = 0;
+        let subPendRec = [];
+        let kendraDetInProg = [];
+        let AtleastOnePendCash = 0;
+        let AtleastOneAppPend = 0;
+        if (nonMeetColWFData.length > 0) {
+            nonMeetColWFData.forEach((wfData, i) => {
+                if (wfData.NEXTWFSTAGEID === "SENDFORAPPROVAL") {
+                    atOneSubPending++;
+                    subPendRec.push(wfData);
+                } else if (wfData.NEXTWFSTAGEID === "CASHHANDOVER") {
+                    atOneSubmitted++;
+                }
+            });
+            if (ViewNonMeetingApplnProgress.length > 0 && ViewNonMeetingApplnProgress[0].kendraDtls.length > 0) {
+                ViewNonMeetingApplnProgress[0].kendraDtls.forEach((obj, i) => {
+                    if (obj.applnDtls.appStatus === "INPROGRESS") {
+                        atlOneInProgress++;
+                        kendraDetInProg.push(obj)
+                    } else if (obj.applnDtls.appStatus === "COMPLETED" || obj.applnDtls.appStatus === "APPROVED") {
+                        atOneApproved++
+                    }
+                })
+            }
+            if (atOneSubPending > 0) {
+                document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+                    "LIT_COL_LBL_SUBM_PEND")
+                document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').classList.remove('bg-dark-err');
+            } else if (atlOneInProgress > 0) {
+                kendraDetInProg.forEach((pendKen, p) => {
+                    if (pendKen.applnWFDtls.length > 0 && pendKen.applnWFDtls[0].nextWFStage === 'PUSHBACK') {
+                        if (pendKen.applnWFDtls[0].usrRole === 'CASHIER') {
+                            AtOnePushBackByCash++;
+                        } else if (pendKen.applnWFDtls[0].usrRole === 'BM') {
+                            AtOnePushBackByBM++;
+                        }
+                        nonMetKendraCollCount++;
+                        NonMeetReasonText = pendKen.applnWFDtls[0].remarks;
+                        pendKen.applnDtls.currStage = 'PUSHBACK'
+                        if (NonKMPushbackRes.kendraDtls) {
+                            NonKMPushbackRes.kendraDtls.push(kendraDetInProg[p]);
+                        } else {
+                            NonKMPushbackRes.kendraDtls = [kendraDetInProg[p]];
+                        }
+                    } else if (pendKen.applnDtls.currStage === "SENDFORAPPROVAL") {
+                        AtleastOneAppPend++;
+                    } else if (pendKen.applnDtls.currStage === "CASHHANDOVER") {
+                        AtleastOnePendCash++
+                    }
+                })
+                if (AtOnePushBackByCash > 0) {
+                    document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+                        "LIT_COL_LBL_CASHPUSHBACKERR");
+                    nonMetCashierPushBack = true;
+                    ViewNonMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_CASHPUSHBACKERR");
+                } else if (AtOnePushBackByBM > 0) {
+                    document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+                        "LIT_COL_LBL_BMPUSHBACKERR");
+                    isNonBMPusBack = true;
+                    nonMetCashierPushBack = true;
+                    ViewNonMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_BMPUSHBACKERR");
+                } else if (AtleastOnePendCash > 0) {
+                    document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+                        "LIT_COL_LBL_VER_PEND_CASHIER");
+                    ViewNonMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_VER_PEND_CASHIER");
+                    document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').classList.add('bg-info');
+                } else if (AtleastOneAppPend > 0) {
+                    document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+                        "LIT_COL_LBL_APPR_PEND_BM");
+                    document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').classList.add('bg-info');
+                    ViewNonMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_APPR_PEND_BM");
+                } else {
+                    document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+                        "LIT_COL_LBL_SUBM_PEND")
+                    document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').classList.remove('bg-dark-err');
+                }
+            } else if (atOneApproved > 0) {
+                document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+                    "LIT_COL_LBL_BM_APPROVED");
+                ViewNonMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_BM_APPROVED");
+                document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').classList.add('vrfed', 'brd-rd');
+                document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').classList.remove('pen');
+                $("#" + CollectionSubmissionScrId + "txt_submitOnlyKendras").addClass('sno');
+                $("#" + CollectionSubmissionScrId + "icn_ViewDetailed").removeClass('sno');
+            }
+        } else if (ViewNonMeetingApplnProgress.length > 0 && ViewNonMeetingApplnProgress[0].kendraDtls.length > 0) {
+            ViewNonMeetingApplnProgress[0].kendraDtls.forEach((obj, i) => {
+                if (obj.applnDtls.appStatus === "INPROGRESS") {
+                    atlOneInProgress++;
+                    kendraDetInProg.push(obj)
+                } else if (obj.applnDtls.appStatus === "COMPLETED" || obj.applnDtls.appStatus === "APPROVED") {
+                    atOneApproved++
+                }
+            })
+            if (atlOneInProgress > 0) {
+                kendraDetInProg.forEach((pendKen, p) => {
+                    if (pendKen.applnWFDtls[0].nextWFStage === 'PUSHBACK') {
+                        if (pendKen.applnWFDtls[0].usrRole === 'CASHIER') {
+                            AtOnePushBackByCash++;
+                        } else if (pendKen.applnWFDtls[0].usrRole === 'BM') {
+                            AtOnePushBackByBM++;
+                        }
+                        nonMetKendraCollCount++;
+                        NonMeetReasonText = pendKen.applnWFDtls[0].remarks;
+                        pendKen.applnDtls.currStage = 'PUSHBACK'
+                        if (NonKMPushbackRes.kendraDtls) {
+                            NonKMPushbackRes.kendraDtls.push(kendraDetInProg[p]);
+                        } else {
+                            NonKMPushbackRes.kendraDtls = [kendraDetInProg[p]];
+                        }
+                    } else if (pendKen.applnDtls.currStage === "SENDFORAPPROVAL") {
+                        AtleastOneAppPend++;
+                    } else if (pendKen.applnDtls.currStage === "CASHHANDOVER") {
+                        AtleastOnePendCash++
+                    }
+                })
+                if (AtOnePushBackByCash > 0) {
+                    document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+                        "LIT_COL_LBL_CASHPUSHBACKERR");
+                    nonMetCashierPushBack = true;
+                    ViewNonMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_CASHPUSHBACKERR");
+                } else if (AtOnePushBackByBM > 0) {
+                    document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+                        "LIT_COL_LBL_BMPUSHBACKERR");
+                    isNonBMPusBack = true;
+                    nonMetCashierPushBack = true;
+                    ViewNonMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_BMPUSHBACKERR");
+                } else if (AtleastOnePendCash > 0) {
+                    document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+                        "LIT_COL_LBL_VER_PEND_CASHIER");
+                    ViewNonMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_VER_PEND_CASHIER");
+                    document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').classList.add('bg-info');
+                } else if (AtleastOneAppPend > 0) {
+                    document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+                        "LIT_COL_LBL_APPR_PEND_BM");
+                    document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').classList.add('bg-info');
+                    ViewNonMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_APPR_PEND_BM");
+                } else {
+                    document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+                        "LIT_COL_LBL_SUBM_PEND")
+                    document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').classList.remove('bg-dark-err');
+                }
+            } else if (atOneApproved > 0) {
+                document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+                    "LIT_COL_LBL_BM_APPROVED");
+                ViewNonMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode("LIT_COL_LBL_BM_APPROVED");
+                document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').classList.add('vrfed', 'brd-rd');
+                document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').classList.remove('pen');
+            }
+        }
+        // if ($("#" + CollectionSubmissionScrId + "txt_submitOnlyKendras").is(':visible')) {
+        //     document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+        //         "LIT_COL_LBL_SUBM_PEND")
+        //     document.getElementById(CollectionSubmissionScrId + 'txt_NSubPendStatus').classList.remove('bg-dark-err');
+        //     recollectAmt = true;
+        // }
+        apz.app.CollectionSubmission.nonMeetingpaintCollSubData();
+    } else {
+        //apz.app.CollectionSubmission.paintCollNonMetColtData();
+        apz.app.CollectionSubmission.nonMeetingpaintCollSubData();
+    }
+    //need to uncomment for New FSD changes
+    apz.app.CollectionSubmission.segregateRecords("NonMeeting");
+}
+apz.app.CollectionSubmission.paintNonMeetingCollectionAmount = function() {
+    let nonMetTotalAmt = 0;
+    let kendraId = [];
+    if (nonMeeColSubData.length > 0 || ViewNonMeetingApplnProgress.length > 0) {
+        if (nonMeeColSubData.length > 0) {
+            nonMeeColSubData.forEach((d, i) => {
+                let kId = d.kendraId;
+                nonMetTotalAmt += d.colldtls.totCollAmt;
+                if (!kendraId.includes(kId)) {
+                    kendraId.push(kId);
+                }
+            });
+        }
+        if (ViewNonMeetingApplnProgress.length > 0) {
+            ViewNonMeetingApplnProgress.forEach((kendra) => {
+                kendra.kendraDtls.forEach((appDts) => {
+                    //appDets.applnDtls.forEach((appDts) => {
+                    if (!kendraId.includes(appDts.kendraId) || !kendraId.includes(appDts.id)) {
+                        nonMetTotalAmt += appDts.colldtls.totCollAmt;
+                        kendraId.push(appDts.kendraId);
+                    }
+                    //})
+                })
+            })
+        }
+        document.getElementById(CollectionSubmissionScrId + "txt_nonMeetColAmt").innerText = kendraId.length;
+        document.getElementById(CollectionSubmissionScrId + "txt_nonMeCollAmtId").innerText = ApzCOB.fn_FormatAmount(nonMetTotalAmt);
+        if (nonMetTotalAmt === 0) {
+            document.getElementById(CollectionSubmissionScrId + "nonMetWidgetDiv_li").closest("li").classList.add("sno");
+        } else {
+            document.getElementById(CollectionSubmissionScrId + "nonMetWidgetDiv_li").closest("li").classList.remove("sno");
+        }
+        document.getElementById(CollectionSubmissionScrId + "icn_NViewDetailed").classList.remove("sno");
+    } else {
+        document.getElementById(CollectionSubmissionScrId + "nonMetWidgetDiv_li").closest("li").classList.add("sno");
+        document.getElementById(CollectionSubmissionScrId + "icn_NViewDetailed").classList.add("sno");
+        document.getElementById(CollectionSubmissionScrId + "txt_nonMeetColAmt").innerText = 0;
+        document.getElementById(CollectionSubmissionScrId + "txt_nonMeCollAmtId").innerText = 0;
+    }
+}
+//function on click of particular status types
+apz.app.CollectionSubmission.onClickStatusTypes = function(pthis) {
+    let ptext = $(pthis).text();
+    let rowno = $(pthis).attr('rowno');
+    $("#" + CollectionSubmissionScrId + "lst_roleStatusTypesId li").removeClass('active');
+    $("#" + CollectionSubmissionScrId + "lst_roleStatusTypesId_row_" + rowno).addClass('active');
+    apz.app.CollectionSubmission.loadDataBasedonStatus(ptext);
+    // if (userRole === "KM") {
+    //     apz.app.CollectionSubmission.loadDataBasedonStatusKM();
+    // } else if (userRole.toUpperCase() === "CASHIER") {
+    //     apz.app.CollectionSubmission.loadDataBasedonStatusCashier();
+    // } else if (userRole === "BM") {
+    //     apz.app.CollectionSubmission.loadDataBasedonStatusBM();
+    // }
+}
+//function to load data based on selected status type
+apz.app.CollectionSubmission.loadDataBasedonStatus = function(status) {
+    let showNoRecord = false;
+    let showNoRecRepeat = false;
+    let showNoRecNonMeet = false;
+    let showSubmitBtn = false;
+    let records = {};
+    let meetStatusRec = [];
+    let repStatusRes = [];
+    let nonMeetStatusRec = [];
+    let LITMsg = "";
+    let className = "";
+    let CashierDispMsg = "";
+    let [pendByCashier, pendByBM, pushBackCashier, pushbackBM, approved] = Array.from({
+        length: 5
+    }, () => []);
+    if (window.userRole.toUpperCase() === "CASHIER" || window.userRole === "BM") {
+        if (window.userRole.toUpperCase() === "CASHIER") {
+            pushbackRec = MeetingDayRecords.pushbackRec;
+            CashierDispMsg = "Verification Pending";
+            className = "bg-info";
+        } else {
+            pushbackRec = MeetingDayRecords.pushbackBMRec;
+            CashierDispMsg = "Approval Pending";
+            className = "inf";
+        }
+        let records = [];
+        records = apz.app.CollectionSubmission.getAllKMsKendrasByStatus(paintDet, status);
+        if (status === 'Pending') {
+            apz.app.CollectionSubmission.loadCashierData(records, "Pending", CashierDispMsg, className);
+        } else if (status === 'Pending(BM)') {
+            apz.app.CollectionSubmission.loadCashierData(records, "Pending(BM)", "Approval Pending By BM", "pen");
+        } else if (status === 'Pushback' || status === 'Rejected') {
+            apz.app.CollectionSubmission.loadCashierData(records, "Pushback", "Pushback", "bg-dark-err");
+        } else if (status === 'Approved') {
+            apz.app.CollectionSubmission.loadCashierData(records, "Approved", "Approved By BM", "vrfed brd-rd");
+        } else if (status === 'Pushback(BM)') {
+            apz.app.CollectionSubmission.loadCashierData(records, "Pending(BM)", "Pushback By BM", "bg-dark-err");
+        } else if (status === 'Pending(Cashier)') {
+            apz.app.CollectionSubmission.loadCashierData(records, "Pending(Cashier)", "Verification Pending By Cashier", "pen");
+        }
+    }
+    if (window.userRole === "KM") {
+        if (status === "Pending") {
+            meetStatusRec = MeetingDayRecords.pendingRec;
+            LITMsg = "LIT_COL_LBL_SUBM_PEND";
+            className = "bg-dark-err";
+            repStatusRes = RepeatRecords.pendingRec;
+            nonMeetStatusRec = NonMeetingDayRecords.pendingRec;
+            if (MeetingDayRecords.pendingRec.length > 0) {
+                showSubmitBtn = true;
+            }
+        } else if (status === "Pending(Cashier)") {
+            meetStatusRec = MeetingDayRecords.pendByCashierRec;
+            repStatusRes = RepeatRecords.pendByCashierRec;
+            nonMeetStatusRec = NonMeetingDayRecords.pendByCashierRec;
+            LITMsg = "LIT_COL_LBL_APPR_PEND_CASHIER";
+            className = "bg-info";
+            showSubmitBtn = false;
+        } else if (status === "Pending(BM)") {
+            meetStatusRec = MeetingDayRecords.pendByBMRec;
+            repStatusRes = RepeatRecords.pendByBMRec;
+            nonMeetStatusRec = NonMeetingDayRecords.pendByBMRec;
+            LITMsg = "LIT_COL_LBL_APPR_PEND_BM";
+            className = "bg-info";
+            showSubmitBtn = false;
+        } else if (status === "Pushback(Cashier)") {
+            meetStatusRec = MeetingDayRecords.pushBackCashierRec;
+            repStatusRes = RepeatRecords.pushBackCashierRec;
+            nonMeetStatusRec = NonMeetingDayRecords.pushBackCashierRec;
+            LITMsg = "LIT_COL_LBL_CASHPUSHBACKERR";
+            className = "bg-dark-err";
+            if (MeetingDayRecords.pushBackCashierRec.length > 0) {
+                showSubmitBtn = true;
+            }
+        } else if (status === "Pushback(BM)") {
+            meetStatusRec = MeetingDayRecords.pushbackBMRec;
+            repStatusRes = RepeatRecords.pushbackBMRec;
+            nonMeetStatusRec = NonMeetingDayRecords.pushbackBMRec;
+            LITMsg = "LIT_COL_LBL_BMPUSHBACKERR";
+            className = "bg-dark-err";
+            if (MeetingDayRecords.pushbackBMRec.length > 0) {
+                showSubmitBtn = true;
+            }
+        } else if (status === "Approved") {
+            meetStatusRec = MeetingDayRecords.approvedRec;
+            repStatusRes = RepeatRecords.approvedRec;
+            nonMeetStatusRec = NonMeetingDayRecords.approvedRec;
+            LITMsg = "LIT_COL_LBL_BM_APPROVED";
+            className = "vrfed brd-rd";
+            showSubmitBtn = false;
+        }
+        apz.app.CollectionSubmission.paintRespectDataKM(meetStatusRec, "Meeting", LITMsg, className);
+        apz.app.CollectionSubmission.paintRespectDataKM(repStatusRes, "Repeat", LITMsg, className);
+        apz.app.CollectionSubmission.paintRespectDataKM(nonMeetStatusRec, "NonMeeting", LITMsg, className);
+        // if (showSubmitBtn) {
+        //     $("#" + CollectionSubmissionScrId + "txt_submitOnlyKendras").removeClass('sno');
+        //     $("#" + CollectionSubmissionScrId + "col_meetCollSubmitBtn_li").removeClass('sno');
+        //     $("#" + CollectionSubmissionScrId + "icn_ViewDetailed").addClass('sno');
+        // } else {
+        //     $("#" + CollectionSubmissionScrId + "txt_submitOnlyKendras").addClass('sno');
+        //     $("#" + CollectionSubmissionScrId + "col_meetCollSubmitBtn_li").addClass('sno');
+        //     $("#" + CollectionSubmissionScrId + "icn_ViewDetailed").removeClass('sno');
+        // }
+    }
+}
+apz.app.CollectionSubmission.paintRespectDataKM = function(data, type, statusMsg, className) {
+    let statusMsgDesc = ApzCOB.getDescfromLitCode(statusMsg);
+    let amount = 0;
+    let statusId = "";
+    if (data.length > 0) {
+        // if (statusMsgDesc.toUpperCase() === "APPROVED") {
+        //     document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').classList.add('vrfed', 'brd-rd')
+        // } else {
+        //     document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').classList.add(className);
+        // }
+        amount = apz.app.CollectionSubmission.returnAmountBasedOnStatus(data);
+        displayStatusMsg = statusMsgDesc;
+        if (type === "Meeting") {
+            // ViewMeetingApplnProgress[0].collStatus = statusMsgDesc;
+            statusId = "txt_kmSubPendStatus";
+            document.getElementById(CollectionSubmissionScrId + 'txt_kmCollAmtId').innerText = ApzCOB.fn_FormatAmount(amount);
+            document.getElementById(CollectionSubmissionScrId + 'txt_kmCollectedCash').innerText = ApzCOB.fn_FormatAmount(amount);
+            $("#" + CollectionSubmissionScrId + "col_meetCollSubmitBtn_li").removeClass('sno');
+            if (statusMsgDesc === "Pending") {
+                $('#' + CollectionSubmissionScrId + 'txt_colSubCountId').text(data.length + '/' + collectionKendraData.length);
+                $("#" + CollectionSubmissionScrId + "txt_submitOnlyKendras").removeClass('sno');
+                $("#" + CollectionSubmissionScrId + "icn_ViewDetailed").addClass('sno');
+            } else {
+                $("#" + CollectionSubmissionScrId + "txt_submitOnlyKendras").addClass('sno');
+                $("#" + CollectionSubmissionScrId + "icn_ViewDetailed").removeClass('sno');
+            }
+            MeetingSubRec = data;
+            document.getElementById(CollectionSubmissionScrId + 'txt_noOfKendraId').innerText = data.length;
+        } else if (type === "NonMeeting") {
+            statusId = "txt_NSubPendStatus";
+            $('#' + CollectionSubmissionScrId + 'txt_nonMeCollAmtId').closest('li').removeClass('sno');
+            document.getElementById(CollectionSubmissionScrId + 'txt_nonMeCollAmtId').innerText = ApzCOB.fn_FormatAmount(amount);
+            NonMeetingSubRec = data;
+            document.getElementById(CollectionSubmissionScrId + 'txt_nonMeetColAmt').innerText = data.length;
+        } else if (type === "Repeat") {
+            statusId = "txt_RSubPendStatus";
+            repeatSubRec = data;
+            $('#Widget__CollectionSubmission__totalRpeatAmtCol').closest('li').removeClass('sno');
+            document.getElementById(CollectionSubmissionScrId + 'totalRpeatAmtCol').innerText = ApzCOB.fn_FormatAmount(amount);
+            document.getElementById(CollectionSubmissionScrId + 'totalNoKendra').innerText = data.length;
+        }
+        document.getElementById(CollectionSubmissionScrId + statusId).classList.remove('bg-info', 'bg-dark-err', 'vrfed', 'brd-rd', 'pen');
+        document.getElementById(CollectionSubmissionScrId + statusId).innerText = statusMsgDesc;
+        if (statusMsgDesc.toUpperCase() === "APPROVED") {
+            document.getElementById(CollectionSubmissionScrId + statusId).classList.add('vrfed', 'brd-rd')
+        } else {
+            document.getElementById(CollectionSubmissionScrId + statusId).classList.add(className);
+        }
+    } else if (data.length === 0 && window.userRole === "KM") {
+        if (type === "Meeting") {
+            document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').innerText = ApzCOB.getDescfromLitCode(
+                'LIT_COL_LBL_SUBM_PEND');
+            // ViewMeetingApplnProgress[0].collStatus = ApzCOB.getDescfromLitCode('LIT_COL_LBL_SUBM_PEND');
+            displayStatusMsg = ApzCOB.getDescfromLitCode('LIT_COL_LBL_SUBM_PEND');
+            document.getElementById(CollectionSubmissionScrId + 'txt_kmSubPendStatus').classList.add('bg-dark-err');
+            document.getElementById(CollectionSubmissionScrId + 'txt_kmCollAmtId').innerText = 0;
+            $("#" + CollectionSubmissionScrId + "col_meetCollSubmitBtn_li").addClass('sno');
+            $("#" + CollectionSubmissionScrId + "icn_ViewDetailed").addClass('sno');
+            MeetingSubRec = [];
+            document.getElementById(CollectionSubmissionScrId + 'txt_noOfKendraId').innerText = 0;
+        } else if (type === "NonMeeting") {
+            NonMeetingSubRec = [];
+            $('#Widget__CollectionSubmission__txt_nonMeCollAmtId').closest('li').addClass('sno');
+            document.getElementById(CollectionSubmissionScrId + 'txt_nonMeetColAmt').innerText = 0;
+        } else if (type === "Repeat") {
+            repeatSubRec = [];
+            $('#Widget__CollectionSubmission__totalRpeatAmtCol').closest('li').addClass('sno');
+            document.getElementById(CollectionSubmissionScrId + 'totalNoKendra').innerText = 0;
+        }
+    } else {
+        $("#" + CollectionSubmissionScrId + "noRecordForm").removeClass('sno');
+        $("#" + CollectionSubmissionScrId + "listData").addClass('sno');
+    }
+}
+//function to return collected Amount of the records
+apz.app.CollectionSubmission.returnAmountBasedOnStatus = function(data) {
+    let totCollAmt = 0;
+    let kendraCount = 0;
+    let wfData = [];
+    collectedKendraCount = 0;
+    if (data.length > 0) {
+        data.forEach((obj, i) => {
+            if (obj.colldtls.hasOwnProperty('totCollAmt')) {
+                obj.colldtls.groups.forEach((grp, k) => {
+                    totCollAmt = totCollAmt + grp.totCollAmt;
+                })
+                if (obj.colldtls.totCollAmt > 0) {
+                    collectedKendraCount++;
+                }
+            }
+        })
+    }
+    return totCollAmt;
+}
+apz.app.CollectionSubmission.paintRespectData = function(data, type, selectedStatus) {
+    if (data.length > 0) {
+        if (type === "Meeting") {} else if (type === "NonMeeting") {} else if (type === "Repeat") {}
+    }
+}
+//function to return data based on status type
+apz.app.CollectionSubmission.returnSpecificStatus = function(params, type) {
+    let [pendByCashier, pendByBM, pushBackCashier, pushbackBM, approved] = Array.from({
+        length: 5
+    }, () => []);
+    let returnObj = {};
+    // if (params.length > 0 && params[0].kendraDtls.length > 0) {
+    //     params[0].kendraDtls.forEach(function(kendraObj) {
+    //         if (kendraObj.applnDtls.appStatus === "INPROGRESS") {
+    //             if (!apz.isNull(kendraObj.applnWFDtls) && kendraObj.applnWFDtls.length > 0 && kendraObj.applnWFDtls[0].nextWFStage ===
+    //                 "PUSHBACK") {
+    //                 if (kendraObj.applnWFDtls[0].usrRole === 'CASHIER') {
+    //                     pushBackCashier.push(kendraObj);
+    //                 } else if (kendraObj.applnWFDtls[0].usrRole === 'BM') {
+    //                     pushbackBM.push(kendraObj);
+    //                 }
+    //                 if (type === "Meeting") {
+    //                     MeetingReasonText = kendraObj.applnWFDtls[0].remarks;
+    //                 } else if (type === "NonMeeting") {
+    //                     NonMeetReasonText = kendraObj.applnWFDtls[0].remarks;
+    //                 } else if (type === "Repeat") {
+    //                     RepeatReasonText = kendraObj.applnWFDtls[0].remarks;
+    //                 }
+    //             } else if (!apz.isNull(kendraObj.applnWFDtls) && kendraObj.applnWFDtls.length > 0 && kendraObj.applnWFDtls[0]
+    //                 .nextWFStage === "SENDFORAPPROVAL" && kendraObj.applnWFDtls[0].usrRole === 'CASHIER') {
+    //                 pendByBM.push(kendraObj);
+    //             } else if (!apz.isNull(kendraObj.applnWFDtls) && kendraObj.applnWFDtls.length > 0 && kendraObj.applnWFDtls[0]
+    //                 .nextWFStage === "CASHHANDOVER" && kendraObj.applnWFDtls[0].usrRole === 'KM') {
+    //                 pendByCashier.push(kendraObj);
+    //             }
+    //         } else if (kendraObj.applnDtls.appStatus === "APPROVED") {
+    //             approved.push(kendraObj);
+    //         }
+    //     });
+    // }
+    if (params.length === 1) {
+        if (params.length > 0 && params[0].kendraDtls.length > 0) {
+            params[0].kendraDtls.forEach(function(kendraObj) {
+                if (kendraObj.applnDtls.appStatus === "INPROGRESS") {
+                    if (!apz.isNull(kendraObj.applnWFDtls) && kendraObj.applnWFDtls.length > 0 && kendraObj.applnWFDtls[0].nextWFStage ===
+                        "PUSHBACK") {
+                        if (kendraObj.applnWFDtls[0].usrRole === 'CASHIER') {
+                            pushBackCashier.push(kendraObj);
+                        } else if (kendraObj.applnWFDtls[0].usrRole === 'BM') {
+                            pushbackBM.push(kendraObj);
+                        }
+                        if (type === "Meeting") {
+                            MeetingReasonText = kendraObj.applnWFDtls[0].remarks;
+                        } else if (type === "NonMeeting") {
+                            NonMeetReasonText = kendraObj.applnWFDtls[0].remarks;
+                        } else if (type === "Repeat") {
+                            RepeatReasonText = kendraObj.applnWFDtls[0].remarks;
+                        }
+                    } else if (!apz.isNull(kendraObj.applnWFDtls) && kendraObj.applnWFDtls.length > 0 && kendraObj.applnWFDtls[0]
+                        .nextWFStage === "SENDFORAPPROVAL" && kendraObj.applnWFDtls[0].usrRole === 'CASHIER') {
+                        pendByBM.push(kendraObj);
+                    } else if (!apz.isNull(kendraObj.applnWFDtls) && kendraObj.applnWFDtls.length > 0 && kendraObj.applnWFDtls[0]
+                        .nextWFStage === "CASHHANDOVER" && kendraObj.applnWFDtls[0].usrRole === 'KM') {
+                        pendByCashier.push(kendraObj);
+                    }
+                } else if (kendraObj.applnDtls.appStatus === "APPROVED") {
+                    approved.push(kendraObj);
+                }
+            });
+        }
+    }
+    if (params.length > 1) {
+        if (params.length > 0) {
+            params.forEach(function(kmObj) {
+                if (Array.isArray(kmObj.kendraDtls) && kmObj.kendraDtls.length > 0) {
+                    kmObj.kendraDtls.forEach(function(kendraObj) {
+                        if (kendraObj.applnDtls.appStatus === "INPROGRESS") {
+                            if (!apz.isNull(kendraObj.applnWFDtls) && kendraObj.applnWFDtls.length > 0 && kendraObj.applnWFDtls[0]
+                                .nextWFStage === "PUSHBACK" && (kendraObj.applnWFDtls[0].createdBy == LoggedInUserDetails.userID)) {
+                                if (kendraObj.applnWFDtls[0].usrRole === 'CASHIER' && (kendraObj.applnWFDtls[0].createdBy == LoggedInUserDetails.userID)) {
+                                    pushBackCashier.push(kendraObj);
+                                } else if (kendraObj.applnWFDtls[0].usrRole === 'BM' && (kendraObj.applnWFDtls[0].createdBy == LoggedInUserDetails.userID)) {
+                                    pushbackBM.push(kendraObj);
+                                }
+                                if (type === "Meeting") {
+                                    MeetingReasonText = kendraObj.applnWFDtls[0].remarks;
+                                } else if (type === "NonMeeting") {
+                                    NonMeetReasonText = kendraObj.applnWFDtls[0].remarks;
+                                } else if (type === "Repeat") {
+                                    RepeatReasonText = kendraObj.applnWFDtls[0].remarks;
+                                }
+                            } else if (!apz.isNull(kendraObj.applnWFDtls) && kendraObj.applnWFDtls.length > 0 && kendraObj
+                                .applnWFDtls[0].nextWFStage === "SENDFORAPPROVAL" && kendraObj.applnWFDtls[0].usrRole === 'CASHIER') {
+                                pendByBM.push(kendraObj);
+                            }
+                            else if (
+                                !apz.isNull(kendraObj.applnWFDtls) &&
+                                kendraObj.applnWFDtls.length > 0 &&
+                                kendraObj.applnWFDtls[0].nextWFStage === "CASHHANDOVER" &&
+                                kendraObj.applnWFDtls[0].usrRole === 'KM'
+                            ) {
+                                pendByCashier.push(kendraObj);
+                            }
+                        } else if (kendraObj.applnDtls.appStatus === "APPROVED") {
+                            approved.push(kendraObj);
+                        }
+                    });
+                }
+            });
+        }
+    }
+    returnObj = {
+        pendByCashierRec: pendByCashier,
+        pendByBMRec: pendByBM,
+        pushBackCashierRec: pushBackCashier,
+        pushbackBMRec: pushbackBM,
+        approvedRec: approved
+    }
+    return returnObj;
+}
+//function to segregate data for roles and status
+apz.app.CollectionSubmission.segregateRecords = function(type) {
+    if (type === "Meeting") {
+        let pendingRec = [];
+        if (colAppWFData.length > 0) {
+            pendingRec = collectionKendraData.filter(ken => {
+                if (colAppWFData.some(localItem => (localItem.KENDRAID === ken.kendraId && localItem.NEXTWFSTAGEID ===
+                    "SENDFORAPPROVAL"))) {
+                    return ken;
+                }
+            })
+        }
+        if (ViewMeetingApplnProgress.length > 0) {
+            MeetingDayRecords = apz.app.CollectionSubmission.returnSpecificStatus(ViewMeetingApplnProgress, type)
+        }
+        MeetingDayRecords.pendingRec = pendingRec;
+    } else if (type === "NonMeeting") {
+        let nonMeetPendRec = [];
+        if (nonMeetColAppData.length > 0) {
+            nonMeetPendRec = nonMeeColSubData.filter(kend => {
+                if (nonMeetColAppData.some(nlocalItem => (nlocalItem.KENDRAID === kend.kendraId && nlocalItem.NEXTWFSTAGEID ===
+                        "SENDFORAPPROVAL"))) {
+                    return kend;
+                }
+            })
+        }
+        if (ViewNonMeetingApplnProgress.length > 0) {
+            NonMeetingDayRecords = apz.app.CollectionSubmission.returnSpecificStatus(ViewNonMeetingApplnProgress, type)
+        }
+        NonMeetingDayRecords.pendingRec = nonMeetPendRec;
+    } else if (type === "Repeat") {
+        let repatPendRec = [];
+        if (RepeatcolAppWFData.length > 0) {
+            repatPendRec = kendras.filter(rken => {
+                if (RepeatcolAppWFData.some(rlocalItem => (rlocalItem.KENDRAID === rken.kendraId && rlocalItem.NEXTWFSTAGEID ===
+                        "SENDFORAPPROVAL"))) {
+                    return rken;
+                }
+            })
+        }
+        if (ViewRepeatApplnProgress) {
+            RepeatRecords = apz.app.CollectionSubmission.returnSpecificStatus(ViewRepeatApplnProgress, type)
+        }
+        if (RepeatRecords.hasOwnProperty("pushBackCashierRec") && RepeatRecords.pushBackCashierRec.length > 0) {
+            pushBackSubPaintRec = RepeatRecords.pushBackCashierRec;
+        }
+        RepeatRecords.pendingRec = repatPendRec;
+    }
+}
+//function to give status after selecting submit button
+apz.app.CollectionSubmission.checkStatusOfRec = function(type) {
+    if (window.userRole === "KM") {
+        if (type === "MEETING") {}
+    } else if (window.userRole === "BM" || window.userRole.toUpperCase() === "CASHIER") {}
+}
+//function to give data for cashier
+apz.app.CollectionSubmission.returnSpecificStatusForCashier = function(params) {
+    let [pending, pendByBM, pushbackBM, approved, pushback] = Array.from({
+        length: 5
+    }, () => []);
+    let [pendingRec, pendByBMRec, pushbackBMRec, approvedRec, pushbackRec] = Array.from({
+        length: 5
+    }, () => []);
+    let returnObj = {};
+    let statusBaseKMData = {};
+    if (params.length > 0 && params[0].kendraDtls.length > 0) {
+        params.forEach((d) => {
+            let kmName = d.kmName;
+            let kmid = d.kmId;
+            d.kendraDtls.forEach(function(kendraObj) {
+                kendraObj.kmName = kmName;
+                kendraObj.kmId = kmid;
+                if (kendraObj.applnDtls.appStatus === "INPROGRESS") {
+                    if (!apz.isNull(kendraObj.applnWFDtls) && kendraObj.applnWFDtls.length > 0 && kendraObj.applnWFDtls[0]
+                        .nextWFStage === "PUSHBACK") {
+                        if (kendraObj.applnWFDtls[0].usrRole === 'CASHIER') {
+                            kendraObj.kendraCount = pending.length + 1;
+                            pushback.push(kendraObj);
+                        } else if (kendraObj.applnWFDtls[0].usrRole === 'BM') {
+                            kendraObj.kendraCount = pushbackBM.length + 1;
+                            pushbackBM.push(kendraObj);
+                        }
+                    } else if (!apz.isNull(kendraObj.applnWFDtls) && kendraObj.applnWFDtls.length > 0 && kendraObj.applnWFDtls[0]
+                        .nextWFStage === "SENDFORAPPROVAL" && kendraObj.applnWFDtls[0].usrRole === 'CASHIER') {
+                        kendraObj.kendraCount = pendByBM.length + 1;
+                        pendByBM.push(kendraObj);
+                    } else if (!apz.isNull(kendraObj.applnWFDtls) && kendraObj.applnWFDtls.length > 0 && kendraObj.applnWFDtls[0]
+                        .nextWFStage === "CASHHANDOVER" && kendraObj.applnWFDtls[0].usrRole === 'KM') {
+                        kendraObj.kendraCount = pending.length + 1;
+                        pending.push(kendraObj);
+                    }
+                } else if (kendraObj.applnDtls.appStatus === "APPROVED") {
+                    kendraObj.kendraCount = approved.length + 1;
+                    approved.push(kendraObj);
+                }
+            });
+            statusBaseKMData = {};
+            statusBaseKMData = JSON.parse(JSON.Stringify(kendraObj));
+            statusBaseKMData.kendraDtls = [];
+        })
+    }
+    if (window.userRole === "CASHIER") {
+        returnObj = {
+            pending: pending,
+            pendByBMRec: pendByBM,
+            pushbackBMRec: pushbackBM,
+            approvedRec: approved,
+            pushbackRec: pushback
+        }
+    } else if (window.userRole === "BM") {
+        returnObj = {
+            pending: pendByBM,
+            pushbackBMRec: pushbackBM,
+            approvedRec: approved,
+            pendingCashRec: pending
+        }
+    }
+    // returnObj = {
+    //     pending: pending,
+    //     pendByBMRec: pendByBM,
+    //     pushbackBMRec: pushbackBM,
+    //     approvedRec: approved
+    // }
+    return returnObj;
+}
+apz.app.CollectionSubmission.loadCashierData = function(data, status, statusMsg, className) {
+    let statusMsgDesc = ApzCOB.getDescfromLitCode(statusMsg);
+    if (data.length > 0) {
+        $("#" + CollectionSubmissionScrId + "noRecordForm").addClass('sno');
+        $("#" + CollectionSubmissionScrId + "listData").removeClass('sno');
+        let paintStatus = '';
+        apz.data.scrdata.Widget__IPaintColSubmissionData_Res.CashierData = data;
+        apz.data.loadData("IPaintColSubmissionData", 'Widget');
+        for (let i = 0; i < data.length; i++) {
+            $(WidgetStatus + i).removeClass('bg-dark-err');
+            $(WidgetStatus + i).removeClass('bg-err');
+            $(WidgetStatus + i).removeClass('inf');
+            $(WidgetStatus + i).removeClass('bg-info');
+            $(WidgetStatus + i).removeClass('vrfed brd-rd');
+            $(WidgetStatus + i).addClass(className);
+            let totCollectAmt = apz.app.CollectionSubmission.returnAmountBasedOnStatusForCashier(data[i].kendraDtls);
+            document.getElementById("Widget__IPaintColSubmissionData__o__CashierData__totalColAmt_" + i).innerText = totCollectAmt;
+            document.getElementById("Widget__IPaintColSubmissionData__o__CashierData__collStatus_" + i + "_txtcnt").innerText = statusMsg;
+            document.getElementById('Widget__IPaintColSubmissionData__o__CashierData__kendraCount_' + i).innerText = data[i].kendraDtls.length;
+            if (status === "Pending") {
+                document.getElementById(CollectionSubmissionScrId + "verifyText_" + i).classList.remove('sno');
+                document.getElementById(CollectionSubmissionScrId + "verifyTxtIcon_" + i).classList.add('sno');
+            } else {
+                document.getElementById(CollectionSubmissionScrId + "verifyText_" + i).classList.add('sno');
+                document.getElementById(CollectionSubmissionScrId + "verifyTxtIcon_" + i).classList.remove('sno');
+            }
+        }
+    } else {
+        $("#" + CollectionSubmissionScrId + "noRecordForm").removeClass('sno');
+        $("#" + CollectionSubmissionScrId + "listData").addClass('sno');
+    }
+}
+//calculate total amount for casiher
+apz.app.CollectionSubmission.returnAmountBasedOnStatusForCashier = function(data) {
+    let totCollAmt = 0;
+    if (data.length > 0) {
+        data.forEach((obj, i) => {
+            if (obj.colldtls.hasOwnProperty('totCollAmt')) {
+                obj.colldtls.groups.forEach((grp, k) => {
+                    totCollAmt = totCollAmt + grp.totCollAmt;
+                })
+            }
+        })
+    }
+    return totCollAmt;
+}
+apz.app.CollectionSubmission.getKendrasByStatus = function(kmId, params, selectedTab) {
+    const kmEntry = params.find(km => km.kmId === kmId);
+    if (!kmEntry) return [];
+    return kmEntry.kendraDtls.filter(kendra => {
+        const status = kendra.applnDtls?.appStatus;
+        const wfDetails = kendra.applnWFDtls?.[0];
+        const nextStage = wfDetails?.nextWFStage;
+        const usrRole = wfDetails?.usrRole;
+        switch (selectedTab.toUpperCase()) {
+            case 'PENDING':
+                if (userRole === "BM") {
+                    return (status === 'INPROGRESS' && nextStage === 'SENDFORAPPROVAL' && usrRole === 'CASHIER');
+                } else {
+                    return (status === 'INPROGRESS' && nextStage === 'CASHHANDOVER' && usrRole === 'KM');
+                }
+                case 'PUSHBACK':
+                    if (userRole === "BM") {
+                        return (status === 'INPROGRESS' && nextStage === 'PUSHBACK' && usrRole === 'BM');
+                    } else {
+                        return (status === 'INPROGRESS' && nextStage === 'PUSHBACK' && usrRole === 'CASHIER');
+                    }
+                    case 'PENDING(BM)':
+                        if (userRole === "CASHIER") {
+                            return (status === 'INPROGRESS' && nextStage === "SENDFORAPPROVAL" && usrRole === 'CASHIER');
+                        }
+                        case 'APPROVED':
+                            return status === 'APPROVED';
+                        case 'REJECTED':
+                        case 'PUSHBACK(BM)':
+                            return (status === 'INPROGRESS' && nextStage === 'PUSHBACK' && usrRole === 'BM');
+                        default:
+                            return false;
+        }
+    });
+}
+apz.app.CollectionSubmission.getAllKMsKendrasByStatus = function(params, selectedTab) {
+    let result = [];
+    let kmData = {};
+    if (params.length > 0) {
+        params.forEach(km => {
+            const filtered = apz.app.CollectionSubmission.getKendrasByStatus(km.kmId, [km], selectedTab);
+            if (filtered.length > 0) {
+                kmData = JSON.parse(JSON.stringify(km));
+                kmData.kendraDtls = filtered;
+                result.push(kmData)
+            }
+        });
+    }
+    return result;
+}

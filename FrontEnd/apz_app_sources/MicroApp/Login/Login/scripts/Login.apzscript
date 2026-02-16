@@ -1,0 +1,191 @@
+var LoginScrId = 'Login__Login__';
+var xlinkhrefext = 'xlink:href';
+apz.app.onLoad_Login = function() {
+    // Nothing
+};
+apz.app.onShown_Login = function() {
+    // $(".icon-eye").attr("onclick", "apz.app.Login.HideShowPassword();");
+    $('#Login__Login__appVersion span').text(window.APP_VERSION);
+    $('#' + LoginScrId + 'version').text(window.versionNum);
+    $(".icon-Eye-Open").css("cursor", "pointer");
+    $(".icon-Eye-Close").css("cursor", "pointer");
+    $('body').addClass("LoginBase");
+    $("input").attr("autocomplete", "off");
+    $("#header").addClass("sno");
+    ApzCOB.disableCutCopyPaste();
+    $('#footer').addClass('sno');
+    if (window.WebLogin) {
+        $('#' + LoginScrId + 'loginRow').addClass('sno');
+        $('#' + LoginScrId + 'userRow').addClass('sno');
+        $('#' + LoginScrId + 'webLogin').removeClass('sno');
+        $("#" + LoginScrId + 'webEyeClose').removeClass('sno');
+    } else {
+        // $('#' + LoginScrId + 'loginRow').addClass('sno');
+        //$('#' + LoginScrId + 'userRow').addClass('sno');
+        $('#' + LoginScrId + 'mbLoginFirstRow').removeClass('sno');
+        $('#' + LoginScrId + 'loginRow').removeClass('sno');
+        $('#' + LoginScrId + 'userRow').removeClass('sno');
+        $('#' + LoginScrId + 'mbLoginFirstRow').addClass('sno');
+        $('#' + LoginScrId + 'mbLoginSecondRow').addClass('sno');
+        $('#' + LoginScrId + 'mbLogintThirdRow').addClass('sno');
+    }
+    if (gApzCOB.backNav && !window.WebLogin) {
+        gApzCOB.backNav = false;
+        $('#' + LoginScrId + 'loginRow').removeClass('sno');
+        $('#' + LoginScrId + 'userRow').removeClass('sno');
+        $('#' + LoginScrId + 'mbLoginFirstRow').addClass('sno');
+        $('#' + LoginScrId + 'mbLoginSecondRow').addClass('sno');
+        $('#' + LoginScrId + 'mbLogintThirdRow').addClass('sno');
+    }
+};
+$("#" + LoginScrId + "userName, #" + LoginScrId + "password").keypress(function(e) {
+    if (e.which === 13 && apz.deviceType === "WEB") {
+        apz.app.Login.OnClickLogin();
+    }
+});
+apz.app.Login.validLogin = function() {
+    $('#' + LoginScrId + 'userName').val($('#' + LoginScrId + 'userName').val().toUpperCase());
+    var custID = $('#' + LoginScrId + 'userName').val();
+    var pass = $('#' + LoginScrId + 'password').val();
+    if (custID.length >= 3 && pass.length >= 3) {
+        if (custID.slice(0, 2) == 'GK') {
+            $('#' + LoginScrId + 'el_btn_4').addClass('btn-enb');
+        } else {
+            $('#' + LoginScrId + 'el_btn_4').removeClass('btn-enb');
+        }
+    } else {
+        $('#' + LoginScrId + 'el_btn_4').removeClass('btn-enb');
+    }
+}
+apz.app.Login.OnClickLogin = function() {
+    var customerID = $('#' + LoginScrId + 'userName').val().toUpperCase();
+    var password = $('#' + LoginScrId + 'password').val();
+    var loginform = $("#" + LoginScrId + "webloginform").find("input"),
+        loginform_validator_check = {
+            Login__Login__userName: {
+                verify: nullcheck,
+                message: "LIT_USERNAME_ERR"
+            },
+            Login__Login__password: {
+                verify: nullcheck,
+                message: "LIT_USERPASS_ERR"
+            }
+        };
+    if (ApzCOB.validateInputFields(loginform, loginform_validator_check)) {
+        ApzCOB.login(customerID, password);
+    }
+};
+apz.app.Login.OnClickLoginWeb = function() {
+    var customerID = $('#' + LoginScrId + 'userNameWeb').val().toUpperCase();
+    var password = $('#' + LoginScrId + 'passwordWeb').val();
+    var loginform = $("#" + LoginScrId + "webLoginForm").find("input"),
+        loginform_validator_check = {
+            Login__Login__userName: {
+                verify: nullcheck,
+                message: "LIT_USERNAME_ERR"
+            },
+            Login__Login__password: {
+                verify: nullcheck,
+                message: "LIT_USERPASS_ERR"
+            }
+        };
+    if (ApzCOB.validateInputFields(loginform, loginform_validator_check)) {
+        ApzCOB.login(customerID, password);
+    }
+};
+apz.app.Login.OnClickMakerChecker = function(pthis) {
+    var selectedRole = $(pthis).text();
+    if (selectedRole === "Maker & Checker") {
+        window.subRole = "B";
+        //  gApzCOB.subRole = window.subRole;
+    } else if (selectedRole === "Maker") {
+        window.subRole = 'I';
+        //gApzCOB.subRole = window.subRole;
+    } else if (selectedRole === "Checker") {
+        window.subRole = 'A';
+        //  gApzCOB.subRole = window.subRole;
+    }
+    $("#" + LoginScrId + "MakerCheckDIV").addClass("sno");
+    $("#" + LoginScrId + "LoginBody").addClass("sno");
+    ApzCOB.launchMicroApp('Dashbo', 'dashboard', gAppId + '__BaseScreens__BaseDIV', '');
+};
+apz.app.Login.HideShowPassword = function() {
+    if (apz.deviceType === 'WEB') {
+        if ($("#" + LoginScrId + 'webEyeClose').hasClass('sno')) {
+            $("#" + LoginScrId + "passwordWeb").addClass("mask");
+            let PASSWORD_INPUT_TYPE = "password";
+            document.getElementById(LoginScrId + "passwordWeb").type = PASSWORD_INPUT_TYPE;
+            $("#" + LoginScrId + 'webEyeClose').removeClass('sno')
+            $("#" + LoginScrId + 'webEyeOpen').addClass('sno')
+        } else {
+            $("#" + LoginScrId + "passwordWeb").removeClass("mask");
+            let TEXT_INPUT_TYPE = "text";
+            document.getElementById(LoginScrId + "passwordWeb").type = TEXT_INPUT_TYPE;
+            $("#" + LoginScrId + 'webEyeClose').addClass('sno')
+            $("#" + LoginScrId + 'webEyeOpen').removeClass('sno')
+        }
+    } else {
+        if ($("#" + LoginScrId + 'eyeClose').hasClass('sno')) {
+            $("#" + LoginScrId + "password").addClass("mask");
+            let PASSWORD_INPUT_TYPE = "password";
+            document.getElementById(LoginScrId + "password").type = PASSWORD_INPUT_TYPE;
+            $("#" + LoginScrId + 'eyeClose').removeClass('sno')
+            $("#" + LoginScrId + 'eyeOpen').addClass('sno')
+        } else {
+            $("#" + LoginScrId + "password").removeClass("mask");
+            let TEXT_INPUT_TYPE = "text";
+            document.getElementById(LoginScrId + "password").type = TEXT_INPUT_TYPE;
+            $("#" + LoginScrId + 'eyeClose').addClass('sno')
+            $("#" + LoginScrId + 'eyeOpen').removeClass('sno')
+        }
+    }
+};
+apz.app.Login.Setpassword = function() {
+    $("#" + LoginScrId + "MakerCheckDIV").addClass("sno");
+    $("#" + LoginScrId + "LoginBody").addClass("sno");
+    ApzCOB.launchMicroApp('ChgPas', 'SetPassword', gAppId + '__BaseScreens__BaseDIV', $('#' + LoginScrId + 'userName').val().toUpperCase());
+};
+apz.app.Login.Forgotpassword = function() {
+    $("#" + LoginScrId + "MakerCheckDIV").addClass("sno");
+    $("#" + LoginScrId + "LoginBody").addClass("sno");
+    ApzCOB.launchMicroApp('ChgPas', 'ForgotPassword', gAppId + '__BaseScreens__BaseDIV', $('#' + LoginScrId + 'userName').val().toUpperCase());
+};
+apz.app.Login.Register = function() {
+    $("#" + LoginScrId + "MakerCheckDIV").addClass("sno");
+    $("#" + LoginScrId + "LoginBody").addClass("sno");
+    ApzCOB.launchMicroApp('Login', 'Registration', gAppId + '__BaseScreens__BaseDIV', '');
+};
+apz.app.Login.FirstRowFunc = function() {
+    $('#' + LoginScrId + 'mbLoginFirstRow').addClass('sno');
+    $('#' + LoginScrId + 'mbLoginSecondRow').removeClass('sno');
+}
+apz.app.Login.SecondRowFunc = function() {
+    $('#' + LoginScrId + 'mbLoginSecondRow').addClass('sno');
+    $('#' + LoginScrId + 'mbLogintThirdRow').removeClass('sno');
+}
+apz.app.Login.ThirdRowFunc = function() {
+    $('#' + LoginScrId + 'loginRow').removeClass('sno');
+    $('#' + LoginScrId + 'userRow').removeClass('sno');
+    $('#' + LoginScrId + 'mbLoginFirstRow').addClass('sno');
+    $('#' + LoginScrId + 'mbLoginSecondRow').addClass('sno');
+    $('#' + LoginScrId + 'mbLogintThirdRow').addClass('sno');
+}
+apz.app.Login.SkipFunctionality = function() {
+    $('#' + LoginScrId + 'loginRow').removeClass('sno');
+    $('#' + LoginScrId + 'userRow').removeClass('sno');
+    $('#' + LoginScrId + 'mbLoginFirstRow').addClass('sno');
+    $('#' + LoginScrId + 'mbLoginSecondRow').addClass('sno');
+    $('#' + LoginScrId + 'mbLogintThirdRow').addClass('sno');
+}
+apz.app.Login.backNavFunctionality = function(steps) {
+    var stage = steps;
+    if (stage === "First") {
+        //do nothing
+    } else if (stage === "Second") {
+        $('#' + LoginScrId + 'mbLoginSecondRow').addClass('sno');
+        $('#' + LoginScrId + 'mbLoginFirstRow').removeClass('sno');
+    } else if (stage === "Third") {
+        $('#' + LoginScrId + 'mbLogintThirdRow').addClass('sno');
+        $('#' + LoginScrId + 'mbLoginSecondRow').removeClass('sno');
+    }
+}

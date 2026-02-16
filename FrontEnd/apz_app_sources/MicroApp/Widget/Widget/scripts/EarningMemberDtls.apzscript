@@ -1,0 +1,219 @@
+var EarningMemberDtlsScrId = "Widget__EarningMemberDtls__"
+window.earningMemberDtls = [];
+var selectedRowDetails = {};
+var latestRec = [];
+window.fromWidget = false;
+apz.app.onLoad_EarningMemberDtls = function() {}
+apz.app.onShown_EarningMemberDtls = function() {
+    $("#" + BaseScrId + "sidebarController").addClass('sno');
+    $("#" + BaseScrId + "webHeader").removeClass('sno');
+    $("#" + BaseScrId + "ct_nav_17").addClass('sno');
+    $('#' + BaseScrId + 'rpcMenuRow').removeClass('sno');
+    $('#' + BaseScrId + 'gr_row_29').addClass('sno');
+    $("#" + EarningMemberDtlsScrId + 'EarningMemberBtn').prop('disabled', false);
+    $("#" + EarningMemberDtlsScrId + 'MemberDetailsBtn').prop('disabled', false);
+    if (applicationResp.length === 0) {
+        $("#" + EarningMemberDtlsScrId + 'earningIDList').addClass('sno');
+        $("#" + EarningMemberDtlsScrId + 'paintEarningList').addClass('sno');
+        $("#" + EarningMemberDtlsScrId + 'noRecordFound').removeClass('sno');
+        $("#" + EarningMemberDtlsScrId + 'noRecordFoundText').text('No Record for Verification');
+        $("#" + EarningMemberDtlsScrId + 'viewRecNav').addClass('sno');
+    } else {
+        $("#" + EarningMemberDtlsScrId + 'earningIDList').removeClass('sno');
+        $("#" + EarningMemberDtlsScrId + 'paintEarningList').removeClass('sno');
+        $("#" + EarningMemberDtlsScrId + 'noRecordFound').addClass('sno');
+        $("#" + EarningMemberDtlsScrId + 'viewRecNav').removeClass('sno');
+    }
+    apz.app.EarningMemberDtls.paintMemberDtls();
+    ApzCOB.launchMicroApp("RPCMEM", "RPCMemberDetails", "APZCBO__BaseScreens__BaseDIV", earningMemberDtls);
+}
+apz.app.EarningMemberDtls.paintMemberDtls = function() {
+    window.earningMemberDtls = applicationResp.map(obj => {
+        let newObj = {
+            ...obj
+        };
+       // if (JSON.parse(obj.payload).hasOwnProperty('earnings') && JSON.parse(obj.payload).earnings.length > 0) {
+            newObj.kendraId = obj.kendraId.replace("#", '');
+            newObj.branchName = JSON.parse(obj.addInfo).branchName;
+            newObj.createTs = new Date(obj.createTs).toLocaleString('en-IN');
+            newObj.updateTs = new Date(obj.updateTs).toLocaleString('en-IN');
+            newObj.requestType = obj.applicationStatus.toUpperCase() === "PENDINGBYRPC" ? "New" : obj.applicationStatus;
+            return newObj;
+      //  }
+        return null;
+    }).filter(obj => obj !== null && (obj.applicationStatus.toUpperCase() === "PENDINGBYRPC" || (obj.applicationStatus.toUpperCase() ===
+            "MOVE TO CHECKER" && obj.updatedBy !== LoggedInUserDetails.loginResponse.userDet.id) || obj.applicationStatus
+    .toUpperCase() === "ON HOLD"));
+    // earningMemberDtls = earningMemberDtls.sort((a, b) => new Date(b.applicationDate) - new Date(a.applicationDate));
+    earningMemberDtls = ApzCOB.sortArrayByKey(earningMemberDtls, 'incCreateTs', 'asc');
+    earningMemberDtls.forEach(function(obj, i) {
+       // if (JSON.parse(obj.payload).hasOwnProperty('earnings')) {
+           // let finalResp = JSON.parse(obj.payload).earnings;
+            var hasMaker = false;
+            var hasOnHold = false;
+           // finalResp.forEach(function(obj1, i) {
+                if (obj.applicationStatus === "MOVE TO CHECKER") {
+                    hasMaker = true;
+                } else if (obj.applicationStatus === "ON HOLD") {
+                    remarksStatus = 'isavailable';
+                    hasOnHold = true;
+                }
+           // });
+            if (hasMaker && hasOnHold) {
+                earningMemberDtls[i].requestType = "ON HOLD";
+            } else if (hasMaker) {
+                earningMemberDtls[i].requestType = "MOVE TO CHECKER";
+            } else if (hasOnHold) {
+                earningMemberDtls[i].requestType = "ON HOLD";
+            }
+        //}
+    })
+    for (i = 0; i < 30; i++) {
+        if (!apz.isNull(earningMemberDtls[i])) {
+            if (!apz.isNull(earningMemberDtls[i].updatedBy)) {
+                if (earningMemberDtls[i].updatedBy !== LoggedInUserDetails.loginResponse.userDet.id) {
+                    if (earningMemberDtls[i].requestType === "MOVE TO CHECKER") {
+                        earningMemberDtls[i].requestType = "PENDING"
+                        earningMemberDtls[i].requestPrevType = "MOVE TO CHECKER"
+                    }
+                }
+            }
+            latestRec.push(earningMemberDtls[i])
+        }
+    }
+    latestRec.forEach(function(obj) {
+        let createDate = obj.createTs.split(",")[0].split("/");
+        let updateDate = obj.updateTs.split(",")[0].split("/");
+        obj.createTs =
+            `${String(createDate[0]).padStart(2, '0')}/${String(createDate[1]).padStart(2, '0')}/${createDate[2]}, ${obj.createTs.split(",")[1].trim()}`;
+        obj.updateTs =
+            `${String(updateDate[0]).padStart(2, '0')}/${String(updateDate[1]).padStart(2, '0')}/${updateDate[2]}, ${obj.updateTs.split(",")[1].trim()}`;
+    });
+    var editedRec = latestRec;
+    if (editedRec.length > 0) {
+        $("#" + EarningMemberDtlsScrId + 'earningIDList').removeClass('sno');
+        $("#" + EarningMemberDtlsScrId + 'paintEarningList').removeClass('sno');
+        $("#" + EarningMemberDtlsScrId + 'noRecordFound').addClass('sno');
+        $("#" + EarningMemberDtlsScrId + 'viewRecNav').removeClass('sno');
+        apz.data.scrdata.Widget__EarningMembersList_Res = {};
+        apz.data.scrdata.Widget__EarningMembersList_Res.EarningMembers = editedRec;
+        apz.data.loadData("EarningMembersList", 'Widget');
+        editedRec.forEach(function(index, i) {
+            if (index.requestType === "ON HOLD") {
+                $("#" + EarningMemberDtlsScrId + "viewReason_" + i).removeClass('sno');
+            } else {
+                $("#" + EarningMemberDtlsScrId + "viewReason_" + i).addClass('sno');
+            }
+        })
+    } else {
+        $("#" + EarningMemberDtlsScrId + 'earningIDList').addClass('sno');
+        $("#" + EarningMemberDtlsScrId + 'paintEarningList').addClass('sno');
+        $("#" + EarningMemberDtlsScrId + 'noRecordFound').removeClass('sno');
+        $("#" + EarningMemberDtlsScrId + 'noRecordFoundText').text('No Record for Verification');
+        $("#" + EarningMemberDtlsScrId + 'viewRecNav').addClass('sno');
+    }
+    if (earningMemberDtls.length > 30) {
+        $("#" + EarningMemberDtlsScrId + 'viewRecNav').removeClass('sno');
+    } else {
+        $("#" + EarningMemberDtlsScrId + 'viewRecNav').addClass('sno');
+    }
+}
+apz.app.EarningMemberDtls.viewMoreRecords = function() {
+    ApzCOB.launchMicroApp("RPCMEM", "RPCMemberDetails", "APZCBO__BaseScreens__BaseDIV", earningMemberDtls);
+}
+apz.app.EarningMemberDtls.selectedRow = function(pthis) {
+    var rowno = $(pthis).attr("rowno");
+    var onClickSelRow = apz.data.scrdata.Widget__EarningMembersList_Res.EarningMembers[rowno];
+    selectedRowDetails = onClickSelRow;
+    window.fromWidget = true;
+    var req = {
+        "apiRequest": {
+            "interfaceName": "LockApplication",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "createdBy": LoggedInUserDetails.userID,
+                "applicationId": onClickSelRow.applicationId,
+                "roleId": LoggedInUserDetails.loginResponse.addInfo1
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "LockApplication", "N", "N", req, false, apz.app.EarningMemberDtls.ApplicationLockCheckCB);
+};
+apz.app.EarningMemberDtls.ApplicationLockCheckCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (params.res.APZCBO__LockApplication_Res.apiResponse.ResponseHeader.ResponseCode === '0') {
+                if (!apz.isNull(params.res.APZCBO__LockApplication_Res.apiResponse.ResponseBody.responseObj)) {
+                    apz.app.EarningMemberDtls.fetchIncomeApplication(selectedRowDetails);
+                     // ApzCOB.fetchIncomeDetails();
+                   // ApzCOB.launchMicroApp("RPCMEM", "EarningMemberDetails", "APZCBO__BaseScreens__BaseDIV", selectedRowDetails);
+                } else {
+                    ApzCOB.fnDisplayMsg("Application is Locked by another user.", "E");
+                }
+            } else {
+                ApzCOB.fnDisplayMsg("Application is Locked by another user.", "E");
+            }
+        } else {
+            ApzCOB.fnDisplayMsg(params.res.APZCBO__LockApplication_Res.apiResponse.ResponseBody.responseObj, "E");
+        }
+    } catch (e) {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+};
+apz.app.EarningMemberDtls.onClickViewReason = function(pthis) {
+    var SRow = $(pthis).attr("rowno");
+    // let reason = JSON.parse(apz.data.scrdata.Widget__EarningMembersList_Res.EarningMembers[SRow].payload).remarks;
+    let selData = apz.data.scrdata.Widget__EarningMembersList_Res.EarningMembers[SRow].payload;
+    var reason = typeof(selData) === 'object' ? selData.remarks : JSON.parse(selData).remarks;
+    apz.data.scrdata.Widget__EarningMembersList_Res.ViewReasonList = reason;
+    apz.data.loadData("EarningMembersList", 'Widget');
+    ApzCOB.toggleModal(EarningMemberDtlsScrId + 'viewReasonModal');
+    $("Widget__EarningMembersList__o__ViewReasonList__remarks_" + SRow).html(apz.data.scrdata.Widget__EarningMembersList_Res.ViewReasonList[0]
+        .remarks.replaceAll(',', '<br>'));
+    var Rreasons = apz.data.scrdata.Widget__EarningMembersList_Res.ViewReasonList;
+    for (var j = 0; j < Rreasons.length; j++) {
+        $("#" + EarningMemberDtlsScrId + "reasonLists_row_" + j + " #" + EarningMemberDtlsScrId + "reasonCol_li").html('');
+        var ldata = Rreasons[j].remarks.split(/(?=\d\.)/);
+        for (var i = 0; i < ldata.length; i++) {
+            var lhtml = '<p id="Widget__EarningMembersList__o__ViewReasonList__remarks_' + i + '" class="ett-para pri fs14" rowno="' + i +
+                '"><span id="Widget__EarningMembersList__o__ViewReasonList__remarks_' + i + '_txtcnt"></span></p>'
+            $("#" + EarningMemberDtlsScrId + "reasonLists_row_" + j + " #" + EarningMemberDtlsScrId + "reasonCol_li").append(lhtml);
+            $("#" + EarningMemberDtlsScrId + "reasonLists_row_" + j + " #Widget__EarningMembersList__o__ViewReasonList__remarks_" + i + "_txtcnt")
+                .text(ldata[i]);
+        }
+    }
+}
+apz.app.EarningMemberDtls.fetchIncomeApplication = function(selectedapp) {
+    var req = {
+        "apiRequest": {
+            "appId": gAppId,
+            "interfaceName": "FetchIncomeDetails",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "applicationId": selectedapp.applicationId,
+                "versionNum": selectedapp.versionNo ?? selectedapp.latestVersionNo
+            }
+        }
+    }
+    ApzCOB.serverBuildParam(gAppId, 'FetchIncomeDetails', 'N', 'N', req, 'Y', ApzCOB.fetchLoanApplicationCB);
+}
+apz.app.EarningMemberDtls.fetchLoanApplicationCB = function(params) {
+    console.log(params);
+    if (ApzCOB.handleServiceCallBacks(params)) {
+        if (!apz.isNull(params.res.APZCBO__FetchIncomeDetails_Res.apiResponse.ResponseBody.responseObj)) {
+            window.KendraLoans.custFetchLoanAppRes = params.res.APZCBO__FetchIncomeDetails_Res.apiResponse.ResponseBody.responseObj;
+            selectedRowDetails = JSON.parse(window.KendraLoans.custFetchLoanAppRes);
+            ApzCOB.launchMicroApp("RPCMEM", "EarningMemberDetails", "APZCBO__BaseScreens__BaseDIV", selectedRowDetails);
+        } else {
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    } else {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+    apz.stopLoader();
+}

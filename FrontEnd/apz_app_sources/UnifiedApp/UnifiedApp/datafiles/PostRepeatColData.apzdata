@@ -1,0 +1,43 @@
+{
+    "customerDetails": [
+        {
+            "cusCollectionAmt": "1000.00",
+            "loanDetails": [
+                {
+                    "loanDue": "1000",
+                    "loanId": "LD2110711734",
+                    "loanCollectionAmt": "1000.00"
+                }
+            ],
+            "cusUpiFlag": "CASH",
+            "customerId": "2717006",
+            "cusFlag": "FULL"
+        },
+        {
+            "cusCollectionAmt": "1000.00",
+            "loanDetails": [
+                {
+                    "loanDue": "1000",
+                    "loanId": "LD2032806532",
+                    "loanCollectionAmt": "1000.00"
+                }
+            ],
+            "cusUpiFlag": "UNICL",
+            "customerId": "2717074",
+            "cusFlag": "FULL"
+        },
+        {
+            "cusCollectionAmt": "1000.00",
+            "loanDetails": [
+                {
+                    "loanDue": "1000",
+                    "loanId": "LD2110778645",
+                    "loanCollectionAmt": "1000.00"
+                }
+            ],
+            "cusUpiFlag": "CASH",
+            "customerId": "2717503",
+            "cusFlag": "FULL"
+        }
+    ]
+}

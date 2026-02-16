@@ -1,0 +1,552 @@
+{
+    "collectionObj": [
+        {
+            "kmId": "GK15661",
+            "kmName": "Ramesh Kumar",
+            "kendraCount": "1",
+            "totalColAmt": "210000",
+            "collInfo": {
+                "totalDue": "12000",
+                "netDue": "11500",
+                "opnAdvBal": "5000",
+                "inflow": {
+                    "actualCol": {
+                        "total": "12000",
+                        "cashCol": "10000",
+                        "upiCol": "1500",
+                        "advAdj": "500"
+                    },
+                    "advCol": {
+                        "total": "1000",
+                        "cashCol": "600",
+                        "upiCol": "400"
+                    },
+                    "othCol": {
+                        "total": "900",
+                        "cashCol": "600",
+                        "upiCol": "300"
+                    },
+                    "upfrontChgs": "36"
+                },
+                "outflow": {
+                    "total": "3000"
+                },
+                "netCol": "10936",
+                "clsAdv": "5500"
+            },
+            "kendraDtls": [
+                {
+                    "id": "32077",
+                    "name": "Valmikinagara6th Crs",
+                    "startTime": "08:00 AM",
+                    "meetingDate": "2024-07-02",
+                    "meetingDay": "TUE",
+                    "lat": "",
+                    "long": "",
+                    "branchId": "IN0010046",
+                    "applnDtls": {
+                        "appId": "APZCOB",
+                        "applicationId": "S-10026-301890-20240829",
+                        "versionNo": "1",
+                        "applicationDate": "2024-07-02",
+                        "status": "INPROGRESS",
+                        "type": "COLLECTION",
+                        "applnId": "S-10026-301890-20240829",
+                        "verNo": "1",
+                        "brnCode": "IN0010044",
+                        "applnDate": "2024-07-02",
+                        "createdBy": "GK15661",
+                        "appStatus": "INPROGRESS",
+                        "currStage": "MARKATTENDENCE",
+                        "refNo": "123456"
+                    },
+                    "applnWFDtls": {
+                        "appId": "APZCOB",
+                        "applnId": "S-10026-301890-20240829",
+                        "verNo": "1",
+                        "kendraId": "32076",
+                        "seqNo": "1",
+                        "createdBy": "GK15661",
+                        "appStatus": "INPROGRESS",
+                        "usrRole": "KM",
+                        "nextWFStage": "CM",
+                        "remarks": "Amount collected from Kendra"
+                    },
+                    "colDtls": {
+                        "collId": "K-32076-1-20240910",
+                        "collDate": "20240910",
+                        "groups": [
+                            {
+                                "id": "32220",
+                                "totalDue": 16719,
+                                "totalAdv": 0,
+                                "netDue": 16719,
+                                "totCollAmt": 0,
+                                "members": [
+                                    {
+                                        "id": "21173034",
+                                        "name": "Almas",
+                                        "depname": "Nawaz Paha",
+                                        "totalDue": 1410,
+                                        "totalAdv": 0,
+                                        "netDue": 1410,
+                                        "collAmount": 1410,
+                                        "attend": "P",
+                                        "parFlg": "N",
+                                        "parAmt": 0,
+                                        "advAmt": 0,
+                                        "loans": [
+                                            {
+                                                "id": "LO233328HP5P9K",
+                                                "prodCode": "LHIL",
+                                                "dueAmt": 109,
+                                                "osAmt": 1260,
+                                                "cashAmt": 0,
+                                                "upiAmt": 0,
+                                                "parAmt": 0
+                                            },
+                                            {
+                                                "id": "LO241425F5C10G",
+                                                "prodCode": "IGLPP",
+                                                "dueAmt": 895,
+                                                "osAmt": 67431,
+                                                "cashAmt": 0,
+                                                "upiAmt": 0,
+                                                "parAmt": 0
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "21173035",
+                                        "name": "Almas Shah",
+                                        "depname": "Naseem Paha",
+                                        "totalDue": 1410,
+                                        "totalAdv": 0,
+                                        "netDue": 1410,
+                                        "collAmount": 1410,
+                                        "attend": "P",
+                                        "parFlg": "N",
+                                        "parAmt": 0,
+                                        "advAmt": 0,
+                                        "loans": [
+                                            {
+                                                "id": "LO233328HP5P9K",
+                                                "prodCode": "LHIL",
+                                                "dueAmt": 109,
+                                                "osAmt": 1260,
+                                                "cashAmt": 0,
+                                                "upiAmt": 0,
+                                                "parAmt": 0
+                                            },
+                                            {
+                                                "id": "LO241425F5C10G",
+                                                "prodCode": "IGLPP",
+                                                "dueAmt": 895,
+                                                "osAmt": 67431,
+                                                "cashAmt": 0,
+                                                "upiAmt": 0,
+                                                "parAmt": 0
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "21173036",
+                                        "name": "Chandramma",
+                                        "depname": "Nawazw Paha",
+                                        "totalDue": 1410,
+                                        "totalAdv": 0,
+                                        "netDue": 1410,
+                                        "collAmount": 1410,
+                                        "attend": "P",
+                                        "parFlg": "N",
+                                        "parAmt": 0,
+                                        "advAmt": 0,
+                                        "loans": [
+                                            {
+                                                "id": "LO233328HP5P9K",
+                                                "prodCode": "LHIL",
+                                                "dueAmt": 109,
+                                                "osAmt": 1260,
+                                                "cashAmt": 0,
+                                                "upiAmt": 0,
+                                                "parAmt": 0
+                                            },
+                                            {
+                                                "id": "LO241425F5C10G",
+                                                "prodCode": "IGLPP",
+                                                "dueAmt": 895,
+                                                "osAmt": 67431,
+                                                "cashAmt": 0,
+                                                "upiAmt": 0,
+                                                "parAmt": 0
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "32221",
+                                "totalDue": 16719,
+                                "totalAdv": 0,
+                                "netDue": 16719,
+                                "totCollAmt": 0,
+                                "members": [
+                                    {
+                                        "id": "21173034",
+                                        "name": "Almas",
+                                        "depname": "Nawaz Paha",
+                                        "totalDue": 1410,
+                                        "totalAdv": 0,
+                                        "netDue": 1410,
+                                        "collAmount": 1410,
+                                        "attend": "P",
+                                        "parFlg": "N",
+                                        "parAmt": 0,
+                                        "advAmt": 0,
+                                        "loans": [
+                                            {
+                                                "id": "LO233328HP5P9K",
+                                                "prodCode": "LHIL",
+                                                "dueAmt": 109,
+                                                "osAmt": 1260,
+                                                "cashAmt": 0,
+                                                "upiAmt": 0,
+                                                "parAmt": 0
+                                            },
+                                            {
+                                                "id": "LO241425F5C10G",
+                                                "prodCode": "IGLPP",
+                                                "dueAmt": 895,
+                                                "osAmt": 67431,
+                                                "cashAmt": 0,
+                                                "upiAmt": 0,
+                                                "parAmt": 0
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "21173035",
+                                        "name": "Almas Shah",
+                                        "depname": "Naseem Paha",
+                                        "totalDue": 1410,
+                                        "totalAdv": 0,
+                                        "netDue": 1410,
+                                        "collAmount": 1410,
+                                        "attend": "P",
+                                        "parFlg": "N",
+                                        "parAmt": 0,
+                                        "advAmt": 0,
+                                        "loans": [
+                                            {
+                                                "id": "LO233328HP5P9K",
+                                                "prodCode": "LHIL",
+                                                "dueAmt": 109,
+                                                "osAmt": 1260,
+                                                "cashAmt": 0,
+                                                "upiAmt": 0,
+                                                "parAmt": 0
+                                            },
+                                            {
+                                                "id": "LO241425F5C10G",
+                                                "prodCode": "IGLPP",
+                                                "dueAmt": 895,
+                                                "osAmt": 67431,
+                                                "cashAmt": 0,
+                                                "upiAmt": 0,
+                                                "parAmt": 0
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "21173036",
+                                        "name": "Chandramma",
+                                        "depname": "Nawazw Paha",
+                                        "totalDue": 1410,
+                                        "totalAdv": 0,
+                                        "netDue": 1410,
+                                        "collAmount": 1410,
+                                        "attend": "P",
+                                        "parFlg": "N",
+                                        "parAmt": 0,
+                                        "advAmt": 0,
+                                        "loans": [
+                                            {
+                                                "id": "LO233328HP5P9K",
+                                                "prodCode": "LHIL",
+                                                "dueAmt": 109,
+                                                "osAmt": 1260,
+                                                "cashAmt": 0,
+                                                "upiAmt": 0,
+                                                "parAmt": 0
+                                            },
+                                            {
+                                                "id": "LO241425F5C10G",
+                                                "prodCode": "IGLPP",
+                                                "dueAmt": 895,
+                                                "osAmt": 67431,
+                                                "cashAmt": 0,
+                                                "upiAmt": 0,
+                                                "parAmt": 0
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "32076",
+                    "name": "Basha Nagara 12th Cross 2",
+                    "startTime": "08:00 AM",
+                    "meetingDate": "2024-07-02",
+                    "meetingDay": "TUE",
+                    "lat": "",
+                    "long": "",
+                    "branchId": "IN0010044",
+                    "applnDtls": {
+                        "appId": "APZCOB",
+                        "applicationId": "S-10026-301890-20240829",
+                        "versionNo": "1",
+                        "applicationDate": "2024-07-02",
+                        "status": "INPROGRESS",
+                        "type": "COLLECTION",
+                        "applnId": "S-10026-301890-20240829",
+                        "verNo": "1",
+                        "brnCode": "IN0010044",
+                        "applnDate": "2024-07-02",
+                        "createdBy": "GK15661",
+                        "appStatus": "INPROGRESS",
+                        "currStage": "MARKATTENDENCE",
+                        "refNo": "123456"
+                    },
+                    "applnWFDtls": {
+                        "appId": "APZCOB",
+                        "applnId": "S-10026-301890-20240829",
+                        "verNo": "1",
+                        "kendraId": "32076",
+                        "seqNo": "1",
+                        "createdBy": "GK15661",
+                        "appStatus": "INPROGRESS",
+                        "usrRole": "KM",
+                        "nextWFStage": "CM",
+                        "remarks": "Amount collected from Kendra"
+                    },
+                    "colDtls": {
+                        "collId": "K-32076-1-20240910",
+                        "collDate": "20240910",
+                        "groups": [
+                            {
+                                "id": "32220",
+                                "totalDue": 16719,
+                                "totalAdv": 0,
+                                "netDue": 16719,
+                                "totCollAmt": 0,
+                                "members": [
+                                    {
+                                        "id": "21173034",
+                                        "name": "Almas",
+                                        "depname": "Nawaz Paha",
+                                        "totalDue": 1410,
+                                        "totalAdv": 0,
+                                        "netDue": 1410,
+                                        "collAmount": 1410,
+                                        "attend": "P",
+                                        "parFlg": "N",
+                                        "parAmt": 0,
+                                        "advAmt": 0,
+                                        "loans": [
+                                            {
+                                                "id": "LO233328HP5P9K",
+                                                "prodCode": "LHIL",
+                                                "dueAmt": 109,
+                                                "osAmt": 1260,
+                                                "cashAmt": 0,
+                                                "upiAmt": 0,
+                                                "parAmt": 0
+                                            },
+                                            {
+                                                "id": "LO241425F5C10G",
+                                                "prodCode": "IGLPP",
+                                                "dueAmt": 895,
+                                                "osAmt": 67431,
+                                                "cashAmt": 0,
+                                                "upiAmt": 0,
+                                                "parAmt": 0
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "32221",
+                                "totalDue": 16719,
+                                "totalAdv": 0,
+                                "netDue": 16719,
+                                "totCollAmt": 0,
+                                "members": [
+                                    {
+                                        "id": "21173035",
+                                        "name": "Almas S",
+                                        "depname": "Nawaz Pahas",
+                                        "totalDue": 1410,
+                                        "totalAdv": 0,
+                                        "netDue": 1410,
+                                        "collAmount": 1410,
+                                        "attend": "P",
+                                        "parFlg": "N",
+                                        "parAmt": 0,
+                                        "advAmt": 0,
+                                        "loans": [
+                                            {
+                                                "id": "LO233328HP5P9K",
+                                                "prodCode": "LHIL",
+                                                "dueAmt": 109,
+                                                "osAmt": 1260,
+                                                "cashAmt": 0,
+                                                "upiAmt": 0,
+                                                "parAmt": 0
+                                            },
+                                            {
+                                                "id": "LO241425F5C10G",
+                                                "prodCode": "IGLPP",
+                                                "dueAmt": 895,
+                                                "osAmt": 67431,
+                                                "cashAmt": 0,
+                                                "upiAmt": 0,
+                                                "parAmt": 0
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "kmId": "GK15661",
+            "kmName": "Suresh Kumar",
+            "kendraCount": "1",
+            "totalColAmt": "210000",
+            "collInfo": {
+                "totalDue": "12000",
+                "netDue": "11500",
+                "opnAdvBal": "5000",
+                "inflow": {
+                    "actualCol": {
+                        "total": "12000",
+                        "cashCol": "10000",
+                        "upiCol": "1500",
+                        "advAdj": "500"
+                    },
+                    "advCol": {
+                        "total": "1000",
+                        "cashCol": "600",
+                        "upiCol": "400"
+                    },
+                    "othCol": {
+                        "total": "900",
+                        "cashCol": "600",
+                        "upiCol": "300"
+                    },
+                    "upfrontChgs": "36"
+                },
+                "outflow": {
+                    "total": "3000"
+                },
+                "netCol": "10936",
+                "clsAdv": "5500"
+            },
+            "kendraDtls": [
+                {
+                    "id": "32076",
+                    "name": "Valmikinagara6th Crs",
+                    "startTime": "08:00 AM",
+                    "meetingDate": "2024-07-02",
+                    "meetingDay": "TUE",
+                    "lat": "",
+                    "long": "",
+                    "branchId": "IN0010044",
+                    "applnDtls": {
+                        "appId": "APZCOB",
+                        "applicationId": "S-10026-301890-20240829",
+                        "versionNo": "1",
+                        "applicationDate": "2024-07-02",
+                        "status": "INPROGRESS",
+                        "type": "COLLECTION",
+                        "applnId": "S-10026-301890-20240829",
+                        "verNo": "1",
+                        "brnCode": "IN0010044",
+                        "applnDate": "2024-07-02",
+                        "createdBy": "GK15661",
+                        "appStatus": "INPROGRESS",
+                        "currStage": "MARKATTENDENCE",
+                        "refNo": "123456"
+                    },
+                    "applnWFDtls": {
+                        "appId": "APZCOB",
+                        "applnId": "S-10026-301890-20240829",
+                        "verNo": "1",
+                        "kendraId": "32076",
+                        "seqNo": "1",
+                        "createdBy": "GK15661",
+                        "appStatus": "INPROGRESS",
+                        "usrRole": "KM",
+                        "nextWFStage": "CM",
+                        "remarks": "Amount collected from Kendra"
+                    },
+                    "colDtls": {
+                        "collId": "K-32076-1-20240910",
+                        "collDate": "20240910",
+                        "groups": [
+                            {
+                                "id": "32220",
+                                "totalDue": 16719,
+                                "totalAdv": 0,
+                                "netDue": 16719,
+                                "totCollAmt": 0,
+                                "members": [
+                                    {
+                                        "id": "21173034",
+                                        "name": "Almas",
+                                        "depname": "Nawaz Paha",
+                                        "totalDue": 1410,
+                                        "totalAdv": 0,
+                                        "netDue": 1410,
+                                        "collAmount": 1410,
+                                        "attend": "P",
+                                        "parFlg": "N",
+                                        "parAmt": 0,
+                                        "advAmt": 0,
+                                        "loans": [
+                                            {
+                                                "id": "LO233328HP5P9K",
+                                                "prodCode": "LHIL",
+                                                "dueAmt": 109,
+                                                "osAmt": 1260,
+                                                "cashAmt": 0,
+                                                "upiAmt": 0,
+                                                "parAmt": 0
+                                            },
+                                            {
+                                                "id": "LO241425F5C10G",
+                                                "prodCode": "IGLPP",
+                                                "dueAmt": 895,
+                                                "osAmt": 67431,
+                                                "cashAmt": 0,
+                                                "upiAmt": 0,
+                                                "parAmt": 0
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

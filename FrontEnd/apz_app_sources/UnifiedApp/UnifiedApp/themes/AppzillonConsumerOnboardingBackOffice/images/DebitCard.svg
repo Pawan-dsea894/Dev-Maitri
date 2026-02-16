@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 38 38">
+  <g id="Debit_Card" data-name="Debit Card" transform="translate(-83 -593)">
+    <circle id="Ellipse_55" data-name="Ellipse 55" cx="19" cy="19" r="19" transform="translate(83 593)" fill="#d3d3d3"/>
+    <g id="Icon_feather-credit-card" data-name="Icon feather-credit-card" transform="translate(90.5 599)">
+      <path id="Path_13491" data-name="Path 13491" d="M3.25,5.4H19a2.353,2.353,0,0,1,2.35,2.35v10.5A2.353,2.353,0,0,1,19,20.6H3.25A2.353,2.353,0,0,1,.9,18.25V7.75A2.353,2.353,0,0,1,3.25,5.4ZM19,19.4a1.151,1.151,0,0,0,1.15-1.15V7.75A1.151,1.151,0,0,0,19,6.6H3.25A1.151,1.151,0,0,0,2.1,7.75v10.5A1.151,1.151,0,0,0,3.25,19.4Z"/>
+      <path id="Path_13492" data-name="Path 13492" d="M20.75,15.6H1.5a.6.6,0,0,1,0-1.2H20.75a.6.6,0,0,1,0,1.2Z" transform="translate(0 -3.75)"/>
+    </g>
+  </g>
+</svg>

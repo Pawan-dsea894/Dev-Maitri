@@ -1,0 +1,118 @@
+ @use "../Abstract" as a;
+
+
+.plt-simp {
+	margin: 1em;
+}
+.pst-simp{
+	  >div {
+		padding: 1em;
+	            }
+	   &.pri {
+            	box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+            	background: #FFF;
+            	color: #333;
+            	>.ttl {
+            		display: table;
+            		width: 100%;
+            		li {
+            			padding: .5em;
+            			vertical-align: middle;
+            		}
+            		li.icn {
+            			width: 1em;
+            			svg {
+            				fill: #000;
+            			}
+            		}
+            		li.lbl {
+            			h4 {
+            				margin: 0;
+            				vertical-align: middle;
+            				font-size: 1.2em;
+            				font-weight: 400;
+            			}
+            		}
+            	}
+            }
+            &.sec {
+            	background: #fff;
+            	color: #333;
+            	>.ttl {
+            		display: table;
+            		width: 100%;
+            		li {
+            			padding: .5em;
+            			vertical-align: middle;
+            		}
+            		li.icn {
+            			width: 1em;
+            			svg {
+            				fill: #000;
+            			}
+            		}
+            		li.lbl {
+            			h4 {
+            				margin: 0;
+            				vertical-align: middle;
+            				font-size: 1.2em;
+            				font-weight: 400;
+            			}
+            		}
+            	}
+            }
+            &.ter {
+            	background: #f7f7f7;
+            	>.ttl {
+            		display: table;
+            		width: 100%;
+            		li {
+            			padding: .5em;
+            			vertical-align: middle;
+            		}
+            		li.icn {
+            			width: 1em;
+            			svg {
+            				fill: #000;
+            			}
+            		}
+            		li.lbl {
+            			h4 {
+            				margin: 0;
+            				vertical-align: middle;
+            				font-size: 1.2em;
+            				font-weight: 400;
+            			}
+            		}
+            	}
+            }
+            &.tsp {
+            	background-color: transparent;
+            	>.ttl {
+            		display: table;
+            		border-bottom: 1px solid #ddd;
+            		width: 100%;
+            		li {
+            			padding: .5em;
+            			vertical-align: middle;
+            		}
+            		li.icn {
+            			width: 1em;
+            			svg {
+            				fill: #000;
+            			}
+            		}
+            		li.lbl {
+            			h4 {
+            				margin: 0;
+            				vertical-align: middle;
+            				font-size: 1.2em;
+            				font-weight: 400;
+            			}
+            		}
+            	}
+            }
+	     }
+
+
+

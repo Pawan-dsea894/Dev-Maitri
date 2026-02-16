@@ -1,0 +1,37 @@
+
+.ett-tltp {
+    padding: 5px;
+    font-size: 11px;
+    background-repeat: no-repeat;
+    background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3C!-- Created with Inkscape %28http://www.inkscape.org/%29 --%3E%3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='9' height='9' viewBox='0 0 9 9' id='svg4231' version='1.1' inkscape:version='0.91 r13725' sodipodi:docname='diamond.svg'%3E%3Cdefs id='defs4233' /%3E%3Csodipodi:namedview id='base' pagecolor='%23ffffff' bordercolor='%23666666' borderopacity='1.0' inkscape:pageopacity='0.0' inkscape:pageshadow='2' inkscape:zoom='44.8' inkscape:cx='5.3197607' inkscape:cy='5.1243168' inkscape:document-units='px' inkscape:current-layer='layer1' showgrid='false' units='px' inkscape:window-width='1536' inkscape:window-height='801' inkscape:window-x='-8' inkscape:window-y='-8' inkscape:window-maximized='1' /%3E%3Cmetadata id='metadata4236'%3E%3Crdf:RDF%3E%3Ccc:Work rdf:about=''%3E%3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E%3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E%3Cdc:title /%3E%3C/cc:Work%3E%3C/rdf:RDF%3E%3C/metadata%3E%3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1' transform='translate%280,-1043.3621%29'%3E%3Cpath style='fill:%23ffffff;fill-opacity:1;stroke:%23666666;stroke-width:0.866;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none' d='m 4.5003905,1044.0207 -3.87269779,3.8727 3.87269779,3.8728 3.8712152,-3.8728 -3.8712152,-3.8727 z' id='rect4250' inkscape:connector-curvature='0' /%3E%3C/g%3E%3C/svg%3E%0A");
+}
+
+.ett-tltp-inner {
+    padding: 5px 10px;
+    max-width: 200px;
+    pointer-events: none;
+    color: #333;
+    text-align: center;
+    background-color: #fff;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+}
+
+.ett-tltp-bottom {
+    background-position: top center;
+}
+
+.ett-tltp-top {
+    background-position: bottom center;
+}
+
+.ett-tltp-left {
+    background-position: right center;
+}
+
+.ett-tltp-right {
+    background-position: left center;
+}
+
+/*Tooltip css end */

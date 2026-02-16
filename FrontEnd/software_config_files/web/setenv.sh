@@ -1,0 +1,5 @@
+export CATALINA_OPTS="$CATALINA_OPTS -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.port=8686 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"
+export CATALINA_OPTS="$CATALINA_OPTS -javaagent:/opt/prometheus/jmx_prometheus_javaagent-0.20.0.jar=8871:/opt/prometheus/config.yaml"
+export CATALINA_OPTS="$CATALINA_OPTS -Xms512m"
+export CATALINA_OPTS="$CATALINA_OPTS -Xmx1024m"
+#export CATALINA_OPTS="$CATALINA_OPTS -XX:MaxPermSize=512m"

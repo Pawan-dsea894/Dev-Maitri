@@ -1,0 +1,368 @@
+apz.app.ProductStatusReport = {};
+var StatusReportDur = ApzCOB.GetCommonCodes("CALENDARDURATION")['StatusReport'][0];
+var ProductStatusReportScrId = 'Widget__ProductStatusReport__';
+var Status = "";
+var ApplnStatus = [];
+var dt = new Date();
+var productStatusdateID = "Widget__ProductStatusReport__date";
+var ProductStatusReportRes = [];
+var ProductWidgetCountsRes = [];
+var Fromperiodval = '',
+    Toperiodval = '',
+    NoOfDaysinmonth = '';
+apz.app.onLoad_ProductStatusReport = function(params) {
+    //do nothing;
+};
+apz.app.onShown_ProductStatusReport = function(params) {
+    Status = params.status;
+    apz.app.ProductStatusReport.populateTransDates();
+    //apz.app.ProductStatusReport.paintassetsdata();
+    if (!apz.isNull(params.date)) {
+        $('#' + productStatusdateID + '_div ul').find('li').removeClass("is-selected hilt");
+        $('li[id^=' + productStatusdateID + '_option_' + params.date + ']').addClass("is-selected hilt");
+        $('#' + productStatusdateID).val(params.date);
+    }
+};
+apz.app.ProductStatusReport.fn_SetGraphData = function() {
+    var data = [];
+    //  apz.data.scrdata.Dashbo__PaintData_Res.Products.filter(function(m, n) {
+    productassetsdata.filter(function(o, p) {
+        //  if (m.productGroupCode !== 'ALL') { 
+        data[p] = {};
+        data[p].label = o.productGroupCode;
+        if (o.productGroupCode === 'CASA') {
+            data[p].value = o.CasaCount;
+        } else if (o.productGroupCode === 'DEPOSIT') {
+            data[p].value = o.DepositCount;
+        } else if (o.productGroupCode === 'LOAN') {
+            data[p].value = o.LoanCount;
+        } else if (o.productGroupCode === 'CARDS') {
+            data[p].value = o.CardsCount;
+        } else if (o.productGroupCode === 'INSURANCE') {
+            data[p].value = o.InsuranceCount;
+        } else if (o.productGroupCode === 'INVESTMENT') {
+            data[p].value = o.InvestmentCount;
+        }
+        // if (apz.deviceType === "WEB") {
+        data[p].label = o.productGroupCode + " (" + data[p].value + ")";
+        //    }
+    })
+    return data;
+};
+/*apz.app.updateChartBeforeRender = function(gcharttype, gchartdata, gfgp, lchart) { //Paint graph
+    if (gcharttype === "Doughnut2D") {
+        gchartdata.chart.showPercentValues = "0";
+        gchartdata.chart.formatNumberScale = "0";
+        gchartdata.chart.showValues = "0";
+        gchartdata.chart.showLabels = "0";
+        gchartdata.chart.theme = 'fusion'; //'fint';
+        gchartdata.chart.use3DLighting = "0";
+        gchartdata.chart.showToolTip = "0";
+        gchartdata.chart.showLegend = "1";
+        gchartdata.chart.showplotBorder = "0";
+        gchartdata.chart.enableMultiSlicing = "0";
+        gchartdata.chart.bgAlpha = "100";
+        if (apz.deviceType === "WEB") {
+            gchartdata.chart.baseFont = "poppins";
+            gchartdata.chart.centerLabelBold = "0";
+            gchartdata.chart.centerLabelFont = "poppins";
+            gchartdata.chart.doughnutRadius = "65";
+            gchartdata.chart.pieRadius = "70";
+            gchartdata.chart.bgColor = "#153D8A";
+            gchartdata.chart.centerLabelColor = "#FFFFFF";
+            gchartdata.chart.centerLabelFontSize = "13";
+            gchartdata.chart.labelFontColor = "#FFFFFF";
+            // gchartdata.chart.borderColor = "#FFFFFF";
+        } else {
+            gchartdata.chart.baseFont = "poppins";
+            gchartdata.chart.centerLabelBold = "0";
+            gchartdata.chart.centerLabelFont = "poppins";
+            gchartdata.chart.doughnutRadius = "90";
+            gchartdata.chart.pieRadius = "92";
+            gchartdata.chart.bgColor = "#153D8A";
+            gchartdata.chart.centerLabelColor = "#FFFFFF";
+            gchartdata.chart.centerLabelFontSize = "13";
+            gchartdata.chart.labelFontColor = "#FFFFFF";
+            // gchartdata.chart.borderColor = "#FFFFFF";
+        }
+        gchartdata.chart.showBorder = "0";
+        gchartdata.chart.borderAlpha = "0";
+        gchartdata.chart.legendBorderThickness = "0";
+        gchartdata.chart.legendBgColor = "#153D8A";
+        gchartdata.chart.legendShadow = "0";
+        gchartdata.chart.legendBorderAlpha = "0";
+        gchartdata.chart.legendItemFontColor = "#FFFFFF";
+        gchartdata.chart.legendItemFontBold = "1";
+        gchartdata.chart.legendNumRows = "2";
+        gchartdata.chart.legendNumColumns = "2";
+        gchartdata.chart.legendBgColor = "#153D8A";
+        var totalbal;
+        if (lchart.id === "Widget__ProductStatusReport__productStatusReport") {
+            gchartdata.chart.captionOnTop = 0;
+            gchartdata.chart.paletteColors = "#F6EF03" + "," + "#F89A1A" + "," + "#EE1608" + "," + "#06AF20";
+            totalbal = (!apz.isNull(productassetsdata[0].InProgressCount) ? productassetsdata[0].InProgressCount : 0) + (!apz.isNull(
+                productassetsdata[1].ApprovalCount) ? productassetsdata[1].ApprovalCount : 0) + (!apz.isNull(productassetsdata[2].RejectedCount) ?
+                productassetsdata[2].RejectedCount : 0) + (!apz.isNull(productassetsdata[3].CompletedCount) ? productassetsdata[3].CompletedCount :
+                0);
+            gchartdata.chart.defaultCenterLabel = "Total" + "<br>  " + "Applications" + "<br>  " + "<br>  " + parseInt(totalbal);
+            gchartdata.data = apz.app.ProductStatusReport.fn_SetGraphData();
+            if (totalbal === 0) {
+                $('#Widget__ProductStatusReport__pl_pnl_3_div').addClass('sno');
+                $('#Widget__ProductStatusReport__gr_row_2').removeClass('sno');
+            } else {
+                $('#Widget__ProductStatusReport__pl_pnl_3_div').removeClass('sno');
+                $('#Widget__ProductStatusReport__gr_row_2').addClass('sno');
+            }
+        }
+    }
+};*/
+/*apz.app.StatusReport.paintassetsdata = function() {
+    var assetsdata = [];
+    assetsdata[0] = {};
+    assetsdata[1] = {};
+    assetsdata[2] = {};
+    assetsdata[3] = {};
+    assetsdata[0].InProgressCount = gApzCOB.WidgetInProgress.length;
+    assetsdata[1].CompletedCount = gApzCOB.WidgetSubmitted.length;
+    assetsdata[2].RejectedCount = gApzCOB.WidgetRejected.length;
+    assetsdata[3].ApprovalCount = gApzCOB.WidgetApproved.length;
+    apz.data.scrdata.Widget__IPaintStatusReport_Res = "";
+    apz.data.scrdata.Widget__IPaintStatusReport_Res = assetsdata;
+    apz.data.loadData('IPaintStatusReport', "Widget");
+};*/
+apz.app.ProductStatusReport.ondateChange = function(pthis) {
+    /*var month = ApzCOB.dateformatter(new Date($('#' + pthis.id).val()), 'm');
+    var year = $('#' + pthis.id).val().split(' ')[1];
+    apz.app.ProductStatusReport.getFistLastDate($(pthis).val().split(" ")[0]);
+    apz.app.ProductStatusReport.getApplnByDate(true);*/
+    // var period = apz.deviceType === 'WEB' ? $("#" + productStatusdateID).val() : $("#" + productStatusdateID).text();
+    var period = $("#" + productStatusdateID).val();
+    apz.app.ProductStatusReport.FetchStatusReport(period);
+};
+apz.app.ProductStatusReport.populateTransDates = function() {
+    var dateArr = [];
+    var str = StatusReportDur.value;
+    str = str.replace(/\D/g, "");
+    for (var i = 0; i < parseInt(str); i++) {
+        var obj = {};
+        obj.value = i;
+        obj.desc = ApzCOB.dateformatter(new Date().addMonths(-parseInt(i)), 'M Y');
+        dateArr.push(obj);
+    }
+    //if (apz.deviceType === 'WEB') {
+    apz.populateDropdown(document.getElementById(ProductStatusReportScrId + 'date'), dateArr);
+    /*} else {
+        $('#' + ProductStatusReportScrId + 'date').val(dateArr[0]['desc'])
+        apz.data.scrdata.Widget__IPaintStatusReportDuration_Res = {};
+        apz.data.scrdata.Widget__IPaintStatusReportDuration_Res.ReportPeriod = {};
+        apz.data.scrdata.Widget__IPaintStatusReportDuration_Res.ReportPeriod = dateArr;
+        apz.data.loadData('IPaintStatusReportDuration', 'Widget');
+    }*/
+    //var period = apz.deviceType === 'WEB' ? $("#" + productStatusdateID).val() : $("#" + productStatusdateID).text();
+    var period = $("#" + productStatusdateID).val();
+    apz.app.ProductStatusReport.FetchStatusReport(period);
+};
+apz.app.ProductStatusReport.getFistLastDate = function(selectMonth) { // GET THE FIRST AND LAST DATE OF THE MONTH.
+    var month = apz.app.ProductStatusReport.getMonthFromString(selectMonth),
+        year = dt.getFullYear();
+    Fromperiodval = apz.app.ProductStatusReport.formatDate(new Date(year, month - 1, 1))
+    Toperiodval = apz.app.ProductStatusReport.formatDate(new Date(year, month, 0))
+};
+apz.app.ProductStatusReport.getMonthFromString = function(mon) { //get month(2) from string(Feb)
+    var d = Date.parse(mon + "1," + dt.getFullYear());
+    if (!isNaN(d)) {
+        return new Date(d).getMonth() + 1;
+    }
+    return -1;
+};
+apz.app.ProductStatusReport.formatDate = function(date) { //for dateformat //yyyy-mm-dd
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+    if (month.length < 2) {
+        month = '0' + month;
+    }
+    if (day.length < 2) {
+        day = '0' + day;
+    }
+    return [year, month, day].join('-');
+};
+apz.app.ProductStatusReport.getApplnByDate = function(change) {
+    var from = Date.parse(window.FirstDay);
+    var to = Date.parse(window.LastDay);
+    var totalbal = 0;
+    ApplnStatus = [];
+    gApzCOB.Widget.forEach(function(el) {
+        var check = Date.parse(el.map.applicationDate);
+        if ((check <= to && check >= from)) {
+            var index = ApplnStatus.length > 0 ? ApplnStatus.indexOf(el.map.applicationStatus) : -1;
+            if (index < 0) {
+                ApplnStatus.push(el.map.applicationStatus);
+            }
+            totalbal++;
+        }
+    })
+    if (totalbal === 0) {
+        ApzCOB.launchMicroApp('Widget', 'ProductStatusReport', 'Dashbo__dashboard__Widget1', {
+            "status": true,
+            "date": $('#' + productStatusdateID).val()
+        });
+    } else {
+        if (change) {
+            ApzCOB.launchMicroApp('Widget', 'ProductStatusReport', 'Dashbo__dashboard__Widget1', {
+                "status": false,
+                "date": $('#' + productStatusdateID).val()
+            });
+        }
+        /*if ($('#Widget__StatusReport__statusReport').children().length > 0) {
+            $('#Widget__StatusReport__statusReport').children().children().eq(2).children().find('text').eq(0).children().eq(3)[0].innerHTML =
+                '  ' + totalbal + ''
+        }*/
+    }
+    return totalbal;
+}
+apz.app.ProductStatusReport.FetchStatusReport = function(period) {
+    Fromperiodval = ''; 
+    Toperiodval = '';
+    NoOfDaysinmonth = '';
+    //var period = apz.deviceType === 'WEB' ? $("#" + productStatusdateID).val() : $("#" + productStatusdateID).text();
+    var month = period.split(' ')[0];
+    var year = period.split(' ')[1];
+    apz.app.ProductStatusReport.getFistLastDate(period.split(' ')[0])
+        /* if (apz.deviceOs === "iOS") {
+                Fromperiodval = Date.parse(period).format('d-m-y');
+            } else {
+                 Fromperiodval = new Date(period).toString('yyyy-MM-dd'); //new Date(period).toString('dd-MM-yy');
+                //NoOfDaysinmonth = ApzCOB.getNumberOfDaysInMonth(Fromperiodval.split("-")[1], Fromperiodval.split("-")[0]);
+                  Toperiodval = apz.app.ProductStatusReport.getFistLastDate(period.split(' ')[0]) //new Date().toString('yyyy-MM-dd'); //Fromperiodval.split("-")[0] + Fromperiodval.split("-")[1] + NoOfDaysinmonth;
+            }*/
+        /***
+         * @since 15.04.21
+         * Issue fix for firefox browser to pass the date in dd-MM-YY format
+         *
+         **/
+    if (typeof InstallTrigger !== 'undefined') {
+        var periodMonth = period.split(' ')[0];
+        var periodYear = period.split(' ')[1];
+        var monthStr = "";
+        var monthIndex = gMonthArr.indexOf(periodMonth) + 1;
+        if (monthIndex < 10) {
+            monthStr = "0" + monthIndex;
+        } else {
+            monthStr = "" + monthIndex;
+        }
+        //periodval = "01" + "-" + monthStr + "-" + periodYear.substring(2, 4);
+        // Fromperiodval = periodYear.substring(0, 4) + "-" + monthStr + "-" + "01";
+        //NoOfDaysinmonth = ApzCOB.getNumberOfDaysInMonth(Fromperiodval.split("-")[1], Fromperiodval.split("-")[0]);
+        //  Toperiodval = new Date().toString('yyyy-MM-dd'); //Fromperiodval.split("-")[0] + Fromperiodval.split("-")[1] + NoOfDaysinmonth;
+    }
+    var req = {
+        "apiRequest": {
+            "interfaceName": "",
+            "appId": gAppId,
+            "requestObj": {
+                "startDate": Fromperiodval,
+                "endDate": Toperiodval,
+                "userId": apz.userId,
+                "productGroupCode": window.selectedDashboProduct === 'ALL' ? "" : window.selectedDashboProduct
+            }
+        }
+    }
+    ApzCOB.serverBuildParam("Dashbo", "FetchStatusReport", "N", "N", req, true, apz.app.ProductStatusReport.FetchStatusReportCB);
+};
+apz.app.ProductStatusReport.FetchStatusReportCB = function(params) {
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.Dashbo__FetchStatusReport_Res.apiResponse.ResponseBody.responseObj)) {
+                if (!apz.isNull(params.res.Dashbo__FetchStatusReport_Res.apiResponse.ResponseBody.responseObj)) {
+                    ProductStatusReportRes = JSON.parse(params.res.Dashbo__FetchStatusReport_Res.apiResponse.ResponseBody.responseObj).statusReportCountsProduct;
+                    apz.app.ProductStatusReport.paintassetsdata();
+                    apz.stopLoader();
+                }
+            } else {
+                apz.stopLoader();
+            }
+        } else {
+            apz.stopLoader();
+        }
+    } catch (e) {
+        apz.stopLoader();
+    }
+};
+apz.app.ProductStatusReport.paintassetsdata = function() {
+    window.productassetsdata = [];
+    var casaFlag = false;
+    var depositFlag = false;
+    var loanFlag = false;
+    var cardsFlag = false;
+    var insuranceFlag = false;
+    var investmentFlag = false;
+    var lobj = {};
+    var a = ProductStatusReportRes.filter(function(o) {
+        $("#" + WidgetId + "count").removeClass("sno");
+        var obj = {};
+        obj.productGroupCode = o.productGroupCode;
+        if (o.productGroupCode === 'CASA') {
+            casaFlag = true;
+            obj.CasaCount = o.productCount;
+        } else if (o.productGroupCode === 'DEPOSIT') {
+            depositFlag = true;
+            obj.DepositCount = o.productCount;
+        } else if (o.productGroupCode === 'LOAN') {
+            loanFlag = true;
+            obj.LoanCount = o.productCount;
+        } else if (o.productGroupCode === 'CARDS') {
+            cardsFlag = true;
+            obj.CardsCount = o.productCount;
+        } else if (o.productGroupCode === 'INSURANCE') {
+            insuranceFlag = true;
+            obj.InsuranceCount = o.productCount;
+        } else if (o.productGroupCode === 'INVESTMENT') {
+            investmentFlag = true;
+            obj.InvestmentCount = o.productCount;
+        }
+        //$("#" + WidgetId + "count").text('(' + o.productCount + ')');
+        productassetsdata.push(obj);
+        return a
+    })
+    if (!casaFlag) {
+        lobj = {};
+        lobj.productGroupCode = 'CASA';
+        lobj.CasaCount = 0;
+        productassetsdata.push(lobj);
+    }
+    if (!depositFlag) {
+        lobj = {};
+        lobj.productGroupCode = 'DEPOSIT';
+        lobj.DepositCount = 0;
+        productassetsdata.push(lobj);
+    }
+    if (!loanFlag) {
+        lobj = {};
+        lobj.productGroupCode = 'LOAN';
+        lobj.LoanCount = 0;
+        productassetsdata.push(lobj);
+    }
+    if (!cardsFlag) {
+        lobj = {};
+        lobj.productGroupCode = 'CARDS';
+        lobj.CardsCount = 0;
+        productassetsdata.push(lobj);
+    }
+    if (!insuranceFlag) {
+        lobj = {};
+        lobj.productGroupCode = 'INSURANCE';
+        lobj.InsuranceCount = 0;
+        productassetsdata.push(lobj);
+    }
+    if (!investmentFlag) {
+        lobj = {};
+        lobj.productGroupCode = 'INVESTMENT';
+        lobj.InvestmentCount = 0;
+        productassetsdata.push(lobj);
+    }
+    apz.data.scrdata.Widget__IPaintProductStatusReport_Res = "";
+    apz.data.scrdata.Widget__IPaintProductStatusReport_Res = productassetsdata;
+    apz.data.loadData('IPaintProductStatusReport', "Widget");
+};

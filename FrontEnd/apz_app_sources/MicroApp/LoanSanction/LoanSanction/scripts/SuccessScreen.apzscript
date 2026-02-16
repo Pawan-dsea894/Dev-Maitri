@@ -1,0 +1,161 @@
+var ScrId = 'LoanSa__SuccessScreen__';
+var custData
+apz.app.onLoad_SuccessScreen = function(params) {};
+apz.app.onShown_SuccessScreen = function(params) {
+    $("#header").addClass("sno");
+    $("#footer").addClass("sno");
+    custData = params.matchingCustomer.applicationdtls[0]
+    //window.selectedCustomerDetail = params.selectedCust;
+    window.allCustomer = dashboardAppList.response;
+    //window.allCustomer = params.matchingCustomer;
+    window.isRejected = params.onceRejected;
+    if (isRejected) {
+        $('#' + ScrId + "el_icn_32").addClass('sno');
+        $('#' + ScrId + "el_txt_204").addClass('sno');
+        $('#' + ScrId + "ct_frm_33").addClass('sno');
+        //  $('.approved-memb .pst-simp.pa0 > .crt-navb').css('background', '#FF0000');
+    } else if (!onceApproved && !isRejected) {
+        $('#' + ScrId + "el_icn_30").addClass('sno');
+        $('#' + ScrId + "rejectedApp").addClass('sno');
+        $('#' + ScrId + "el_icn_32").removeClass('sno');
+        $('#' + ScrId + "el_txt_204").removeClass('sno');
+    }
+    apz.app.SuccessScreen.paintData();
+    setTimeout(function() {
+        $('#LoanSa__SuccessScreen__successDtlsForm').removeClass('sno');
+        $('#LoanSa__SuccessScreen__pendingApproval').removeClass('sno');
+    }, 3000);
+}
+apz.app.SuccessScreen.moreDetails = function() {
+    var preclosedAmt = 0;
+    var activeLoans = custData.customerDtls.loanDtls.activeLoanDtls
+    activeLoans.forEach(function(el, i) {
+        if (activeLoans[i].status === "CLOSED") {
+            var amt = parseFloat(activeLoans[i].outstandingPrincipal) + parseFloat(activeLoans[i].overdueInterest) + parseFloat(
+                activeLoans[i].overduePrincipal);
+            preclosedAmt = parseFloat(preclosedAmt) + parseFloat(amt);
+        }
+    })
+    preclosedAmt = ApzCOB.fn_FormatAmount(preclosedAmt);
+    apz.setElmValue(ScrId + "interest", (JSON.parse(KendraLoans.custFetchLoanAppRes.cbResponse.resPayload).roi ?? 'NO DATA') + "%");
+    apz.setElmValue(ScrId + "tenure", custData.customerDtls.loanDtls.term ?? 'NO DATA');
+    apz.setElmValue(ScrId + "loanCharges", custData.customerDtls.loanDtls ? ApzCOB.fn_FormatAmount(custData.customerDtls.loanDtls
+        .chargeAndBreakupDtls.addInfo1) : 'NO DATA');
+    apz.setElmValue(ScrId + "frequency", custData.customerDtls.loanDtls.repayFrequency.idDesc ?? 'NO DATA');
+    apz.setElmValue(ScrId + "preclosedAmount", ApzCOB.fn_FormatAmount(preclosedAmt));
+}
+apz.app.SuccessScreen.paintData = function() {
+    var customerName = selectedCustomerDetail.customerName || "Unknown"; // Default value if customerName is null or undefined
+    var approvedAmt = custData.amount || "₹0"; // Default value if approvedAmt is null or undefined
+    var product = custData.customerDtls.loanDtls.shortDesc
+    $("#" + ScrId + "custName").text(customerName + " (" + approvedAmt + ' ' + product + ")");
+    apz.setElmValue(ScrId + "sucRefId", custData.applicationId);
+    if (window.KendraLoans.data.isSanction) {
+        apz.setElmValue(ScrId + "el_txt_204", 'Loan Sanctioned Successfully');
+    } else {
+        apz.setElmValue(ScrId + "el_txt_204", 'Loan Recommended Successfully');
+    }
+    apz.app.SuccessScreen.moreDetails();
+    apz.app.SuccessScreen.loadData(loansanctionList);
+}
+apz.app.SuccessScreen.clickViewMore = function() {
+    // var x = ApzCOB.loadDataFile('PendingListForBM', 'APZCBO');
+    ApzCOB.dashboardAppListAPInew();
+    //ApzCOB.updatewidgetApplications();
+    // ApzCOB.launchMicroApp('LoanSa', 'LoanSanction', 'APZCBO__BaseScreens__BaseDIV', loansanctionList);
+}
+apz.app.SuccessScreen.loadData = function(data) { // Filter data to include only items with status "Pending by BM"
+    //let selectedCustomerId = window.selectedCustomerDetail.customerId;
+    loansanctionList = loansanctionList.filter(function(item) {
+        return item.applicationId !== window.KendraLoans.selectedLoanSanctionAccnt.applicationId;
+    });
+    let pendingStatusData = JSON.parse(JSON.stringify(loansanctionList.filter(function(item) {
+        return (item.status === "Pending");
+    })));
+    if (pendingStatusData.length === 0) {
+        $("#" + ScrId + 'ct_frm_34').removeClass('sno');
+        $("#" + ScrId + 'gr_row_77').addClass('sno');
+    } else {
+        //pendingStatusData = pendingStatusData.splice(0, 4);
+        $("#" + ScrId + 'ct_frm_34').addClass('sno');
+        $("#" + ScrId + 'gr_row_77').removeClass('sno')
+    }
+    let paintedData = [];
+    pendingStatusData.forEach(function(record) {
+        record.custName = record.customerName;
+        record.Loanamount = '₹' + record.amount || "";
+        paintedData.push(record);
+    });
+    var x = [];
+    if (paintedData.length >= 4) {
+        $('#LoanSa__SuccessScreen__sc_col_374').removeClass('sno'); // Show the "View More" button
+        x = paintedData.slice(0, 4);
+    } else {
+        $('#LoanSa__SuccessScreen__sc_col_374').addClass('sno');
+        x = paintedData;
+    }
+    //apz.data.scrdata.LoanSa__IPaintRejectFlow_Res.RejectCustomerList = x;
+    //apz.data.loadData("IPaintRejectFlow", "LoanSa");
+    apz.data.scrdata.LoanSa__IPaintSuccessCustomer_Res = {}
+    apz.data.scrdata.LoanSa__IPaintSuccessCustomer_Res = x; // Load the filtered data
+    apz.data.loadData("IPaintSuccessCustomer", "LoanSa");
+    if (x.length !== 0) {
+        x.forEach(function(m, n) {
+            var addinfo = m.addInfo;
+            if (typeof addinfo == 'string') {
+                addinfo = JSON.parse(addinfo)
+            }
+            if (apz.isNull(addinfo.isApprovedCRT)) {
+                 $("#" + ScrId + 'crtFlag_'+ n).addClass('sno')
+            } else {
+                if (addinfo.isApprovedCRT) {
+                    // console.log('true'); 
+                   $("#" + ScrId + 'crtFlag_'+ n).removeClass('sno')
+                } else {
+                    $("#" + ScrId + 'crtFlag_'+ n).addClass('sno')
+                }
+            }
+            // console.log(addinfo.isApprovedCRT,n)
+        });
+    }
+}
+apz.app.SuccessScreen.fetchClickedRowDetails = function(pthis) {
+    window.clickRow = $(pthis).attr("rowno");
+    window.selectedLoanSanctionAccnt = apz.data.scrdata.LoanSa__IPaintSuccessCustomer_Res[pthis.getAttribute("rowno")];
+    apz.app.SuccessScreen.paintSelectedData(selectedLoanSanctionAccnt);
+}
+apz.app.SuccessScreen.paintSelectedData = function(selecedPendingData) {
+    let data = {
+        selectedCust: selectedCustomerDetail,
+        matchingCustomer: allCustomer,
+        onceApproved: true
+    }
+    ApzCOB.launchMicroApp('LoanSa', 'DetailedScreen', 'APZCBO__BaseScreens__BaseDIV', data);
+}
+apz.app.SuccessScreen.closeApp = function() {
+    ApzCOB.dashboardAppListAPI();
+}
+apz.app.SuccessScreen.clickMoreOptionsBtn = function() {
+    if ($("#" + ScrId + "moreDetailsDiv").hasClass("sno")) {
+        $("#" + ScrId + "moreDetailsDiv").removeClass("sno");
+    } else {
+        $("#" + ScrId + "moreDetailsDiv").addClass("sno");
+    }
+}
+apz.app.SuccessScreen.clickOnArrow = function (pthis) {
+        var rowNumber = $(pthis).attr("rowno");
+        var selectedRecord = apz.data.scrdata.LoanSa__IPaintSuccessCustomer_Res[rowNumber];
+        window.selectedCustomerDetail =selectedRecord;
+        window.KendraLoans.selectedLoanSanctionAccnt=selectedRecord;
+        var fullData = loansanctionList.find(function (item) {
+            return item.applicationId === selectedRecord.applicationId;
+        });
+        if (fullData) {
+            ApzCOB.fetchLoanApplication(fullData, 'LoanSanction');
+        } else {
+            console.error("No matching data found for the selected row.");
+        }
+    };
+apz.app.SuccessScreen.downloadKFS = function(){
+    ApzCOB.downloadSanctionReport(custData.applicationId);
+}

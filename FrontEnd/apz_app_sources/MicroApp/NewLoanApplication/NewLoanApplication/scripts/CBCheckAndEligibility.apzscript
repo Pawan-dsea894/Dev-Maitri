@@ -1,0 +1,21 @@
+let screenId = apz.currAppId + "__" + apz.childScr + "__";
+apz.app.onLoad_CBCheckAndEligibility = function() {
+    //fdsfdsf
+}
+apz.app.onShown_CBCheckAndEligibility = function() {
+    apz.app.CBCheckAndEligibility.paintDetails()
+}
+apz.app.CBCheckAndEligibility.paintActiveLoanDetails = function() {
+    let tempArray = [];
+    kendraDtls.customerDtls.loanDtls.forEach(loan => {
+        let tempObj = {
+            "loanType": loan.product,
+            "maturityDate": loan.product,
+            "dueAmount": loan.product
+        }
+        tempArray.push(tempObj)
+    });
+    apz.data.scrdata.NEWLOA__ViewActiveLoanDetails_Res = {};
+    apz.data.scrdata.NEWLOA__ViewActiveLoanDetails_Res.ViewActiveLoanDetailsNode = tempArray;
+    apz.data.loadData("ViewActiveLoanDetails", 'NEWLOA');
+}

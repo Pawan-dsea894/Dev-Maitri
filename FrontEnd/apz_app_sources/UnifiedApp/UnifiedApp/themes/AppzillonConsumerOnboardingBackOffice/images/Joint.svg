@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="44.858" height="35" viewBox="0 0 44.858 35">
+  <g id="Group_8099" data-name="Group 8099" transform="translate(-1162.94 -191.885)">
+    <g id="Group_8093" data-name="Group 8093" transform="translate(1162.94 191.885)">
+      <g id="Group_8091" data-name="Group 8091">
+        <g id="Group_8089" data-name="Group 8089" transform="translate(5.541)">
+          <path id="Path_13243" data-name="Path 13243" d="M1179.537,209.931a9,9,0,1,1,3.512-.71A8.958,8.958,0,0,1,1179.537,209.931Zm0-16.24a7.217,7.217,0,1,0,7.217,7.217A7.224,7.224,0,0,0,1179.537,193.691Z" transform="translate(-1170.514 -191.885)" />
+        </g>
+        <g id="Group_8090" data-name="Group 8090" transform="translate(0 19.673)">
+          <path id="Path_13244" data-name="Path 13244" d="M1190.882,234.1a.9.9,0,0,1-.9-.9,12.616,12.616,0,1,0-25.232,0,.9.9,0,1,1-1.806,0,14.423,14.423,0,1,1,28.845,0A.9.9,0,0,1,1190.882,234.1Z" transform="translate(-1162.94 -218.778)" />
+        </g>
+      </g>
+      <g id="Group_8092" data-name="Group 8092" transform="translate(0 33.193)">
+        <path id="Path_13245" data-name="Path 13245" d="M1190.882,239.065h-27.039a.9.9,0,1,1,0-1.806h27.039a.9.9,0,1,1,0,1.806Z" transform="translate(-1162.94 -237.259)" />
+      </g>
+    </g>
+    <g id="Group_8098" data-name="Group 8098" transform="translate(1189.426 191.889)">
+      <g id="Group_8096" data-name="Group 8096" transform="translate(0)">
+        <g id="Group_8094" data-name="Group 8094" transform="translate(0)">
+          <path id="Path_13246" data-name="Path 13246" d="M1203.234,209.933a8.9,8.9,0,0,1-3.543-.731.9.9,0,1,1,.715-1.658,7.1,7.1,0,0,0,2.827.583,7.215,7.215,0,1,0-2.834-13.853.9.9,0,0,1-.7-1.664,9.023,9.023,0,1,1,7.048,16.613A8.944,8.944,0,0,1,1203.234,209.933Z" transform="translate(-1199.146 -191.89)" />
+        </g>
+        <g id="Group_8095" data-name="Group 8095" transform="translate(0 19.666)">
+          <path id="Path_13247" data-name="Path 13247" d="M1216.615,234.1a.9.9,0,0,1-.9-.9,12.625,12.625,0,0,0-15.458-12.3.9.9,0,1,1-.41-1.759,14.422,14.422,0,0,1,17.673,14.058A.9.9,0,0,1,1216.615,234.1Z" transform="translate(-1199.146 -218.773)" />
+        </g>
+      </g>
+      <g id="Group_8097" data-name="Group 8097" transform="translate(3.371 33.19)">
+        <path id="Path_13248" data-name="Path 13248" d="M1217.852,239.066h-13.2a.9.9,0,0,1,0-1.806h13.2a.9.9,0,0,1,0,1.806Z" transform="translate(-1203.754 -237.26)" />
+      </g>
+    </g>
+  </g>
+</svg>

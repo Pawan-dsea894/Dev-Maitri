@@ -1,0 +1,2905 @@
+var createCollectionQuery =
+    "CREATE TABLE IF NOT EXISTS TB_COLLECTION(KMID  TEXT, BRANCHID  TEXT, COLLECTIONDATE  TEXT, DOWNLOADTS TEXT, PAYLOAD  TEXT, MEETINGDAY TEXT,ROLE TEXT, PRIMARY KEY (KMId, BRANCHID, COLLECTIONDATE, ROLE))";
+var createCollAppQuery =
+    "CREATE TABLE IF NOT EXISTS TB_COLLECTION_APPLICATION(APPID TEXT NOT NULL, APPLICATIONID TEXT NOT NULL, VERSIONNO TEXT NOT NULL, KENDRAID TEXT NOT NULL, BRANCHCODE TEXT NOT NULL, APPLICATIONDATE TEXT NOT NULL, CREATETS TEXT NOT NULL, CREATEDBY TEXT NOT NULL, APPLICATIONTYPE TEXT NOT NULL, APPLICATIONSTATUS TEXT NOT NULL, CURRENTSTAGE TEXT NOT NULL, KMID TEXT NOT NULL, LEADER TEXT NOT NULL, KENDRANAME TEXT NOT NULL, AMOUNT TEXT NOT NULL, APPLICATIONREFNO TEXT NOT NULL, PRIMARY KEY (APPID, APPLICATIONID, VERSIONNO, KENDRAID, BRANCHCODE, APPLICATIONDATE))"
+var creatKendraDetQuery =
+    "CREATE TABLE IF NOT EXISTS TB_COLLECTION_KENDRA_DETAILS(APPID TEXT NOT NULL, APPLICATIONID TEXT NOT NULL, VERSIONNO TEXT NOT NULL, KENDRAID TEXT NOT NULL, KENDRANAME TEXT NOT NULL, PAYLOAD TEXT NOT NULL, PRIMARY KEY (APPID, APPLICATIONID, VERSIONNO, KENDRAID))"
+var createKendraCustDetQuery =
+    "CREATE TABLE IF NOT EXISTS TB_COLLECTION_CUSTOMER_DETAILS(APPID TEXT NOT NULL, APPLICATIONID TEXT NOT NULL, VERSIONNO TEXT NOT NULL, KENDRAID TEXT NOT NULL, KENDRANAME TEXT NOT NULL, GROUPID TEXT NOT NULL, PAYLOAD TEXT NOT NULL, PRIMARY KEY (APPID, APPLICATIONID, VERSIONNO, KENDRAID, GROUPID))"
+var createWFAppQuery =
+    "CREATE TABLE IF NOT EXISTS TB_COLLECTION_APPLICATION_WORKFLOW(APPID TEXT NOT NULL, APPLICATIONID TEXT NOT NULL, VERSIONNO TEXT NOT NULL, KENDRAID TEXT NOT NULL, WORKFLOWSEQNO TEXT NOT NULL, CREATEDBY TEXT NOT NULL, APPLICATIONSTATUS TEXT NOT NULL, CURRENTUSERROLE TEXT NOT NULL, NEXTWFSTAGE TEXT NOT NULL, remarks TEXT NOT NULL, NEXTWFSTAGEID TEXT NOT NULL, TIMESTAMP TEXT NOT NULL, MEETINGDATE TEXT NOT NULL, PRIMARY KEY (APPID, APPLICATIONID, VERSIONNO, KENDRAID, WORKFLOWSEQNO))";
+var createCashDepositFlow =
+    "CREATE TABLE IF NOT EXISTS TB_COLLECTION_CASHDEPOSIT(APPID TEXT NOT NULL, APPLICATIONID TEXT NOT NULL, VERSIONNO TEXT NOT NULL, KMID TEXT NOT NULL, DEPPOINTREFNO TEXT NOT NULL, CREATETS TEXT NOT NULL, BASE64FILEPATH TEXT NOT NULL, DEPAMT TEXT NOT NULL, DEPPOINTS TEXT NOT NULL,DEPOSITRECEIPT NOT NULL,PRIMARY KEY ( APPID,APPLICATIONID,VERSIONNO,KMID,DEPPOINTREFNO))";
+var deathIntimationFlow =
+    "CREATE TABLE IF NOT EXISTS TB_COLLECTION_DEATH_INTIMATION(APPID TEXT NOT NULL, APPLICATIONID TEXT NOT NULL,  VERSIONNO TEXT NOT NULL, KENDRAID TEXT NOT NULL,PAYLOAD TEXT NOT NULL,PRIMARY KEY (APPLICATIONID, KENDRAID))";
+var createRepeatCollectionQuery =
+    "CREATE TABLE IF NOT EXISTS TB_REPEATCOLLECTION(KMID  TEXT, BRANCHID  TEXT, COLLECTIONDATE  TEXT, DOWNLOADTS TEXT, PAYLOAD  TEXT, MEETINGDAY TEXT, KENDRAID TEXT, PRIMARY KEY (KMId, BRANCHID,COLLECTIONDATE,KENDRAID))"; //APPLNID TEXT
+var createRepeatCollAppQuery =
+    "CREATE TABLE IF NOT EXISTS TB_REPEATCOLLECTION_APPLICATION(APPID TEXT NOT NULL, APPLICATIONID TEXT NOT NULL, VERSIONNO TEXT NOT NULL, KENDRAID TEXT NOT NULL, BRANCHCODE TEXT NOT NULL, APPLICATIONDATE TEXT NOT NULL, CREATETS TEXT NOT NULL, CREATEDBY TEXT NOT NULL, APPLICATIONTYPE TEXT NOT NULL, APPLICATIONSTATUS TEXT NOT NULL, CURRENTSTAGE TEXT NOT NULL, KMID TEXT NOT NULL, LEADER TEXT NOT NULL, KENDRANAME TEXT NOT NULL, AMOUNT TEXT NOT NULL, APPLICATIONREFNO TEXT NOT NULL, PRIMARY KEY (APPID, APPLICATIONID, VERSIONNO, KENDRAID, BRANCHCODE, APPLICATIONDATE))";
+var creatRepeatKendraDetQuery =
+    "CREATE TABLE IF NOT EXISTS TB_REPEATCOLLECTION_KENDRA_DETAILS(APPID TEXT NOT NULL, APPLICATIONID TEXT NOT NULL, VERSIONNO TEXT NOT NULL, KENDRAID TEXT NOT NULL, KENDRANAME TEXT NOT NULL, PAYLOAD TEXT NOT NULL, PRIMARY KEY (APPID, APPLICATIONID, VERSIONNO, KENDRAID))";
+var createRepeatWFAppQuery =
+    "CREATE TABLE IF NOT EXISTS TB_REPEATCOLLECTION_APPLICATION_WORKFLOW(APPID TEXT NOT NULL, APPLICATIONID TEXT NOT NULL, VERSIONNO TEXT NOT NULL, KENDRAID TEXT NOT NULL, WORKFLOWSEQNO TEXT NOT NULL, CREATEDBY TEXT NOT NULL, APPLICATIONSTATUS TEXT NOT NULL, CURRENTUSERROLE TEXT NOT NULL, NEXTWFSTAGE TEXT NOT NULL, remarks TEXT NOT NULL, NEXTWFSTAGEID TEXT NOT NULL, TIMESTAMP TEXT NOT NULL, MEETINGDATE TEXT NOT NULL, PRIMARY KEY (APPID, APPLICATIONID, VERSIONNO, KENDRAID, WORKFLOWSEQNO))";
+var RepeatCustStoreQuery =
+    "CREATE TABLE IF NOT EXISTS TB_REPEATCOLLECTION_CUSTOMER_SUB_REC(KENDRAID TEXT, MEETINGDATE TEXT, CUSTOMERDTS TEXT, KMID  TEXT, BRANCHID  TEXT,PRIMARY KEY (MEETINGDATE,KENDRAID))";
+var createNonMeeCollectionQuery =
+    "CREATE TABLE IF NOT EXISTS TB_NONMEETINGCOLLECTION(KMID  TEXT, BRANCHID  TEXT, DOWNLOADTS TEXT, PAYLOAD  TEXT, MEETINGDAY TEXT,MEETINGDATE TEXT,APPLICATIONDATE TEXT NOT NULL, KENDRAID TEXT, KENDRACOLLID NOT NULL, TYPE NOT NULL,APPLICATIONID TEXT NOT NULL,PRIMARY KEY (KMId, BRANCHID,KENDRAID,APPLICATIONID))";
+var createNonMeeCollAppQuery =
+    "CREATE TABLE IF NOT EXISTS TB_NONMEETINGCOLLECTION_APPLICATION(APPID TEXT NOT NULL, APPLICATIONID TEXT NOT NULL, VERSIONNO TEXT NOT NULL, KENDRAID TEXT NOT NULL, BRANCHCODE TEXT NOT NULL, APPLICATIONDATE TEXT NOT NULL, CREATETS TEXT NOT NULL, CREATEDBY TEXT NOT NULL, APPLICATIONTYPE TEXT NOT NULL, APPLICATIONSTATUS TEXT NOT NULL, CURRENTSTAGE TEXT NOT NULL, KMID TEXT NOT NULL, LEADER TEXT NOT NULL, KENDRANAME TEXT NOT NULL, AMOUNT TEXT NOT NULL, APPLICATIONREFNO TEXT NOT NULL, PRIMARY KEY (APPID, APPLICATIONID, VERSIONNO, KENDRAID, BRANCHCODE, APPLICATIONDATE))";
+var createNonMeeWFAppQuery =
+    "CREATE TABLE IF NOT EXISTS TB_NONMEETINGCOLLECTION_APPLICATION_WORKFLOW(APPID TEXT NOT NULL, APPLICATIONID TEXT NOT NULL, VERSIONNO TEXT NOT NULL, KENDRAID TEXT NOT NULL, WORKFLOWSEQNO TEXT NOT NULL, CREATEDBY TEXT NOT NULL, APPLICATIONSTATUS TEXT NOT NULL, CURRENTUSERROLE TEXT NOT NULL, NEXTWFSTAGE TEXT NOT NULL, remarks TEXT NOT NULL, NEXTWFSTAGEID TEXT NOT NULL, TIMESTAMP TEXT NOT NULL, MEETINGDATE TEXT NOT NULL,APPLICATIONDATE TEXT NOT NULL, PRIMARY KEY (APPID, APPLICATIONID, VERSIONNO, KENDRAID, WORKFLOWSEQNO))";
+var createNonMeeApiStorageQuery =
+    "CREATE TABLE IF NOT EXISTS TB_NONMEETINGCOLLECTION_API_STORAGE(APPID TEXT NOT NULL,APPLICATIONID TEXT NOT NULL,KENDRAID TEXT NOT NULL,APPLICATIONDATE TEXT NOT NULL,KMID  TEXT NOT NULL, PAYLOAD  TEXT NOT NULL,  PRIMARY KEY (APPID, KENDRAID))";
+var nonMeetingCustStoreQuery =
+    "CREATE TABLE IF NOT EXISTS TB_NONMEETINGCOLLECTION_CUSTOMER_SUB_REC(KENDRAID TEXT, MEETINGDATE TEXT, CUSTOMERDTS TEXT, KMID  TEXT, BRANCHID  TEXT,APPLICATIONDATE TEXT NOT NULL,PRIMARY KEY (MEETINGDATE,KENDRAID))";
+var tableName = "";
+var tempKendraDet = [];
+var ApplicationTableData = [];
+var ApplnRepeatTableData = [];
+var nonMetAppRepeatTableData = [];
+var colCustEditDetails = [];
+var colAppWFData = [];
+var RepeatcolAppWFData = [];
+var nonMetcolAppWFData = [];
+var CashDepData = [];
+var CashDepFlow = [];
+var kdDataFromSubmitFlow = {};
+var RepeatDataFromSubmitFlow = {};
+var colAppDataFromSubmitFlow = {};
+var colRepeatAppDataFromSubmitFlow = {};
+var colKDFromKMDash = {};
+var versionNo = "1";
+var isCashierSubmission = false;
+var isFromFinalCashier = false;
+var updatePostCashierSubmit = false;
+var isFromCollSubWidget = false;
+var isFromRepeatCollSubWidget = false;
+var CashSubmittedAlready = false;
+var fromCollWidget = false;
+var startTimerFunc = false;
+var CashDeposit = [];
+var deathIntimationData = {};
+var fromCashDep = false;
+var backNavi = false;
+var RepeatMeetDetails = {};
+var deathIntimationApplicationId = '';
+var decryptedData = [];
+var currentDecryptIndex = 0;
+var deathIntimationFlowFrom = '';
+var deathIntimationEditRec = false;
+var deathIntimationOldRec = {};
+var parReasonsArr = [];
+var CurrCashDepVer = '';
+var collectionInfoParams = {};
+var collectionInfoParams = [];
+var RepeatCollectInfoParams = {};
+var NonMeetingCollectionInfoParams = {};
+var isCloseMeeting = false;
+var NonMeetingColDetails = [];
+var nonMeetingColKenDts = [];
+var decryptedNonMeeData = [];
+var nonMetCollCstDts = [];
+var isFromKendraMeetWidget = false;
+window.isQRSuccess = false;
+var RepeatMeetings = false;
+var RepeatColDetails = [];
+var RepeatSubData = [];
+var CollectionMeetingFlow = false;
+var nonMeetingSubColFlow = false;
+var nonMeetingcolAppDataFromSubmitFlow = {};
+var nonMeetColAppData = {};
+var nonMeetColWFData = {};
+var nonMeeColSubData = {};
+var nonMetFiltColDta = {};
+var collectionZeroFlow = false;
+var RepeatApplnId = '';
+var decryptRepeatData = [];
+var RepeatDecryptData = 0;
+var RepeatKendraDet = [];
+var nonMeetingCustListSaveData = {};
+var RepeatMeetingCustListSaveData = {};
+var nonMeetingFetchCustDtsData = {};
+var RepeatFetchCustDtsData = {};
+var nonMettingSubFilterData = {};
+var RepeatFilteredData = {};
+var storeNonMeeCustDataCount = 0;
+var nonMetStoreremJsonStoreData = {};
+var RepMetStoreremJsonStoreData = {};
+var storeNonMetCustMulRec = false;
+var storeRepMetCustMulRec = false;
+var RepApplnTime = '';
+var nonMeetingApiSqlInsert = {};
+var preClosureReasons = [];
+var isFromCashierARScr = false;
+var kendraDeathObj = {};
+var delRepRecIdx = 0;
+var pushBackSubPaintRec = [];
+var pushBackRecSubFlag = false;
+var noOfKedrasSubRec = 0;
+var CollectionsCommon = function() {
+    //common function for Collections declaration
+    //common function for Collections in base
+}
+var respCode = "";
+let getCurrentTimestamp = () => {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const year = now.getFullYear();
+    let hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? String(hours).padStart(2, '0') : '12';
+    if (fromCashDep) {
+        return `${day}:${month}:${year} ${hours}:${minutes} ${ampm}`;
+    } else {
+        return `${day}:${month}:${year} ${hours}:${minutes}`;
+    }
+};
+CollectionsCommon = {
+    createSQLLiteTable: function() {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": createCollectionQuery
+        };
+        jsonStr.callBack = CollectionsCommon.createSQLLiteTableCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    createSQLLiteTableCB: function(params) {
+        if (params.status) {
+            //New Table is Created.
+            CollectionsCommon.storeSQLLite();
+        }
+    },
+    storeSQLLite: function(params) {
+        tableName = "CommonCollections"
+        CollectionsCommon.encryptSQLData(collectionKendraData);
+    },
+    insertCollectionsInSQLLite: function(params) {
+        // kendraResponse.forEach((obj, i) => {
+        //     obj.kendraDtls
+        // })
+        var details = [];
+        details = collectionKendraData[0];
+        var appId = apz.appId;
+        var kmId = apz.userId;
+        var branchId = details.branchId;
+        var collDate = details.meetingDate;
+        let meetingDay = details.meetingDay;
+        var downloadTS = getCurrentTimestamp();
+        // var applicationId = "S-" + branchId.slice(-5) + '-' + kmId + '-' + transDate;
+        var payload = params
+        var lquery = "INSERT OR REPLACE INTO TB_COLLECTION VALUES ('" + kmId + "','" + branchId + "','" + collDate + "','" + downloadTS +
+            "','" + payload + "','" + meetingDay + "','" + currentUserRole + "' )";
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.insertCollectionsInSQLLiteCB
+        apz.ns.executeSql(jsonStr);
+    },
+    insertCollectionsInSQLLiteCB: function(params) {
+        var details = [];
+        if (params.status) {
+            if (collectionZeroFlow) {
+                apz.app.ZeroCollection.callDeathIntimationSqlLite();
+            }
+            if (apz.childScr === "MarkAttendance") {
+                CollectionsCommon.storeKendDetSQLLite(kendraDetails.kendraDet);
+            }
+        } else if (params.errorCode === "APZ-CNT-056") {
+            CollectionsCommon.createSQLLiteTable();
+        }
+    },
+    checkCollectionsSqlLite: function(params) {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": "SELECT * FROM TB_COLLECTION"
+        };
+        jsonStr.callBack = CollectionsCommon.checkCollectionsSqlLiteCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    checkCollectionsSqlLiteCB: function(params) {
+        if (params.status) {} else {
+            CollectionsCommon.fetchKendraDetails(window.LoggedInUserDetails.userID);
+        }
+    },
+    encryptSQLData: function(params) {
+        var json = {
+            "id": '1',
+            "stringToEncrypt": params,
+            "key": "COLLECTION" + "_encrypt"
+        };
+        json.callBack = CollectionsCommon.encryptSQLDataCB;
+        apz.ns.encryptData(json);
+    },
+    encryptSQLDataCB: function(params) {
+        if (params.status) {
+            if (tableName === "CommonCollections") {
+                CollectionsCommon.insertCollectionsInSQLLite(params.text);
+            } else if (tableName === "KendDetails") {
+                CollectionsCommon.insertKendDetInSQLLite(params.text);
+            } else if (tableName === "AppTable") {
+                CollectionsCommon.insertIntoAppSQLLite(params.text);
+            } else if (tableName === "CollCustDetails") {
+                CollectionsCommon.insertCollCustDetailsInSQLLite(params.text);
+            } else if (tableName === "AppWFTable") {
+                CollectionsCommon.insertCollAppWFSQLLite(params.text);
+            } else if (tableName === "CashDeposit") {
+                CollectionsCommon.insertCashDepColInSQLLite(params.text);
+            } else if (tableName === "DEATH_INTIMATION") {
+                if (deathIntimationEditRec) {
+                    CollectionsCommon.updateOldDeathIntimationRecord(params.text);
+                } else {
+                    CollectionsCommon.insertDeathIntimationDetails(params.text);
+                }
+            } else if (tableName === "RepeatCollections") {
+                CollectionsCommon.insertRepeatCollectionsInSQLLite(params.text);
+            } else if (tableName === "NonMeetingCollections") {
+                CollectionsCommon.insertNonMeetingCollectionsInSQLLite(params.text);
+            } else if (tableName === 'NonMeetingApiCollections') {
+                CollectionsCommon.insertNonMeetingCollectionsApiStorageSQLLite(params.text);
+            }
+        }
+    },
+    decryptSQLData: function(params) {
+        if (tableName === 'DEATH_INTIMATION') {
+            var json = {
+                "id": deathIntimationdecyptIndex,
+                "stringToDecrypt": params,
+                "key": 'COLLECTION' + "_encrypt"
+            }
+        } else {
+            var json = {
+                "id": "1",
+                "stringToDecrypt": params,
+                "key": 'COLLECTION' + "_encrypt"
+            }
+        }
+        if (apz.deviceOs === "iOS") {
+            json.decryptionId = "xyz";
+        }
+        json.callBack = CollectionsCommon.decryptSQLDataCB;
+        apz.ns.decryptData(json);
+    },
+    decryptSQLDataCB: function(params) {
+        if (params.status) {
+            // console.log(params);
+            if (tableName === "CommonCollections") {
+                // CollectionsCommon.insertCollectionsInSQLLite(params.text);
+                collectionKendraData = JSON.parse(params.text);
+                //added below function to set kendra death object to use in multiple places
+                CollectionsCommon.createKendrasDeathIntObj();
+            } else if (tableName === "KendDetails") {
+                // CollectionsCommon.insertCollectionsInSQLLite(params.text);
+                tempKendraDet[0].PAYLOAD = params.text;
+                selectedKendra.kendraDet = JSON.parse(tempKendraDet[0].PAYLOAD);
+                colKDFromKMDash.kendraDet = JSON.parse(tempKendraDet[0].PAYLOAD);
+                if (isCashierSubmission) {
+                    // CollectionsCommon.fetchFromCollAppSQLLite(kendraDetails.kendraDet);
+                    let kenDetWithStage = {};
+                    kenDetWithStage.kendraDet = kendraDetails.kendraDet;
+                    kenDetWithStage.currStage = "Mark Collection";
+                    isCashierSubmission = true;
+                    CollectionsCommon.insertIntoAppSQLLite(kenDetWithStage);
+                } else if (apz.childScr === "KMDashboard") {
+                    apz.app.KMDashboard.loadSelectedKendraDetails(colKDFromKMDash);
+                }
+            } else if (tableName === "AppTable") {
+                CollectionsCommon.insertCollectionsInSQLLite(params.text);
+            } else if (tableName === "CollCustDetails") {
+                // CollectionsCommon.insertCollectionsInSQLLite(params.text);
+                CollectionsCommon.customizeGroupData(params.text);
+            } else if (tableName === "AppWFTable") {
+                CollectionsCommon.insertCollectionsInSQLLite(params.text);
+            } else if (tableName === "CashDeposit") {
+                /*  if (!backNav && !fromCollWidget) {
+                      CashDepFlow = [];
+                  }
+                  backNav = false;
+                  fromCollWidget = false;
+                  CashDepFlow.push(JSON.parse(params.text));*/
+                if (!backNavi) {
+                    CashDepFlow.push(JSON.parse(params.text));
+                }
+                backNavi = false;
+                //  fromCollWidget = false;
+                /*if (onClickSubmit) {
+                    apz.app.CollectionSubmission.paintDepDetFunc(CashDepFlow);
+                }*/
+                //apz.app.CollectionSubmission.paintCollSubData(CashDepFlow);
+            } else if (tableName === 'DEATH_INTIMATION') {
+                let index = currentDecryptIndex;
+                let decryptedPayload = params.text;
+                if (deathIntimationDetails[index]) {
+                    deathIntimationDetails[index].PAYLOAD = JSON.parse(decryptedPayload);
+                }
+                decryptedData.push(deathIntimationDetails[index]);
+                currentDecryptIndex++;
+                CollectionsCommon.decryptNextRecord();
+            } else if (tableName === 'RepeatCollections') {
+                if (isFromRepeatCollSubWidget) {
+                    let index = RepeatDecryptData;
+                    let decryptedPayload = params.text;
+                    if (RepeatKendraDet[index]) {
+                        RepeatKendraDet[index].PAYLOAD = JSON.parse(decryptedPayload);
+                    }
+                    RepeatSubData.push(RepeatKendraDet[index].PAYLOAD[0]);
+                    RepeatDecryptData++;
+                    CollectionsCommon.decryptRepeatRecord();
+                    //apz.app.CollectionSubmission.paintRepeatCollSubData();
+                } else {
+                    RepeatColDetails = JSON.parse(params.text);
+                    //RepeatColDetails[0].customerDetails = RepeatColDetails[0].customerDetails.filter(e => e.loanDue);
+                    let obj = {
+                        'branchId': RepeatColDetails[0].branchId,
+                        'kendraId': RepeatColDetails[0].kendraId,
+                        'meetingDate': RepeatColDetails[0].meetingDate
+                    }
+                    // RepeatMeetings = true;
+                    RepeatColDetails[0].collId = RepeatApplnId;
+                    apz.startLoader();
+                    //  RepeatFilteredData = JSON.parse(JSON.stringify(RepeatColDetails));
+                    //apz.app.RepeatCollection.StatusUpdate(RepeatColDetails);
+                    apz.app.RepeatCollection.loadMemberDet(RepeatColDetails);
+                }
+            } else if (tableName === 'NonMeetingCollections') {
+                let index = currentDecryptIndex;
+                let decryptedPayload = params.text;
+                if (nonMeetingColKenDts[index]) {
+                    nonMeetingColKenDts[index].PAYLOAD = JSON.parse(decryptedPayload);
+                }
+                nonMetCollCstDts.push(nonMeetingColKenDts[index]);
+                currentDecryptIndex++;
+                CollectionsCommon.decryptNonMeetingNextRecord();
+                //apz.app.NonMeetingDayColl.paintNonMeetCustData(nonMeetingColKenDts.customerDetails);
+            } else if (tableName === 'NonMeetingCashColl') {
+                //cash submission flow
+                let index = currentDecryptIndex;
+                let decryptedPayload = params.text;
+                if (nonMeetingColKenDts[index]) {
+                    nonMeetingColKenDts[index].PAYLOAD = JSON.parse(decryptedPayload);
+                }
+                decryptedNonMeeData.push(nonMeetingColKenDts[index]);
+                currentDecryptIndex++;
+                CollectionsCommon.decryptNonMeetingNextRecord();
+                //apz.app.CollectionSubmission.paintNonMeetingDayCollForKM(JSON.parse(params.text));
+            } else if (tableName === 'NonMeetingCollectionsApi') {
+                apz.app.CollectionSubmission.foramtRequestFunction(JSON.parse(params.text));
+            }
+        }
+    },
+    fetchFromCollectionSQLLite: function(params) {
+        var KMId = apz.userId;
+        let meetingDay = collectionsRes[0].meetingDay;
+        let meetingDate = collectionsRes[0].meetingDate;
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": `SELECT * FROM TB_COLLECTION WHERE KMID = '${KMId}' AND MEETINGDAY is '${meetingDay}'AND COLLECTIONDATE is '${meetingDate}' AND ROLE is '${currentUserRole}'`
+        };
+        jsonStr.callBack = CollectionsCommon.fetchFromCollectionSQLLiteCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    fetchFromCollectionSQLLiteCB: function(params) {
+        kendraDet = [];
+        if (params.status) {
+            if (params.hasOwnProperty('sqlResult') && params.sqlResult !== '[]') {
+                // kendraDet = params.sqlResult;
+                kendraDet = JSON.parse(params.sqlResult)[0];
+                tableName = "CommonCollections"
+                CollectionsCommon.decryptSQLData(kendraDet.PAYLOAD);
+            } else {
+                // CollectionsCommon.fetchKendraDetails(window.LoggedInUserDetails.userID);
+                CollectionsCommon.storeSQLLite();
+            }
+        } else if (params.errorCode === "APZ-CNT-056") {
+            CollectionsCommon.createSQLLiteTable();
+        } else {
+            //   CollectionsCommon.storeSQLLite();
+        }
+    },
+    createCollectionApplicationTable: function() {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": createCollAppQuery
+        };
+        jsonStr.callBack = CollectionsCommon.createCollectionApplicationTableCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    createCollectionApplicationTableCB: function(params) {
+        if (params.status) {
+            CollectionsCommon.insertIntoAppSQLLite(colAppDataFromSubmitFlow)
+        }
+    },
+    insertIntoAppSQLLite: function(params) {
+        let details = [];
+        details = params.kendraDet;
+        colAppDataFromSubmitFlow = JSON.parse(JSON.stringify(params));
+        let appId = apz.appId;
+        let applicationId = CollectionsCommon.returnApplicationId(details);
+        let kendraId = details.kendraId;
+        let VERSIONNO = versionNo;
+        let branchCode = details.branchId;
+        let applicationDate = details.meetingDate;
+        let createTs = getCurrentTimestamp();
+        let createdBy = apz.userId;
+        let appType = "MB";
+        let appStatus = "INPROGRESS";
+        // let currStage = "Collections";
+        let currStage = params.currStage;
+        let kmId = apz.userId;
+        let Leader = "Empty";
+        let amt = 0;
+        let appRefNo = "123456";
+        let kendraName = details.kendraName.replace(/'/g, '');;
+        let lquery = "INSERT OR REPLACE INTO TB_COLLECTION_APPLICATION VALUES ('" + appId + "','" + applicationId + "','" + VERSIONNO +
+            "','" + kendraId + "','" + branchCode + "','" + applicationDate + "','" + createTs + "','" + createdBy + "','" + appType + "','" +
+            appStatus + "','" + currStage + "','" + kmId + "','" + Leader + "','" + kendraName + "','" + amt + "','" + appRefNo + "')";
+        let jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.insertInCollAppSQLLiteCB
+        apz.ns.executeSql(jsonStr);
+    },
+    insertInCollAppSQLLiteCB: function(params) {
+        var details = [];
+        if (params.status) {
+            //need to update while updating, to re assign selected kendra
+            // CollectionsCommon.insertCollAppWFSQLLite(colAppDataFromSubmitFlow);
+            if (userRole == 'KM' && isCashierSubmission) {
+                CollectionsCommon.insertCollAppWFSQLLite(kendraDetails);
+            }
+            if (window.markCollectionFlow) {
+                CollectionsCommon.storeSQLLite(collectionKendraData);
+            }
+        } else if (params.errorCode === "APZ-CNT-056") {
+            CollectionsCommon.createCollectionApplicationTable();
+        }
+    },
+    fetchFromCollAppSQLLite: function(params) {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB"
+        }
+        if (isFromFinalCashier) {
+            jsonStr.executeQuery = `SELECT * FROM TB_COLLECTION_APPLICATION`;
+        } else {
+            var kendraId = kendraDetails.kendraId;
+            // var jsonStr = {
+            //     "queryId": "XYZ78V",
+            //     "databaseName": "COLLECTION_" + "DB",
+            //     "executeQuery": `SELECT * FROM TB_COLLECTION_APPLICATION WHERE KENDRAID = '${kendraId}'`
+            // };
+            jsonStr.executeQuery = `SELECT * FROM TB_COLLECTION_APPLICATION WHERE KENDRAID = '${kendraId}'`;
+        }
+        jsonStr.callBack = CollectionsCommon.fetchFromCollAppSQLLiteCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    fetchFromCollAppSQLLiteCB: function(params) {
+        kendraDet = [];
+        if (params.status) {
+            if (params.hasOwnProperty('sqlResult') && params.sqlResult !== '[]') {
+                if (isFromFinalCashier) {
+                    ApplicationTableData = JSON.parse(params.sqlResult)
+                } else {
+                    ApplicationTableData = JSON.parse(params.sqlResult)[0];
+                }
+                // CollectionsCommon.decryptSQLData(JSON.parse(kendraDet)[0].PAYLOAD);
+                if (isCashierSubmission || isFromFinalCashier) {
+                    CollectionsCommon.fetchCollAppWFSQLLite();
+                }
+            } else {
+                ApplicationTableData = [];
+            }
+        }
+        // else if (params.errorCode === "APZ-CNT-056") {
+        //     CollectionsCommon.createSQLLiteTable();
+        //     } else {
+        //   CollectionsCommon.storeSQLLite();
+        // }
+    },
+    createCollectionKendraDet: function() {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": creatKendraDetQuery
+        };
+        jsonStr.callBack = CollectionsCommon.createCollectionKendraDetTableCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    createCollectionKendraDetTableCB: function(params) {
+        if (params.status) {
+            CollectionsCommon.storeKendDetSQLLite(kdDataFromSubmitFlow);
+        }
+    },
+    storeKendDetSQLLite: function(params) {
+        // if(apz.isNull(collectionKendraData)) {
+        //     apz.data.loadJsonData("CollectionResponse", "APZCBO");
+        //     collectionKendraData = apz.data.scrdata.collectionKendraRes;
+        // }
+        let selKenDet = params;
+        kdDataFromSubmitFlow = JSON.parse(JSON.stringify(params))
+        tableName = "KendDetails";
+        CollectionsCommon.encryptSQLData(selKenDet);
+    },
+    insertKendDetInSQLLite: function(params) {
+        // kendraResponse.forEach((obj, i) => {
+        //     obj.kendraDtls
+        // })
+        var details = [];
+        // details = selectedKendra.kendraDet;
+        details = kdDataFromSubmitFlow;
+        var appId = apz.appId;
+        var kendraId = details.kendraId;
+        var VERSIONNO = versionNo;
+        var kendraName = details.kendraName.replace(/'/g, '');;
+        var applicationId = CollectionsCommon.returnApplicationId(details);
+        var payload = params;
+        var lquery = "INSERT OR REPLACE INTO TB_COLLECTION_KENDRA_DETAILS VALUES ('" + appId + "','" + applicationId + "','" + VERSIONNO +
+            "','" + kendraId + "','" + kendraName + "','" + payload + "')";
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.insertKendDetInSQLLiteCB
+        apz.ns.executeSql(jsonStr);
+    },
+    insertKendDetInSQLLiteCB: function(params) {
+        var details = [];
+        if (params.status) {
+            //need to update while updating, to re assign selected kendra
+            if (apz.childScr !== "MarkAttendance") {
+                CollectionsCommon.storeSQLLite();
+            }
+            if (isCloseMeeting) {
+                CollectionsCommon.insertCollAppWFSQLLite(selectedKendra);
+            }
+        } else if (params.errorCode === "APZ-CNT-056") {
+            CollectionsCommon.createCollectionKendraDet();
+        }
+    },
+    fetchFromKendraDetSQLLite: function(params) {
+        colKDFromKMDash = JSON.parse(JSON.stringify(params));
+        var KendraId = params.kendraId;
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": `SELECT * FROM TB_COLLECTION_KENDRA_DETAILS WHERE KENDRAID is '${KendraId}'`
+        };
+        jsonStr.callBack = CollectionsCommon.fetchFromKendraDetSQLLiteCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    fetchFromKendraDetSQLLiteCB: function(params) {
+        var sqlKendraDet = [];
+        if (params.status) {
+            sqlKendraDet = JSON.parse(params.sqlResult);
+            if (params.hasOwnProperty('sqlResult') && sqlKendraDet.length > 0) {
+                tableName = "KendDetails";
+                tempKendraDet = sqlKendraDet;
+                CollectionsCommon.decryptSQLData(tempKendraDet[0].PAYLOAD);
+            } else {
+                // CollectionsCommon.storeKendDetSQLLite(kendraDetails);
+                apz.app.KMDashboard.loadSelectedKendraDetails(colKDFromKMDash);
+            }
+        } else if (params.errorCode === "APZ-CNT-056") {
+            // CollectionsCommon.createCollectionKendraDet();
+            apz.app.KMDashboard.loadSelectedKendraDetails(colKDFromKMDash);
+        }
+        /* else {
+                  CollectionsCommon.storeKendDetSQLLite();
+                }*/
+    },
+    createCollCustDetails: function() {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": createKendraCustDetQuery
+        };
+        jsonStr.callBack = CollectionsCommon.createCollCustDetailsCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    createCollCustDetailsCB: function(params) {
+        if (params.status) {
+            CollectionsCommon.storeCollCustDetSQLLite(colCustEditDetails);
+        }
+    },
+    storeCollCustDetSQLLite: function(params) {
+        tableName = "CollCustDetails";
+        colCustEditDetails = params;
+        CollectionsCommon.encryptSQLData(colCustEditDetails.customerDetails);
+    },
+    insertCollCustDetailsInSQLLite: function(params) {
+        let details = [];
+        details = colCustEditDetails;
+        let appId = apz.appId;
+        let kendraId = details.kendraId;
+        let VERSIONNO = versionNo;
+        let kendraName = details.kendraName.replace(/'/g, '');;
+        let groupId = details.groupId
+        let applicationId = CollectionsCommon.returnApplicationId(details);
+        let payload = params;
+        let lquery = "INSERT OR REPLACE INTO TB_COLLECTION_CUSTOMER_DETAILS VALUES ('" + appId + "','" + applicationId + "','" + VERSIONNO +
+            "','" + kendraId + "','" + kendraName + "','" + groupId + "','" + payload + "')";
+        let jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.insertCustDetailsSQLLiteCB
+        apz.ns.executeSql(jsonStr);
+    },
+    insertCustDetailsSQLLiteCB: function(params) {
+        var details = [];
+        if (params.status) {
+            //need to update while updating, to re assign selected kendra
+            apz.app.GroupsData.storeUpdateKendraDet(collectedGroupData);
+        } else if (params.errorCode === "APZ-CNT-056") {
+            CollectionsCommon.createCollCustDetails();
+        }
+    },
+    fetchFromCollCustSQLLite: function(params) {
+        var KendraId = params.kendraId;
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": `SELECT * FROM TB_COLLECTION_CUSTOMER_DETAILS WHERE KENDRAID is '${KendraId}'`
+        };
+        jsonStr.callBack = CollectionsCommon.fetchFromCollCustSQLLiteCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    fetchFromCollCustSQLLiteCB: function(params) {
+        var sqlKendraDet = [];
+        if (params.status) {
+            sqlKendraDet = JSON.parse(params.sqlResult);
+            if (params.hasOwnProperty('sqlResult') && params.sqlResult.length > 0) {
+                tableName = "CollCustDetails";
+                // sqlKendraDet = params.sqlResult;
+                // tempKendraDet = JSON.parse(sqlKendraDet);
+                tempKendraDet = sqlKendraDet;
+                CollectionsCommon.decryptSQLData(tempKendraDet[0].PAYLOAD);
+            } else {
+                CollectionsCommon.storeKendDetSQLLite(kendraDetails);
+            }
+        }
+        // else if (params.errorCode === "APZ-CNT-056") {
+        //     CollectionsCommon.createCollectionKendraDet();
+        //     } else {
+        //   CollectionsCommon.storeKendDetSQLLite();
+        // }
+    },
+    createCollectionapplWFTable: function() {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": createWFAppQuery
+        };
+        jsonStr.callBack = CollectionsCommon.createCollectionapplWFTableCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    createCollectionapplWFTableCB: function(params) {
+        if (params.status) {
+            CollectionsCommon.insertCollAppWFSQLLite(kdDataFromSubmitFlow);
+        }
+    },
+    storeCollAppWFSQLLite: function(params) {
+        // if(apz.isNull(collectionKendraData)) {
+        //     apz.data.loadJsonData("CollectionResponse", "APZCBO");
+        //     collectionKendraData = apz.data.scrdata.collectionKendraRes;
+        // }
+        // var selKenDet = 
+        tableName = "AppWFTable";
+        CollectionsCommon.encryptSQLData(collectionKendraData);
+    },
+    insertCollAppWFSQLLite: function(params) {
+        let details = [];
+        let lquery = "";
+        let nextWFStage = "CASHIER";
+        let insertTime = CollectionsCommon.returnTimeStamp()
+        if (updatePostCashierSubmit) {
+            wfNextStageID = "CASHHANDOVER";
+            //UNAP-1344
+            if (!apz.isNull(colAppWFData) && colAppWFData.length > 0) {
+                var filteredCol = colAppWFData.filter(obj => obj.NEXTWFSTAGEID !== "CASHCOLLECTED").map(obj => `'${obj.KENDRAID}'`).join(",");
+                if (filteredCol.length > 0) {
+                    var kendraIdsLst = `(${filteredCol})`;
+                    lquery = "UPDATE TB_COLLECTION_APPLICATION_WORKFLOW SET NEXTWFSTAGEID = '" + wfNextStageID + "' WHERE KENDRAID IN " +
+                        kendraIdsLst;
+                } else {
+                    lquery = "UPDATE TB_COLLECTION_APPLICATION_WORKFLOW SET NEXTWFSTAGEID = '" + wfNextStageID + "'";
+                }
+            } else {
+                lquery = "UPDATE TB_COLLECTION_APPLICATION_WORKFLOW SET NEXTWFSTAGEID = '" + wfNextStageID + "'";
+            }
+        } else {
+            details = params.kendraDet;
+            // colAppWFData = JSON.parse(JSON.stringify(params));
+            kdDataFromSubmitFlow = JSON.parse(JSON.stringify(params))
+            let appId = apz.appId;
+            let kendraId = details.kendraId;
+            let VERSIONNO = versionNo;
+            let applicationId = CollectionsCommon.returnApplicationId(details);
+            let WFSeqNO = 0;
+            let createdBy = apz.userId;
+            let appStatus = "INPROGRESS";
+            let currUserRole = "KM";
+            let remarks = "Cash collected from current kendra";
+            let wfNextStageID = "CASHCOLLECTED";
+            let meetingDate = details.meetingDate;
+            if (apz.childScr === "MarkAttendance") {
+                wfNextStageID = "MARKATTENDANCE";
+            } else if (isCloseMeeting) {
+                wfNextStageID = "SENDFORAPPROVAL";
+            }
+            lquery = "INSERT OR REPLACE INTO TB_COLLECTION_APPLICATION_WORKFLOW VALUES ('" + appId + "','" + applicationId + "','" +
+                VERSIONNO + "','" + kendraId + "','" + WFSeqNO + "','" + createdBy + "','" + appStatus + "','" + currUserRole + "','" +
+                nextWFStage + "','" + remarks + "','" + wfNextStageID + "','" + insertTime + "', '" + meetingDate + "')";
+        }
+        let jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.insertCollAppWFSQLLiteCB
+        apz.ns.executeSql(jsonStr);
+    },
+    insertCollAppWFSQLLiteCB: function(params) {
+        var details = [];
+        if (params.status) {
+            //need to update while updating, to re assign selected kendra
+            if (updatePostCashierSubmit) {
+                updatePostCashierSubmit = false;
+            }
+            if (userRole == 'KM' && isCashierSubmission) {
+                //     isCashierSubmission = false;
+                // apz.app.KMDashboard.launchCollSubmissionScr();
+                // apz.app.CollectionSubmission.cashierFinalSubmit();
+                ApzCOB.dashboardAppListAPI();
+            }
+        } else if (params.errorCode === "APZ-CNT-056") {
+            CollectionsCommon.createCollectionapplWFTable();
+        }
+    },
+    fetchCollAppWFSQLLite: function(params) {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB"
+        };
+        if (isFromFinalCashier || isFromCollSubWidget || isFromKendraMeetWidget) {
+            // if (isDateSelected) {
+            jsonStr.executeQuery =
+                `SELECT * FROM TB_COLLECTION_APPLICATION_WORKFLOW WHERE CREATEDBY is '${apz.userId}' AND MEETINGDATE is '${FetchMeetingDtRecord}'`;
+            /* } else {
+                 jsonStr.executeQuery = `SELECT * FROM TB_COLLECTION_APPLICATION_WORKFLOW WHERE CREATEDBY is '${apz.userId}'`;
+             }*/
+        } else {
+            var KendraId = params.kendraId;
+            // var jsonStr = {
+            //     "queryId": "XYZ78V",
+            //     "databaseName": "COLLECTION_" + "DB",
+            //     "executeQuery": `SELECT * FROM TB_COLLECTION_APPLICATION_WORKFLOW WHERE KENDRAID is '${KendraId}'`
+            // };
+            jsonStr.executeQuery = `SELECT * FROM TB_COLLECTION_APPLICATION_WORKFLOW WHERE KENDRAID is '${KendraId}'`
+        }
+        jsonStr.callBack = CollectionsCommon.fetchCollAppWFSQLLiteCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    fetchCollAppWFSQLLiteCB: function(params) {
+        var sqlColAppWFData = [];
+        if (params.status) {
+            sqlColAppWFData = JSON.parse(params.sqlResult);
+            if (params.hasOwnProperty('sqlResult') && sqlColAppWFData.length > 0) {
+                // tableName = "CollCustDetails";
+                // sqlColAppWFData = params.sqlResult;
+                // colAppWFData = JSON.parse(sqlColAppWFData);
+                colAppWFData = JSON.parse(JSON.stringify(sqlColAppWFData));
+                if (isCashierSubmission || isFromFinalCashier) {
+                    isCashierSubmission = false;
+                    // apz.app.KMDashboard.launchCollSubmissionScr()
+                    apz.app.CollectionSubmission.cashierFinalSubmit();
+                } else if (isFromCollSubWidget) {
+                    apz.app.CollectionSubmission.paintCollSubData();
+                } else if (isFromKendraMeetWidget) {
+                    isFromKendraMeetWidget = false;
+                    apz.app.KendriyaMeetings.loadSubmittedKendDetails();
+                }
+                if (apz.childScr === "KMDashboard") {
+                    apz.app.KMDashboard.updateCloseMeetingFn();
+                }
+            } else {
+                colAppWFData = [];
+                if (isFromCollSubWidget) {
+                    apz.app.CollectionSubmission.paintCollSubData();
+                } else if (isFromKendraMeetWidget) {
+                    isFromKendraMeetWidget = false;
+                    apz.app.KendriyaMeetings.loadSubmittedKendDetails();
+                }
+                if (apz.childScr === "KMDashboard") {
+                    apz.app.KMDashboard.updateCloseMeetingFn();
+                }
+            }
+        } else if (isFromCollSubWidget) {
+            apz.app.CollectionSubmission.paintCollSubData();
+        } else if (isFromKendraMeetWidget) {
+            apz.app.KendriyaMeetings.loadSubmittedKendDetails();
+        }
+        // apz.app.CollectionSubmission.paintCollSubmissionHeader();
+        if (apz.currAppId === "Widget") {
+            apz.app.CollectionSubmission.paintCollSubmissionHeader();
+        }
+        isDateSelected = false;
+    },
+    returnApplicationId: function(details) {
+        var branchId = details.branchId;
+        var kmId = details.hasOwnProperty('kmId') ? details.kmId : '';
+        var kendraId = details.hasOwnProperty('kendraId') ? details.kendraId : '';
+        var transDate = details.meetingDate;
+        if (transDate.includes("-")) {
+            transDate = transDate.replace(/-/g, ""); // Remove all '-' characters
+        }
+        var applicationId = "S-" + branchId.slice(-5) + '-' + kendraId + '-' + transDate;
+        return applicationId;
+    },
+    returnRepeatApplnID: function(details) {
+        var branchId = details.branchId;
+        let now = new Date();
+        let hours = String(now.getHours()).padStart(2, '0');
+        let minutes = String(now.getMinutes()).padStart(2, '0');
+        let seconds = String(now.getSeconds()).padStart(2, '0'); // Include seconds
+        let timeStamp = hours + minutes + seconds; // Format: HHMMSS
+        //var kmId = details.hasOwnProperty('kmId') ? details.kmId : '';
+        var kendraId = details.hasOwnProperty('kendraId') ? details.kendraId : '';
+        var transDate = details.meetingDate;
+        if (transDate.includes("-")) {
+            transDate = transDate.split('-')[0] + transDate.split('-')[1] + transDate.split('-')[2];
+        }
+        // transDate = transDate.slice(0, 4) + '-' + transDate.slice(4, 6) + '-' + transDate.slice(-2);
+        let applicationId = "R-" + branchId.slice(-5) + '-' + kendraId + '-' + transDate + timeStamp;
+        return applicationId;
+    },
+    returnNonMeetingCollApplnID: function(details) {
+        var kendraId = details.hasOwnProperty('kendraId') ? details.kendraId : '';
+        let now = new Date();
+        let hours = String(now.getHours()).padStart(2, '0');
+        let minutes = String(now.getMinutes()).padStart(2, '0');
+        let seconds = String(now.getSeconds()).padStart(2, '0'); // Include seconds
+        let timeStamp = hours + minutes + seconds; // Format: HHMMSS
+        let dateStr = now.getDate().toString().padStart(2, '0') + (now.getMonth() + 1).toString().padStart(2, '0') + now.getFullYear();
+        let applicationId = "N-" + kendraId + '-' + dateStr + '-' + timeStamp;
+        return applicationId;
+    },
+    fetchCollectionKendraDetails: function(pkendraid) {
+        var req = {
+            "apiRequest": {
+                "interfaceName": "FetchKendraDtls",
+                "requestObj": {
+                    "latLongFlag": "",
+                    "KendraUserId": window.LoggedInUserDetails.userID
+                }
+            }
+        }
+        setTimeout(() => {
+            apz.startLoader();
+            ApzCOB.serverBuildParam(gAppId, 'FetchCollection', 'N', 'N', req, 'Y', CollectionsCommon.fetchKendraCollectionsDetailsCB);
+        }, 0);
+        //ApzCOB.customlogincallback();
+    },
+    fetchKendraCollectionsDetailsCB: function(params) {
+        try {
+            if (ApzCOB.handleServiceCallBacks(params)) {
+                if (!apz.isNull(params.res.APZCBO__FetchCollection_Res.apiResponse.ResponseBody.collectionsObj)) {
+                    var kendraRes = params.res.APZCBO__FetchCollection_Res.apiResponse.ResponseBody.collectionsObj;
+                    // ApzCOB.setPref('KendraResponse', kendraRes);
+                    // window.KendraApp.KendraResponse = kendraRes;
+                    collectionKendraData = kendraRes;
+                    CollectionsCommon.fetchFromCollectionSQLLite(kendraRes);
+                    // apz.app.KendriyaMeetings.loadWidgetData(collectionKendraData);
+                    apz.stopLoader();
+                } else {
+                    apz.stopLoader();
+                    ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E", ApzCOB.dashboardAppListAPI);
+                }
+            } else {
+                apz.stopLoader();
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E", ApzCOB.dashboardAppListAPI);
+            }
+        } catch (e) {
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E", ApzCOB.dashboardAppListAPI);
+        }
+    },
+    customizeGroupData: function(params) {
+        var kenDetGrps = selectedKendra.kendraDet.colldtls.groups;
+        var sqlData = JSON.parse(params);
+        var grpSeq = 0;
+        kenDetGrps.forEach((obj, i) => {
+            if (sqlData.id === obj.id) {
+                obj = sqlData;
+                grpSeq = i
+            }
+        })
+        console.log(kenDetGrps[grpSeq]);
+    },
+    saveCollectionKendraDetails: function(collData, DepPoints) {
+        noOfKedrasSubRec = collData.length;
+        for (i = 0; i < collData.length; i++) {
+            let workFlowData = collData[i].applnWFDtls;
+            for (j = 0; j < workFlowData.length; j++) {
+                if (!workFlowData[j].hasOwnProperty('createTs')) {
+                    workFlowData[j]['createTs'] = new Date().$format('Y-m-d H:i:s');
+                    workFlowData[j]['kmUserName'] = LoggedInUserDetails.loginResponse.userDet.name
+                } else if (workFlowData[j].createTs.includes('T') && workFlowData[j].createTs.includes('.')) {
+                    workFlowData[j].createTs = workFlowData[j].createTs.replace('T', ' ').split('.')[0];
+                } else if (workFlowData[j].createTs.includes('T')) {
+                    workFlowData[j].createTs = workFlowData[j].createTs.replace('T', ' ');
+                }
+            }
+        }
+        // var req = {
+        //     "apiRequest": {
+        //         "interfaceName": "CreateApplication",
+        //         "appId": apz.appId,
+        //         "userId": apz.userId,
+        //         "requestObj": {
+        //             "kendraDtls": collData,
+        //             "cashDepositPoints": DepPoints,
+        //             "deathIntimationData": window.DeathCompleteData
+        //         }
+        //     }
+        // }
+        if (window.currentUserRole === "DEO") {
+            var req = {
+                "apiRequest": {
+                    "interfaceName": "CreateApplication",
+                    "appId": apz.appId,
+                    "userId": apz.userId,
+                    "kmUserRole": "DEO",
+                    "requestObj": {
+                        "kendraDtls": collData,
+                        "cashDepositPoints": DepPoints,
+                        "deathIntimationData": window.DeathCompleteData
+                    }
+                }
+            }
+        } else {
+            var req = {
+                "apiRequest": {
+                    "interfaceName": "CreateApplication",
+                    "appId": apz.appId,
+                    "userId": apz.userId,
+                    "requestObj": {
+                        "kendraDtls": collData,
+                        "cashDepositPoints": DepPoints,
+                        "deathIntimationData": window.DeathCompleteData
+                    }
+                }
+            }
+        }
+        setTimeout(() => {
+            apz.startLoader();
+            ApzCOB.serverBuildParam(gAppId, 'SaveCollectionInfo', 'N', 'N', req, 'Y', CollectionsCommon.saveCollectionKendraDetailsCB);
+        }, 0);
+        //ApzCOB.customlogincallback();
+    },
+    saveCollectionKendraDetailsCB: function(params) {
+        try {
+            var ifaceName = ApzCOB.GetInterfaceResMap(params);
+            if (ApzCOB.handleServiceCallBacks(params)) {
+                if ((params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "0")) {
+                    // var kendraRes = params.res[ifaceName].apiResponse.ResponseBody.collectionsObj;
+                    // collectionKendraData = kendraRes;
+                    // CollectionsCommon.fetchFromCollectionSQLLite(kendraRes);
+                    apz.app.CollectionSubmission.launchSuccScreen();
+                    apz.stopLoader();
+                } else {
+                    apz.stopLoader();
+                    ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E", ApzCOB.dashboardAppListAPI);
+                }
+            } else {
+                apz.stopLoader();
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E", ApzCOB.dashboardAppListAPI);
+            }
+        } catch (e) {
+            apz.stopLoader();
+            console.log(e);
+            //ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E", ApzCOB.dashboardAppListAPI);
+        }
+        // console.log('params', params);
+    },
+    emergencyLoanDetails: function(kendraId, collmeetingDate) {
+       return new Promise((resolve, reject) => {
+           var req = {
+               "apiRequest": {
+                   "interfaceName": "EmergencyLoanDetails",
+                   "appId": apz.appId,
+                   "userId": apz.userId,
+                   "requestObj": {
+                       "kendraId": kendraId,
+                       "meetingDate": collmeetingDate,
+                       "productCode": "EL"
+                   }
+               }
+           };
+           setTimeout(() => {
+               apz.startLoader();
+               ApzCOB.serverBuildParam(gAppId, 'EmergencyLoanDetails', 'N', 'N', req, 'Y',
+                   (params) => {
+                       apz.stopLoader();
+                       var ifaceName = ApzCOB.GetInterfaceResMap(params);
+                       if (ApzCOB.handleServiceCallBacks(params) && params.res[ifaceName].apiResponse.ResponseHeader
+                           .ResponseCode === "0") {
+                           resolve(params);
+                           elDisbursementCustData = JSON.parse(params.res.APZCBO__EmergencyLoanDetails_Res.apiResponse.ResponseBody.responseObj);
+                       } else {
+                           reject("EmergencyLoanDetails API failed");
+                       }
+                   });
+           }, 0);
+       });
+    },
+    returnFinalKendraReq: function() {
+        var allKendraDtls = [];
+        var kendraDtls = {};
+        collectionKendraData.forEach((obj, i) => {
+            kendraDtls = obj;
+            kendraDtls.applnDtls = ApplicationTableData;
+            kendraDtls.applnWFDtls.push(colAppWFData);
+            allKendraDtls.push(kendraDtls)
+        })
+        return allKendraDtls;
+    },
+    createCashDepositTable: function() {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": createCashDepositFlow
+        };
+        jsonStr.callBack = CollectionsCommon.createCashDepositTableCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    createCashDepositTableCB: function(params) {
+        if (params.status) {
+            //New Table is Created.
+            CollectionsCommon.storeCashDepositSQLLite(CashDepData);
+        }
+    },
+    storeCashDepositSQLLite: function(params) {
+        tableName = "CashDeposit"
+        CashDepData = JSON.parse(JSON.stringify(params));
+        fromCashDep = true;
+        let tableEncrypt = {
+            "depAmt": CashDepData[0].data.DepositAmount,
+            "depPoints": CashDepData[0].depPoints,
+            "depPointRefno": CashDepData[0].data.DepositPointRefno,
+            "depReceipt": CashDepData[0].data.DepositReceipt,
+            "base64Val": CashDepData[0].base64Value
+        }
+        fromCashDep = false;
+        CollectionsCommon.encryptSQLData(tableEncrypt);
+    },
+    insertCashDepColInSQLLite: function(params) {
+        // let details = [];
+        // details = collectionKendraData[0];
+        let obj = {
+            "branchId": LoggedInUserDetails.loginResponse.addInfo2,
+            "kmId": apz.userId,
+            "meetingDate": FetchMeetingDtRecord
+        }
+        let depPointRefno = CashDepData[0].data.DepositPointRefno;
+        let appId = apz.appId;
+        let kmId = apz.userId
+        let VersionNo = versionNo;
+        let applicationId = CollectionsCommon.returnApplicationId(obj);
+        //let userId = apz.userId;
+        //let ApplicationStatus = "INPROGRESS";
+        //let currentUserRole = "KM";
+        //let nextWFStage = "CASHIER";
+        //let wfNextStageID = "SENDFORAPPROVAL";
+        //let WFSeqNO = 0;
+        let base64Val = CashDepData[0].base64Value;
+        let depAmt = CashDepData[0].data.DepositAmount;
+        let depPoints = CashDepData[0].depPoints;
+        let createTS = CollectionsCommon.returnTimeStamp();
+        let depReceipt = CashDepData[0].data.DepositReceipt;
+        //let payload = params;
+        //let base64 = CashDepData[0].base64Value;
+        let lquery = "INSERT INTO TB_COLLECTION_CASHDEPOSIT VALUES ('" + appId + "','" + applicationId + "','" + VersionNo + "','" + kmId +
+            "','" + depPointRefno + "','" + createTS + "','" + base64Val + "','" + depAmt + "','" + depPoints + "','" + depReceipt + "')";
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.insertCashDepColInSQLLiteCB
+        apz.ns.executeSql(jsonStr);
+    },
+    insertCashDepColInSQLLiteCB: function(params) {
+        var details = [];
+        if (params.status) {} else if (params.errorCode === "APZ-CNT-056") {
+            CollectionsCommon.createCashDepositTable();
+        }
+    },
+    fetchFromCashDepositSQLLite: function(params) {
+        var KMId = apz.userId;
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": `SELECT * FROM TB_COLLECTION_CASHDEPOSIT WHERE KMID is '${apz.userId}'`
+        };
+        jsonStr.callBack = CollectionsCommon.fetchFromCashDepositSQLLiteCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    fetchFromCashDepositSQLLiteCB: function(params) {
+        CashDeposit = [];
+        CashDepFlow = [];
+        if (params.status) {
+            if (params.hasOwnProperty('sqlResult') && params.sqlResult !== '[]') {
+                // kendraDet = params.sqlResult;
+                CashDeposit = JSON.parse(params.sqlResult);
+                tableName = "CashDeposit"
+                CashDepFlow = CashDeposit.map((obj) => {
+                    return {
+                        appId: obj.APPID,
+                        applicationId: obj.APPLICATIONID,
+                        versionNo: obj.VERSIONNO,
+                        kmId: obj.KMID,
+                        depPointRefNo: obj.DEPPOINTREFNO,
+                        createTs: obj.CREATETS,
+                        base64FilePath: obj.BASE64FILEPATH,
+                        fileType: obj.DEPOSITRECEIPT.split('.')[1],
+                        depAmt: obj.DEPAMT,
+                        depPoint: obj.DEPPOINTS,
+                        depReceipt: obj.DEPOSITRECEIPT
+                    };
+                });
+                apz.app.CollectionSubmission.paintDepositDetails();
+                // CollectionsCommon.decryptSQLData(CashDeposit.PAYLOAD);
+            }
+            /*else {
+                           CollectionsCommon.fetchKendraDetails(window.LoggedInUserDetails.userID);
+                       }*/
+        } else if (params.errorCode === "APZ-CNT-056") {
+            // CollectionsCommon.createCashDepositTable();
+        } else {
+            apz.app.CollectionSubmission.paintCollSubData(CashDepFlow);
+        }
+    },
+    returnTimeStamp: function() {
+        let currentDate = new Date();
+        let day = String(currentDate.getDate()).padStart(2, '0');
+        let month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        let year = currentDate.getFullYear();
+        let hours = currentDate.getHours();
+        let minutes = String(currentDate.getMinutes()).padStart(2, '0');
+        let ampm = hours >= 12 ? 'PM' : 'AM';
+        let formattedHours = hours % 12 || 12;
+        let formattedTime = `${day}/${month}/${year} ${formattedHours}:${minutes} ${ampm}`;
+        return formattedTime;
+    },
+    insertDeathIntimationDetails: function(params) {
+        var details = [];
+        // details = selectedKendra.kendraDet;
+        details = deathIntimationData;
+        var appId = apz.appId;
+        var kendraId = details.kendraId;
+        var VERSIONNO = 1;
+        //var id = details.id;
+        var applicationId = CollectionsCommon.returnDeathIntmationApplicationId(details);
+        deathIntimationApplicationId = applicationId;
+        var payload = params;
+        // var lquery = `INSERT OR REPLACE INTO TB_COLLECTION_DEATH_INTIMATION VALUES '('+ '${appId}' + "','" + '${applicationId}' + "','" + '${VERSIONNO}' +
+        //     "','" + '${kendraId}' + "','" + '${payload}' + "')'`;
+        var lquery =
+            `INSERT OR REPLACE INTO TB_COLLECTION_DEATH_INTIMATION VALUES ('${appId}', '${applicationId}', '${VERSIONNO}', '${kendraId}', '${payload}')`;
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.insertDeathIntimationDetailsCB
+        apz.ns.executeSql(jsonStr);
+    },
+    insertDeathIntimationDetailsCB: function(params) {
+        var details = [];
+        if (params.status) {
+            CollectionsCommon.fetchFromDeathIntimationSQLLite();
+        } else if (params.errorCode === "APZ-CNT-056") {
+            CollectionsCommon.createDeathIntimationTable();
+        }
+    },
+    createDeathIntimationTable: function() {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": deathIntimationFlow
+        };
+        jsonStr.callBack = CollectionsCommon.createDeathIntimationTableCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    createDeathIntimationTableCB: function(params) {
+        if (params.status) {
+            //New Table is Created.
+            CollectionsCommon.storeDeathIntmationSQLLite(deathIntimationData);
+        } else if (params.errorCode === "APZ-CNT-056") {
+            CollectionsCommon.createDeathIntimationTable();
+        }
+    },
+    returnDeathIntmationApplicationId: function(details) {
+        let now = new Date();
+        let hours = now.getHours().toString().padStart(2, '0');
+        let minutes = now.getMinutes().toString().padStart(2, '0');
+        let seconds = now.getSeconds().toString().padStart(2, '0');
+        let currentTime = `${hours}${minutes}${seconds}`;
+        var branchId = details.branchId;
+        var kmId = details.kmId;
+        var transTime = currentTime;
+        var applicationId = "D-" + branchId.slice(-5) + '-' + kmId + '-' + transTime;
+        return applicationId;
+    },
+    storeDeathIntmationSQLLite: function(params) {
+        deathIntimationData = params;
+        tableName = "DEATH_INTIMATION"
+        CollectionsCommon.encryptSQLData(params);
+    },
+    fetchFromDeathIntimationSQLLite: function(params) {
+        deathIntimationFlowFrom = params;
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": `SELECT * FROM TB_COLLECTION_DEATH_INTIMATION`
+        };
+        jsonStr.callBack = CollectionsCommon.fetchFromDeathIntimationSQLLiteCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    fetchFromDeathIntimationSQLLiteCB: function(params) {
+        if (params.status) {
+            if (params.hasOwnProperty('sqlResult') && params.sqlResult !== '[]') {
+                deathIntimationDetails = JSON.parse(params.sqlResult);
+                decryptedData = [];
+                tableName = "DEATH_INTIMATION"
+                if (deathIntimationDetails.length > 0) {
+                    currentDecryptIndex = 0;
+                    CollectionsCommon.decryptNextRecord();
+                }
+            }
+        } else if (deathIntimationFlowFrom === "deathIntimationCreationFlow") {
+            apz.startLoader();
+            apz.app.DeathIntimation.restrictDeathIntimationFlow();
+        } else if (deathIntimationFlowFrom === 'pendingTask') {
+            let count = 0;
+            // if (window.deathIntimationInitatedRec) {
+            //     count += window.deathIntimationInitatedRec.length;
+            // }
+            count = CollectionsCommon.getDeathIntimationRecordsCount([], window.deathIntimationInitatedRec);
+            apz.data.scrdata.Income__IPaintPendingTaskDashbord_Res.PendingTaskDash.forEach((d, i) => {
+                if (d.pendingTask === 'Death Intimation') {
+                    apz.data.scrdata.Income__IPaintPendingTaskDashbord_Res.PendingTaskDash[i].count = count;
+                    let mainDiv = document.querySelector("#" + PendingTaskScrId + "pedingMainList_row_" + i);
+                    let rejRec = window.deathIntimationInitatedRec.filter(d => d.status === 'REJECTED');
+                    mainDiv.querySelector("#" + PendingTaskScrId + "infoRow_row").classList.remove('sno');
+                    mainDiv.querySelector("#" + PendingTaskScrId + "infoRow_row").innerText = "0 Claim Under Draft | " + rejRec
+                        .length + rejRec.length + " Rejected";;
+                }
+            });
+            apz.data.loadData("IPaintPendingTaskDashbord", 'Income');
+        }
+    },
+    decryptNextRecord: function() {
+        if (currentDecryptIndex < deathIntimationDetails.length) {
+            let record = deathIntimationDetails[currentDecryptIndex];
+            var json = {
+                id: String(currentDecryptIndex + 1),
+                stringToDecrypt: record.PAYLOAD,
+                key: "COLLECTION_encrypt",
+            };
+            if (apz.deviceOs === "iOS") {
+                json.decryptionId = "xyz";
+            }
+            json.callBack = CollectionsCommon.decryptSQLDataCB;
+            apz.ns.decryptData(json);
+        } else {
+            CollectionsCommon.deathIntimationEncryptionData(decryptedData);
+        }
+    },
+    deathIntimationEncryptionData: function(params) {
+        window.deathIntimationData = params;
+        if (deathIntimationFlowFrom === 'pendingTask') {
+            let count = 0;
+            count = CollectionsCommon.getDeathIntimationRecordsCount(window.deathIntimationData, window.deathIntimationInitatedRec);
+            apz.data.scrdata.Income__IPaintPendingTaskDashbord_Res.PendingTaskDash.forEach((d, i) => {
+                if (d.pendingTask === 'Death Intimation') {
+                    apz.data.scrdata.Income__IPaintPendingTaskDashbord_Res.PendingTaskDash[i].count = count;
+                    let mainDiv = document.querySelector("#" + PendingTaskScrId + "pedingMainList_row_" + i);
+                    let rejRec = window.deathIntimationInitatedRec.filter(d => d.status === 'REJECTED');
+                    mainDiv.querySelector("#" + PendingTaskScrId + "infoRow_row").classList.remove("sno");
+                    mainDiv.querySelector("#" + PendingTaskScrId + "infoRow_row").innerText = window.deathIntimationData.length +
+                        " Claim Under Draft | " + rejRec.length + " Rejected";
+                }
+            });
+            apz.data.loadData("IPaintPendingTaskDashbord", 'Income');
+        } else if (deathIntimationFlowFrom === "deathIntimationCreationFlow") {
+            apz.stopLoader();
+            apz.app.DeathIntimation.restrictDeathIntimationFlow();
+        }
+    },
+    encryptDeathIntimationRecordOldRecord: function(params) {
+        deathIntimationOldRec = params;
+        deathIntimationEditRec = true;
+        CollectionsCommon.encryptSQLData(params.PAYLOAD);
+    },
+    updateOldDeathIntimationRecord: function(payload) {
+        var lquery =
+            `INSERT OR REPLACE INTO TB_COLLECTION_DEATH_INTIMATION VALUES ('${deathIntimationOldRec.APPID}', '${deathIntimationOldRec.APPLICATIONID}', '${deathIntimationOldRec.VERSIONNO}', '${deathIntimationOldRec.KENDRAID}', '${payload}')`;
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.updateOldDeathIntimationRecordCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    updateOldDeathIntimationRecordCB: function(params) {
+        if (params.status) {
+            $("#" + deathIntScrId + 'deathIntMainDiv').addClass('sno');
+            $("#" + deathIntScrId + 'successDiv').removeClass('sno');
+            apz.app.DeathIntimation.paintSucessScreen("draftFlow");
+        }
+    },
+    returnActCollectionKenData: function(params) {
+        const normalizeTime = (time) => {
+            if (time.includes("AM") || time.includes("PM")) {
+                // Convert 12-hour time to 24-hour time
+                const [hour, minute] = time.split(/[:\s]/);
+                const isPM = time.includes("PM");
+                let hours24 = parseInt(hour, 10);
+                if (isPM && hours24 !== 12) hours24 += 12;
+                if (!isPM && hours24 === 12) hours24 = 0;
+                return hours24 * 100 + parseInt(minute, 10);
+            }
+            return parseInt(time, 10); // Already in 24-hour format
+        };
+        // params = params.filter(e => e.meetingDate === ColMeetingDate);
+        // Sort based on normalized time
+        params.sort((a, b) => normalizeTime(a.startTime) - normalizeTime(b.startTime));
+        return params;
+    },
+    getDeathIntimationRecordsCount: function(draftRecord, intiatedRed) {
+        let uniqueCustomers = new Set();
+        if (draftRecord) {
+            draftRecord.forEach(d => {
+                d.PAYLOAD.paylod.forEach(payload => {
+                    uniqueCustomers.add(payload.id);
+                });
+            });
+        }
+        if (intiatedRed) {
+            intiatedRed.forEach(record => {
+                uniqueCustomers.add(record.customerId);
+            });
+        }
+        return uniqueCustomers.size;
+    },
+    //function to call collection info for checking collections status
+    getCollectionInfoCall: function(selType) {
+        if (window.currentUserRole === 'DEO') {
+            var req = {
+                "apiRequest": {
+                    "interfaceName": "FetchKendraInfo",
+                    "appId": gAppId,
+                    "userId": apz.userId,
+                    "requestObj": {
+                        "kendraId": "",
+                        "applicationId": "",
+                        "branchId": LoggedInUserDetails.loginResponse.addInfo2,
+                        "versionNo": "",
+                        "meetingDate": FetchMeetingDtRecord,
+                        "kmUserRole": "DEO"
+                    }
+                }
+            }
+        } else if(userRole === 'KM'){
+            var req = {
+                "apiRequest": {
+                    "interfaceName": "FetchKendraInfo",
+                    "appId": gAppId,
+                    "userId": apz.userId,
+                    "requestObj": {
+                        "kendraId": "",
+                        "applicationId": "",
+                        "branchId": LoggedInUserDetails.loginResponse.addInfo2,
+                        "versionNo": "",
+                        "meetingDate": FetchMeetingDtRecord,
+                        "kmUserRole": "KM"
+                    }
+                }
+            }
+        }else if(userRole === 'CASHIER' ){
+            var req = {
+                "apiRequest": {
+                    "interfaceName": "FetchKendraInfo",
+                    "appId": gAppId,
+                    "userId": apz.userId,
+                    "requestObj": {
+                        "kendraId": "",
+                        "applicationId": "",
+                        "branchId": LoggedInUserDetails.loginResponse.addInfo2,
+                        "versionNo": "",
+                        "meetingDate": FetchMeetingDtRecord,
+                        "kmUserRole": "CASHIER"
+                    }
+                }
+            }
+        }else if(userRole === 'BM'){
+            var req = {
+                "apiRequest": {
+                    "interfaceName": "FetchKendraInfo",
+                    "appId": gAppId,
+                    "userId": apz.userId,
+                    "requestObj": {
+                        "kendraId": "",
+                        "applicationId": "",
+                        "branchId": LoggedInUserDetails.loginResponse.addInfo2,
+                        "versionNo": "",
+                        "meetingDate": FetchMeetingDtRecord,
+                        "kmUserRole": "BM"
+                    }
+                }
+            }
+        }
+        if (selType === 'Repeat') {
+            req.apiRequest.requestObj.applicationType = 'Repeat'
+        } else if (selType === 'NONMEETING') {
+            req.apiRequest.requestObj.applicationType = 'NonMeeting';
+            req.apiRequest.requestObj.meetingDate = '';
+        } else if (selType === 'MEETING') {
+            req.apiRequest.requestObj.applicationType = 'Meeting';
+        }
+        apz.startLoader();
+        /*setTimeout(() => {
+            
+        }, 0);*/
+        ApzCOB.serverBuildParam(gAppId, 'FetchCollectionInfo', 'N', 'N', req, false, CollectionsCommon.getCollectionInfoCallCB);
+    },
+    getCollectionInfoCallCB: function(params) {
+        var ifaceName = ApzCOB.GetInterfaceResMap(params);
+        try {
+            apz.stopLoader();
+            if (ApzCOB.handleServiceCallBacks(params)) {
+                //collectionInfoParams = params;
+                if (params.req.apiRequest.requestObj.hasOwnProperty('applicationType') && params.req.apiRequest.requestObj.applicationType ===
+                    "Repeat") {
+                    RepeatCollectInfoParams = params;
+                } else if (params.req.apiRequest.requestObj.hasOwnProperty('applicationType') && params.req.apiRequest.requestObj
+                    .applicationType === "NonMeeting") {
+                    NonMeetingCollectionInfoParams = params;
+                } else {
+                    collectionInfoParams = params;
+                }
+            } else if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "NR100") {
+                apz.stopLoader();
+                collectionInfoParams = {};
+            } else {
+                apz.stopLoader();
+                collectionInfoParams = {};
+                // apz.stopLoader();
+                // ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+            if (params.req.apiRequest.requestObj.hasOwnProperty('applicationType') && params.req.apiRequest.requestObj.applicationType ===
+                "Meeting") {
+                // apz.app.KendriyaMeetings.loadWidgetData();
+                //launching kendra meetings widget here to launch post getting the fetch API.
+                ApzCOB.launchMicroApp('Widget', 'KendriyaMeetings', DashboardScrId + 'Widget1', '');
+            }
+        } catch (e) {
+            apz.stopLoader();
+            console.log(e);
+            // ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    },
+    getQRCodeCall: function(params) {
+        var req = {
+            "apiRequest": {
+                "interfaceName": "QRUPIPayment",
+                "appId": gAppId,
+                "userId": apz.userId,
+                "requestObj": {
+                    "applicationId": "",
+                    "customerId": params.customerId,
+                    "amount": params.amount,
+                    "billNumber": params.billNumber,
+                    "remarks": params.remarks,
+                    "mobileNumber": params.mobileNumber,
+                    "customerName": params.customerName
+                }
+            }
+        }
+        apz.startLoader();
+        ApzCOB.serverBuildParam(gAppId, 'GetQRCode', 'N', 'N', req, false, CollectionsCommon.getQRCodeCallCB);
+    },
+    getQRCodeCallCB: function(params) {
+        var ifaceName = ApzCOB.GetInterfaceResMap(params);
+        try {
+            apz.stopLoader();
+            if (ApzCOB.handleServiceCallBacks(params)) {
+                let resObj = {};
+                resObj = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+                if (apz.childScr === "GroupsData") {
+                    apz.app.GroupsData.postFetchQR(resObj)
+                } else if (apz.childScr === "EditGroupsData") {
+                    apz.app.EditGroupsData.postFetchQR(resObj);
+                } else if (apz.childScr === "RepeatCollScreen") {
+                    apz.app.RepeatCollScreen.postFetchQR(resObj)
+                } else if (apz.childScr === "NonMeetingDayColl") {
+                    let resObj = {};
+                    resObj = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+                    apz.app.NonMeetingDayColl.postFetchQR(resObj);
+                }
+            } else if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "NR100") {
+                apz.stopLoader();
+                // collectionInfoParams = [];
+            } else {
+                apz.stopLoader();
+                // collectionInfoParams = [];
+                // apz.stopLoader();
+                // ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        } catch (e) {
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    },
+    getQRPaymentStatus: function(params) {
+        var req = {
+            "apiRequest": {
+                "interfaceName": "QRUPIPayment",
+                "appId": gAppId,
+                "userId": apz.userId,
+                "requestObj": {
+                    "customerId": params.customerId,
+                    "billNumber": params.billNumber
+                }
+            }
+        }
+        // apz.startLoader();
+        ApzCOB.serverBuildParam(gAppId, 'GetQRCodeStatus', 'N', 'N', req, false, CollectionsCommon.getQRPaymentStatusCB);
+    },
+    getQRPaymentStatusCB: function(params) {
+        var ifaceName = ApzCOB.GetInterfaceResMap(params);
+        try {
+            apz.stopLoader();
+            if (ApzCOB.handleServiceCallBacks(params)) {
+                let resObj = {};
+                resObj = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+                if (apz.childScr === "GroupsData") {
+                    if (isFromInProgress) {
+                        apz.app.GroupsData.updateInProgressUPI(resObj);
+                    } else {
+                        // clearInterval(QRStatusTimerInterval);
+                        apz.app.GroupsData.postQRPaySuc(resObj)
+                    }
+                } else if (apz.childScr === "EditGroupsData") {
+                    apz.app.EditGroupsData.updateInProgressUPI(resObj);
+                } else if (apz.childScr === "RepeatCollScreen") {
+                    if (isFromInProgress) {
+                        apz.app.RepeatCollScreen.updateInProgressUPI(resObj);
+                    } else {
+                        // clearInterval(QRStatusTimerInterval);
+                        apz.app.RepeatCollScreen.postQRPaySuc(resObj)
+                    }
+                } else if (apz.childScr === "NonMeetingDayColl") {
+                    let resObj = {};
+                    resObj = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+                    if (isFromInProgress) {
+                        apz.app.NonMeetingDayColl.updateInProgressUPI(resObj);
+                    } else {
+                        apz.app.NonMeetingDayColl.postQRPaySuc(resObj)
+                    }
+                }
+            } else if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "NR100") {
+                apz.stopLoader();
+                // collectionInfoParams = [];
+            } else {
+                apz.stopLoader();
+                // apz.stopLoader();
+                // ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        } catch (e) {
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    },
+    createRepeatSQLLiteTable: function() {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "REPEATCOLLECTION_" + "DB",
+            "executeQuery": createRepeatCollectionQuery
+        };
+        jsonStr.callBack = CollectionsCommon.createRepeatSQLLiteTableCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    createRepeatSQLLiteTableCB: function(params) {
+        if (params.status) {
+            //New Table is Created.
+            CollectionsCommon.RepeatstoreSQLLite();
+        }
+    },
+    RepeatstoreSQLLite: function(params) {
+        tableName = "RepeatCollections"
+        CollectionsCommon.encryptSQLData(RepeatColDetails);
+    },
+    insertRepeatCollectionsInSQLLite: function(params) {
+        // kendraResponse.forEach((obj, i) => {
+        //     obj.kendraDtls
+        // })
+        var details = [];
+        if (RepeatColDetails.length > 0) {
+            details = RepeatColDetails[0];
+            var appId = apz.appId;
+            var kmId = apz.userId;
+            var branchId = details.branchId;
+            var collDate = details.meetingDate;
+            let meetingDay = details.meetingDay;
+            let kendraId = details.kendraId;
+            // let applnDate = RepApplnTime;
+            var downloadTS = getCurrentTimestamp();
+            var payload = params // ,'" + applnDate + "'
+            var lquery = "INSERT OR REPLACE INTO TB_REPEATCOLLECTION VALUES ('" + kmId + "','" + branchId + "','" + collDate + "','" +
+                downloadTS + "','" + payload + "','" + meetingDay + "','" + kendraId + "')";
+            var jsonStr = {
+                "queryId": "XYZ78V",
+                "databaseName": "REPEATCOLLECTION_" + "DB",
+                "executeQuery": lquery
+            };
+            jsonStr.callBack = CollectionsCommon.insertRepeatCollectionsInSQLLiteCB
+            apz.ns.executeSql(jsonStr);
+        }
+    },
+    insertRepeatCollectionsInSQLLiteCB: function(params) {
+        var details = [];
+        if (params.status) {
+            // apz.app.ZeroCollection.callDeathIntimationSqlLite();
+            /*  if (apz.childScr === "MarkAttendance") {
+                CollectionsCommon.storeKendDetSQLLite(kendraDetails.kendraDet);
+            }
+        } else*/
+            if (RepeatColDetails.length > 0) {
+                RepeatColDetails[0].customerDetails = RepeatColDetails[0].customerDetails.filter(e => e.loanDue);
+                let obj = {
+                    'branchId': RepeatColDetails[0].branchId,
+                    'kendraId': RepeatColDetails[0].kendraId,
+                    'meetingDate': RepeatColDetails[0].meetingDate
+                }
+                //RepeatMeetings = true;
+                RepeatColDetails[0].collId = RepeatApplnId;
+                // apz.app.RepeatCollection.StatusUpdate(RepeatColDetails);
+                apz.app.RepeatCollection.loadMemberDet(RepeatColDetails);
+            }
+            //RepeatMeetings = true;
+            // RepeatColDetails[0].collId = CollectionsCommon.returnRepeatApplnID(obj)
+            // apz.app.RepeatCollection.loadMemberDet(RepeatColDetails);
+            if (params.errorCode === "APZ-CNT-056") {
+                CollectionsCommon.createRepeatSQLLiteTable();
+            }
+        }
+    },
+    fetchFromRepeatCollectionSQLLite: function(params) {
+        var KMId = apz.userId;
+        let meetingDay = RepeatMeetDetails.meetingDay;
+        let meetingDate = RepeatMeetDetails.meetingDate;
+        let kendraId = RepeatMeetDetails.kendraId
+        var lquery = '';
+        if (isFromRepeatCollSubWidget) {
+            /*lquery =
+                `SELECT * FROM TB_REPEATCOLLECTION WHERE KMID = '${KMId}' AND MEETINGDAY is '${selectedDay}'AND COLLECTIONDATE is '${FetchMeetingDtRecord}'`*/
+            lquery = `SELECT * FROM TB_REPEATCOLLECTION WHERE KMID = '${KMId}' AND COLLECTIONDATE is '${FetchMeetingDtRecord}'`
+        }
+        /*else if (PreviousApprovdData) {
+                   lquery =
+                       `DELETE * FROM TB_REPEATCOLLECTION WHERE KMID = '${KMId}' AND MEETINGDAY is '${meetingDay}'AND COLLECTIONDATE is '${FetchMeetingDtRecord}' AND KENDRAID is '${kendraId}'`
+               }*/
+        else {
+            lquery =
+                `SELECT * FROM TB_REPEATCOLLECTION WHERE KMID = '${KMId}' AND MEETINGDAY is '${meetingDay}'AND COLLECTIONDATE is '${FetchMeetingDtRecord}' AND KENDRAID is '${kendraId}'`
+        }
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "REPEATCOLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.fetchFromRepeatCollectionSQLLiteCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    fetchFromRepeatCollectionSQLLiteCB: function(params) {
+        RepeatKendraDet = [];
+        RepeatSubData = [];
+        if (params.status) {
+            tableName = "RepeatCollections"
+            if (params.hasOwnProperty('sqlResult') && params.sqlResult !== '[]') {
+                // kendraDet = params.sqlResult;
+                if (isFromRepeatCollSubWidget) {
+                    RepeatKendraDet = JSON.parse(params.sqlResult);
+                    // for (i = 0; i < RepeatKendraDet.length; i++) {
+                    // }
+                    RepeatDecryptData = 0;
+                    decryptRepeatData = [];
+                    //   CollectionsCommon.decryptSQLData(RepeatKendraDet.PAYLOAD);
+                    CollectionsCommon.decryptRepeatRecord();
+                } else {
+                    RepeatKendraDet = JSON.parse(params.sqlResult)[0];
+                    CollectionsCommon.decryptSQLData(RepeatKendraDet.PAYLOAD);
+                }
+            } else {
+                CollectionsCommon.RepeatstoreSQLLite();
+            }
+        } else if (params.errorCode === "APZ-CNT-056") {
+            CollectionsCommon.createRepeatSQLLiteTable();
+        } else {
+            //   CollectionsCommon.storeSQLLite();
+        }
+        // if (PreviousApprovdData) {
+        //     CollectionsCommon.fetchRepeatCollAppWFSQLLite(RepeatMeetDetails.kendraId);
+        // }
+    },
+    createNonMeetSQLLiteTable: function() {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "NONMEETINGCOLLECTION_" + "DB",
+            "executeQuery": createNonMeeCollectionQuery
+        };
+        jsonStr.callBack = CollectionsCommon.createNonMeetSQLLiteTableCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    createNonMeetSQLLiteTableCB: function(params) {
+        if (params.status) {
+            //New Table is Created.
+            CollectionsCommon.NonMeetingstoreSQLLite();
+        }
+    },
+    NonMeetingstoreSQLLite: function(params) {
+        tableName = "NonMeetingCollections";
+        if (params) {
+            NonMeetingColDetails = params;
+            CollectionsCommon.encryptSQLData(params.customerDetails);
+        } else {
+            CollectionsCommon.encryptSQLData(NonMeetingColDetails.customerDetails);
+        }
+    },
+    insertNonMeetingCollectionsInSQLLite: function(params) {
+        var details = [];
+        details = NonMeetingColDetails;
+        var appId = apz.appId;
+        var kmId = apz.userId;
+        var branchId = details.branchId;
+        let meetingDay = details.meetingDay;
+        let meetingDate = details.meetingDate;
+        let kendraId = details.kendraId;
+        let applicationDate = FetchMeetingDtRecord;
+        var downloadTS = getCurrentTimestamp();
+        var kendraColId = details.kendraApiCollId;
+        var collectionType = details.type;
+        var collectionId = details.collId;
+        var payload = params;
+        var lquery = "INSERT OR REPLACE INTO TB_NONMEETINGCOLLECTION VALUES ('" + kmId + "', '" + branchId + "', '" + downloadTS + "', '" +
+            payload + "', '" + meetingDay + "', '" + meetingDate + "', '" + FetchMeetingDtRecord + "', '" + kendraId + "', '" + kendraColId +
+            "', '" + collectionType + "', '" + collectionId + "')";
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "NONMEETINGCOLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.insertNonMeetingCollectionsInSQLLiteCB
+        apz.ns.executeSql(jsonStr);
+    },
+    insertNonMeetingCollectionsInSQLLiteCB: function(params) {
+        var details = [];
+        if (params.status) {
+            if (userRole == 'KM' && isCashierSubmission) {
+                //CollectionsCommon.insertNonMeetingCollAppWFSQLLite(kendraDetails);
+            } else {
+                if (nonMetColType === 'All') {
+                    CollectionsCommon.NonMeetingstoreApiSQLLite(apiSqlData);
+                }
+            }
+        } else if (params.errorCode === "APZ-CNT-056") {
+            CollectionsCommon.createNonMeetSQLLiteTable();
+        }
+    },
+    NonMeetingstoreApiSQLLite: function(params) {
+        tableName = "NonMeetingApiCollections";
+        if (params) {
+            nonMeetingApiSqlInsert = params;
+            CollectionsCommon.encryptSQLData(params.apiDts);
+        } else {
+            CollectionsCommon.encryptSQLData(nonMeetingApiSqlInsert.apiDts);
+        }
+    },
+    insertNonMeetingCollectionsApiStorageSQLLite: function(params) {
+        var details = [];
+        //details = NonMeetingColDetails;
+        var appId = apz.appId;
+        var kmId = apz.userId;
+        let applicationId = nonMeetingApiSqlInsert.applicationId;
+        let kendraId = nonMeetingApiSqlInsert.kendraId;
+        let applicationDate = FetchMeetingDtRecord;
+        var payload = params
+        var lquery = "INSERT OR REPLACE INTO TB_NONMEETINGCOLLECTION_API_STORAGE " +
+            "(appId, applicationId, kmId, kendraId, applicationDate, payload) " + "VALUES ('" + appId + "', '" + applicationId + "', '" +
+            kmId + "', '" + kendraId + "', '" + applicationDate + "', '" + payload + "')";
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "NONMEETINGCOLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.insertNonMeetingCollectionsApiStorageSQLLiteCB
+        apz.ns.executeSql(jsonStr);
+    },
+    fetchFromNonMeetingApiCollectionsSQLLite: function(params) {
+        var KMId = apz.userId;
+        let kendraId = params.kendraId
+        let applicationId = params.applicationId;
+        var lquery = '';
+        lquery =
+            `SELECT * FROM TB_NONMEETINGCOLLECTION_API_STORAGE WHERE KMID = '${KMId}' AND KENDRAID is '${kendraId}' AND APPLICATIONDATE is '${FetchMeetingDtRecord}' AND APPLICATIONID is '${applicationId}'`
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "NONMEETINGCOLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.decryptNonMeetinnApiRecordCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    decryptNonMeetinnApiRecordCB: function(params) {
+        if (params.status) {
+            if (params.hasOwnProperty('sqlResult') && params.sqlResult !== '[]') {
+                kendraDet = JSON.parse(params.sqlResult)[0];
+                tableName = "NonMeetingCollectionsApi"
+                CollectionsCommon.decryptSQLData(kendraDet.PAYLOAD);
+            }
+        }
+    },
+    insertNonMeetingCollectionsApiStorageSQLLiteCB: function(params) {
+        var details = [];
+        if (params.status) {
+            //eat five start
+        } else if (params.errorCode === "APZ-CNT-056") {
+            CollectionsCommon.createNonMeetApiStorageLiteTable();
+        }
+    },
+    createNonMeetApiStorageLiteTable: function() {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "NONMEETINGCOLLECTION_" + "DB",
+            "executeQuery": createNonMeeApiStorageQuery
+        };
+        jsonStr.callBack = CollectionsCommon.createNonMeetApiStorageLiteTableCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    createNonMeetApiStorageLiteTableCB: function(params) {
+        if (params.status) {
+            //New Table is Created.
+            CollectionsCommon.NonMeetingstoreApiSQLLite();
+        }
+    },
+    fetchFromNonMeetingCollectionsSQLLite: function(params) {
+        var KMId = apz.userId;
+        let meetingDay = params.meetingDay;
+        let meetingDate = params.meetingDate;
+        let kendraId = params.kendraId
+        var lquery = '';
+        lquery =
+            `SELECT * FROM TB_NONMEETINGCOLLECTION WHERE KMID = '${KMId}' AND MEETINGDAY is '${meetingDay}' AND KENDRAID is '${kendraId}' AND APPLICATIONDATE is '${FetchMeetingDtRecord}'`
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "NONMEETINGCOLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.fetchFromNonMeetingCollectionsSQLLiteCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    fetchCashSubNonMeetingCollectionsSQLLite: function(params) {
+        nonMeetingSubColFlow = true;
+        var KMId = apz.userId;
+        let meetingDay = CollectionsCommon.getMeetingDayToFetchCollectionRecord();
+        let meetingDate = '20240821'
+        var lquery = '';
+        lquery = `SELECT * FROM TB_NONMEETINGCOLLECTION WHERE KMID = '${KMId}' AND APPLICATIONDATE is '${FetchMeetingDtRecord}'`;
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "NONMEETINGCOLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.fetchFromNonMeetingCollectionsSQLLiteCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    getMeetingDayToFetchCollectionRecord: function() {
+        let daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+        const today = new Date();
+        const todayIndex = today.getDay();
+        // Exclude today and tomorrow
+        const excludedDays = [todayIndex, (todayIndex + 1) % 7];
+        // Get meeting days (excluding today and tomorrow)
+        let meetingDays = [];
+        for (let i = 2; i <= 4; i++) {
+            const dayIndex = (todayIndex + i) % 7;
+            if (!excludedDays.includes(dayIndex)) {
+                meetingDays.push(`'${daysOfWeek[dayIndex]}'`);
+            }
+        }
+        return `(${meetingDays.join(', ')})`;
+    },
+    fetchFromNonMeetingCollectionsSQLLiteCB: function(params) {
+        nonMeetingColKenDts = []
+        if (params.status) {
+            if (params.hasOwnProperty('sqlResult') && params.sqlResult !== '[]') {
+                nonMeetingColKenDts = JSON.parse(params.sqlResult);
+                currentDecryptIndex = 0;
+                decryptedNonMeeData = [];
+                tableName = nonMeetingSubColFlow ? 'NonMeetingCashColl' : 'NonMeetingCollections';
+                CollectionsCommon.decryptNonMeetingNextRecord();
+            } else {
+                let sqlData = [];
+                if (nonMeetingSubColFlow) {
+                    apz.app.CollectionSubmission.paintNonMeetingDayCollForKM(sqlData);
+                    nonMeetingSubColFlow = false;
+                } else {
+                    apz.app.NonMeetingDayColl.paintNonMeetCustData(sqlData);
+                }
+            }
+        } else {
+            let sqlData = [];
+            if (nonMeetingSubColFlow) {
+                apz.app.CollectionSubmission.paintNonMeetingDayCollForKM(sqlData);
+            } else {
+                apz.app.NonMeetingDayColl.paintNonMeetCustData(sqlData);
+            }
+        }
+    },
+    decryptNonMeetingNextRecord: function() {
+        if (currentDecryptIndex < nonMeetingColKenDts.length) {
+            let record = nonMeetingColKenDts[currentDecryptIndex];
+            var json = {
+                id: String(currentDecryptIndex + 1),
+                stringToDecrypt: record.PAYLOAD,
+                key: "COLLECTION_encrypt",
+            };
+            if (apz.deviceOs === "iOS") {
+                json.decryptionId = "xyz";
+            }
+            json.callBack = CollectionsCommon.decryptSQLDataCB;
+            apz.ns.decryptData(json);
+        } else {
+            if (tableName === 'NonMeetingCollections') {
+                apz.app.NonMeetingDayColl.paintNonMeetCustData(nonMetCollCstDts)
+            } else {
+                apz.app.CollectionSubmission.paintNonMeetingDayCollForKM(decryptedNonMeeData);
+            }
+        }
+    },
+    decryptRepeatRecord: function() {
+        if (RepeatDecryptData < RepeatKendraDet.length) {
+            let record = RepeatKendraDet[RepeatDecryptData];
+            var json = {
+                id: String(RepeatDecryptData + 1),
+                stringToDecrypt: record.PAYLOAD,
+                key: "COLLECTION_encrypt",
+            };
+            if (apz.deviceOs === "iOS") {
+                json.decryptionId = "xyz";
+            }
+            json.callBack = CollectionsCommon.decryptSQLDataCB;
+            apz.ns.decryptData(json);
+        } else {
+            apz.app.CollectionSubmission.paintRepeatCollSubData()
+        }
+    },
+    createRepeatColApplicationTable: function() {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "REPEATCOLLECTION_" + "DB",
+            "executeQuery": createRepeatCollAppQuery
+        };
+        jsonStr.callBack = CollectionsCommon.createRepeatColApplicationTableCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    createRepeatColApplicationTableCB: function(params) {
+        if (params.status) {
+            CollectionsCommon.insertRepeatIntoAppSQLLite(colRepeatAppDataFromSubmitFlow)
+        }
+    },
+    insertNonMeetingDataIntoAppSQLLite: function(params) {
+        let details = [];
+        details = params;
+        nonMeetColAppData = JSON.parse(JSON.stringify(params));
+        let appId = apz.appId;
+        let applicationId = details.collId;
+        let kendraId = details.kendraId;
+        let VERSIONNO = versionNo;
+        let branchCode = details.branchId;
+        let applicationDate = FetchMeetingDtRecord;
+        let createTs = getCurrentTimestamp();
+        let createdBy = apz.userId;
+        let appType = "MB";
+        let appStatus = "INPROGRESS";
+        let currStage = params.currStage;
+        let kmId = apz.userId;
+        let Leader = "Empty";
+        let amt = 0;
+        let appRefNo = "123456";
+        let kendraName = details.kendraName.replace(/'/g, '');;
+        let lquery = "INSERT OR REPLACE INTO TB_NONMEETINGCOLLECTION_APPLICATION VALUES ('" + appId + "','" + applicationId + "','" +
+            VERSIONNO + "','" + kendraId + "','" + branchCode + "','" + applicationDate + "','" + createTs + "','" + createdBy + "','" +
+            appType + "','" + appStatus + "','" + currStage + "','" + kmId + "','" + Leader + "','" + kendraName + "','" + amt + "','" +
+            appRefNo + "')";
+        let jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "NONMEETINGCOLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.insertNonMeetingDataIntoAppSQLLiteCB
+        apz.ns.executeSql(jsonStr);
+    },
+    insertNonMeetingDataIntoAppSQLLiteCB: function(params) {
+        var details = [];
+        if (params.status) {
+            if (userRole === 'KM' && isCashierSubmission) {
+                //below code not writem ***
+                //CollectionsCommon.insertRepeatCollAppWFSQLLite(selKendraDet);
+            }
+        } else if (params.errorCode === "APZ-CNT-056") {
+            CollectionsCommon.createNonMeetingColApplicationTable();
+        }
+    },
+    createNonMeetingColApplicationTable: function() {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "NONMEETINGCOLLECTION_" + "DB",
+            "executeQuery": createNonMeeCollAppQuery
+        };
+        jsonStr.callBack = CollectionsCommon.createNonMeetingColApplicationTableCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    createNonMeetingColApplicationTableCB: function(params) {
+        if (params.status) {
+            CollectionsCommon.insertNonMeetingDataIntoAppSQLLite(nonMeetColAppData)
+        }
+    },
+    insertNonMeetingCollAppWFSQLLite: function(params) {
+        let details = [];
+        let lquery = "";
+        let nextWFStage = "CASHIER";
+        let insertTime = CollectionsCommon.returnTimeStamp()
+        if (updatePostCashierSubmit) {
+            wfNextStageID = "CASHHANDOVER";
+            lquery = "UPDATE TB_NONMEETINGCOLLECTION_APPLICATION_WORKFLOW SET NEXTWFSTAGEID = '" + wfNextStageID + "'";
+        } else {
+            details = params;
+            // colAppWFData = JSON.parse(JSON.stringify(params));
+            nonMeetColWFData = JSON.parse(JSON.stringify(params))
+            let appId = apz.appId;
+            let kendraId = details.kendraId;
+            let VERSIONNO = versionNo;
+            let applicationId = details.collId;
+            let WFSeqNO = 0;
+            let createdBy = apz.userId;
+            let appStatus = "INPROGRESS";
+            let currUserRole = "KM";
+            let remarks = "Cash collected from current kendra";
+            let wfNextStageID = "SENDFORAPPROVAL";
+            let meetingDate = details.meetingDate;
+            let applicationDate = FetchMeetingDtRecord;
+            lquery = "INSERT OR REPLACE INTO TB_NONMEETINGCOLLECTION_APPLICATION_WORKFLOW VALUES ('" + appId + "','" + applicationId + "','" +
+                VERSIONNO + "','" + kendraId + "','" + WFSeqNO + "','" + createdBy + "','" + appStatus + "','" + currUserRole + "','" +
+                nextWFStage + "','" + remarks + "','" + wfNextStageID + "','" + insertTime + "','" + meetingDate + "','" + applicationDate +
+                "')";
+        }
+        let jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "NONMEETINGCOLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.insertNonMeetingCollAppWFSQLLiteCB
+        apz.ns.executeSql(jsonStr);
+    },
+    insertNonMeetingCollCustStoreSQLLite: function(params) {
+        if (params) {
+            nonMeetingCustListSaveData = params;
+        }
+        let lquery = "";
+        let kendraId = nonMeetingCustListSaveData.kendraId;
+        let meetingDate = nonMeetingCustListSaveData.meetingDate;
+        let cusromerRec = nonMeetingCustListSaveData.cust;
+        let kmId = apz.userId
+        let branchId = nonMeetingCustListSaveData.branchId;
+        let applicationDate = FetchMeetingDtRecord;
+        lquery = "INSERT OR REPLACE INTO TB_NONMEETINGCOLLECTION_CUSTOMER_SUB_REC VALUES ('" + kendraId + "', '" + meetingDate + "', '" +
+            cusromerRec + "', '" + kmId + "', '" + branchId + "', '" + applicationDate + "')";
+        let jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "NONMEETINGCOLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.insertNonMeetingCollCustStoreSQLLiteCB
+        apz.ns.executeSql(jsonStr);
+    },
+    insertNonMeetingCollCustStoreSQLLiteCB: function(params) {
+        if (params.status) {
+            if (storeNonMetCustMulRec) {
+                CollectionsCommon.processNextNonMeetingRecord();
+            }
+            //eat five start
+        } else if (params.errorCode === "APZ-CNT-056") {
+            CollectionsCommon.createNonMeetingDayCustomerStoreTable();
+        }
+    },
+    createNonMeetingDayCustomerStoreTable: function() {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "NONMEETINGCOLLECTION_" + "DB",
+            "executeQuery": nonMeetingCustStoreQuery
+        };
+        jsonStr.callBack = CollectionsCommon.createNonMeetingDayCustomerStoreTableCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    createNonMeetingDayCustomerStoreTableCB: function(params) {
+        if (params.status) {
+            CollectionsCommon.insertNonMeetingCollCustStoreSQLLite();
+        }
+    },
+    fetchNonMetCustRecDts: function(params) {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "NONMEETINGCOLLECTION_" + "DB"
+        };
+        jsonStr.executeQuery = "SELECT * FROM TB_NONMEETINGCOLLECTION_CUSTOMER_SUB_REC WHERE APPLICATIONDATE = '" + FetchMeetingDtRecord +
+        "'";
+        jsonStr.callBack = CollectionsCommon.fetchNonMetCustRecDtsCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    fetchNonMetCustRecDtsCB: function(params) {
+        if (params.status) {
+            if (params.hasOwnProperty('sqlResult')) {
+                nonMeetingFetchCustDtsData = JSON.parse(params.sqlResult);
+                // nonMetFiltColDta = JSON.parse(JSON.stringify(decryptedNonMeeData));
+                // CollectionsCommon.filterDecryptedData(nonMeetingFetchCustDtsData, nonMetFiltColDta);
+                // apz.app.CollectionSubmission.paintNonMeetingDayCollForKM(decryptedNonMeeData);
+                // nonMeeColSubData = apz.app.CollectionSubmission.nonMeetingDataSubmissionForatFun(nonMetFiltColDta);
+            }
+        }
+    },
+    createRepeatDayCustomerStoreTable: function() {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "REPEATCOLLECTION_" + "DB",
+            "executeQuery": RepeatCustStoreQuery
+        };
+        jsonStr.callBack = CollectionsCommon.createRepeatDayCustomerStoreTableCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    createRepeatDayCustomerStoreTableCB: function(params) {
+        if (params.status) {
+            CollectionsCommon.insertRMeetingCollCustStoreSQLLite();
+        }
+    },
+    fetchRepMetCustRecDts: function(params) {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "REPEATCOLLECTION_" + "DB"
+        };
+        jsonStr.executeQuery = `SELECT * FROM TB_REPEATCOLLECTION_CUSTOMER_SUB_REC`;
+        jsonStr.callBack = CollectionsCommon.fetchRepMetCustRecDtsCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    fetchRepMetCustRecDtsCB: function(params) {
+        if (params.status) {
+            if (params.hasOwnProperty('sqlResult')) {
+                RepeatFetchCustDtsData = JSON.parse(params.sqlResult);
+                // nonMetFiltColDta = JSON.parse(JSON.stringify(decryptedNonMeeData));
+                // CollectionsCommon.filterDecryptedData(nonMeetingFetchCustDtsData, nonMetFiltColDta);
+                // apz.app.CollectionSubmission.paintNonMeetingDayCollForKM(decryptedNonMeeData);
+                // nonMeeColSubData = apz.app.CollectionSubmission.nonMeetingDataSubmissionForatFun(nonMetFiltColDta);
+            }
+        }
+    },
+    insertRMeetingCollCustStoreSQLLite: function(params) {
+        if (params) {
+            RepeatMeetingCustListSaveData = params;
+        }
+        let lquery = "";
+        let kendraId = RepeatMeetingCustListSaveData.kendraId;
+        let meetingDate = RepeatMeetingCustListSaveData.meetingDate;
+        let cusromerRec = RepeatMeetingCustListSaveData.cust;
+        let kmId = apz.userId
+        let branchId = RepeatMeetingCustListSaveData.branchId;
+        lquery = "INSERT OR REPLACE INTO TB_REPEATCOLLECTION_CUSTOMER_SUB_REC VALUES ('" + kendraId + "','" + meetingDate + "','" +
+            cusromerRec + "','" + kmId + "','" + branchId + "')";
+        let jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "REPEATCOLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.insertRMeetingCollCustStoreSQLLiteCB
+        apz.ns.executeSql(jsonStr);
+    },
+    insertRMeetingCollCustStoreSQLLiteCB: function(params) {
+        if (params.status) {
+            if (storeRepMetCustMulRec) {
+                CollectionsCommon.processNextRepMeetingRecord();
+            }
+            //eat five start
+        } else if (params.errorCode === "APZ-CNT-056") {
+            CollectionsCommon.createRepeatDayCustomerStoreTable();
+        }
+    },
+    processRepMetCollCustStoreSQLLite: function(data) {
+        storeRepMetCustMulRec = true;
+        if (!data || data.length === 0) return;
+        //storeNonMeeCustDataCount = jsonStoreData.length;
+        RepMetStoreremJsonStoreData = data.slice();
+        CollectionsCommon.processNextRepMeetingRecord();
+    },
+    processNextRepMeetingRecord: function() {
+        if (RepMetStoreremJsonStoreData.length === 0) return;
+        let currentData = RepMetStoreremJsonStoreData.shift();
+        CollectionsCommon.insertRMeetingCollCustStoreSQLLite(currentData);
+    },
+    nonMeetingCashierSubFilterFun: function(nonMeetingFetchCustDtsData, originalData) {
+        if (!nonMeetingFetchCustDtsData.length || !originalData.length) return [];
+        let removalMap = new Map();
+        for (let record of nonMeetingFetchCustDtsData) {
+            let {
+                KENDRAID,
+                CUSTOMERDTS
+            } = record;
+            let customersToRemove = new Set(JSON.parse(CUSTOMERDTS));
+            if (removalMap.has(KENDRAID)) {
+                let existingSet = removalMap.get(KENDRAID);
+                customersToRemove.forEach(id => existingSet.add(id));
+            } else {
+                removalMap.set(KENDRAID, customersToRemove);
+            }
+        }
+        let filteredData = originalData.map(entry => {
+            if (!removalMap.has(entry.KENDRAID)) return entry;
+            let customersToRemove = removalMap.get(entry.KENDRAID);
+            let newEntry = {
+                ...entry,
+                PAYLOAD: {
+                    ...entry.PAYLOAD
+                }
+            };
+            if (newEntry.PAYLOAD?.customerDetails) {
+                newEntry.PAYLOAD.customerDetails = newEntry.PAYLOAD.customerDetails.filter(customer => !customersToRemove.has(customer
+                    .id));
+            }
+            return newEntry;
+        }).filter(entry => entry.PAYLOAD?.customerDetails?.length > 0);
+        return filteredData;
+    },
+    insertNonMeetingCollAppWFSQLLiteCB: function(params) {
+        var details = [];
+        if (params.status) {
+            if (updatePostCashierSubmit) {
+                updatePostCashierSubmit = false;
+            }
+            if (userRole == 'KM' && isCashierSubmission) {
+                //do nothing
+            }
+        } else if (params.errorCode === "APZ-CNT-056") {
+            CollectionsCommon.createNonMeetingDayCollectionapplWFTable();
+        }
+    },
+    createNonMeetingDayCollectionapplWFTable: function(params) {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "NONMEETINGCOLLECTION_" + "DB",
+            "executeQuery": createNonMeeWFAppQuery
+        };
+        jsonStr.callBack = CollectionsCommon.createNonMeetingDayCollectionapplWFTableCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    createNonMeetingDayCollectionapplWFTableCB: function(params) {
+        if (params.status) {
+            CollectionsCommon.insertNonMeetingCollAppWFSQLLite(nonMeetColWFData);
+        }
+    },
+    fetchFromNonMeetingCollAppSQLLite: function(params) {
+        let KMId = apz.userId;
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "NONMEETINGCOLLECTION_" + "DB"
+        }
+        if (isFromFinalCashier) {
+            jsonStr.executeQuery =
+                `SELECT * FROM TB_NONMEETINGCOLLECTION_APPLICATION WHERE APPLICATIONDATE is '${FetchMeetingDtRecord}' AND KMID = '${KMId}'`;
+        } else {
+            var kendraId = selKendraDet.kendraId;
+            jsonStr.executeQuery =
+                `SELECT * FROM TB_NONMEETINGCOLLECTION_APPLICATION WHERE KENDRAID = '${kendraId}' AND KMID = '${KMId}' AND APPLICATIONDATE is '${FetchMeetingDtRecord}'`;
+        }
+        jsonStr.callBack = CollectionsCommon.fetchFromNonMeetingCollAppSQLLiteCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    fetchFromNonMeetingCollAppSQLLiteCB: function(params) {
+        kendraDet = [];
+        if (params.status) {
+            if (params.hasOwnProperty('sqlResult') && params.sqlResult !== '[]') {
+                if (isFromFinalCashier) {
+                    nonMetAppRepeatTableData = JSON.parse(params.sqlResult)
+                } else {
+                    nonMetAppRepeatTableData = JSON.parse(params.sqlResult)[0];
+                }
+                if (isCashierSubmission || isFromFinalCashier) {
+                    CollectionsCommon.fetchNonMetAppWFSQLLite();
+                }
+            } else {
+                nonMetAppRepeatTableData = [];
+            }
+        }
+    },
+    fetchNonMetAppWFSQLLite: function(params) {
+        let KMId = apz.userId;
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "NONMEETINGCOLLECTION_" + "DB"
+        };
+        if (isFromFinalCashier || isFromRepeatCollSubWidget || isFromKendraMeetWidget) {
+            jsonStr.executeQuery =
+                `SELECT * FROM TB_NONMEETINGCOLLECTION_APPLICATION_WORKFLOW WHERE CREATEDBY is '${apz.userId}' AND APPLICATIONDATE is '${FetchMeetingDtRecord}' AND CREATEDBY = '${KMId}'`;
+        } else {
+            var KendraId = params.kendraId;
+            jsonStr.executeQuery =
+                `SELECT * FROM TB_NONMEETINGCOLLECTION_APPLICATION_WORKFLOW WHERE KENDRAID is '${KendraId}' AND APPLICATIONDATE is '${FetchMeetingDtRecord}' AND CREATEDBY = '${KMId}'`
+        }
+        jsonStr.callBack = CollectionsCommon.fetchNonMetAppWFSQLLiteCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    fetchNonMetAppWFSQLLiteCB: function(params) {
+        var sqlColAppWFData = [];
+        if (params.status) {
+            sqlColAppWFData = JSON.parse(params.sqlResult);
+            if (params.hasOwnProperty('sqlResult') && sqlColAppWFData.length > 0) {
+                nonMeetColWFData = JSON.parse(JSON.stringify(sqlColAppWFData));
+                if (isCashierSubmission || isFromFinalCashier) {
+                    isCashierSubmission = false;
+                    // if (nonMeetingFetchCustDtsData && typeof nonMeetingFetchCustDtsData === "object" && Object.keys(
+                    //         nonMeetingFetchCustDtsData).length > 0) {
+                    //     nonMettingSubFilterData = CollectionsCommon.nonMeetingCashierSubFilterFun(nonMeetingFetchCustDtsData,
+                    //         nonMettingSubFilterData);
+                    //     kendraSubmitToCashier = apz.app.CollectionSubmission.nonMeetingDataSubmissionForatFun(nonMettingSubFilterData);
+                    // }
+                    // apz.app.CollectionSubmission.cashierFinalSubmit();
+                    if (nonMeetingFetchCustDtsData && typeof nonMeetingFetchCustDtsData === "object" && Object.keys(
+                            nonMeetingFetchCustDtsData).length > 0) {
+                        nonMettingSubFilterData = CollectionsCommon.nonMeetingCashierSubFilterFun(nonMeetingFetchCustDtsData,
+                            nonMettingSubFilterData);
+                    }
+                    apz.app.CollectionSubmission.fetchAllRecordMainFunc();
+                }
+            }
+        }
+    },
+    insertRepeatIntoAppSQLLite: function(params) {
+        let details = [];
+        details = params;
+        colRepeatAppDataFromSubmitFlow = JSON.parse(JSON.stringify(params));
+        let appId = apz.appId;
+        let applicationId = RepApplnTime;
+        let kendraId = details.kendraId;
+        let VERSIONNO = versionNo;
+        let branchCode = details.branchId;
+        let applicationDate = details.meetingDate;
+        let createTs = getCurrentTimestamp();
+        let createdBy = apz.userId;
+        let appType = "MB";
+        let appStatus = "INPROGRESS";
+        let currStage = params.currStage;
+        let kmId = apz.userId;
+        let Leader = "Empty";
+        let amt = 0;
+        let appRefNo = "123456";
+        let kendraName = details.kendraName.replace(/'/g, '');;
+        let lquery = "INSERT OR REPLACE INTO TB_REPEATCOLLECTION_APPLICATION VALUES ('" + appId + "','" + applicationId + "','" + VERSIONNO +
+            "','" + kendraId + "','" + branchCode + "','" + applicationDate + "','" + createTs + "','" + createdBy + "','" + appType + "','" +
+            appStatus + "','" + currStage + "','" + kmId + "','" + Leader + "','" + kendraName + "','" + amt + "','" + appRefNo + "')";
+        let jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "REPEATCOLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.insertRepeatIntoAppSQLLiteCB
+        apz.ns.executeSql(jsonStr);
+    },
+    insertRepeatIntoAppSQLLiteCB: function(params) {
+        var details = [];
+        if (params.status) {
+            //need to update while updating, to re assign selected kendra
+            // CollectionsCommon.insertCollAppWFSQLLite(colAppDataFromSubmitFlow);
+            if (userRole == 'KM' && isCashierSubmission) {
+                CollectionsCommon.insertRepeatCollAppWFSQLLite(selKendraDet);
+            }
+        } else if (params.errorCode === "APZ-CNT-056") {
+            CollectionsCommon.createRepeatColApplicationTable();
+        }
+    },
+    fetchFromRepeatCollAppSQLLite: function(params) {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "REPEATCOLLECTION_" + "DB"
+        }
+        if (isFromFinalCashier) {
+            jsonStr.executeQuery = `SELECT * FROM TB_REPEATCOLLECTION_APPLICATION`;
+        }
+        /*else if (PreviousApprovdData) {
+                   var kendraId = params;
+                   jsonStr.executeQuery = `DELETE * FROM TB_REPEATCOLLECTION_APPLICATION WHERE KENDRAID = '${kendraId}'`;
+               }*/
+        else {
+            var kendraId = selKendraDet.kendraId;
+            jsonStr.executeQuery = `SELECT * FROM TB_REPEATCOLLECTION_APPLICATION WHERE KENDRAID = '${kendraId}'`;
+        }
+        jsonStr.callBack = CollectionsCommon.fetchFromRepeatCollAppSQLLiteCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    fetchFromRepeatCollAppSQLLiteCB: function(params) {
+        kendraDet = [];
+        if (params.status) {
+            if (params.hasOwnProperty('sqlResult') && params.sqlResult !== '[]') {
+                if (isFromFinalCashier) {
+                    ApplnRepeatTableData = JSON.parse(params.sqlResult)
+                } else {
+                    ApplnRepeatTableData = JSON.parse(params.sqlResult)[0];
+                }
+                if (isCashierSubmission || isFromFinalCashier) {
+                    CollectionsCommon.fetchRepeatCollAppWFSQLLite();
+                }
+            } else {
+                ApplnRepeatTableData = [];
+            }
+        }
+    },
+    createRepeatCollectionapplWFTable: function() {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "REPEATCOLLECTION_" + "DB",
+            "executeQuery": createRepeatWFAppQuery
+        };
+        jsonStr.callBack = CollectionsCommon.createRepeatCollectionapplWFTableCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    createRepeatCollectionapplWFTableCB: function(params) {
+        if (params.status) {
+            CollectionsCommon.insertRepeatCollAppWFSQLLite(RepeatDataFromSubmitFlow);
+        }
+    },
+    storeRepeatCollAppWFSQLLite: function(params) {
+        // if(apz.isNull(collectionKendraData)) {
+        //     apz.data.loadJsonData("CollectionResponse", "APZCBO");
+        //     collectionKendraData = apz.data.scrdata.collectionKendraRes;
+        // }
+        // var selKenDet = 
+        tableName = "AppWFTable";
+        RepeatDataFromSubmitFlow = JSON.parse(JSON.stringify(params))
+        CollectionsCommon.encryptSQLData(RepeatColDetails);
+    },
+    insertRepeatCollAppWFSQLLite: function(params) {
+        let details = [];
+        let lquery = "";
+        let nextWFStage = "CASHIER";
+        let insertTime = CollectionsCommon.returnTimeStamp()
+        if (updatePostCashierSubmit) {
+            wfNextStageID = "CASHHANDOVER";
+            lquery = "UPDATE TB_REPEATCOLLECTION_APPLICATION_WORKFLOW SET NEXTWFSTAGEID = '" + wfNextStageID + "'";
+        } else {
+            details = params;
+            // colAppWFData = JSON.parse(JSON.stringify(params));
+            RepeatDataFromSubmitFlow = JSON.parse(JSON.stringify(params))
+            let appId = apz.appId;
+            let kendraId = details.kendraId;
+            let VERSIONNO = versionNo;
+            let applicationId = RepApplnTime;
+            let WFSeqNO = 0;
+            let createdBy = apz.userId;
+            let appStatus = "INPROGRESS";
+            let currUserRole = "KM";
+            let remarks = "Cash collected from current kendra";
+            let wfNextStageID = "SENDFORAPPROVAL";
+            let meetingDate = details.meetingDate;
+            lquery = "INSERT OR REPLACE INTO TB_REPEATCOLLECTION_APPLICATION_WORKFLOW VALUES ('" + appId + "','" + applicationId + "','" +
+                VERSIONNO + "','" + kendraId + "','" + WFSeqNO + "','" + createdBy + "','" + appStatus + "','" + currUserRole + "','" +
+                nextWFStage + "','" + remarks + "','" + wfNextStageID + "','" + insertTime + "', '" + meetingDate + "')";
+        }
+        let jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "REPEATCOLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.insertRepeatCollAppWFSQLLiteCB
+        apz.ns.executeSql(jsonStr);
+    },
+    insertRepeatCollAppWFSQLLiteCB: function(params) {
+        var details = [];
+        if (params.status) {
+            //need to update while updating, to re assign selected kendra
+            if (updatePostCashierSubmit) {
+                updatePostCashierSubmit = false;
+            }
+            if (userRole == 'KM' && isCashierSubmission) {
+                //     isCashierSubmission = false;
+                // apz.app.KMDashboard.launchCollSubmissionScr();
+                // apz.app.CollectionSubmission.cashierFinalSubmit();
+                ApzCOB.dashboardAppListAPI();
+            }
+        } else if (params.errorCode === "APZ-CNT-056") {
+            CollectionsCommon.createRepeatCollectionapplWFTable();
+        }
+    },
+    fetchRepeatCollAppWFSQLLite: function(params) {
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "REPEATCOLLECTION_" + "DB"
+        };
+        if (isFromFinalCashier || isFromRepeatCollSubWidget || isFromKendraMeetWidget) {
+            jsonStr.executeQuery =
+                `SELECT * FROM TB_REPEATCOLLECTION_APPLICATION_WORKFLOW WHERE CREATEDBY is '${apz.userId}' AND MEETINGDATE is '${FetchMeetingDtRecord}'`;
+        }
+        /*else if (PreviousApprovdData) {
+                   var KendraId = params.kendraId;
+                   jsonStr.executeQuery = `DELETE * FROM TB_REPEATCOLLECTION_APPLICATION_WORKFLOW WHERE KENDRAID is '${KendraId}' `
+               }*/
+        else {
+            var KendraId = params.kendraId;
+            jsonStr.executeQuery = `SELECT * FROM TB_REPEATCOLLECTION_APPLICATION_WORKFLOW WHERE KENDRAID is '${KendraId}' `
+        }
+        jsonStr.callBack = CollectionsCommon.fetchRepeatCollAppWFSQLLiteCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    fetchRepeatCollAppWFSQLLiteCB: function(params) {
+        var sqlColAppWFData = [];
+        if (params.status) {
+            sqlColAppWFData = JSON.parse(params.sqlResult);
+            if (params.hasOwnProperty('sqlResult') && sqlColAppWFData.length > 0) {
+                // tableName = "CollCustDetails";
+                // sqlColAppWFData = params.sqlResult;
+                // colAppWFData = JSON.parse(sqlColAppWFData);
+                RepeatcolAppWFData = JSON.parse(JSON.stringify(sqlColAppWFData));
+                // colAppWFData = JSON.parse(JSON.stringify(sqlColAppWFData));
+                if (isCashierSubmission || isFromFinalCashier) {
+                    isCashierSubmission = false;
+                    // if (nonMeetingFetchCustDtsData && typeof nonMeetingFetchCustDtsData === "object" && Object.keys(
+                    //         nonMeetingFetchCustDtsData).length > 0) {
+                    //     //CollectionsCommon.filterDecryptedData(nonMeetingFetchCustDtsData, nonMettingSubFilterData);
+                    //     nonMettingSubFilterData = CollectionsCommon.nonMeetingCashierSubFilterFun(nonMeetingFetchCustDtsData,
+                    //         nonMettingSubFilterData);
+                    //     kendraSubmitToCashier = apz.app.CollectionSubmission.nonMeetingDataSubmissionForatFun(nonMettingSubFilterData);
+                    //     //kendraSubmitToCashier = nonMettingSubFilterData;
+                    // }
+                    // apz.app.KMDashboard.launchCollSubmissionScr()
+                    apz.app.CollectionSubmission.cashierFinalSubmit();
+                } else if (isFromRepeatCollSubWidget) {
+                    apz.app.CollectionSubmission.paintCollSubData();
+                } else if (isFromCollSubWidget) {
+                    apz.app.CollectionSubmission.paintCollSubData();
+                }
+                // if (PreviousApprovdData) {
+                //     CollectionsCommon.fetchFromRepeatCollAppSQLLite(RepeatMeetDetails.kendraId);
+                // }
+            }
+        }
+    },
+    fetchApplicationStatus: function(params) {
+        var req = {
+            "apiRequest": {
+                "interfaceName": "VerifyApplication",
+                "appId": gAppId,
+                "userId": apz.userId,
+                "requestObj": {
+                    "kendraId": params.kendraId,
+                    "branchId": params.branchId,
+                    "kmUserRole": "KM",
+                     "applicationId":CollectionsCommon.returnApplicationId(params)
+                }
+            }
+        }
+        // apz.startLoader();
+        ApzCOB.serverBuildParam(gAppId, 'FetchApplicationInfo', 'N', 'N', req, false, CollectionsCommon.fetchApplicationStatusCB);
+    },
+    fetchApplicationStatusCB: function(params) {
+        var ifaceName = ApzCOB.GetInterfaceResMap(params);
+        try {
+            apz.stopLoader();
+            // let respCode = "";
+            respCode = params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode;
+            if (fetchApplicationStatus) {
+                // if (respCode === "1") {
+                apz.app.RepeatCollection.postStatusUpdate(respCode);
+                // } else {
+                //     apz.app.RepeatCollection.postStatusUpdate();
+                // }
+            } else {
+                if (respCode === "1" && ($('#' + kmScreenId + 'startMeetBold_' + selKendraRowNo).is(':visible') || $('#' + kmScreenId +
+                        'btn_startMeeting_' + selKendraRowNo).is(':visible'))) {
+                    apz.app.KendriyaMeetings.postStatusUpdate();
+                } else {
+                    var launchObj = [];
+                    launchObj = selectedKendra;
+                    grpBackNavData = JSON.parse(JSON.stringify(selectedKendra))
+                    ApzCOB.launchMicroApp("KenMet", "KMDashboard", "APZCBO__BaseScreens__BaseDIV", launchObj);
+                }
+            }
+        } catch (e) {
+            apz.stopLoader();
+            //modified below for UAT JIRA UNAP-1260 issue
+            // ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            console.log(e)
+        }
+    },
+    fetchUPIStatusForAll: function(params) {
+        var req = {
+            "apiRequest": {
+                "interfaceName": "VerifyQRStatus",
+                "appId": gAppId,
+                "userId": apz.userId,
+                "requestObj": {
+                    "custIds": params
+                }
+            }
+        }
+        apz.startLoader();
+        ApzCOB.serverBuildParam(gAppId, 'VerifyQRStatus', 'N', 'N', req, false, CollectionsCommon.fetchUPIStatusForAllCB);
+    },
+    fetchUPIStatusForAllCB: function(params) {
+        var ifaceName = ApzCOB.GetInterfaceResMap(params);
+        try {
+            // apz.stopLoader();
+            if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "0") {
+                let resObj = {};
+                resObj = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+                apz.app.GroupsData.paintUPIRefreshAllStatus(resObj)
+            } else if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "NR100") {
+                apz.stopLoader();
+            } else if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "1" && params.res[ifaceName].apiResponse
+                .ResponseHeader.ResponseMessage === "Invalid Request") {
+                apz.stopLoader();
+                // ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        } catch (e) {
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    },
+    processNonMeetingCollCustStoreSQLLite: function(data) {
+        storeNonMetCustMulRec = true;
+        if (!data || data.length === 0) return;
+        //storeNonMeeCustDataCount = jsonStoreData.length;
+        nonMetStoreremJsonStoreData = data.slice();
+        CollectionsCommon.processNextNonMeetingRecord();
+    },
+    processNextNonMeetingRecord: function() {
+        if (nonMetStoreremJsonStoreData.length === 0) return;
+        let currentData = nonMetStoreremJsonStoreData.shift();
+        CollectionsCommon.insertNonMeetingCollCustStoreSQLLite(currentData);
+    },
+    handledeviceBackForCollectionsFlow: function() {
+        if(document.getElementById("KenMet__GroupsData__partialModel").classList.contains("show")){
+            return;
+        }else if (apz.childScr === "KMDashboard") {
+            apz.app.KMDashboard.backNavigation();
+        } else if (apz.childScr === "CollectionSubmission") {
+            apz.app.CollectionSubmission.backNavigation();
+        } else if (apz.childScr === "DeathIntimation") {
+            apz.app.DeathIntimation.handleBackNavigation();
+        } else if (apz.childScr === "EditGroupsData") {
+            apz.app.EditGroupsData.backNavigation();
+        } else if (apz.childScr === "GroupsData") {
+            apz.app.GroupsData.backNavigation('stage1');
+        } else if (apz.childScr === "kenSuccessScreen") {
+            apz.app.kenSuccessScreen.closeApp();
+        } else if (apz.childScr === "KMSucScreen") {
+            apz.app.KMSucScreen.onClickDone();
+        } else if (apz.childScr === "MarkAttendance") {
+            apz.app.MarkAttendance.backNavigation();
+        } else if (apz.childScr === "NonMeetingDayColl") {
+            apz.app.NonMeetingDayColl.backNaviagation();
+        } else if (apz.childScr === "ParCollectionDetails") {
+            apz.app.ParCollectionDetails.backNavigation();
+        } else if (apz.childScr === "RepeatCollScreen") {
+            apz.app.RepeatCollScreen.backNavigation();
+        } else if (apz.childScr === "ViewKendraDetails") {
+            apz.app.CollectionSubmission.handleBackNav();
+        } else if (apz.childScr === "ZeroCollection") {
+            apz.app.ZeroCollection.onClickOfZeroFlowBackNav();
+        }
+    },
+    onCommonProceedClick: function(params) {
+        let selKenData = params.kendraDtls[prevRow].colldtls;
+            apz.stopLoader();
+            var SuccessData = {};
+            SuccessData.fromScreen = apz.childScr;
+            SuccessData.kendraCount = atleastOneApproved;
+            SuccessData.kmName = params.kmName;
+            SuccessData.totalColAmt = selKenData.totCollAmt;
+            var data = {
+                DueAmount: '₹' + ApzCOB.fn_FormatAmount(selKenData.totalDue),
+                AmountCollected: '₹' + ApzCOB.fn_FormatAmount(selKenData.totCollAmt),
+                AmountDisbursed: '₹' + ApzCOB.fn_FormatAmount(0),
+                NetCash: '₹' + ApzCOB.fn_FormatAmount(selKenData.totCollAmt),
+                UPI: '₹' + ApzCOB.fn_FormatAmount(0),
+                Status: 'APPROVAL PENDING BY BM',
+            }
+            SuccessData.data = data;
+            SuccsessData.isFromProceedFn = true;
+            $('#' + ViewKendraScrId + 'viewKDetails').addClass('sno');
+            $('#' + ViewKendraScrId + 'viewKheaderRow').addClass('sno');
+            isFromCashierARScr = true;
+            ApzCOB.launchMicroApp('CollBM', 'SuccessScreen', ViewKendraScrId + 'viewKendraBaseDiv', SuccessData);
+    },
+    //added below function to form object for Cashier and BM Collection amount based on status of applications
+    formDetailsBasedOnStatus: function(kendraDtls) {
+        const allMembers = kendraDtls.flatMap(kendra => kendra.colldtls?.groups || []).flatMap(group => group.members || []);
+        const summary = allMembers.reduce((acc, member) => {
+            const advAmt = member.advAmt || 0;
+            const collAmount = member.collAmount || 0;
+            const totalCash = member.totalCash || 0;
+            const totalUPI = member.totalUPI || 0;
+            const advAdj = member.advAdj || 0;
+            acc.totalDue += member.totalDue || 0;
+            acc.netDue += member.netDue || 0;
+            acc.opnAdvBal += member.advAdj || 0;
+            acc.inflow.actualCol.total += collAmount;
+            acc.inflow.actualCol.cashCol += totalCash;
+            acc.inflow.actualCol.upiCol += totalUPI;
+            acc.inflow.actualCol.advAdj += advAdj;
+            acc.inflow.advCol.total += advAmt;
+            acc.netCol += collAmount;
+            return acc;
+        }, {
+            totalDue: 0,
+            netDue: 0,
+            opnAdvBal: 0,
+            inflow: {
+                actualCol: {
+                    total: 0,
+                    cashCol: 0,
+                    upiCol: 0,
+                    advAdj: 0
+                },
+                advCol: {
+                    total: 0,
+                    cashCol: 0,
+                    upiCol: 0,
+                    advAdj: 0
+                },
+                othCol: {
+                    total: 0,
+                    cashCol: 0,
+                    upiCol: 0,
+                    advAdj: 0
+                },
+                upfrontChgs: 0
+            },
+            outflow: {
+                total: 0
+            },
+            netCol: 0,
+            clsAdv: 0
+        });
+        summary.clsAdv = summary.inflow.advCol.total; // You can change this if needed
+        return summary;
+    },
+    createKendrasDeathIntObj: function() {
+        kendraDeathObj = Object.fromEntries(collectionKendraData.map(kendraDetails => [
+            kendraDetails.kendraId,
+            Object.fromEntries(kendraDetails.colldtls.groups.map(group => [group.id, []]))
+        ]));
+    },
+    //deleting repeat record which is submitted to cashier
+    deteletReapeatRecord: function() {
+        if (delRepRecIdx >= kendraSubmitToCashier.length) {
+            return;
+        }
+        var data = kendraSubmitToCashier[delRepRecIdx];
+        var KMId = data.kmId;
+        var meetingDay = data.meetingDay;
+        var kendraId = data.kendraId;
+        var lquery =  `DELETE FROM TB_REPEATCOLLECTION WHERE KMID = '${KMId}' AND MEETINGDAY = '${meetingDay}' AND COLLECTIONDATE = '${FetchMeetingDtRecord}' AND KENDRAID = '${kendraId}'`;
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "REPEATCOLLECTION_" + "DB",
+            "executeQuery": lquery
+        };
+        jsonStr.callBack = CollectionsCommon.deteletReapeatRecordCB;
+        apz.ns.executeSql(jsonStr);
+    },
+    deteletReapeatRecordCB : function(params) {
+        delRepRecIdx++;
+        CollectionsCommon.deteletReapeatRecord();
+    },
+    deleteFromCollectionSQLLite1: function() {
+        var KMId = apz.userId;
+        let meetingDay = collectionsRes[0].meetingDay;
+        let meetingDate = collectionsRes[0].meetingDate;
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": `Delete FROM TB_COLLECTION`
+        };
+        jsonStr.callBack = CollectionsCommon.deleteFromCollectionSQLLite1CB;
+        apz.ns.executeSql(jsonStr);
+    },
+    deleteFromCollectionSQLLite1CB : function(params) {
+        CollectionsCommon.deleteFromCollectionSQLLite2();
+    },
+    deleteFromCollectionSQLLite2: function() {
+        var KMId = apz.userId;
+        let meetingDay = collectionsRes[0].meetingDay;
+        let meetingDate = collectionsRes[0].meetingDate;
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": `Delete FROM TB_COLLECTION_APPLICATION`
+        };
+        jsonStr.callBack = CollectionsCommon.deleteFromCollectionSQLLite2CB;
+        apz.ns.executeSql(jsonStr);
+    },
+    deleteFromCollectionSQLLite2CB : function(params) {
+        CollectionsCommon.deleteFromCollectionSQLLite3();
+    },
+    deleteFromCollectionSQLLite3: function() {
+        var KMId = apz.userId;
+        let meetingDay = collectionsRes[0].meetingDay;
+        let meetingDate = collectionsRes[0].meetingDate;
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": `Delete FROM TB_COLLECTION_APPLICATION_WORKFLOW`
+        };
+        jsonStr.callBack = CollectionsCommon.deleteFromCollectionSQLLite3CB;
+        apz.ns.executeSql(jsonStr);
+    },
+    deleteFromCollectionSQLLite3CB : function(params) {
+        CollectionsCommon.deleteFromCollectionSQLLite4();
+    },
+    deleteFromCollectionSQLLite4: function() {
+        var KMId = apz.userId;
+        let meetingDay = collectionsRes[0].meetingDay;
+        let meetingDate = collectionsRes[0].meetingDate;
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": `Delete FROM TB_COLLECTION_CUSTOMER_DETAILS`
+        };
+        jsonStr.callBack = CollectionsCommon.deleteFromCollectionSQLLite4CB;
+        apz.ns.executeSql(jsonStr);
+    },
+    deleteFromCollectionSQLLite4CB : function(params) {
+        CollectionsCommon.deleteFromCollectionSQLLite5();
+    },
+    deleteFromCollectionSQLLite5: function() {
+        var KMId = apz.userId;
+        let meetingDay = collectionsRes[0].meetingDay;
+        let meetingDate = collectionsRes[0].meetingDate;
+        var jsonStr = {
+            "queryId": "XYZ78V",
+            "databaseName": "COLLECTION_" + "DB",
+            "executeQuery": `Delete FROM TB_COLLECTION_KENDRA_DETAILS`
+        };
+        jsonStr.callBack = CollectionsCommon.deleteFromCollectionSQLLite5CB;
+        apz.ns.executeSql(jsonStr);
+    },
+    deleteFromCollectionSQLLite5CB : function(params) {
+        collectionKendraData = [];
+        ApzCOB.FetchCollectionData(window.LoggedInUserDetails.userID);
+        // setTimeout(function(){
+        //     ApzCOB.toggleModal(DashboardScrId + "userRoleModal");
+        // },1000)
+        
+    },
+}

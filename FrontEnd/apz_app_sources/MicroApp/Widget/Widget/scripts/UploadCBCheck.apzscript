@@ -1,0 +1,425 @@
+var UploadCBcheck = "Widget__UploadCBCheck__"
+var custDtls, slicedArr, cbDtls, crtDtls = [],
+    dropdowndetails = [];
+var fromDate = '',
+    toDate = '';
+var CRTarray = [];
+var selectedData = [];
+window.approve = false;
+window.reject = false;
+window.totalPaginationPages = '0';
+var Pagination_Bar = 'pagination-bar';
+var PagBtnInp = 'row_acc_pagiButtons :input';
+var configLimit = 10;
+var pagiationFlag = false;
+window.selectedFile = "";
+var historyArr = [];
+var selectedBulkFile = '';
+apz.app.onLoad_UploadCBCheck = function(params) {
+    window.pageNo = 1;
+    window.currentPageNumber = 1;
+    window.dataSource = null;
+}
+apz.app.onShown_UploadCBCheck = function(params) {
+    console.log("onShownParams---", params)
+    apz.app.UploadCBCheck.loadHistoryData();
+}
+apz.app.UploadCBCheck.backNavigation = function() {
+    ApzCOB.launchMicroApp('Widget', 'CrtDetails', 'APZCBO__BaseScreens__BaseDIV', '');
+}
+apz.app.UploadCBCheck.loadHistoryData = function() {
+    if (!window.historyData || 
+        window.historyData === '' || 
+        typeof window.historyData.apiResponse === 'undefined' || 
+        window.historyData.apiResponse.length === 0) {
+        $('#Widget__UploadCBCheck__noRecordsFound').removeClass('sno');
+        $('#Widget__UploadCBCheck__ct_lst_16').addClass('sno');
+        $('#Widget__UploadCBCheck__gr_row_83').addClass('sno');
+        $('#Widget__UploadCBCheck__gr_row_84').addClass('sno');
+        return;
+    }
+    let sortedHistoryData = ApzCOB.sortArrayByKey(historyData.apiResponse, 'createdAt', 'desc');
+    let xlHistoryData = sortedHistoryData ? sortedHistoryData : "";
+    xlHistoryData.forEach((records, i) => {
+        var lObj = {}
+        let dateObj = new Date(records.createdAt);
+        let formattedDate =
+           `${('0' + dateObj.getDate()).slice(-2)}/${('0' + (dateObj.getMonth() + 1)).slice(-2)}/${dateObj.getFullYear()}`;
+        lObj.createdAt = formattedDate;
+        lObj.FileName = records.docName;
+        lObj.UploadedBy = records.uploadedBy;
+        lObj.status = records.status;
+         lObj.docId = records.docId;
+        historyArr.push(lObj);
+    })
+    apz.data.scrdata.Widget__IpaintHistoryData_Res = historyArr;
+    apz.data.loadData("IpaintHistoryData", 'Widget');
+    let uploadedByArr = [...new Set(historyArr.map(record => record.UploadedBy))].map(val=> ({val:val,desc:val}));
+    let uploadedDateArr = [...new Set(historyArr.map(record=> record.createdAt))].map(val=> ({val:val,desc:val}));
+    let statusArr = [...new Set(historyArr.map(record=> record.status))].map(val=> ({val:val,desc:val}))
+    // Unshift default values
+    uploadedByArr.unshift({
+        val: '',
+        desc: "Uploaded By"
+    });
+    uploadedDateArr.unshift({
+        val: '',
+        desc: "Uploaded Date"
+    });
+    statusArr.unshift({
+        val: '',
+        desc: "Status"
+    });
+    apz.populateDropdown(document.getElementById(UploadCBcheck + "uploadByDrpDwn"), uploadedByArr);
+    apz.populateDropdown(document.getElementById(UploadCBcheck + "uploadedDateDropDwn"), uploadedDateArr);
+    apz.populateDropdown(document.getElementById(UploadCBcheck + "statusDrpDown"), statusArr);
+    apz.app.UploadCBCheck.funcPagination(xlHistoryData)
+}
+apz.app.UploadCBCheck.funcPagination = function(pData) {
+    AllDataList = [...pData];
+    totalItems = AllDataList.length;
+    $("#" + UploadCBcheck + "totlRecord").text(totalItems);
+    if (totalItems <= configLimit) {
+        $("#" + UploadCBcheck + "presentRecord").text(totalItems);
+    } else {
+        $("#" + UploadCBcheck + "presentRecord").text(configLimit);
+    }
+    if (!apz.isNull(AllDataList)) {
+        $('#' + UploadCBcheck + 'pageForm').removeClass("sno");
+        window.dataSource = "dummy value";
+        window.totalPaginationPages = '0';
+        configLimit = 10;
+        let num = Number(totalItems) / Number(configLimit);
+        window.totalPaginationPages = Math.ceil(num);
+        if (Number(totalItems) > Number(configLimit)) {
+            // Initialize pagination if needed
+            apz.app.UploadCBCheck.InitialisePagination(totalItems);
+        } else {
+            // Hide pagination if not needed
+            apz.app.UploadCBCheck.HidePagination(AllDataList);
+        }
+        window.currentPageNumber = window.pageNo;
+    } else {
+        // Hide pagination if no data
+        apz.app.UploadCBCheck.HidePagination(AllDataList);
+    }
+}
+apz.app.UploadCBCheck.InitialisePagination = function(totalItems) {
+    $('#' + UploadCBcheck + PagBtnInp).attr("disabled", false);
+    $('#' + UploadCBcheck + 'row_acc_pagiButtons').css('opacity', '1');
+    var page = window.totalPaginationPages > 1 ? "PAGES" : "PAGE";
+    apz.setElmValue(UploadCBcheck + "remPages", "of" + " " + window.totalPaginationPages)
+    var PageArr = [];
+    for (let i = 1; i <= totalPaginationPages; i++) {
+        let obj = {
+            value: i,
+            desc: i
+        }
+        PageArr.push(obj);
+    }
+    apz.populateDropdown(document.getElementById(UploadCBcheck + 'dropDownPage'), PageArr);
+    $('#' + UploadCBcheck + Pagination_Bar).pagination({
+        dataSource: window.dataSource,
+        totalNumber: Number(totalItems),
+        pageSize: Number(configLimit),
+        pageNumber: Number(pageNo),
+        callback: function(data, pagination) {
+            if (window.currentPageNumber < window.pageNo) {
+                if (window.currentPageNumber < Math.ceil(AllDataList.length / configLimit)) {
+                    window.currentPageNumber = Number(window.currentPageNumber) + 1;
+                    apz.app.UploadCBCheck.displayRecords();
+                }
+            } else if (window.currentPageNumber > window.pageNo) {
+                window.currentPageNumber = Number(window.currentPageNumber) - 1;
+                apz.app.UploadCBCheck.displayRecords();
+            }
+        }
+    });
+    apz.app.UploadCBCheck.displayRecords();
+}
+apz.app.UploadCBCheck.displayRecords = function() {
+    let itemsPerPage = Number(configLimit);
+    if (pagiationFlag) {
+        document.getElementById(UploadCBcheck + 'dropDownPage').value = window.currentPageNumber > 0 ? window.currentPageNumber : 1;
+        pagiationFlag = false;
+    }
+    let startIndex = (window.currentPageNumber - 1) * itemsPerPage;
+    startIndex = startIndex > 0 ? startIndex : 0;
+    let endIndex = startIndex + itemsPerPage;
+    endIndex = endIndex > totalItems ? totalItems : endIndex;
+    let currentItems = AllDataList.slice(startIndex, endIndex);
+    let dataPerPage = [];
+    $(".paginationjs").addClass("sno");
+    currentItems.forEach((records, i) => {
+        var lObj = {};
+        let dateObj = new Date(records.createdAt);
+        let formattedDate = `${('0' + dateObj.getDate()).slice(-2)}/${('0' + (dateObj.getMonth() + 1)).slice(-2)}/${dateObj.getFullYear()}`;
+        lObj.createdAt = formattedDate;
+        lObj.FileName = records.docName;
+        lObj.UploadedBy = records.uploadedBy;
+        lObj.status = records.status;
+        lObj.docId = records.docId;
+        dataPerPage.push(lObj);
+    });
+    apz.data.scrdata.Widget__IpaintHistoryData_Res = dataPerPage;
+    $("#" + UploadCBcheck + "presentRecord").text(endIndex);
+    apz.setElmValue(UploadCBcheck + "totlRecord", AllDataList.length);
+    $('#' + UploadCBcheck + 'pageForm').removeClass("sno");
+    $('#' + UploadCBcheck + Pagination_Bar).removeClass("sno");
+    apz.data.loadData("IpaintHistoryData", 'Widget');
+}
+apz.app.UploadCBCheck.FuncPaginationNext = function() {
+     pagiationFlag = true;
+    $(".J-paginationjs-next").trigger("click");
+    $(pageInputCSSClass).val(window.pageNo);
+}
+apz.app.UploadCBCheck.FuncPaginationPrev = function() {
+     pagiationFlag = true;
+    $(".J-paginationjs-previous").trigger("click");
+    $(pageInputCSSClass).val(window.pageNo);
+}
+apz.app.UploadCBCheck.HidePagination = function(AllDataList) {
+    if (Number(totalItems) <= Number(configLimit)) {
+        $('#' + UploadCBcheck + PagBtnInp).attr("disabled", true);
+        $('#' + UploadCBcheck + 'row_acc_pagiButtons').css('opacity', '0.3');
+        // $('#' + CrtDetailsScrId + 'txt_acc_pagesTxtPagi').text("1 " + "PAGE");
+    }
+    $('#' + UploadCBcheck + 'pageForm').addClass("sno");
+    $('#' + UploadCBcheck + Pagination_Bar).addClass("sno");
+    apz.data.loadData("IpaintHistoryData", 'Widget');
+}
+apz.app.UploadCBCheck.OnChangeValue = function(pthis) {
+    const liElement = document.querySelector(`li.paginationjs-page[data-num="${pthis.value}"]`);
+    if (liElement) {
+        const anchorTag = liElement.querySelector('a');
+        if (anchorTag) {
+            anchorTag.click();
+        }
+    }
+}
+apz.app.UploadCBCheck.onChangeOfDropDown = function(pthis) {
+    console.log('dropdown--', pthis)
+}
+apz.app.UploadCBCheck.onChangeDate = function(pthis) {
+    var id = pthis.id;
+}
+apz.app.UploadCBCheck.applyFilter = function() {
+    selectedData = [];
+    let uploadedByFilter = $("#" + UploadCBcheck + "uploadByDrpDwn").val();
+    let date = $("#" + UploadCBcheck + "uploadedDateDropDwn").val();
+    let uploadedDateFilter = null;
+    let statusFilter = $("#" + UploadCBcheck + "statusDrpDown").val();
+    let defaultUploadedBy = "Uploaded By";
+    let defaultUploadedDate = "Uploaded Date";
+    let defaultStatus = "Status";
+    if (date && date !== defaultUploadedDate) {
+        let [day, month, year] = date.split('/');
+        uploadedDateFilter = `${month}/${day}/${year}`;
+    } else {
+        uploadedDateFilter = defaultUploadedDate;
+    }
+    if (uploadedByFilter === defaultUploadedBy && uploadedDateFilter === defaultUploadedDate && statusFilter === defaultStatus) {
+        ApzCOB.fnDisplayMsg("Please select the values from dropdown!", "E");
+        return;
+    }
+    let matchUploadedDateFilter = null;
+    if (uploadedDateFilter !== defaultUploadedDate) {
+        let [month, day, year] = uploadedDateFilter.split('/');
+        matchUploadedDateFilter = `${year}-${('0' + month).slice(-2)}-${('0' + day).slice(-2)}`;
+    }
+    selectedData = AllDataList.filter(item => {
+        let matchUploadedBy = uploadedByFilter !== defaultUploadedBy ? item.uploadedBy.toLowerCase() === uploadedByFilter.toLowerCase() : true;
+        let matchUploadedDate = matchUploadedDateFilter ? item.createdAt.split('T')[0] === matchUploadedDateFilter : true;
+        let matchStatus = statusFilter !== defaultStatus ? item.status === statusFilter : true;
+        return matchUploadedBy && matchUploadedDate && matchStatus;
+    });
+    apz.setElmValue(UploadCBcheck + "presentRecord", selectedData.length);
+    apz.setElmValue(UploadCBcheck + "totlRecord", AllDataList.length);
+    if (selectedData.length === 0) {
+        $('#Widget__UploadCBCheck__noRecordsFound').removeClass('sno');
+        $('#Widget__UploadCBCheck__ct_lst_16').addClass('sno');
+        $('#Widget__UploadCBCheck__sc_col_727').addClass('sno');
+    } else {
+        $('#Widget__UploadCBCheck__noRecordsFound').addClass('sno');
+        $('#Widget__UploadCBCheck__ct_lst_16').removeClass('sno');
+        // Handle the scroll container visibility based on record count
+        if (selectedData.length < 10) {
+            $('#Widget__UploadCBCheck__sc_col_727').addClass('sno');
+        } else {
+            $('#Widget__UploadCBCheck__sc_col_727').removeClass('sno');
+        }
+    
+        var loadFilterData = [];
+        selectedData.forEach((records, i) => {
+            var lObj = {};
+            let dateObj = new Date(records.createdAt);
+            let formattedDate = `${('0' + dateObj.getDate()).slice(-2)}/${('0' + (dateObj.getMonth() + 1)).slice(-2)}/${dateObj.getFullYear()}`;
+            lObj.createdAt = formattedDate;
+            lObj.FileName = records.docName;
+            lObj.UploadedBy = records.uploadedBy;
+            lObj.status = records.status;
+            lObj.docId = records.docId;
+            loadFilterData.push(lObj);
+        });
+        apz.data.scrdata.Widget__IpaintHistoryData_Res = loadFilterData;
+        apz.data.loadData("IpaintHistoryData", 'Widget');
+    }
+};
+//FILE UPLOAD
+apz.setSelectedFileName = function(pthis) {
+    let AllowedTypes = ["xlsx"];
+    var selectedFileBrowseId = $(pthis).attr('id');
+    var pthis1 = document.getElementById(selectedFileBrowseId);
+    var lfile = pthis1.files;
+    window.selectedFile = lfile[0];
+    let fileSize = (window.selectedFile.size / (1024 * 1024)).toFixed(2) + " MB"; // File size in MB
+    let fileType = window.selectedFile.name.split('.').pop().toLowerCase(); // File extension
+    if (AllowedTypes.indexOf(fileType) !== -1) {
+        $(`#${selectedFileBrowseId}`).after("<p>" + window.selectedFile.name + ", " + fileSize + "</p>");
+        fileBrowsed = true;
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_FILE_PROCESS", apz.app.UploadCBCheck.showFileDetails(fileType, fileSize, selectedFile
+            .name)), "I");
+    } else {
+        let msg = {
+            code: "Invalid file!"
+        };
+        apz.dispMsg(msg);
+    }
+};
+apz.app.UploadCBCheck.showFileDetails = function(lflext, fileSize, fileType) {
+    $("#" + UploadCBcheck + "beforeUploadFile").addClass('sno');
+    $("#" + UploadCBcheck + "afterUploadFile").removeClass('sno');
+    $("#" + UploadCBcheck + "backIcon").removeClass('sno');
+    $("#" + UploadCBcheck + "fileSize").text(fileSize);
+    $("#" + UploadCBcheck + "fileName").text(fileType);
+}
+apz.app.UploadCBCheck.fileProcessing = function(pthis, event) {
+    if (window.selectedFile) {
+        let fileReader = new FileReader();
+        fileReader.readAsDataURL(window.selectedFile); // Read the selected file as a data URL
+        fileReader.onload = function(e) {
+            let encodedImage = e.target.result.split(',')[1]; // Get base64 part of the result
+            if (!apz.isNull(encodedImage)) {
+                // Handle the encoded image as needed
+                apz.app.UploadCBCheck.processEncodedImage(encodedImage, selectedFile.name);
+            }
+        };
+        fileReader.onerror = function() {
+            console.error("File reading has failed");
+            apz.app.messageDisplay("Failed to read file", "E");
+        };
+    } else {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+};
+apz.app.UploadCBCheck.processEncodedImage = function(Base64, FileName) {
+    var req = {
+        "apiRequest": {
+            "appId": gAppId,
+            "interfaceName": "SaveExcelData",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "base64Data": Base64,
+                "docId": "",
+                "docName": FileName,
+                "userId": LoggedInUserDetails.userID,
+                "uploadedBy": LoggedInUserDetails.loginResponse.userDet.name,
+                "createdAt": "",
+                "typeOfUpload": LoggedInUserDetails.loginResponse.addInfo1,
+                "status": "PENDING"
+            }
+        }
+    }
+    req.apiRequest.requestObj.userRole = userRole;
+    req.apiRequest.requestObj.appVersion = appVersion;
+    req.apiRequest.requestObj.remarks = 'The Loan application uploaded by '+LoggedInUserDetails.userID +' ('+currentUserRole +').';
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "SaveExcelData", "N", "N", req, 'Y', apz.app.UploadCBCheck.fileuploadSerCB);
+};
+apz.app.UploadCBCheck.fileuploadSerCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (params.status && apz.isNull(params.errors)) {
+            if (params.res.APZCBO__SaveExcelData_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                fileBrowsed = false;
+                let resp = JSON.parse(params.res.APZCBO__SaveExcelData_Res.apiResponse.ResponseBody.responseObj)
+                  apz.app.UploadCBCheck.fileInsertedSuccessF(resp)
+            } else {
+               ApzCOB.fnDisplayMsg(params.res.APZCBO__SaveExcelData_Res.apiResponse.ResponseHeader.ResponseMessage, "E");
+            }
+        } else {
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+};
+apz.app.UploadCBCheck.fileInsertedSuccessF = function(resp) {
+    ApzCOB.fnDisplayMsg(resp.message, "S", function() {
+        ApzCOB.FetchApplicationList();
+    });
+};
+// BulkUpload Download
+apz.app.UploadCBCheck.downloadBulkExcel = function(pthis) {
+    let rowNo = $(pthis).attr('rowno');
+    let selectedData = apz.data.scrdata.Widget__IpaintHistoryData_Res; 
+    selectedBulkFile = selectedData[rowNo];
+    if (selectedBulkFile && selectedBulkFile.docId) {
+        apz.app.UploadCBCheck.downloadExcelUploaded(selectedBulkFile.docId);
+    } else {
+        ApzCOB.fnDisplayMsg("Invalid file selection.", "E");
+    }
+}
+apz.app.UploadCBCheck.downloadExcelUploaded = function(docId) {
+    let req = {
+        "apiRequest": {
+            "appId": gAppId,
+            "interfaceName": "FetchExcelInsert",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "docId": docId
+            }
+        }
+    };
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "FetchExcelInsert", "N", "N", req, 'Y', apz.app.UploadCBCheck.downloadBulkExcelCB);
+}
+apz.app.UploadCBCheck.downloadBulkExcelCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (params.status && apz.isNull(params.errors)) {
+            if (params.res.APZCBO__FetchExcelInsert_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                let resp = JSON.parse(params.res.APZCBO__FetchExcelInsert_Res.apiResponse.ResponseBody.responseObj);
+                 apz.app.UploadCBCheck.uploadedExcelDownload(resp)
+            } else {
+                ApzCOB.fnDisplayMsg(params.res.APZCBO__FetchExcelInsert_Res.apiResponse.ResponseHeader.ResponseMessage, "E");
+            }
+        } else {
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+};
+apz.app.UploadCBCheck.uploadedExcelDownload = function (resp) {
+    const jsonData = resp.apiResponse;
+    const worksheet = XLSX.utils.json_to_sheet(jsonData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+    const excelBuffer = XLSX.write(workbook, {
+        bookType: 'xlsx',
+        type: 'array'
+    });
+    const blob = new Blob([excelBuffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = selectedBulkFile.FileName; // File name
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    apz.stopLoader();
+}

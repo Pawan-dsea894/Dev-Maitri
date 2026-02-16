@@ -1,0 +1,1414 @@
+var CrtDetailsScrId = "Widget__CrtDetails__"
+var custDtls, slicedArr, cbDtls, crtDtls = [],
+    dropdowndetails = [];
+var fromDate = '',
+    toDate = '';
+var CRTarray = [],
+    downloadData = [],
+    filteredData = [];
+var selectedData = [];
+window.approve = false;
+window.reject = false;
+window.totalPaginationPages = '0';
+var Pagination_Bar = 'pagination-bar';
+var PagBtnInp = 'row_acc_pagiButtons :input';
+var configLimit = 10;
+window.selectedFile = "";
+window.historyData = '';
+var selectedState, selectedRegion, selectedArea, selectedBranch, selectedStatus;
+var selectedApp = [];
+var selectedFireApp = [];
+var insurAmt = 0;
+var maxAmtArr = [],
+    minAmtArr = [],
+    defAmtArr = [],
+    termArr = [],
+    maxAmt, minAmt, defAmt, term;
+var pagiationFlag = false;
+var seleDropPage = false;
+var AllCheckBoxes = false;
+var validateAmtFlag = false;
+var selectedPageNum = [];
+var newAddinfo = "";
+var statusDesc = [],
+    areaDesc = [],
+    regionDesc = [],
+    branchDesc = [],
+    stateDesc = [];
+var selectedDataForView = {};
+var selectedRecRowNo = "";
+var editApprovedAmt, editAppliedAmt, searchTextList;
+apz.app.onLoad_CrtDetails = function() {}
+apz.app.onShown_CrtDetails = function(params) {
+    $("#" + CrtDetailsScrId + "webRefresh").addClass('sno');
+    $("#" + CrtDetailsScrId + "gr_row_43").addClass('sno'); // filter
+    $("#APZCBO__BaseScreens__searchInp").attr("onkeyup", "");
+    $('#' + CrtDetailsScrId + Pagination_Bar).addClass("sno");
+    $('#' + CrtDetailsScrId + 'paginationForm').addClass("sno");
+    //$("#APZCBO__BaseScreens__searchInp").attr("onclick", "apz.app.CrtDetails.fetchCRTApplication(this);");
+    //CRTarray = applicationResp
+    //   if (userRole === "CRT") {
+    if (apz.isNull(applicationResp)) {
+        $("#" + CrtDetailsScrId + "paintDataList").addClass('sno');
+        $("#" + CrtDetailsScrId + "noRecordForm").removeClass('sno');
+    } else {
+        applicationResp.forEach(function(el, i) {
+            if (applicationResp[i].applicationStatus === 'INITIATE') {
+                CRTarray.push(applicationResp[i])
+            }
+        })
+        apz.app.CrtDetails.paintStatus();
+        apz.app.CrtDetails.dashboardFiltter();
+        apz.app.CrtDetails.paintMemberDtls();
+    }
+    gApzCOB.insurDetails = ApzCOB.GetCommonCodes("GLFEES").Fees
+    $('#' + CrtDetailsScrId + 'webRefresh').attr("disabled", false);
+    // }
+    // else{
+    //     $('#Widget__CrtDetails__amApprovalDiv').removeClass('sno');
+    //      $('#Widget__CrtDetails__crtWidget').addClass('sno');
+    //     // $('#Widget__CrtDetails__gr_row_53').addClass('sno');
+    //     // $('#Widget__CrtDetails__AmApproveRejectRow').removeClass('sno');
+    //   //apz.app.CrtDetails.initatedByAm();
+    // }
+}
+apz.app.CrtDetails.dashboardFiltter = function() {
+    dropdowndetails = [];
+    CRTarray.forEach(function(el, i) {
+        var newObj = {};
+        newObj.applicationStatus = CRTarray[i].applicationStatus;
+        newObj.areaName = CRTarray[i].addInfo ? JSON.parse(CRTarray[i].addInfo).areaName : '';
+        newObj.branchName = CRTarray[i].addInfo ? JSON.parse(CRTarray[i].addInfo).branchName : '';
+        newObj.regionName = CRTarray[i].addInfo ? JSON.parse(CRTarray[i].addInfo).regionName : '';
+        newObj.state = CRTarray[i].addInfo ? JSON.parse(CRTarray[i].addInfo).state : '';
+        dropdowndetails.push(newObj);
+    })
+    var uniqueStatus = {};
+    statusDesc = [];
+    //Status
+    dropdowndetails.forEach(function(obj, i) {
+        let det = {};
+        det.desc = obj.applicationStatus;
+        det.value = obj.applicationStatus;
+        if (!uniqueStatus.hasOwnProperty(det.desc) && !apz.isNull(det.desc)) {
+            uniqueStatus[det.desc] = true;
+            statusDesc.push(det);
+        }
+    });
+    statusDesc.unshift({
+        "val": '%',
+        "desc": "Status"
+    })
+    apz.populateDropdown(document.getElementById(CrtDetailsScrId + "statusDrpDn"), statusDesc);
+    //Area
+    var uniqueArea = {};
+    areaDesc = [];
+    dropdowndetails.forEach(function(obj, i) {
+        var det = {};
+        det.desc = obj.areaName;
+        det.value = obj.areaName;
+        if (!uniqueArea.hasOwnProperty(det.desc) && !apz.isNull(det.desc)) {
+            uniqueArea[det.desc] = true;
+            areaDesc.push(det);
+        }
+    });
+    areaDesc.unshift({
+        "val": '%',
+        "desc": "Area"
+    })
+    apz.populateDropdown(document.getElementById(CrtDetailsScrId + "areaDrpDn"), areaDesc);
+    //Region
+    var uniqueRegion = {};
+    regionDesc = [];
+    dropdowndetails.forEach(function(obj, i) {
+        let det = {};
+        det.desc = obj.regionName;
+        det.value = obj.regionName;
+        if (!uniqueRegion.hasOwnProperty(det.desc) && !apz.isNull(det.desc)) {
+            uniqueRegion[det.desc] = true;
+            regionDesc.push(det);
+        }
+    });
+    regionDesc.unshift({
+        "val": '%',
+        "desc": "Region"
+    })
+    apz.populateDropdown(document.getElementById(CrtDetailsScrId + "regionDrpDn"), regionDesc);
+    //branch
+    var uniqueBranch = {};
+    branchDesc = [];
+    dropdowndetails.forEach(function(obj, i) {
+        let det = {};
+        det.desc = obj.branchName;
+        det.value = obj.branchName;
+        if (!uniqueBranch.hasOwnProperty(det.desc) && !apz.isNull(det.desc)) {
+            uniqueBranch[det.desc] = true;
+            branchDesc.push(det);
+        }
+    });
+    branchDesc.unshift({
+        "val": '%',
+        "desc": "Branch"
+    })
+    apz.populateDropdown(document.getElementById(CrtDetailsScrId + "branchDrpDn"), branchDesc);
+    //state
+    var uniqueState = {};
+    stateDesc = [];
+    dropdowndetails.forEach(function(obj, i) {
+        let det = {};
+        det.desc = obj.state;
+        det.value = obj.state;
+        if (!uniqueState.hasOwnProperty(det.desc) && !apz.isNull(det.desc)) {
+            uniqueState[det.desc] = true;
+            stateDesc.push(det);
+        }
+    });
+    stateDesc.unshift({
+        "val": '%',
+        "desc": "State"
+    })
+    apz.populateDropdown(document.getElementById(CrtDetailsScrId + "stateDrpDn"), stateDesc);
+}
+apz.app.CrtDetails.paintStatus = function() {
+    var status = [],
+        statusData = [{
+            key: "New",
+        }, {
+            key: "Approved"
+        }, {
+            key: "Rejected(3)"
+        }, {
+            key: "Inprocess(3)"
+        }];
+    statusData.forEach(function(el, i) {
+        var obj = {
+            status: statusData[i].key
+        }
+        status.push(obj);
+    });
+    if (status.length > 0) {
+        apz.data.scrdata.Widget__CrtStatusList_Res = {};
+        apz.data.scrdata.Widget__CrtStatusList_Res.CrtStatus = status;
+        apz.data.loadData("CrtStatusList", 'Widget');
+        $("#Widget__CrtStatusList__o__CrtStatus__status_0").addClass('var1')
+        $("#Widget__CrtStatusList__o__CrtStatus__status_1").addClass('var2')
+        $("#Widget__CrtStatusList__o__CrtStatus__status_2").addClass('var3')
+        $("#Widget__CrtStatusList__o__CrtStatus__status_3").addClass('var4')
+    }
+}
+apz.app.CrtDetails.paintMemberDtls = function() {
+    crtDtls = [];
+    // data = applicationResp
+    CRTarray.forEach(function(el, i) {
+        var cbapprovedAmount, amount;
+        if (applicationResp[i].amount === JSON.parse(applicationResp[i].addInfo).caglAmt || JSON.parse(applicationResp[i].addInfo)
+            .caglAmt === undefined) {
+            cbapprovedAmount = JSON.parse(CRTarray[i].resPayload).Approved_Loan_Amount;
+            amount = CRTarray[i].amount >= 0 ? ApzCOB.fn_FormatAmount(CRTarray[i].amount) : 'NO DATA';
+        } else {
+            cbapprovedAmount = ApzCOB.fn_FormatAmount(applicationResp[i].amount);
+            amount = JSON.parse(applicationResp[i].addInfo).caglAmt >= 0 ? ApzCOB.fn_FormatAmount(JSON.parse(applicationResp[i].addInfo)
+                .caglAmt) : 'NO DATA';
+        }
+        var objc = {
+            applicationId: CRTarray[i].applicationId ?? 'NO DATA',
+            customerId: CRTarray[i].customerId ?? 'NO DATA',
+            customerName: CRTarray[i].customerName ?? 'NO DATA',
+            branchCode: CRTarray[i].branchCode ?? 'NO DATA',
+            branchName: CRTarray[i].addInfo ? JSON.parse(CRTarray[i].addInfo).branchName : 'NO DATA',
+            productCode: CRTarray[i].productCode ?? 'NO DATA',
+            productName: CRTarray[i].productshortDesc ?? 'NO DATA',
+            applicationDate: CRTarray[i].applicationDate ?? 'NO DATA',
+            areaName: CRTarray[i].addInfo ? JSON.parse(CRTarray[i].addInfo).areaName : 'NO DATA',
+            regionName: CRTarray[i].addInfo ? JSON.parse(CRTarray[i].addInfo).regionName : 'NO DATA',
+            state: CRTarray[i].addInfo ? JSON.parse(CRTarray[i].addInfo).state : 'NO DATA',
+            amount: amount ?? 'NO DATA',
+            approvedAmount: cbapprovedAmount ?? 'NO DATA',
+            applicationStatus: CRTarray[i].applicationStatus ?? 'NO DATA'
+        }
+        crtDtls.push(objc)
+    })
+    if (crtDtls.length > 0) {
+        //slicedArr = crtDtls.slice(170, 179);
+        apz.data.scrdata.Widget__CrtDetailsList_Res = {};
+        apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode = crtDtls;
+        //apz.data.loadData("CrtDetailsList", 'Widget');
+        apz.app.CrtDetails.funcPagination(crtDtls);
+        $("#" + CrtDetailsScrId + "noRecordForm").addClass('sno');
+    } else if (crtDtls.length > 0 && userRole === 'AM') {
+        let filteredCrtDtls = crtDtls.filter(function(obj) {
+            var amountValue = parseInt(obj.amount.replace(/,/g, ''));
+            return amountValue > AM_AMOUNT;
+        })
+        if (filteredCrtDtls.length > 0) {
+            apz.data.scrdata.Widget__CrtDetailsList_Res = {};
+            apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode = filteredCrtDtls;
+            apz.app.CrtDetails.funcPagination(filteredCrtDtls);
+            $("#" + CrtDetailsScrId + "noRecordForm").addClass('sno');
+        } else {
+            $("#" + CrtDetailsScrId + "noRecordForm").removeClass('sno');
+        }
+    } else {
+        $("#" + CrtDetailsScrId + "noRecordForm").removeClass('sno');
+    }
+    $('#' + CrtDetailsScrId + 'count').text("VIEW " + (10 - 4) + " MORE");
+    // apz.setElmValue(CrtDetailsScrId + "listCount", crtDtls.length);
+    // apz.setElmValue(CrtDetailsScrId + "totalListCount", crtDtls.length);
+}
+apz.app.CrtDetails.funcPagination = function(pData) {
+    AllDataList = [...pData];
+    totalItems = '0';
+    $("#" + CrtDetailsScrId + "totalListCount").text(AllDataList.length);
+    if (AllDataList.length < 10) {
+        $("#" + CrtDetailsScrId + "listCount").text(AllDataList.length);
+    } else {
+        $("#" + CrtDetailsScrId + "listCount").text(configLimit);
+    }
+    //$("#" + CrtDetailsScrId + "listCount").text(configLimit);
+    if (!apz.isNull(AllDataList)) {
+        $('#' + CrtDetailsScrId + 'pageForm').removeClass("sno");
+        window.dataSource = "dummy value";
+        totalItems = AllDataList.length;
+        window.totalPaginationPages = '0';
+        configLimit = 10;
+        let num = Number(totalItems) / Number(configLimit);
+        window.totalPaginationPages = Math.ceil(num);
+        if (Number(totalItems) > Number(configLimit)) {
+            apz.app.CrtDetails.InitialisePagination(totalItems);
+        } else {
+            apz.app.CrtDetails.HidePagination(AllDataList);
+        }
+        window.currentPageNumber = window.pageNo;
+    } else {
+        apz.app.CrtDetails.HidePagination(AllDataList);
+    }
+}
+apz.app.CrtDetails.InitialisePagination = function(totalItems) {
+    $('#' + CrtDetailsScrId + PagBtnInp).attr("disabled", false);
+    $('#' + CrtDetailsScrId + 'row_acc_pagiButtons').css('opacity', '1');
+    var page = window.totalPaginationPages > 1 ? "PAGES" : "PAGE";
+    apz.setElmValue(CrtDetailsScrId + "remPages", "of" + " " + window.totalPaginationPages)
+    var PageArr = [];
+    for (let i = 1; i <= totalPaginationPages; i++) {
+        let obj = {
+            value: i,
+            desc: i
+        }
+        PageArr.push(obj);
+    }
+    apz.populateDropdown(document.getElementById(CrtDetailsScrId + 'dropDownPage'), PageArr);
+    $('#' + CrtDetailsScrId + Pagination_Bar).pagination({
+        dataSource: window.dataSource,
+        totalNumber: Number(totalItems),
+        pageSize: Number(configLimit),
+        pageNumber: Number(pageNo),
+        callback: function(data, pagination) {
+            if (seleDropPage) {
+                seleDropPage = false;
+                window.currentPageNumber = Number(window.pageNo)
+                apz.app.CrtDetails.displayRecords();
+            } else {
+                if (window.currentPageNumber < window.pageNo) {
+                    if (window.currentPageNumber < Math.ceil(AllDataList.length / configLimit)) {
+                        window.currentPageNumber = Number(window.currentPageNumber) + 1;
+                        apz.app.CrtDetails.displayRecords();
+                    }
+                } else if (window.currentPageNumber > window.pageNo) {
+                    window.currentPageNumber = Number(window.currentPageNumber) - 1;
+                    apz.app.CrtDetails.displayRecords();
+                }
+            }
+        }
+    });
+    apz.app.CrtDetails.displayRecords();
+}
+apz.app.CrtDetails.displayRecords = function() {
+    const itemsPerPage = Number(configLimit);
+    if (pagiationFlag) {
+        document.getElementById(CrtDetailsScrId + 'dropDownPage').value = window.currentPageNumber > 0 ? window.currentPageNumber : 1;
+        pagiationFlag = false;
+    }
+    let startIndex = (window.currentPageNumber - 1) * itemsPerPage;
+    startIndex = startIndex > 0 ? startIndex : 0
+    const endIndex = startIndex + itemsPerPage;
+    const currentItems = AllDataList.slice(startIndex, endIndex);
+    $(".paginationjs").addClass("sno");
+    apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode = currentItems;
+    $("#" + CrtDetailsScrId + "listCount").text(currentItems.length);
+    $('#' + CrtDetailsScrId + 'pageForm').removeClass("sno");
+    $('#' + CrtDetailsScrId + Pagination_Bar).removeClass("sno");
+    if (userRole === 'AM') {
+        apz.data.loadData("CrtDetailsList", "Widget");
+        apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode.forEach((d, idx) => {
+            $("#" + CrtDetailsScrId + `paintDataList_row_${idx} > span:first-child`).addClass('sno');
+            $("#" + CrtDetailsScrId + `el_txt_202_${idx}`).addClass('sno');
+            $("#" + CrtDetailsScrId + `paintDataList_row_${idx}`).attr("onclick", "apz.app.CrtDetails.viewDetails(this);");
+        })
+    } else {
+        apz.data.loadData("CrtDetailsList", "Widget");
+        apz.app.CrtDetails.updateCheckboxStates();
+    }
+}
+apz.app.CrtDetails.OnChangeValue = function(pthis) {
+    seleDropPage = true;
+    const liElement = document.querySelector(`li.paginationjs-page[data-num="${pthis.value}"]`);
+    if (liElement) {
+        const anchorTag = liElement.querySelector('a');
+        if (anchorTag) {
+            anchorTag.click();
+        }
+    }
+    // setTimeout(function () {
+    //     apz.app.CrtDetails.updateCheckboxStates();
+    // }, 100);
+}
+apz.app.CrtDetails.HidePagination = function(AllDataList) {
+    if (Number(totalItems) <= Number(configLimit)) {
+        $('#' + CrtDetailsScrId + PagBtnInp).attr("disabled", true);
+        $('#' + CrtDetailsScrId + 'row_acc_pagiButtons').css('opacity', '0.3');
+        // $('#' + CrtDetailsScrId + 'txt_acc_pagesTxtPagi').text("1 " + "PAGE");
+    }
+    $('#' + CrtDetailsScrId + 'pageForm').removeClass("sno");
+    $('#' + CrtDetailsScrId + Pagination_Bar).addClass("sno");
+    apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode = AllDataList;
+    apz.data.loadData("CrtDetailsList", 'Widget');
+};
+/*apz.app.CrtDetails.*/
+apz.app.CrtDetails.viewDetails = function(pthis) {
+    let rowNo = $(pthis).attr('rowno');
+    var data = apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode[rowNo];
+    selectedDataForView = data;
+    var req = {
+        "apiRequest": {
+            "interfaceName": "LockApplication",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "createdBy": LoggedInUserDetails.userID,
+                "applicationId": data.applicationId,
+                "roleId": LoggedInUserDetails.loginResponse.addInfo1
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "LockApplication", "N", "N", req, false, apz.app.CrtDetails.ApplicationLockCheckCB);
+};
+apz.app.CrtDetails.ApplicationLockCheckCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (params.res.APZCBO__LockApplication_Res.apiResponse.ResponseHeader.ResponseCode === '0') {
+                if (!apz.isNull(params.res.APZCBO__LockApplication_Res.apiResponse.ResponseBody.responseObj)) {
+                    CRTarray.forEach(function(el, i) {
+                        if (selectedDataForView.applicationId === CRTarray[i].applicationId) {
+                            selectedCrt = CRTarray[i];
+                        }
+                    })
+                    ApzCOB.fetchLoanApplication(selectedCrt, 'CRTdtls')
+                } else {
+                    ApzCOB.fnDisplayMsg("Application is Locked by another user.", "E");
+                }
+            } else {
+                ApzCOB.fnDisplayMsg("Application is Locked by another user.", "E");
+            }
+        } else {
+            ApzCOB.fnDisplayMsg(params.res.APZCBO__LockApplication_Res.apiResponse.ResponseBody.responseObj, "E");
+        }
+    } catch (e) {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+};
+apz.app.CrtDetails.paintCustDtls = function(params) {
+    custDtls = params.matchingCustomer
+    cbDtls = params.selectedCust.cbResponse
+    var insurFor
+    if (custDtls.customerDtls.loanDtls.insurDtls.member === 'Y' && custDtls.customerDtls.loanDtls.insurDtls.Spouse === 'Y') {
+        insurFor = 'Member & Spouse'
+    } else if (custDtls.customerDtls.loanDtls.insurDtls.member === 'Y') {
+        insurFor = 'Member'
+    } else if (custDtls.customerDtls.loanDtls.insurDtls.Spouse === 'Y') {
+        insurFor = 'Spouse'
+    } else {
+        insurFor = 'N/A'
+    }
+    var vintage = custDtls.customerDtls.kycDtls.vintage ?? "NO DATA"
+    var totalOutstandingAmt = 0;
+    custDtls.customerDtls.loanDtls.activeLoanDtls.forEach(function(el, i) {
+        totalOutstandingAmt = totalOutstandingAmt + Math.round(parseFloat(el.outstandingPrincipal)) + Math.round(parseFloat(el
+            .overdueInterest)) + Math.round(parseFloat(el.overduePrincipal)) ?? 0;
+    });
+    apz.setElmValue(CrtDetailsScrId + "custName", custDtls.customerDtls.customerName ?? "NO DATA")
+    apz.setElmValue(CrtDetailsScrId + "el_txt_62", custDtls.customerDtls.customerName ? custDtls.customerDtls.customerName.slice(0, 1) :
+        "NO DATA");
+    apz.setElmValue(CrtDetailsScrId + "kendraID", custDtls.kendraId ?? "NO DATA")
+    apz.setElmValue(CrtDetailsScrId + "kendraName", custDtls.kendraName ?? "NO DATA")
+    apz.setElmValue(CrtDetailsScrId + "outstandingAmt", ApzCOB.fn_FormatAmount(totalOutstandingAmt) ?? 'NO DATA');
+    apz.setElmValue(CrtDetailsScrId + "custBranch", custDtls.loanMode ?? 'NO DATA');
+    apz.setElmValue(CrtDetailsScrId + "vintage", "Vintage" + ' ' + vintage + '' + "Years")
+    apz.setElmValue(CrtDetailsScrId + "loanAmt", custDtls.amount >= 0 ? (ApzCOB.fn_FormatAmount(custDtls.amount)) : "NO DATA")
+    apz.setElmValue(CrtDetailsScrId + "loanProduct", custDtls.customerDtls.loanDtls.shortDesc ?? "NO DATA")
+    apz.setElmValue(CrtDetailsScrId + "purpose", custDtls.customerDtls.loanDtls.purpose.purposeDesc ?? "NO DATA")
+    apz.setElmValue(CrtDetailsScrId + "subPurpose", custDtls.customerDtls.loanDtls.purpose.productSubPurpose ?? "NO DATA")
+    apz.setElmValue(CrtDetailsScrId + "frequency", custDtls.customerDtls.loanDtls.repayFrequency.idDesc ?? "NO DATA")
+    apz.setElmValue(CrtDetailsScrId + "nomineeName", custDtls.customerDtls.loanDtls.nomineeDtls.nomineeName ?? "NO DATA")
+    apz.setElmValue(CrtDetailsScrId + "relation", custDtls.customerDtls.loanDtls.nomineeDtls.relationWithMember ?? "NO DATA")
+    apz.setElmValue(CrtDetailsScrId + "insurFor", insurFor)
+    apz.setElmValue(CrtDetailsScrId + "memberDOB", custDtls.customerDtls.kycDtls.dob && /^\d{8}$/.test(custDtls.customerDtls.kycDtls.dob) ? ApzCOB
+        .dateStringToDate(custDtls.customerDtls.kycDtls.dob) : "NO DATA");
+    apz.setElmValue(CrtDetailsScrId + "maritalStatus", custDtls.customerDtls.kycDtls.maritalStatus ?? "NO DATA")
+    if (custDtls.customerDtls.kycDtls.maritalStatus === 'MARRIED') {
+        // $('#' + CrtDetailsScrId + "sc_row_162").addClass('sno');
+        // $('#' + CrtDetailsScrId + "sc_row_166").addClass('sno');
+        $('#' + CrtDetailsScrId + "sc_row_162").removeClass('sno');
+        $('#' + CrtDetailsScrId + "sc_row_166").removeClass('sno');
+    }
+    if (custDtls.customerDtls.kycDtls.maritalStatus != 'MARRIED') {
+        apz.setElmValue(CrtDetailsScrId + "spouseNameDob", "");
+    } else {
+        apz.setElmValue(CrtDetailsScrId + "spouseNameDob",
+            (custDtls.customerDtls.earnings[0] ? custDtls.customerDtls.earnings[0].name : "NO DATA") + ", " + (custDtls.customerDtls.earnings[
+                0] && /^\d{8}$/.test(custDtls.customerDtls.earnings[0].dob) ? ApzCOB.dateStringToDate(custDtls.customerDtls.earnings[0]
+                .dob) : "NO DATA"));
+    }
+    apz.setElmValue(CrtDetailsScrId + "membersKYC", (custDtls.customerDtls.kycDtls.primaryType ?? 'NO DATA') + '(' + (custDtls.customerDtls
+        .kycDtls.primaryId ?? 'NO DATA') + ')');
+    if (custDtls.customerDtls.kycDtls.maritalStatus != 'MARRIED') {
+        apz.setElmValue(CrtDetailsScrId + "spouseKYC", "");
+    } else {
+        apz.setElmValue(CrtDetailsScrId + "spouseKYC", (custDtls.customerDtls.earnings[0] ? custDtls.customerDtls.earnings[0].legaldocName :
+            'NO DATA') + '(' + (custDtls.customerDtls.earnings[0] ? custDtls.customerDtls.earnings[0].legaldocId : 'NO DATA') + ')');
+    }
+    apz.setElmValue(CrtDetailsScrId + "accNumber", custDtls.customerDtls.bankDtls.bankAccNo ?? 'NO DATA');
+    apz.setElmValue(CrtDetailsScrId + "bankIFSC", (custDtls.customerDtls.bankDtls.bankName ?? 'NO DATA') + ',' + custDtls.customerDtls.bankDtls
+        .bankIfscCode ?? 'NO DATA');
+    apz.setElmValue(CrtDetailsScrId + "branch", custDtls.customerDtls.bankDtls.bankBranchName ?? 'NO DATA');
+    $('#' + CrtDetailsScrId + "crtDashboardDiv").addClass('sno');
+    $('#' + CrtDetailsScrId + "customerDtlsDiv").removeClass('sno');
+    var memberstext = 'Earning members in the family (' + custDtls.customerDtls.earnings.length + ')';
+    apz.setElmValue(CrtDetailsScrId + "memberscount", memberstext);
+    var membersname = '';
+    if (custDtls.customerDtls.earnings[0]) {
+        if (custDtls.customerDtls.earnings.length == 0) {
+            membersname = custDtls.customerDtls.earnings[0].name + ' (' + custDtls.customerDtls.earnings[0].memRelation + ')'
+        } else {
+            custDtls.customerDtls.earnings.forEach(function(el, i) {
+                if (i == custDtls.customerDtls.earnings.length - 1) {
+                    membersname += custDtls.customerDtls.earnings[i].name + ' (' + custDtls.customerDtls.earnings[i].memRelation + ')';
+                } else if (i == 0) {
+                    membersname = custDtls.customerDtls.earnings[i].name + ' (' + custDtls.customerDtls.earnings[i].memRelation + '),';
+                } else {
+                    membersname += custDtls.customerDtls.earnings[i].name + ' (' + custDtls.customerDtls.earnings[i].memRelation + '),';
+                }
+            });
+        }
+    }
+    var totFamilyIncome = custDtls.customerDtls.income[0].totIncome
+    var yearlyExpenses = custDtls.customerDtls.income[0].totExpense
+    var totIncome = parseInt(totFamilyIncome) - parseInt(yearlyExpenses)
+    apz.setElmValue(CrtDetailsScrId + "membersname", membersname);
+    apz.setElmValue(CrtDetailsScrId + "totFamilyIncome", ApzCOB.fn_FormatAmount(totFamilyIncome));
+    apz.setElmValue(CrtDetailsScrId + "yearlyExpenses", ApzCOB.fn_FormatAmount(yearlyExpenses));
+    apz.setElmValue(CrtDetailsScrId + "totIncome", ApzCOB.fn_FormatAmount(totIncome));
+    $('#' + CrtDetailsScrId + 'activeloanDtls').addClass('sno');
+}
+apz.app.CrtDetails.activeLoanlist = function() {
+    var activeloanDtls = $('#' + CrtDetailsScrId + 'activeloanDtls');
+    let activeLoanList = [];
+    if ((activeloanDtls).hasClass('sno')) {
+        if (custDtls.customerDtls && custDtls.customerDtls.loanDtls && custDtls.customerDtls.loanDtls.activeLoanDtls && custDtls.customerDtls
+            .loanDtls.activeLoanDtls.length > 0) {
+            activeloanDtls.removeClass('sno');
+            $('#Widget__CrtDetails__el_txt_77_txtcnt').text('Maturity Date (Remaining Installments)');
+            custDtls.customerDtls.loanDtls.activeLoanDtls.forEach(function(el, i) {
+                if (el.status !== 'CLOSED') {
+                    var wks = ApzCOB.findMaturityWeek(el.lnMatDate);
+                    var loanAmt=el.approvedAmt;
+                    if (apz.isNull(el.approvedAmt)) {
+                     loanAmt=el.amount;
+                    }
+                    var maturityDate = ApzCOB.confDateFormatter(ApzCOB.dateStringToDate(el.lnMatDate), "dd/mm/yy");
+                    let remainingInstallment =  ApzCOB.calculateRemainingInstallments(el.lnValueDate, el.lnMatDate, el.freq, todayStr = null);
+                    let lObj = {
+                        maturityDate: `${maturityDate} (${remainingInstallment})`,
+                        product: el.shortDesc,
+                        loanId: el.loanId,
+                        loanAmount:"₹ " +loanAmt,
+                        // dueAmt: "₹ " + parseInt(el.outstandingPrincipal) + ' ( ₹ ' + (parseInt(el.overdueInterest) + parseInt(el
+                        //     .overduePrincipal)) + ' )'
+                        dueAmt: "₹ " + Math.round(parseFloat(el.outstandingPrincipal)) + ' ( ₹ ' + Math.round((parseFloat(el
+                            .overdueInterest)) + Math.round(parseFloat(el.overduePrincipal))) + ' )'
+                    };
+                    activeLoanList.push(lObj);
+                }
+            });
+            if (activeLoanList.length > 0) {
+                apz.data.scrdata.Widget__ActiveLoans_Res = {};
+                apz.data.scrdata.Widget__ActiveLoans_Res.LoanDtls = activeLoanList;
+                apz.data.loadData("ActiveLoans", 'Widget');
+            } else {
+                $('#' + CrtDetailsScrId + "activeloanDtls").addClass('sno');
+                $('#' + CrtDetailsScrId + "noRecord").removeClass('sno');
+            }
+        } else {
+            ApzCOB.fnDisplayMsg("No Active Loans Available", "I");
+        }
+    } else {
+        activeloanDtls.addClass('sno');
+    }
+}
+apz.app.CrtDetails.onEdit = function() {
+    ApzCOB.toggleModal(CrtDetailsScrId + 'EditModal');
+    var appliedAmt
+    if (JSON.parse(custDtls.addInfo).caglAmt) {
+        appliedAmt = JSON.parse(custDtls.addInfo).caglAmt
+    } else {
+        appliedAmt = custDtls.customerDtls.loanDtls.cbAmt
+    }
+    var appliedAmount = ApzCOB.fn_FormatAmount(appliedAmt);
+    var approvedAmt = JSON.parse(cbDtls.resPayload).Approved_Loan_Amount;
+    var approvedAmount = ApzCOB.fn_FormatAmount(approvedAmt);
+    apz.setElmValue(CrtDetailsScrId + "appliedAmt", appliedAmount);
+    apz.setElmValue(CrtDetailsScrId + "approvedAmt", '');
+    apz.setElmValue(CrtDetailsScrId + "remarks", custDtls.remarks ?? '');
+    apz.app.CrtDetails.setMinMaxAmt();
+}
+apz.app.CrtDetails.setMinMaxAmt = function() {
+    var selProd = custDtls.customerDtls.loanDtls.productId
+    var selProdArray = KendraApp.ProductResponse.filter(val => (val.productDtls.productId === selProd));
+    if (selProdArray.length > 0) {
+        selLoanProdObj = selProdArray[0];
+        defAmtArr = selLoanProdObj.productDtls.amountDefault.split(',');
+        maxAmtArr = selLoanProdObj.productDtls.amountMax.split(',');
+        minAmtArr = selLoanProdObj.productDtls.amountMin.split(',');
+        termArr = selLoanProdObj.productDtls.term.split(',');
+        if (defAmtArr.length > 1) {
+            defAmt = parseInt(defAmtArr[0], 10);
+            maxAmt = parseInt(maxAmtArr[maxAmtArr.length - 1], 10);
+            minAmt = parseInt(minAmtArr[0], 10);
+        } else {
+            defAmt = parseInt(selLoanProdObj.productDtls.amountDefault, 10);
+            maxAmt = parseInt(selLoanProdObj.productDtls.amountMax, 10);
+            minAmt = parseInt(selLoanProdObj.productDtls.amountMin, 10);
+        }
+    }
+}
+var mandFields = [CrtDetailsScrId + "approvedAmt", CrtDetailsScrId + "remarks", CrtDetailsScrId + "foir", CrtDetailsScrId + "apr"];
+apz.app.CrtDetails.editSave = function() {
+    if (ApzCOB.customeValidateFields(mandFields)) {
+        if (validateAmtFlag) {
+            selectedCrtUpdate = true;
+            apz.app.CrtDetails.updateDataFn();
+            KendraApp.crtLoanSaveReq.applicationdtls = KendraLoans.custFetchLoanAppRes.applicationdtls[0]
+            window.KendraApp.remarks='The Loan Edited by '+LoggedInUserDetails.userID +' ('+currentUserRole +').';
+            ApzCOB.saveLoan();
+            ApzCOB.toggleModal(CrtDetailsScrId + 'EditModal');
+            ApzCOB.fnDisplayMsg("Loan submitted successfully!", "S", apz.app.CrtDetails.homePage);
+        } else {
+            if (editApprovedAmt > maxAmt) {
+                ApzCOB.fnDisplayMsg("Amount is more than maximum amount", 'I');
+                apz.setElmValue(CrtDetailsScrId + "approvedAmt", '');
+                validateAmtFlag = false;
+            } else if (editApprovedAmt < minAmt) {
+                ApzCOB.fnDisplayMsg("Amount is less than minimum amount", 'I');
+                apz.setElmValue(CrtDetailsScrId + "approvedAmt", '');
+                validateAmtFlag = false;
+            }
+        }
+    }
+}
+apz.app.CrtDetails.caculateTerm = function(approvedAmount) {
+    if (defAmtArr.length > 1) {
+        switch (defAmtArr.length) {
+            case 5:
+                if (approvedAmount <= defAmtArr[0]) {
+                    term = parseInt(termArr[0].slice(0, -1));
+                } else if (approvedAmount <= defAmtArr[1]) {
+                    term = parseInt(termArr[1].slice(0, -1));
+                } else if (approvedAmount <= defAmtArr[2]) {
+                    term = parseInt(termArr[2].slice(0, -1));
+                } else if (approvedAmount <= defAmtArr[3]) {
+                    term = parseInt(termArr[3].slice(0, -1));
+                } else if (approvedAmount <= defAmtArr[4]) {
+                    term = parseInt(termArr[4].slice(0, -1));
+                }
+                break;
+            case 4:
+                if (approvedAmount <= defAmtArr[0]) {
+                    term = parseInt(termArr[0].slice(0, -1));
+                } else if (approvedAmount <= defAmtArr[1]) {
+                    term = parseInt(termArr[1].slice(0, -1));
+                } else if (approvedAmount <= defAmtArr[2]) {
+                    term = parseInt(termArr[2].slice(0, -1));
+                } else if (approvedAmount <= defAmtArr[3]) {
+                    term = parseInt(termArr[3].slice(0, -1));
+                }
+                break;
+            case 3:
+                if (approvedAmount <= defAmtArr[0]) {
+                    term = parseInt(termArr[0].slice(0, -1));
+                } else if (approvedAmount <= defAmtArr[1]) {
+                    term = parseInt(termArr[1].slice(0, -1));
+                } else if (approvedAmount <= defAmtArr[2]) {
+                    term = parseInt(termArr[2].slice(0, -1));
+                }
+                break;
+            case 2:
+                if (approvedAmount <= defAmtArr[0]) {
+                    term = parseInt(termArr[0].slice(0, -1));
+                } else if (approvedAmount <= defAmtArr[1]) {
+                    term = parseInt(termArr[1].slice(0, -1));
+                }
+                break;
+        }
+    }else{
+       term =custDtls.customerDtls.loanDtls.term;
+    }
+}
+var matchedProduct = null;
+
+apz.app.CrtDetails.updateDataFn = function() {
+    var date = date = (KendraLoans.custFetchLoanAppRes.applicationdtls[0].applicationDate).split('-');
+    date = date[1] + '/' + date[2] + '/' + date[0]
+    let approvedAmount = $('#' + CrtDetailsScrId + "approvedAmt").val();
+    let foir = $('#' + CrtDetailsScrId + "foir").val();
+    let apr = $('#' + CrtDetailsScrId + "apr").val();
+    let remarks = $('#' + CrtDetailsScrId + "remarks").val();
+    approvedAmount = parseInt(approvedAmount.replaceAll(",", ""));
+    apz.app.CrtDetails.caculateTerm(approvedAmount);
+    //term = KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.term;
+    //var insurAmt = KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.insurCharges;
+    var memCheckBox = KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.member == 'Y' ? true : false;
+    var spouseCheckBox = KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.Spouse == 'Y' ? true : false;
+    var week = term.toString().match(/\d+/g);
+    term = week[0];
+    var insurArr = gApzCOB.insurDetails.filter(arr => (arr.Loan_Amount === approvedAmount && (term + 'W') === arr.Tenure));
+    
+    for (var i = 0; i < window.KendraApp.ProductResponse.length; i++) {
+        if (window.KendraApp.ProductResponse[i].productDtls.shortDesc === KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.shortDesc) {
+            matchedProduct = window.KendraApp.ProductResponse[i].productDtls;
+            break;
+        }
+    }
+    
+    window.feeCharge = +matchedProduct.feeCharge;
+    window.gstValue = +matchedProduct.gst;
+    window.memInsurance =  matchedProduct.memInsurance;
+    
+    
+    if (insurArr.length > 0) {
+        if (memCheckBox && spouseCheckBox) {
+            insurAmt = insurArr[0].Spouse_Insurance + insurArr[0].Borrower_Insurance;
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.applicant_insurance_amt = insurArr[0].Borrower_Insurance;
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.spouse_insurance_amt = insurArr[0].Spouse_Insurance;
+        } else if (memCheckBox) {
+            insurAmt = insurArr[0].Borrower_Insurance;
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.applicant_insurance_amt = insurArr[0].Borrower_Insurance;
+        } else {
+            insurAmt = 0;
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.applicant_insurance_amt = "";
+            KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.spouse_insurance_amt = "";
+        }
+    } else {
+        insurAmt = 0;
+        KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.member == 'N';
+        KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.Spouse == 'N';
+        KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.applicant_insurance_amt = "";
+        KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.spouse_insurance_amt = "";
+    }
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.chargeAndBreakupDtls = {
+        "loanAmt": parseInt(ApzCOB.fn_unFormatAmount(ApzCOB.fn_FormatAmount(approvedAmount))),
+        "GST": ApzCOB.calGSTAmount(approvedAmount,window.gstValue,window.feeCharge),
+        "addInfo1": parseFloat(ApzCOB.calGSTAmount(approvedAmount,window.gstValue,window.feeCharge)) + +parseFloat(ApzCOB.calProcessingFees(approvedAmount,window.feeCharge)) + parseFloat((
+            insurAmt)),
+        "aprxLoanCharges": ApzCOB.fn_FormatAmount((+ApzCOB.calGSTAmount(approvedAmount,window.gstValue,window.feeCharge) + +ApzCOB.calProcessingFees(approvedAmount,window.feeCharge))),
+        "loanProcessingFee": ApzCOB.calProcessingFees(approvedAmount,window.feeCharge),
+        "aprxLoanAmt": (parseInt(ApzCOB.fn_unFormatAmount(ApzCOB.fn_FormatAmount(approvedAmount))) - (+ApzCOB.calGSTAmount(approvedAmount,window.gstValue,window.feeCharge) + +
+            ApzCOB.calProcessingFees(approvedAmount,window.feeCharge) + parseFloat(insurAmt))).toString(),
+        "aprxInstallmentAmt": ""
+    }
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.chargeAndBreakupDtls.iscbUpdated = false;
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].customerDtls.loanDtls.insurDtls.insurCharges = insurAmt;
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].amount = parseInt(approvedAmount);
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].remarks = remarks
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].applicationDate = date;
+    if (typeof KendraLoans.custFetchLoanAppRes.applicationdtls[0].addInfo =='string'){
+       KendraLoans.custFetchLoanAppRes.applicationdtls[0].addInfo=JSON.parse(KendraLoans.custFetchLoanAppRes.applicationdtls[0].addInfo)
+    }
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].addInfo.isApprovedCRT=true;
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].addInfo.FOIR=foir;
+    KendraLoans.custFetchLoanAppRes.applicationdtls[0].addInfo.APR=apr;
+    
+}
+apz.app.CrtDetails.editCancel = function() {
+    apz.setElmValue(CrtDetailsScrId + "appliedAmt", '')
+    apz.setElmValue(CrtDetailsScrId + "approvedAmt", '')
+    apz.setElmValue(CrtDetailsScrId + "remarks", '')
+    $('#' + CrtDetailsScrId + "approvedAmtErrorDiv").addClass('sno');
+    $('#' + CrtDetailsScrId + "approvedAmt").removeClass('err');
+    $('#' + CrtDetailsScrId + "remarksErrorDiv").addClass('sno');
+    ApzCOB.toggleModal(CrtDetailsScrId + 'EditModal');
+}
+apz.app.CrtDetails.backNavigation = function() {
+    let uploadText = $('#Widget__CrtDetails__el_txt_328');
+    if (uploadText.is(":visible")) {
+        $('#' + CrtDetailsScrId + "afterUplaod").addClass('sno');
+        $('#' + CrtDetailsScrId + "beforeUpload").removeClass('sno');
+        $('#' + CrtDetailsScrId + "backIcon").addClass('sno');
+    } else {
+        $('#' + CrtDetailsScrId + "crtDashboardDiv").removeClass('sno');
+        $('#' + CrtDetailsScrId + "customerDtlsDiv").addClass('sno');
+    }
+}
+apz.app.CrtDetails.onChangeDate = function(pthis) {
+    var id = pthis.id;
+    var date;
+    if (id === 'Widget__CrtDetails__fromDate') {
+        date = ($("#" + CrtDetailsScrId + "fromDate").val()).split('/');
+        fromDate = date[2] + '-' + date[1] + '-' + date[0]
+    } else if (id === 'Widget__CrtDetails__toDate') {
+        date = ($("#" + CrtDetailsScrId + "toDate").val()).split('/');
+        toDate = date[2] + '-' + date[1] + '-' + date[0]
+    }
+}
+apz.app.CrtDetails.clearFilter = function() {
+    apz.populateDropdown(document.getElementById(CrtDetailsScrId + "statusDrpDn"), statusDesc);
+    apz.populateDropdown(document.getElementById(CrtDetailsScrId + "areaDrpDn"), areaDesc);
+    apz.populateDropdown(document.getElementById(CrtDetailsScrId + "regionDrpDn"), regionDesc);
+    apz.populateDropdown(document.getElementById(CrtDetailsScrId + "branchDrpDn"), branchDesc);
+    apz.populateDropdown(document.getElementById(CrtDetailsScrId + "stateDrpDn"), stateDesc);
+    apz.setElmValue(CrtDetailsScrId + "fromDate", '');
+    apz.setElmValue(CrtDetailsScrId + "toDate", '');
+    fromDate = '';
+    toDate = '';
+    apz.app.CrtDetails.SearchFunctionality();
+}
+apz.app.CrtDetails.SearchFunctionality = function() {
+    selectedData = [];
+    selectedState = $("#" + CrtDetailsScrId + "stateDrpDn").val();
+    selectedRegion = $("#" + CrtDetailsScrId + "regionDrpDn").val();
+    selectedArea = $("#" + CrtDetailsScrId + "areaDrpDn").val();
+    selectedBranch = $("#" + CrtDetailsScrId + "branchDrpDn").val();
+    selectedStatus = $("#" + CrtDetailsScrId + "statusDrpDn").val();
+    for (i = 0; i < crtDtls.length; i++) {
+        if ((crtDtls[i].applicationStatus === selectedStatus || selectedStatus === 'Status') && ((fromDate <= (crtDtls[i].applicationDate) ||
+                fromDate === '') && (toDate >= (crtDtls[i].applicationDate) || toDate === '')) && (crtDtls[i].areaName === selectedArea ||
+                selectedArea === 'Area') && (crtDtls[i].branchName === selectedBranch || selectedBranch === 'Branch') && (crtDtls[i]
+                .regionName === selectedRegion || selectedRegion === 'Region') && (crtDtls[i].state === selectedState || selectedState ===
+                'State')) {
+            selectedData.push(crtDtls[i])
+        }
+    }
+    console.log(selectedData.length)
+    if (selectedData.length !== 0) {
+        // apz.data.scrdata.Widget__CrtDetailsList_Res = {};
+        // apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode = selectedData;
+        $("#" + CrtDetailsScrId + "memberIDList").removeClass('sno');
+        apz.app.CrtDetails.funcPagination(selectedData);
+        $("#" + CrtDetailsScrId + "paintDataList").removeClass('sno');
+        $("#" + CrtDetailsScrId + "noRecordForm").addClass('sno');
+        //$("#" + CrtDetailsScrId + "pageForm").addClass('sno');
+        apz.data.loadData("CrtDetailsList", 'Widget');
+    } else {
+        $("#" + CrtDetailsScrId + "memberIDList").addClass('sno');
+        $("#" + CrtDetailsScrId + "paintDataList").addClass('sno');
+        $("#" + CrtDetailsScrId + "noRecordForm").removeClass('sno');
+        //$("#" + CrtDetailsScrId + "pageForm").removeClass('sno');
+    }
+    // apz.setElmValue(CrtDetailsScrId + "listCount", selectedData.length);
+    // apz.setElmValue(CrtDetailsScrId + "totalListCount", crtDtls.length);
+}
+apz.app.CrtDetails.homePage = function() {
+    ApzCOB.FetchApplicationList();
+    // ApzCOB.launchMicroApp('Widget', 'CrtDetails', 'APZCBO__BaseScreens__BaseDIV',  ApzCOB.FetchApplicationList());
+    // $('#' + CrtDetailsScrId + "crtDashboardDiv").removeClass('sno');
+    // $('#' + CrtDetailsScrId + "customerDtlsDiv").addClass('sno');
+    // $('#' + CrtDetailsScrId + "uploadCBcheckDiv").addClass('sno');
+}
+apz.app.CrtDetails.uploadCBcheck = function() {
+    var req = {
+        "apiRequest": {
+            "appId": gAppId,
+            "interfaceName": 'FetchExcelData',
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "userId": LoggedInUserDetails.userID,
+                "typeOfUpload": LoggedInUserDetails.loginResponse.addInfo1
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "FetchExcelData", "N", "N", req, 'Y', apz.app.CrtDetails.fetchHistoryDataCB);
+}
+apz.app.CrtDetails.fetchHistoryDataCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (params.status && apz.isNull(params.errors)) {
+            let responseHeader = params.res.APZCBO__FetchExcelData_Res.apiResponse.ResponseHeader;
+            let responseBody = params.res.APZCBO__FetchExcelData_Res.apiResponse.ResponseBody;
+            let responseObj = responseBody.responseObj;
+            if (responseHeader.ResponseCode == "0") {
+                window.historyData = JSON.parse(responseBody.responseObj);
+                if (window.historyData && window.historyData.apiResponse.length > 0) {
+                    ApzCOB.launchMicroApp('Widget', 'UploadCBCheck', 'APZCBO__BaseScreens__BaseDIV', '');
+                } else {
+                    ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+                }
+            } else if (responseHeader.ResponseCode == "1") {
+                if (responseObj === 'Records Not Found') {
+                    ApzCOB.launchMicroApp('Widget', 'UploadCBCheck', 'APZCBO__BaseScreens__BaseDIV', '');
+                 } else {
+                    ApzCOB.fnDisplayMsg(responseHeader.ResponseMessage, "E");
+                }
+            } else {
+                ApzCOB.fnDisplayMsg(responseHeader.ResponseMessage, "E");
+            }
+        } else {
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    } catch (e) {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.CrtDetails.onSelectApplication = function(pthis) {
+    let rowNo = $(pthis).attr('rowno');
+    debugger
+    let applicationId = apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode[rowNo].applicationId;
+    selectedRecRowNo = rowNo;
+    if ($(pthis).is(':checked')) {
+        CRTarray.forEach(function(el, i) {
+            if (applicationId === el.applicationId) {
+                var addinfo = el.addInfo;
+                if (typeof addinfo == 'string') {
+                    addinfo = JSON.parse(addinfo)
+                }
+                if (apz.isNull(addinfo.isApprovedCRT)) {
+                    addinfo.isApprovedCRT = false;
+                }
+                newAddinfo = addinfo;
+                var req = {
+                    "apiRequest": {
+                        "interfaceName": "LockApplication",
+                        "appId": "APZCBO",
+                        "userId": LoggedInUserDetails.userID,
+                        "requestObj": {
+                            "createdBy": LoggedInUserDetails.userID,
+                            "applicationId": applicationId,
+                            "roleId": LoggedInUserDetails.loginResponse.addInfo1
+                        }
+                    }
+                }
+                apz.startLoader();
+                ApzCOB.serverBuildParam(gAppId, "LockApplication", "N", "N", req, false, apz.app.CrtDetails
+                    .ApplicationLockCheckForApproveCB);
+            }
+        });
+    } else {
+        selectedApp = selectedApp.filter(function (app) {
+            return app.applicationId !== applicationId;
+        });
+        selectedFireApp = selectedFireApp.filter(function (app) {
+            return app.applicationId !== applicationId;
+        });
+    }
+    KendraApp.crtObj = selectedApp;
+}
+apz.app.CrtDetails.ApplicationLockCheckForApproveCB = function(params) {
+    debugger
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (params.res.APZCBO__LockApplication_Res.apiResponse.ResponseHeader.ResponseCode === '0') {
+                if (!apz.isNull(params.res.APZCBO__LockApplication_Res.apiResponse.ResponseBody.responseObj)) {
+                    var applicationId = params.req.apiRequest.requestObj.applicationId;
+                    CRTarray.forEach(function(el, i) {
+                        if (applicationId === el.applicationId) {
+                            let crtObj = {
+                                applicationId: el.applicationId,
+                                versionNo: el.latestVersionNo
+                            };
+                            selectedApp.push(crtObj);
+
+                            var addinfo = el.addInfo;
+                            if (typeof addinfo == 'string') {
+                                addinfo = JSON.parse(addinfo)
+                            }
+                            if (apz.isNull(addinfo.isApprovedCRT)) {
+                                addinfo.isApprovedCRT = false;
+                            }
+                            let fireObj = {
+                                applicationId: el.applicationId,
+                                versionNo: el.latestVersionNo,
+                                isApprovedCRT: addinfo.isApprovedCRT
+                            };
+                            selectedFireApp.push(fireObj);
+                        }
+                    });
+                } else {
+                    $("#Widget__CrtDetails__el_cbx_2_" + selectedRecRowNo).prop("checked", false);
+                    ApzCOB.fnDisplayMsg("Application is Locked by another user.", "E");
+                }
+            } else {
+                $("#Widget__CrtDetails__el_cbx_2_" + selectedRecRowNo).prop("checked", false);
+                ApzCOB.fnDisplayMsg("Application is Locked by another user.", "E");
+            }
+        } else {
+            $("#Widget__CrtDetails__el_cbx_2_" + selectedRecRowNo).prop("checked", false);
+            ApzCOB.fnDisplayMsg(params.res.APZCBO__LockApplication_Res.apiResponse.ResponseBody.responseObj, "E");
+        }
+    } catch (e) {
+        $("#Widget__CrtDetails__el_cbx_2_" + selectedRecRowNo).prop("checked", false);
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+};
+apz.app.CrtDetails.updateCheckboxStates = function() {
+    $('input[type=checkbox]').each(function() {
+        let rowNo = $(this).attr('rowno');
+        let crtDetailsNode = apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode[rowNo];
+        if (crtDetailsNode && crtDetailsNode.applicationId) {
+            let applicationId = crtDetailsNode.applicationId;
+            let isChecked = selectedApp.some(app => app.applicationId === applicationId);
+            $(this).prop('checked', isChecked);
+        } else {
+            $(this).prop('checked', false);
+        }
+        if (selectedPageNum.includes(window.currentPageNumber)) {
+            $("#" + CrtDetailsScrId + 'el_cbx_1').prop('checked', true);
+        } else {
+            $("#" + CrtDetailsScrId + 'el_cbx_1').prop('checked', false);
+        }
+    });
+}
+// Function to handle pagination to the next page
+apz.app.CrtDetails.FuncPaginationNext = function() {
+    pagiationFlag = true;
+    $(".J-paginationjs-next").trigger("click");
+    $(pageInputCSSClass).val(window.pageNo);
+    // setTimeout(function() {
+    //     apz.app.CrtDetails.updateCheckboxStates();
+    // }, 100);
+}
+apz.app.CrtDetails.FuncPaginationPrev = function() {
+    pagiationFlag = true;
+    $(".J-paginationjs-previous").trigger("click");
+    $(pageInputCSSClass).val(window.pageNo);
+    // setTimeout(function() {
+    //     apz.app.CrtDetails.updateCheckboxStates();
+    // }, 100);
+}
+apz.app.CrtDetails.approve = function () {
+    if (userRole === "CRT") {
+        if (
+            selectedFireApp.length > 0 &&
+            selectedFireApp.every(item => item.isApprovedCRT === true)) {
+            ApzCOB.fnDisplayMsg('Are you sure, you want to approve the records?', "C", apz.app.CrtDetails.approveCB);
+        } else if (!selectedFireApp.every(item => item.isApprovedCRT === true)) {
+            ApzCOB.fnDisplayMsg("Please update FOIR & APR.", "I");
+        }
+        else {
+            ApzCOB.fnDisplayMsg('Please select application to approve', 'E');
+        }
+    } 
+    // else if (userRole === "AM") {
+    //     KendraApp.amObj = selctedAppDtldForAM
+    //     ApzCOB.fnDisplayMsg('Are you sure, you want to approve the records?', "C", apz.app.CrtDetails.approveCB);
+    // }
+}
+apz.app.CrtDetails.approveCB = function (params) {
+    window.approve = true;
+    if (params.choice === true) {
+        window.cbApproveManual = 'Y';
+        ApzCOB.kmActionPostCBCheck();
+    } else if (params.choice === false) {
+        apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode.forEach(function (el, i) {
+            $("#" + "Widget__CrtDetails__el_cbx_2_" + i).prop('checked', false);
+        })
+        selectedApp = [];
+        selectedFireApp = [];
+    }
+}
+apz.app.CrtDetails.reject = function() {
+    var remarksnew = 'The Loan Rejected by ' + LoggedInUserDetails.userID + ' (' + currentUserRole + ').';
+    if (userRole === 'CRT') {
+        if (selectedApp.length > 0) {
+            window.CRTworkflow = {
+                "currentRole": "CRT",
+                "action": "REJECT",
+                "workflowId": "LOANINPUT",
+                "stage": "CBCHECK",
+                "remarks": remarksnew
+            };
+            window.reject = true;
+            KendraApp.crtObj.applicationId = selectedApp.applicationId;
+            KendraApp.crtObj.versionNo = selectedApp.latestVersionNo;
+            window.cbApproveManual = 'N';
+            ApzCOB.kmActionPostCBCheck();
+        } else {
+            ApzCOB.fnDisplayMsg('Please select application to reject', 'E');
+        }
+    }
+    // if (userRole === 'AM') {
+    //     if (selctedAppDtldForAM) {
+    //         window.AMworkflow = {
+    //             "currentRole": "AM",
+    //             "action": "REJECT",
+    //             "workflowId": "LOANINPUT",
+    //             "stage": "CBCHECK",
+    //             "remarks": ""
+    //         };
+    //         window.reject = true;
+    //         KendraApp.amObj.applicationId = selctedAppDtldForAM.applicationId;
+    //         KendraApp.amObj.latestVersionNo = selctedAppDtldForAM.latestVersionNo;  // Removed extra period
+    //         window.cbApproveManual = 'N';
+    //         ApzCOB.kmActionPostCBCheck();
+    //     } else {
+    //         ApzCOB.fnDisplayMsg('Please select application to reject', 'E');
+    //     }
+    // }
+}
+apz.app.CrtDetails.onApprove = function() {
+    window.approve = false;
+    ApzCOB.fnDisplayMsg("Application approved successfully !", "S", apz.app.CrtDetails.homePage());
+    // apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode.forEach(function(el, i) {
+    //     $("#" + "Widget__CrtDetails__el_cbx_2_" + i).prop('checked', false);
+    // })
+}
+apz.app.CrtDetails.onReject = function() {
+    window.reject = false;
+    ApzCOB.fnDisplayMsg('Application rejected', 'E', apz.app.CrtDetails.homePage());
+    // apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode.forEach(function(el, i) {
+    //     $("#" + "Widget__CrtDetails__el_cbx_2_" + i).prop('checked', false);
+    // })
+    //$("#Widget__CrtDetails__el_cbx_2_1").prop('checked', true);
+}
+apz.app.CrtDetails.validateAmt = function(pthis) {
+    validateAmtFlag = true
+    var id = $("#" + pthis.id).val();
+    var id2 = apz.getElmValue(CrtDetailsScrId + "appliedAmt");
+    editApprovedAmt = parseInt(id.replace(/[₹,]/g, ''));
+    editAppliedAmt = parseInt(id2.replace(/[₹,]/g, ''));
+    if (editApprovedAmt % 1000 === 0) {
+        if (editApprovedAmt >= minAmt && editApprovedAmt <= maxAmt) {
+            if (editAppliedAmt === editApprovedAmt) {
+                ApzCOB.fnDisplayMsg("Please reduce the amount !", "E");
+                apz.setElmValue(CrtDetailsScrId + "approvedAmt", '');
+            } else if (editApprovedAmt > editAppliedAmt) {
+                ApzCOB.fnDisplayMsg("Please reduce the amount, Approved amount should be less than applied amount !", "E");
+                apz.setElmValue(CrtDetailsScrId + "approvedAmt", '');
+            }
+        } else {
+            if (editApprovedAmt > maxAmt) {
+                ApzCOB.fnDisplayMsg("Amount is more than maximum amount", 'I');
+                validateAmtFlag = false;
+            } else if (editApprovedAmt < minAmt) {
+                ApzCOB.fnDisplayMsg("Amount is less than minimum amount", 'I');
+                validateAmtFlag = false;
+            }
+        }
+    } else {
+        if (id === '') {} else {
+            apz.setElmValue(CrtDetailsScrId + "approvedAmt", '');
+            ApzCOB.fnDisplayMsg('Amount should be in Multiples of 1000', 'E');
+        }
+    }
+}
+
+apz.app.CrtDetails.validatefield = function(pthis) {
+    
+}
+//jsonData - XLSX download 
+apz.app.CrtDetails.downloadFiles = function() {
+    var jsonData;
+    downloadData = [], filteredData = [];
+    apz.startLoader()
+    CRTarray.forEach(function(el, i) {
+        var obj = {
+            customerId: CRTarray[i].customerId ?? 'NO DATA',
+            loanID: CRTarray[i].applicationId ?? 'NO DATA',
+            customerName: CRTarray[i].customerName ?? 'NO DATA',
+            referenceID: CRTarray[i].applicationId ?? 'NO DATA',
+            kendraID: CRTarray[i].kendraId ?? 'NO DATA',
+            branchId: CRTarray[i].branchCode ?? 'NO DATA',
+            stateCode: parseInt(JSON.parse(CRTarray[i].reqPayload).requestObj.stateBranch) ?? 'NO DATA',
+            state: CRTarray[i].addInfo ? JSON.parse(CRTarray[i].addInfo).state : 'NO DATA',
+            applicationDate: CRTarray[i].applicationDate ?? 'NO DATA',
+            annualHhIncome: JSON.parse(CRTarray[i].reqPayload).requestObj.hhAnnualIncome ?? 'NO DATA',
+            productType: JSON.parse(CRTarray[i].reqPayload).requestObj.loanProductType ?? 'NO DATA',
+            appliedLoanAmount: CRTarray[i].amount >= 0 ? ApzCOB.fn_FormatAmount(CRTarray[i].amount) : 'NO DATA',
+            loanFrequency: JSON.parse(CRTarray[i].reqPayload).requestObj.appliedFrequency ?? 'NO DATA',
+            term: JSON.parse(CRTarray[i].reqPayload).requestObj.appliedTenure ?? 'NO DATA',
+            roi: JSON.parse(CRTarray[i].resPayload).roi ?? 'NO DATA',
+            activationDate: JSON.parse(CRTarray[i].reqPayload).requestObj.activationDate ?? 'NO DATA',
+            breDecision: JSON.parse(CRTarray[i].resPayload).Final_Decision ?? 'NO DATA',
+            breRejectReason: JSON.parse(CRTarray[i].resPayload).Rejection_reason ?? 'NO DATA',
+            crtFinalStatus: "",
+        }
+        downloadData.push(obj)
+    })
+    selectedState = $("#" + CrtDetailsScrId + "stateDrpDn").val();
+    selectedRegion = $("#" + CrtDetailsScrId + "regionDrpDn").val();
+    selectedArea = $("#" + CrtDetailsScrId + "areaDrpDn").val();
+    selectedBranch = $("#" + CrtDetailsScrId + "branchDrpDn").val();
+    selectedStatus = $("#" + CrtDetailsScrId + "statusDrpDn").val();
+    if ((selectedStatus === 'Status') && (fromDate === '') && (toDate === '') && (selectedArea === 'Area') && (selectedBranch === 'Branch') && (
+            selectedRegion === 'Region') && (selectedState === 'State')) {
+        jsonData = downloadData;
+    } else {
+        selectedData.forEach(function(el, i) {
+            var loanId = selectedData[i].applicationId
+            downloadData.forEach(function(j, ind) {
+                if (downloadData[ind].loanID === loanId) {
+                    filteredData.push(downloadData[ind]);
+                }
+            })
+        })
+        jsonData = filteredData;
+    }
+    //let jsonData = apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode;
+    const worksheet = XLSX.utils.json_to_sheet(jsonData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+    const excelBuffer = XLSX.write(workbook, {
+        bookType: 'xlsx',
+        type: 'array'
+    });
+    // Create Blob object from excelBuffer
+    const blob = new Blob([excelBuffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+    // Create download link element
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'data.xlsx'; // File name
+    // Append link to the body
+    document.body.appendChild(link);
+    // Trigger the download
+    link.click();
+    // Clean up
+    document.body.removeChild(link);
+    apz.stopLoader()
+}
+apz.app.CrtDetails.selectAll = function(pthis) {
+    let chkSel = $("#" + CrtDetailsScrId + 'el_cbx_1').prop('checked');
+    window.currentPageNumber = window.currentPageNumber === undefined ? 1 : window.currentPageNumber;
+    if (chkSel) {
+        selectedPageNum.push(parseInt(window.currentPageNumber));
+        apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode.forEach((d, idx) => {
+            $("#" + CrtDetailsScrId + 'el_cbx_2_' + idx).prop('checked', true);
+            apz.app.CrtDetails.onSelectApplication($("#" + CrtDetailsScrId + 'el_cbx_2_' + idx));
+        })
+    } else {
+        selectedPageNum = selectedPageNum.filter(element => element !== window.currentPageNumber);
+        apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode.forEach((d, idx) => {
+            $("#" + CrtDetailsScrId + 'el_cbx_2_' + idx).prop('checked', false);
+            apz.app.CrtDetails.onSelectApplication($("#" + CrtDetailsScrId + 'el_cbx_2_' + idx));
+        })
+    }
+}
+apz.app.CrtDetails.onChangeOfDropodown = function(pthis) {
+    var selectedValue = pthis.value;
+    var dropdownType = pthis.id; 
+    var filteredData = CRTarray;
+    if (dropdownType.includes("stateDrpDn")) {
+        if (selectedValue === '%' || selectedValue === 'State') {
+            apz.app.CrtDetails.populateRegions(CRTarray);  // Show all regions
+            apz.app.CrtDetails.populateAreas(CRTarray);    // Show all areas
+            apz.app.CrtDetails.populateBranches(CRTarray); // Show all branches
+        } else {
+            filteredData = filteredData.filter(function(item) {
+                return JSON.parse(item.addInfo).state === selectedValue;
+            });
+            apz.app.CrtDetails.populateRegions(filteredData);
+            apz.app.CrtDetails.populateAreas(filteredData);
+            apz.app.CrtDetails.populateBranches(filteredData);
+        }
+    } 
+    else if (dropdownType.includes("regionDrpDn")) {
+        if (selectedValue === '%' || selectedValue === 'Region') {
+            apz.app.CrtDetails.populateAreas(CRTarray);    // Show all areas
+            apz.app.CrtDetails.populateBranches(CRTarray); // Show all branches
+        } else {
+            filteredData = filteredData.filter(function(item) {
+                return JSON.parse(item.addInfo).regionName === selectedValue;
+            });
+            apz.app.CrtDetails.populateAreas(filteredData);
+            apz.app.CrtDetails.populateBranches(filteredData);
+        }
+    } 
+    else if (dropdownType.includes("areaDrpDn")) {
+        if (selectedValue === '%' || selectedValue === 'Area') {
+            apz.app.CrtDetails.populateBranches(CRTarray); // Show all branches
+        } else {
+            filteredData = filteredData.filter(function(item) {
+                return JSON.parse(item.addInfo).areaName === selectedValue;
+            });
+            apz.app.CrtDetails.populateBranches(filteredData);
+        }
+    }
+};
+apz.app.CrtDetails.populateRegions = function(filteredData) {
+    var uniqueRegion = {};
+    var regionDesc = [];
+    filteredData.forEach(function(obj) {
+        let regionName = JSON.parse(obj.addInfo).regionName;
+        if (!uniqueRegion.hasOwnProperty(regionName) && !apz.isNull(regionName)) {
+            uniqueRegion[regionName] = true;
+            regionDesc.push({
+                "val": regionName,
+                "desc": regionName
+            });
+        }
+    });
+    regionDesc.unshift({ "val": '%', "desc": "Region" });  // Add '%' option for "All Regions"
+    apz.populateDropdown(document.getElementById(CrtDetailsScrId + "regionDrpDn"), regionDesc);
+};
+apz.app.CrtDetails.populateAreas = function(filteredData) {
+    var uniqueArea = {};
+    var areaDesc = [];
+    filteredData.forEach(function(obj) {
+        let areaName = JSON.parse(obj.addInfo).areaName;
+        if (!uniqueArea.hasOwnProperty(areaName) && !apz.isNull(areaName)) {
+            uniqueArea[areaName] = true;
+            areaDesc.push({
+                "val": areaName,
+                "desc": areaName
+            });
+        }
+    });
+    areaDesc.unshift({ "val": '%', "desc": "Area" });  // Add '%' option for "All Areas"
+    apz.populateDropdown(document.getElementById(CrtDetailsScrId + "areaDrpDn"), areaDesc);
+};
+apz.app.CrtDetails.populateBranches = function(filteredData) {
+    var uniqueBranch = {};
+    var branchDesc = [];
+    filteredData.forEach(function(obj) {
+        let branchName = JSON.parse(obj.addInfo).branchName;
+        if (!uniqueBranch.hasOwnProperty(branchName) && !apz.isNull(branchName)) {
+            uniqueBranch[branchName] = true;
+            branchDesc.push({
+                "val": branchName,
+                "desc": branchName
+            });
+        }
+    });
+    branchDesc.unshift({ "val": '%', "desc": "Branch" });  // Add '%' option for "All Branches"
+    apz.populateDropdown(document.getElementById(CrtDetailsScrId + "branchDrpDn"), branchDesc);
+};
+
+apz.app.CrtDetails.sortRpc = function(pthis) {
+    let asc_array = [];
+    let str = pthis.id;
+    let result = str.split('__')[2]
+    let sort_type = result.split("_")[1]
+    let name = result.split("_")[0]
+    if (sort_type === "asc") {
+        if (name === "applicationId") {
+            asc_array = apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode.sort((a, b) => parseFloat(a[name]) - parseFloat(b[name]));
+        } else if (name === "amount" || name === "approvedAmount") {
+            asc_array = apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode.sort((a, b) => apz.app.CrtDetails.unFormatAmt((a[name])) - apz
+                .app.CrtDetails.unFormatAmt((b[name])));
+        } else {
+            asc_array = apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode.sort((a, b) => a[name].localeCompare(b[name]));
+        }
+    } else {
+        if (name === "applicationId") {
+            asc_array = apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode.sort((a, b) => parseFloat(b[name]) - parseFloat(a[name]));
+        } else if (name === "amount" || name === "approvedAmount") {
+            asc_array = apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode.sort((a, b) => apz.app.CrtDetails.unFormatAmt((b[name])) - apz
+                .app.CrtDetails.unFormatAmt((a[name])));
+        } else {
+            asc_array = apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode.sort((a, b) => b[name].localeCompare(a[name]));
+        }
+    }
+    apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode = asc_array;
+    apz.data.loadData("CrtDetailsList", "Widget");
+}
+apz.app.CrtDetails.unFormatAmt = function(amount) {
+    if (amount !== 0) {
+        if (apz.isNull(amount.split('.')[1])) {
+            return amount.split(".")[0].replace(/,/g, "");
+        } else {
+            return amount.split(".")[0].replace(/,/g, "") + "." + amount.split('.')[1];
+        }
+    } else {
+        return amount
+    }
+}
+apz.app.CrtDetails.fetchCRTApplication = function(pthis) {
+    var searchText = $("#APZCBO__BaseScreens__searchInp").val();
+    if (searchText.length > 2) {
+        var req = {
+            "apiRequest": {
+                "interfaceName": "FetchCRTApplication",
+                "appId": gAppId,
+                "userId": LoggedInUserDetails.userID,
+                "requestObj": {
+                    "userRole": LoggedInUserDetails.loginResponse.addInfo1,
+                    "filtervalue": searchText
+                }
+            }
+        }
+        apz.startLoader();
+        ApzCOB.serverBuildParam(gAppId, 'FetchCRTApplication', 'N', 'N', req, 'Y', apz.app.CrtDetails.fetchCRTApplicationCB);
+    } else {
+        ApzCOB.fnDisplayMsg('Please enter at least 3 characters to search', "E");
+    }
+}
+apz.app.CrtDetails.fetchCRTApplicationCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__FetchCRTApplication_Res.apiResponse.ResponseBody.responseObj)) {
+                searchTextList = JSON.parse(params.res.APZCBO__FetchCRTApplication_Res.apiResponse.ResponseBody.responseObj);
+                apz.app.CrtDetails.onClickSearchFucn(searchTextList)
+            } else {
+                apz.stopLoader();
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        } else {
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(params.res.APZCBO__FetchAuditTrail_Res.apiResponse.ResponseHeader.ResponseMessage, "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+};
+apz.app.CrtDetails.onClickSearchFucn = function(param) {
+    // apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode = [];
+    CRTarray = [];
+    var searchResult = param;
+    applicationResp = searchResult
+    if (applicationResp.length > 0) {
+        $('#' + CrtDetailsScrId + 'paginationForm').removeClass("sno");
+        applicationResp.forEach(function(el, i) {
+            if (applicationResp[i].applicationStatus === 'INITIATE') {
+                CRTarray.push(applicationResp[i])
+            }
+        })
+        //apz.app.CrtDetails.paintStatus();
+        //apz.app.CrtDetails.dashboardFiltter();
+        apz.app.CrtDetails.paintMemberDtls();
+        $("#" + CrtDetailsScrId + "noRecordForm").addClass('sno');
+        $("#" + CrtDetailsScrId + "paintDataList").removeClass('sno');
+    } else {
+        $('#' + CrtDetailsScrId + 'paginationForm').addClass("sno");
+        $("#" + CrtDetailsScrId + "noRecordForm").removeClass('sno');
+        $("#" + CrtDetailsScrId + "paintDataList").addClass('sno');
+    }
+    // apz.data.scrdata.Widget__CrtDetailsList_Res = {};
+    // apz.data.scrdata.Widget__CrtDetailsList_Res.CrtDetailsNode = searchResult;
+    // apz.data.loadData("CrtDetailsList", 'Widget');
+}
+// apz.app.CrtDetails.initatedByAm = function () {
+//     applicationResp.forEach(function (el, i) {
+//         if (applicationResp[i].applicationStatus === 'INITIATE') {
+//             CRTarray.push(applicationResp[i])
+//         }
+//     })
+//     $('#Widget__CrtDetails__sc_col_509_li').addClass('sno');
+//     apz.app.CrtDetails.paintStatus();
+//     apz.app.CrtDetails.dashboardFiltter();
+//     apz.app.CrtDetails.paintMemberDtls();
+//     gApzCOB.insurDetails = ApzCOB.GetCommonCodes("GLFEES").Fees
+//     $('#' + CrtDetailsScrId + 'webRefresh').attr("disabled", false);
+// }

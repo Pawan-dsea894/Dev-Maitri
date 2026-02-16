@@ -1,0 +1,27 @@
+{
+        "Notifications": [{
+            "message": "We are upgrading to a new banking system",
+            "date": "07/24/2018"
+        },
+        {
+            "message": "Dear customer, the netbanking service will be down for the next 2 days, please bare with us.",
+            "date": "06/20/2018"
+        },
+        {
+            "message": "The new version of mobile app is available in the play store, please update.",
+            "date": "04/04/2018"
+        },
+        {
+            "message": "Get access to online personal loan application.",
+            "date": "12/27/2017"
+        },
+        {
+            "message": "Your request for new debit card is being processed.",
+            "date": "06/05/2017"
+        },
+        {
+            "message": "To know more about the loan details, please visit to your nearest branch.",
+            "date": "05/12/2017"
+        }
+        ]
+}

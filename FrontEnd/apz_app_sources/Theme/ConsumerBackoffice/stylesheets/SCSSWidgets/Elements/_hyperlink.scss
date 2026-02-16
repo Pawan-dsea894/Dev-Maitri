@@ -1,0 +1,57 @@
+@use "../Abstract" as a;
+
+.ett-hypl {
+	color: #337ab7;
+	outline: 0;
+	text-decoration: none;
+	&:hover {
+		color: #0070bb;
+		text-decoration: underline;
+	}
+	&:focus {
+		color: #0070bb;
+		text-decoration: underline;
+		outline: #0070bb solid 1px;
+	}
+	&.pri {
+		font-size: 0.95rem;
+	}
+	&.sec {
+		font-size: 0.795rem;
+	}
+	&.ter {
+		font-weight: 400;
+		font-size: 0.725rem;
+	}
+	&.icl {
+		> svg {
+			margin-right: 3px;
+			vertical-align: middle;
+			fill: #337ab7;
+		}
+		&:hover > svg {
+			fill: #0070bb;
+		}
+		&.disabled > svg {
+			fill: #aaa;
+		}
+	}
+	&.icr {
+		> svg {
+			margin-left: 3px;
+			vertical-align: middle;
+			fill: #337ab7;
+		}
+		&:hover > svg {
+			fill: #0070bb;
+		}
+		&.disabled > svg {
+			fill: #aaa;
+		}
+	}
+	&.disabled {
+		pointer-events: none;
+		color: #aaa;
+	}
+}
+/* hyperLinks end */

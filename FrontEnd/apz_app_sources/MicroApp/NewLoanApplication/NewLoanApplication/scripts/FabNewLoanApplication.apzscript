@@ -1,0 +1,366 @@
+var FabNewLoanAppScrId = 'NEWLOA__FabNewLoanApplication__';
+var KendraResponse = {};
+var kendraDtlsList = [];
+var kendraDtlsOnMeetingDay = [];
+var onMeetingDaySelect = false;
+var kendraApplications;
+var curDaysName = '';
+var currDay = '';
+var kendraDaysRes = [];
+var map = {
+    'Monday': 1,
+    'Tuesday': 2,
+    'Wednesday': 3,
+    'Thursday': 4,
+    'Friday': 5,
+    'Saturday': 6,
+    'Sunday': 7
+}
+var days = {
+    'MON': 'Monday',
+    'TUE': 'Tuesday',
+    'WED': 'Wednesday',
+    'THU': 'Thursday',
+    'FRI': 'Friday'
+}
+var daycountObj = {}
+apz.app.onLoad_FabNewLoanApplication = function() {
+    //KendraResponse = ApzCOB.loadDataFile('KendraResponse', "NEWLOA");
+    KendraResponse = window.KendraApp.KendraResponse;
+    kendraApplications = dashboardObj.KendraResponse;
+    $('#header').addClass('sno');
+    $('#footer').addClass('sno');
+    if ($('body').hasClass('modal-open')) {
+        $('body').removeClass('modal-open')
+     } 
+}
+apz.app.onShown_FabNewLoanApplication = function() {
+    apz.app.FabNewLoanApplication.paintKendraDetails();
+    apz.app.FabNewLoanApplication.paintDayList();
+}
+apz.app.FabNewLoanApplication.paintKendraDetails = function() {
+    var kendraDtls = [];
+    kendraApplications.sort(function(a, b) {
+        let day1 = map[days[a.kendraDtls.meetingDay]],
+            day2 = map[days[b.kendraDtls.meetingDay]]
+        if (day1 > day2) {
+            return 1
+        }
+        if (day1 < day2) {
+            return -1
+        }
+    })
+    console.log(kendraApplications)
+    daycountObj = {
+        'mondayCount': 0,
+        'tuesdayCount': 0,
+        'wednesCount': 0,
+        'thursdayCount': 0,
+        'fridayCount': 0,
+        'satCount': 0,
+        'sundayCount': 0
+    };
+    kendraApplications.forEach(function(k, i) {
+        var day = kendraApplications[i].kendraDtls.meetingDay;
+        switch (day) {
+            case "MON":
+                kendraDtls.meetingDayLabel = "MONDAY";
+                kendraDtls.Dayindex = daycountObj.mondayCount;
+                daycountObj.mondayCount++;
+                break;
+            case "TUE":
+                kendraDtls.meetingDayLabel = "TUESDAY";
+                kendraDtls.Dayindex = daycountObj.tuesdayCount;
+                daycountObj.tuesdayCount++;
+                break;
+            case "WED":
+                kendraDtls.meetingDayLabel = "WEDNESDAY";
+                kendraDtls.Dayindex = daycountObj.wednesCount;
+                daycountObj.wednesCount++;
+                break;
+            case "THU":
+                kendraDtls.meetingDayLabel = "THURSDAY";
+                kendraDtls.Dayindex = daycountObj.thursdayCount;
+                daycountObj.thursdayCount++;
+                break;
+            case "FRI":
+                kendraDtls.meetingDayLabel = "FRIDAY";
+                kendraDtls.Dayindex = daycountObj.fridayCount;
+                daycountObj.fridayCount++;
+                break;
+            case "SAT":
+                kendraDtls.meetingDayLabel = "SATURDAY";
+                kendraDtls.Dayindex = daycountObj.satCount;
+                daycountObj.satCount++;
+                break;
+            case "SUN":
+                kendraDtls.meetingDayLabel = "SUNDAY";
+                kendraDtls.Dayindex = daycountObj.sundayCount;
+                daycountObj.sundayCount++;
+                break;
+            default:
+                break;
+        }
+    });
+    kendraDtlsList = []
+    kendraApplications.forEach(function(k, i) {
+        kendraApplications[i].kendraDtls.kendraName = kendraApplications[i].kendraDtls.kendraName;
+        kendraApplications[i].kendraDtls.kendraId = kendraApplications[i].kendraDtls.kendraId;
+        kendraApplications[i].kendraDtls.meetingFullDay = days[kendraApplications[i].kendraDtls.meetingDay] === undefined ?
+            kendraApplications[i].kendraDtls.meetingDay : days[kendraApplications[i].kendraDtls.meetingDay];
+        kendraDtlsList.push(kendraApplications[i].kendraDtls);
+    });
+    currDay = new Date().getDay();
+    curDaysName = Object.keys(map).find(function(key) {
+        return map[key] === currDay;
+    });
+    kendraDtlsList.forEach(function(e, i) {
+        if (e.meetingFullDay === curDaysName) {
+            kendraDaysRes.push(e);
+        }
+    })
+    if (kendraDaysRes.length > 0) {
+        apz.data.scrdata.NEWLOA__KendraDtlList_Res = {};
+        apz.data.scrdata.NEWLOA__KendraDtlList_Res.KendraDtlListNode = kendraDaysRes;
+        apz.data.loadData("KendraDtlList", 'NEWLOA');
+    } else {
+        $("#" + FabNewLoanAppScrId + "noFromAccountsRow").removeClass("sno");
+        $("#" + FabNewLoanAppScrId + "kendraList").addClass("sno");
+        $("#" + FabNewLoanAppScrId + "meetingDayDiv").addClass("sno");
+    }
+    /* var index = 0;
+     Object.values(daycountObj).forEach(function(e, i) {
+         $("#NEWLOA__FabNewLoanApplication__kendraList_row_" + index).children().children().removeClass('sno');
+         index += e;
+     })*/
+}
+apz.app.FabNewLoanApplication.paintKendraDtlsBasedOnDay = function(pthis) {
+    /*  apz.data.scrdata.NEWLOA__KendraDtlList_Res.KendraDtlListNode.forEach(function(e, i) {
+          $("#NEWLOA__KendraDtlList__o__KendraDtlListNode__meetingFullDay_" + i).addClass('sno')
+      })*/
+    kendraDtlsOnMeetingDay = [];
+    $('.ett-para').removeClass('active');
+    $(pthis).addClass('active');
+    onMeetingDaySelect = true;
+    var id = $('#' + pthis.id).text();
+    kendraApplications.forEach(function(k, i) {
+        if (kendraApplications[i].kendraDtls.meetingFullDay === id) {
+            kendraApplications[i].kendraDtls.kendraName = kendraApplications[i].kendraDtls.kendraName;
+            kendraApplications[i].kendraDtls.kendraId = kendraApplications[i].kendraDtls.kendraId;
+            kendraDtlsOnMeetingDay.push(kendraApplications[i].kendraDtls);
+        }
+    });
+    if (kendraDtlsOnMeetingDay.length > 0) {
+        apz.data.scrdata.NEWLOA__KendraDtlList_Res = {};
+        apz.data.loadData("KendraDtlList", 'NEWLOA');
+        kendraDaysRes = kendraDtlsOnMeetingDay;
+        $("#" + FabNewLoanAppScrId + "noFromAccountsRow").addClass("sno");
+        $("#" + FabNewLoanAppScrId + "kendraList").removeClass("sno");
+        $("#" + FabNewLoanAppScrId + "meetingDayDiv").removeClass("sno");
+        apz.data.scrdata.NEWLOA__KendraDtlList_Res.KendraDtlListNode = kendraDtlsOnMeetingDay;
+        apz.data.loadData("KendraDtlList", 'NEWLOA');
+        $(`#${FabNewLoanAppScrId}kendraList .ssp`).remove();
+    } else {
+        $("#" + FabNewLoanAppScrId + "noFromAccountsRow").removeClass("sno");
+        $("#" + FabNewLoanAppScrId + "kendraList").addClass("sno");
+        $("#" + FabNewLoanAppScrId + "meetingDayDiv").addClass("sno");
+    }
+    $("#" + FabNewLoanAppScrId + "meetingDay").text($(pthis).text());
+    //$("#" + FabNewLoanAppScrId + "meetingDayDiv").removeClass("sno");
+    //$(`#${FabNewLoanAppScrId}meetingDay`).text(id)
+    $("#NEWLOA__KendraDtlList__o__KendraDtlListNode__meetingFullDay_0").removeClass('sno')
+}
+apz.app.FabNewLoanApplication.paintDayList = function() {
+    //  var dayList = [],
+    //     day = [];
+    /* kendraApplications.forEach(function(k, i) {
+         if (!(day.includes(kendraApplications[i].kendraDtls.meetingDay))) {
+             kendraApplications[i].kendraDtls.day = kendraApplications[i].kendraDtls.meetingFullDay;
+             dayList.push(kendraApplications[i].kendraDtls);
+             day.push(kendraApplications[i].kendraDtls.meetingDay)
+         }
+     })
+     dayList.sort((a, b) => {
+         return map[a.meetingDay] - map[b.meetingDay];
+     });*/
+    var valuesArray = Object.values(days);
+    var dayList = valuesArray.map(day => ({
+        day
+    }));
+    //  if (dayList.length > 0) {
+    apz.data.scrdata.NEWLOA__MeetingDayList_Res = {};
+    apz.data.scrdata.NEWLOA__MeetingDayList_Res.DayListNode = dayList;
+    apz.data.loadData("MeetingDayList", 'NEWLOA');
+    //$("#NEWLOA__MeetingDayList__o__DayListNode__day_0").addClass("active");
+    var curDay = currDay - 1;
+    $("#NEWLOA__MeetingDayList__o__DayListNode__day_" + curDay).addClass('active');
+    $("#" + FabNewLoanAppScrId + "meetingDay").text(curDaysName);
+    // }
+}
+apz.app.FabNewLoanApplication.onNewLoanSearch = function(pthis) {
+    var searchText = $("#" + pthis.id).val();
+    var searchResult = [];
+    var dataSource = onMeetingDaySelect ? kendraDtlsOnMeetingDay : kendraDaysRes;
+    if (searchText.length > 0) {
+        searchResult = dataSource.filter(function(e) {
+            return (
+                (e.kendraName && e.kendraName.toUpperCase().indexOf(searchText.toUpperCase()) !== -1) || (e.kendraId && String(e
+                    .kendraId).indexOf(searchText) !== -1));
+        });
+        if (searchResult.length === 0) {
+            $("#" + FabNewLoanAppScrId + "noFromAccountsRow").removeClass("sno");
+            $("#" + FabNewLoanAppScrId + "kendraList").addClass("sno");
+            $("#" + FabNewLoanAppScrId + "meetingDayDiv").addClass("sno");
+        } else {
+            $("#" + FabNewLoanAppScrId + "noFromAccountsRow").addClass("sno");
+            $("#" + FabNewLoanAppScrId + "kendraList").removeClass("sno");
+            $("#" + FabNewLoanAppScrId + "meetingDayDiv").removeClass("sno");
+        }
+    } else {
+        searchResult = dataSource;
+        $("#" + FabNewLoanAppScrId + "noFromAccountsRow").addClass("sno");
+        $("#" + FabNewLoanAppScrId + "kendraList").removeClass("sno");
+        $("#" + FabNewLoanAppScrId + "meetingDayDiv").removeClass("sno");
+    }
+    apz.data.scrdata.NEWLOA__KendraDtlList_Res = {};
+    apz.data.scrdata.NEWLOA__KendraDtlList_Res.KendraDtlListNode = searchResult;
+    apz.data.loadData("KendraDtlList", 'NEWLOA');
+};
+apz.app.FabNewLoanApplication.selectKendra = function(pthis) {
+    let rowNo = $(pthis).attr('rowno');
+    window.SelectKendraFromFabBtn = true;
+    KendraApp.selectedKendra = apz.data.scrdata.NEWLOA__KendraDtlList_Res.KendraDtlListNode[rowNo];
+    if (Array.isArray(KendraApp.selectedKendra?.customerDtls)) {
+        KendraApp.selectedKendra.customerDtls.forEach(function (el) {
+            if (!el.newCustStatus) {
+                el.newCustStatus = el.custStatus || '';
+            }
+            el.custStatus = el.newCustStatus.includes('NQA') ? 'NQA' : '';
+        });
+    }
+    let eligibleLoanCust = []
+    if (window.currentUserRole === "DEO") {
+        ApzCOB.fetchCustDetailsDeo(KendraApp.selectedKendra.kendraId);
+    } else {
+        if (KendraApp.selectedKendra.customerDtls.length !== 0) {
+            KendraApp.selectedKendra.customerDtls.forEach(function (el, index) {
+                eligibleLoanCust.push(KendraApp.selectedKendra.customerDtls[index]);
+            });
+            if (eligibleLoanCust.length !== 0) {
+                let maxAmountLimit = 0; //eligibleLoanCust[idx].eligibleLoan[0].cbAmt;
+                eligibleLoanCust.forEach(function (el, idx) {
+                    var eligibleLoan = eligibleLoanCust[idx].eligibleLoan;
+                    if (eligibleLoanCust[idx].eligibleLoan.length !== 0) {
+                        eligibleLoan.forEach(function (el, id) {
+                            eligibleLoan[id].cbAmt = parseFloat(eligibleLoan[id].cbAmt);
+                            let product = eligibleLoan[id].product;
+                            KendraApp.ProductList.forEach(function (el, i) {
+                                if (KendraApp.ProductList[i].productDtls.productId == product) {
+                                    eligibleLoan[id].productId = KendraApp.ProductList[i].productDtls
+                                        .productId;
+                                    eligibleLoan[id].shortDesc = KendraApp.ProductList[i].productDtls
+                                        .shortDesc;
+                                    eligibleLoan[id].amountLimit = KendraApp.ProductList[i].productDtls
+                                        .amountLimit;
+                                    eligibleLoan[id].amountMin = KendraApp.ProductList[i].productDtls
+                                        .amountMin;
+                                    eligibleLoan[id].amountMax = KendraApp.ProductList[i].productDtls
+                                        .amountMax;
+                                    eligibleLoan[id].spouseInsurance = KendraApp.ProductList[i].productDtls
+                                        .spouseInsurance;
+                                    eligibleLoan[id].freq = KendraApp.ProductList[i].productDtls.freq;
+                                    eligibleLoan[id].term = KendraApp.ProductList[i].productDtls.term;
+                                    eligibleLoan[id].insuranceProvider = KendraApp.ProductList[i]
+                                        .productDtls.insuranceProvider;
+                                    eligibleLoan[id].insurancePercentage = KendraApp.ProductList[i]
+                                        .productDtls.insurancePercentage;
+                                    eligibleLoan[id].prodPurpose = KendraApp.ProductList[i].productDtls
+                                        .prodPurpose;
+                                }
+                            });
+                        });
+                        maxAmountLimit = Math.max.apply(null, eligibleLoan.map(function (o) {
+                            return o.cbAmt;
+                        }));
+                        eligibleLoanCust[idx].eligibleLoan = [];
+                        eligibleLoanCust[idx].eligibleLoan = eligibleLoan;
+                    }
+                    eligibleLoanCust[idx].maxAmountLimit = maxAmountLimit;
+                });
+                KendraApp.selectedKendra.customerDtls = [];
+                KendraApp.selectedKendra.customerDtls = eligibleLoanCust;
+                //added below condition by sathish on 11-02-2025
+                //for restricting deceased users to appear in new loan application flow
+                if (!apz.isNull(deathIntimationInitatedRec) && deathIntimationInitatedRec.length > 0 && !apz.isNull(KendraApp.selectedKendra.customerDtls) &&
+                    KendraApp.selectedKendra.customerDtls.length > 0) {
+                    deathIntimationInitatedRec.forEach(deceased => {
+                        KendraApp.selectedKendra.customerDtls = KendraApp.selectedKendra.customerDtls.filter(ken => {
+                            return ken.customerId !== deceased.customerId
+                        });
+                    })
+                }
+                // $('#APZCBO__BaseScreens__BaseDIV').addClass('sno')
+                ApzCOB.launchMicroApp("NEWLOA", "NewLoanApplication", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedKendra)
+                /*} else {
+                    ApzCOB.fnDisplayMsg('Customers have no eligible loans', "E");
+                }*/
+            } else {
+                ApzCOB.fnDisplayMsg('No customers for selected kendra', "E");
+            }
+        }
+    }
+}
+apz.app.FabNewLoanApplication.selectKendraDeo = function (customerDetailsDeo) {
+    let eligibleLoanCust = []
+    customerDetailsDeo.forEach(function (el, index) {
+        eligibleLoanCust.push(customerDetailsDeo[index]);
+    });
+    if (eligibleLoanCust.length !== 0) {
+        let maxAmountLimit = 0; //eligibleLoanCust[idx].eligibleLoan[0].cbAmt;
+        eligibleLoanCust.forEach(function (el, idx) {
+            var eligibleLoan = eligibleLoanCust[idx].eligibleLoan;
+            if (eligibleLoanCust[idx].eligibleLoan.length !== 0) {
+                eligibleLoan.forEach(function (el, id) {
+                    eligibleLoan[id].cbAmt = parseFloat(eligibleLoan[id].cbAmt);
+                    let product = eligibleLoan[id].product;
+                    KendraApp.ProductList.forEach(function (el, i) {
+                        if (KendraApp.ProductList[i].productDtls.productId == product) {
+                            eligibleLoan[id].productId = KendraApp.ProductList[i].productDtls
+                                .productId;
+                            eligibleLoan[id].shortDesc = KendraApp.ProductList[i].productDtls
+                                .shortDesc;
+                            eligibleLoan[id].amountLimit = KendraApp.ProductList[i].productDtls
+                                .amountLimit;
+                            eligibleLoan[id].amountMin = KendraApp.ProductList[i].productDtls
+                                .amountMin;
+                            eligibleLoan[id].amountMax = KendraApp.ProductList[i].productDtls
+                                .amountMax;
+                            eligibleLoan[id].spouseInsurance = KendraApp.ProductList[i].productDtls
+                                .spouseInsurance;
+                            eligibleLoan[id].freq = KendraApp.ProductList[i].productDtls.freq;
+                            eligibleLoan[id].term = KendraApp.ProductList[i].productDtls.term;
+                            eligibleLoan[id].insuranceProvider = KendraApp.ProductList[i]
+                                .productDtls.insuranceProvider;
+                            eligibleLoan[id].insurancePercentage = KendraApp.ProductList[i]
+                                .productDtls.insurancePercentage;
+                            eligibleLoan[id].prodPurpose = KendraApp.ProductList[i].productDtls
+                                .prodPurpose;
+                        }
+                    });
+                });
+                maxAmountLimit = Math.max.apply(null, eligibleLoan.map(function (o) {
+                    return o.cbAmt;
+                }));
+                eligibleLoanCust[idx].eligibleLoan = [];
+                eligibleLoanCust[idx].eligibleLoan = eligibleLoan;
+            }
+            eligibleLoanCust[idx].maxAmountLimit = maxAmountLimit;
+        });
+        KendraApp.selectedKendra.customerDtls = [];
+        KendraApp.selectedKendra.customerDtls = eligibleLoanCust;
+        ApzCOB.launchMicroApp("NEWLOA", "NewLoanApplication", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedKendra)
+    } else {
+        ApzCOB.fnDisplayMsg('No customers for selected kendra', "E");
+    }
+
+}

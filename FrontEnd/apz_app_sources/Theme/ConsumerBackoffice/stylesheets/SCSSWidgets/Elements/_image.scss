@@ -1,0 +1,206 @@
+@use "../Abstract" as a;
+
+.ett-imge {
+	border: none;
+	&.rbx {
+    	-webkit-border-radius: 6px;
+    	-moz-border-radius: 6px;
+    	border-radius: 6px;
+    	>svg {
+    		-webkit-border-radius: 6px;
+    		-moz-border-radius: 6px;
+    		border-radius: 6px;
+    	}
+    }
+    &.box {
+    	padding: 4px;
+    	background-color: #fff;
+    	border: 1px solid #ccc;
+    	border: 1px solid rgba(0, 0, 0, 0.2);
+    	-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    	-moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    	>svg {
+    		padding: 4px;
+    		background-color: #fff;
+    		border: 1px solid #ccc;
+    		border: 1px solid rgba(0, 0, 0, 0.2);
+    		-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    		-moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    	}
+    }
+    &.cir {
+    	-webkit-border-radius: 2000px;
+    	-moz-border-radius: 2000px;
+    	border-radius: 2000px;
+    	border: 1px solid rgba(0, 0, 0, 0.2);
+    	>svg {
+    		-webkit-border-radius: 2000px;
+    		-moz-border-radius: 2000px;
+    		border-radius: 2000px;
+    		border: 1px solid rgba(0, 0, 0, 0.2);
+    	}
+    }
+}
+
+.tb12 {
+	height: 12px;
+	width: auto;
+	>svg {
+		height: 12px;
+		width: auto;
+	}
+}
+.tb14 {
+	height: 14px;
+	width: auto;
+	>svg {
+		height: 14px;
+		width: auto;
+	}
+}
+.tb16 {
+	height: 16px;
+	width: auto;
+	>svg {
+		height: 16px;
+		width: auto;
+	}
+}
+.tb18 {
+	height: 18px;
+	width: auto;
+	>svg {
+		height: 18px;
+		width: auto;
+	}
+}
+.tb20 {
+	height: 20px;
+	width: auto;
+	>svg {
+		height: 20px;
+		width: auto;
+	}
+}
+.tb24 {
+	height: 24px;
+	width: auto;
+	>svg {
+		height: 24px;
+		width: auto;
+	}
+}
+.tb36 {
+	height: 36px;
+	width: auto;
+	>svg {
+		height: 36px;
+		width: auto;
+	}
+}
+.tb52 {
+	height: 52px;
+	width: auto;
+	>svg {
+		height: 52px;
+		width: auto;
+	}
+}
+.tb64 {
+	height: 64px;
+	width: auto;
+	>svg {
+		height: 64px;
+		width: auto;
+	}
+}
+.tb72 {
+	height: 72px;
+	width: auto;
+	>svg {
+		height: 72px;
+		width: auto;
+	}
+}
+.tb80 {
+	height: 80px;
+	width: auto;
+	>svg {
+		height: 80px;
+		width: auto;
+	}
+}
+.tb100 {
+	height: 100px;
+	width: auto;
+	>svg {
+		height: 100px;
+		width: auto;
+	}
+}
+.tb114 {
+	height: 114px;
+	width: auto;
+	>svg {
+		height: 114px;
+		width: auto;
+	}
+}
+.tb124 {
+	height: 124px;
+	width: auto;
+	>svg {
+		height: 124px;
+		width: auto;
+	}
+}
+.tb150 {
+	height: 150px;
+	width: auto;
+	>svg {
+		height: 150px;
+		width: auto;
+	}
+}
+.tb172 {
+	height: 172px;
+	width: auto;
+	>svg {
+		height: 172px;
+		width: auto;
+	}
+}
+.tb180 {
+	height: 180px;
+	width: auto;
+	>svg {
+		height: 180px;
+		width: auto;
+	}
+}
+.tb256 {
+	height: 256px;
+	width: auto;
+	>svg {
+		height: 256px;
+		width: auto;
+	}
+}
+.tb512 {
+	height: 512px;
+	width: auto;
+	>svg {
+		height: 512px;
+		width: auto;
+	}
+}
+.tbfullw {
+	width: 100%;
+	height: auto;
+	>svg {
+		width: 100%;
+		height: auto;
+	}
+}

@@ -1,0 +1,694 @@
+var ScreenId = 'LoanSa__LoanSanction__';
+var x = "";
+var rejectArry = [],
+    sanctionedArry = [],
+    pendingArry = [],
+    pendingByBmArry = [],
+    pendingByAmArry = [],
+    recommendedArry = [],
+    pendingByDmArry = []
+    loansanctionArry = [];
+var btnFiltrLoanSanct = [{
+    key: "Branch",
+    value: ""
+}, {
+    key: "Loan",
+    value: ""
+}, {
+    key: "KMs",
+    value: ""
+}, {
+    key: "Kendra Name",  // New key for KMname filter
+    value: ""
+}];
+//var userRole = window.userRole;
+window.kmNamesMapping = [];
+let selectedCheckboxes = [];
+let allCheckboxChecked = {
+    row_0: false,
+    row_1: false,
+    row_2: false
+};
+var Pagination_Bar = 'pagination-bar';
+var PagBtnInp = 'row_acc_pagiButtons :input';
+var configLimit = 10;
+window.totalPaginationPages = '0';
+var customerListBasedOnStatus = []
+apz.app.onLoad_LoanSanction = function (params) {
+    //
+    x = params;
+};
+apz.app.onShown_LoanSanction = function (params) {
+    $("#header").addClass("sno");
+    $("#footer").addClass("sno");
+    if (window.userRole === "BM") {
+        $('#' + ScreenId + "el_txt_12").text("Pending Loan Sanctions");
+        $('#' + ScreenId + "ApproveBMrow").removeClass('sno');
+        $('#' + ScreenId + "gr_col_148").removeClass('sno');
+    } else {
+        $('#' + ScreenId + "ApproveBMrow").addClass('sno');
+        $('#' + ScreenId + "gr_col_148").addClass('sno');
+    }
+    $('#' + ScreenId + "selectedAcDetMainRow").addClass('sno');
+    //$("#" + ScreenId + "el_txt_23").addClass('sno');
+    $("#" + ScreenId + "loanAppDetRow").addClass('sno');
+    $("#" + ScreenId + "successRow").addClass('sno');
+    $("#" + ScreenId + "gr_row_66").addClass('sno');
+    apz.app.LoanSanction.loanSanctionStatusBtn();
+    apz.app.LoanSanction.loanSanctionStatus();
+    if(apz.deviceType === 'WEB'){
+        $('#LoanSa__LoanSanction__loanSanctionPageRow').removeClass('sno');
+        apz.app.LoanSanction.funcPagination();
+    }else{
+        $('#LoanSa__LoanSanction__gr_col_148').addClass('sno');
+    }
+      if(apz.deviceType === 'WEB' && window.userRole === "KM"){
+        $('#LoanSa__LoanSanction__gr_col_148').removeClass('sno');
+        apz.app.LoanSanction.funcPagination();
+    }
+}
+apz.app.LoanSanction.loanSanctionStatus = function () {
+    loansanctionArry = [];
+    rejectArry = [],
+        sanctionedArry = [],
+        pendingArry = [],
+        pendingByBmArry = [],
+        pendingByAmArry = [],
+        recommendedArry =[],
+        pendingByDmArry = [],
+        loansanctionList.forEach(function(el, i) {
+            if (loansanctionList[i].status === 'Pending By BM') {
+                pendingByBmArry.push(loansanctionList[i])
+            } else if (loansanctionList[i].status === 'Sanctioned') {
+                sanctionedArry.push(loansanctionList[i])
+            } else if (loansanctionList[i].status === 'Rejected') {
+                rejectArry.push(loansanctionList[i])
+            } else if (loansanctionList[i].status === 'Pending') {
+                pendingArry.push(loansanctionList[i])
+            } else if (loansanctionList[i].status === 'Pending By AM') {
+                pendingByAmArry.push(loansanctionList[i])
+            } else if (loansanctionList[i].status === 'Pending By DM' || loansanctionList[i].status === 'Pending By RM' || loansanctionList[i]
+                .status === 'Pending By ZM') {
+                pendingByDmArry.push(loansanctionList[i])
+            } else if (loansanctionList[i].status === 'Recommended') {
+                recommendedArry.push(loansanctionList[i])
+            }
+        })
+    if (userRole === 'KM') {
+        loansanctionArry = pendingByBmArry.concat(sanctionedArry, rejectArry, pendingByAmArry, pendingByDmArry);
+    } else if (userRole === 'BM') {
+        loansanctionArry = pendingArry.concat(sanctionedArry, rejectArry, pendingByAmArry, pendingByDmArry);
+    } else if (userRole === 'AM') {
+        loansanctionArry = pendingArry.concat(pendingByDmArry);
+    } else if (userRole === 'DM') {
+        loansanctionArry = pendingArr;
+    } else if (userRole === 'ZM') {
+        loansanctionArry = pendingArry;
+    } else if (userRole === 'SH') {
+        loansanctionArry = pendingArry;
+    }
+    apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res = loansanctionArry;
+    apz.data.loadData("IPaintLoanCustomerDtls", "LoanSa");
+    pendingData = loansanctionList.filter(d => d.status === 'Pending');
+    apz.app.LoanSanction.loadcrtData();
+    apz.setElmValue(ScreenId + "el_txt_23", pendingData.length + '/' + loansanctionList.length);
+};
+apz.app.LoanSanction.onLoanSanctionSearch = function (pthis) {
+    let searchText = $("#" + pthis.id).val().trim(); // Get search text
+    let accSearchResult = [];
+    apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res = {};
+    let activeStatus = $('.ett-badg.active').text().trim();
+    let filteredCustomers = [];
+    switch (activeStatus) {
+        case "All Applications":
+            filteredCustomers = loansanctionList;
+            break;
+        case "Pending By BM":
+            filteredCustomers = loansanctionList.filter(customer => customer.status === "Pending By BM");
+            break;
+        case "Pending":
+            filteredCustomers = loansanctionList.filter(customer => customer.status === "Pending");
+            break;
+        case "Sanctioned":
+            filteredCustomers = loansanctionList.filter(customer => customer.status === "Sanctioned");
+            break;
+        case "Rejected":
+            filteredCustomers = loansanctionList.filter(customer => customer.status === "Rejected");
+            break;
+        case "Pending Recommendation":
+            filteredCustomers = loansanctionList.filter(customer => customer.status === "Pending Recommendation");
+            break;
+        case "Pending By AM":
+            filteredCustomers = loansanctionList.filter(customer => customer.status === "Pending By AM");
+            break;
+        case "Pending By DM":
+            filteredCustomers = loansanctionList.filter(customer => customer.status === "Pending By DM");
+            break;
+        case "Pending By ZM":
+            filteredCustomers = loansanctionList.filter(customer => customer.status === "Pending By ZM");
+            break;
+        case "Recommended":
+            filteredCustomers = loansanctionList.filter(customer => customer.status === "Recommended");
+            break;
+        default:
+            filteredCustomers = loansanctionList; // Fallback to all customers in case of an unexpected status
+            break;
+    }
+    if (searchText.length > 0) {
+        accSearchResult = ApzCOB.arraySearch(
+            searchText,
+            filteredCustomers,
+            ["customerName", "kendraName", "productType", "loanAmt", "status","customerId","applicationId"],
+            'LoanSa__IPaintLoanCustomerDtls_Res', "", '', ''
+        );
+        apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res = accSearchResult;
+    } else {
+        apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res = filteredCustomers;
+    }
+    if (apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res.length === 0) {
+        $("#" + ScreenId + "noFromAccountsRow").removeClass("sno");
+        $("#" + ScreenId + "accountListRow").addClass("sno");
+    } else {
+        $("#" + ScreenId + "noFromAccountsRow").addClass("sno");
+        $("#" + ScreenId + "accountListRow").removeClass("sno");
+    }
+    if (apz.deviceType === 'WEB') {
+        let totalItems = apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res.length;
+        window.pageNo = 1;
+        if (totalItems > configLimit) {
+            apz.app.LoanSanction.InitialisePagination(totalItems, apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res);
+        } else {
+            apz.app.LoanSanction.HidePagination(apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res);
+        }
+    } else {
+        apz.data.loadData("IPaintLoanCustomerDtls", "LoanSa");
+        apz.app.LoanSanction.loadcrtData();
+    }
+};
+apz.app.LoanSanction.loanSanctionStatusBtn = function () {
+    let loanStatus = [],
+        status = [];
+    loansanctionList.forEach(function (el, i) {
+        if (!(status.includes(loansanctionList[i].status))) {
+            let obj = {
+                key: loansanctionList[i].status
+            }
+            loanStatus.push(obj);
+            status.push(loansanctionList[i].status);
+        }
+        if (el.customerName) {
+            loansanctionList[i].profileName = el.customerName.substr(0, 1);
+        }
+    })
+    loanStatus.unshift({
+        key: "All Applications"
+    })
+    loanStatus = loanStatus.filter(e => (e.key !== 'Sanctioned'));
+    if (loanStatus.length > 0) {
+        apz.data.scrdata.LoanSa__IPaintLoanSanctionBtn_Res = {};
+        apz.data.scrdata.LoanSa__IPaintLoanSanctionBtn_Res = loanStatus;
+        apz.data.loadData("IPaintLoanSanctionBtn", "LoanSa");
+        $('#LoanSa__IPaintLoanSanctionBtn__o__LoanSa__IPaintLoanSanctionBtn_Res__key_0').addClass('active');
+    }
+}
+apz.app.LoanSanction.onCLickLoanStatus = function (pthis) {
+    apz.startLoader();
+    setTimeout(function () {
+        let totalApplications = loansanctionList.length;
+        let status = $('#' + pthis.id).text();
+        customerListBasedOnStatus = [];
+        $('.ett-badg').removeClass('active');
+        $(pthis).addClass('active');
+        if (status === 'All Applications') {
+            customerListBasedOnStatus = loansanctionList;
+        } else if (status === 'Rejected') {
+            customerListBasedOnStatus = loansanctionList.filter(function (el) {
+                return el.status === 'Rejected';
+            });
+        } else if (status === 'Pending') {
+            customerListBasedOnStatus = loansanctionList.filter(function (el) {
+                return el.status === 'Pending';
+            });
+        } else if (status === 'Pending By BM') {
+            customerListBasedOnStatus = loansanctionList.filter(function (el) {
+                return el.status === 'Pending By BM';
+            });
+        } else if (status === 'Pending By AM') {
+            customerListBasedOnStatus = loansanctionList.filter(function(el) {
+                return el.status === 'Pending By AM';
+            });
+        } else if (status === 'Recommend') {
+            customerListBasedOnStatus = loansanctionList.filter(function(el) {
+                return el.status === 'Recommend';
+            });
+        } else if (status === 'Pending By ABM/AM') {
+            customerListBasedOnStatus = loansanctionList.filter(function(el) {
+                return el.status === 'Pending By ABM/AM';
+            });
+        } else if (status === 'Pending By DM') {
+            customerListBasedOnStatus = loansanctionList.filter(function(el) {
+                return el.status === 'Pending By DM';
+            });
+        } else if (status === 'Recommended') {
+            customerListBasedOnStatus = loansanctionList.filter(function(el) {
+                return el.status === 'Recommended';
+            });
+        }
+        if (customerListBasedOnStatus.length > 0) {
+            $("#" + ScreenId + "noFromAccountsRow").addClass("sno");
+            $("#" + ScreenId + "accountListRow").removeClass("sno");
+            apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res = customerListBasedOnStatus;
+            if (apz.deviceType === 'WEB') {
+                window.pageNo = 1;
+                let totalItems = customerListBasedOnStatus.length;
+                if (totalItems > configLimit) {
+                    apz.app.LoanSanction.InitialisePagination(totalItems, customerListBasedOnStatus);
+                } else {
+                    apz.app.LoanSanction.HidePagination(customerListBasedOnStatus);
+                }
+            } else {
+                apz.data.loadData("IPaintLoanCustomerDtls", "LoanSa");
+                apz.app.LoanSanction.loadcrtData();
+            }
+        } else {
+            $("#" + ScreenId + "noFromAccountsRow").removeClass("sno");
+            $("#" + ScreenId + "accountListRow").addClass("sno");
+        }
+        let statusCount = customerListBasedOnStatus.length;
+        let loanSanctionStatusValue = statusCount + "/" + totalApplications;
+        $("#" + ScreenId + "el_txt_23").text(loanSanctionStatusValue).removeClass('sno');
+        apz.stopLoader();
+    }, 300);
+};
+apz.app.LoanSanction.onCLickLoanFilter = function () {
+    ApzCOB.toggleModal(ScreenId + "filterModal");
+    apz.data.scrdata.LoanSa__IPaintBtnFilter_Res = btnFiltrLoanSanct;
+    apz.data.loadData("IPaintBtnFilter", "LoanSa");
+    $('#LoanSa__LoanSanction__ct_frm_8_row_0, #LoanSa__LoanSanction__ct_lst_3').hide();
+    $('#LoanSa__LoanSanction__ct_lst_4').removeClass('sno');
+    $('#LoanSa__LoanSanction__ct_lst_9').addClass('sno');
+    $('#LoanSa__LoanSanction__ct_lst_10').addClass('sno');
+    $('#' + ScreenId + "ct_frm_8_row_0").removeClass('active');
+    $('#' + ScreenId + "ct_frm_8_row_1").addClass('active');
+    $('#' + ScreenId + "ct_frm_8_row_2").removeClass('active');
+    $('#' + ScreenId + "ct_frm_8_row_3").removeClass('active');
+    apz.app.LoanSanction.filterBranchLoan();
+    if (window.userRole !== "BM" || window.userRole == "KM") {
+        $('#' + ScreenId + "ct_frm_8_row_2").addClass('sno');
+        //   $('#' + ScreenId + "ct_frm_8_row_3").addClass('sno');
+    } else {
+        $('#' + ScreenId + "ct_frm_8_row_2").removeClass('sno');
+        //   $('#' + ScreenId + "ct_frm_8_row_3").removeClass('sno');
+    }
+    $('.srb').each(function () {
+        let checkbox = $(this).find('input[type="checkbox"]');
+        let activeRow;
+        if ($(this).closest('#' + ScreenId + "ct_frm_8_row_0").length) {
+            activeRow = 'row_0';
+        } else if ($(this).closest('#' + ScreenId + "ct_frm_8_row_1").length) {
+            activeRow = 'row_1';
+        } else if ($(this).closest('#' + ScreenId + "ct_frm_8_row_2").length) {
+            activeRow = 'row_2';
+        } else if ($(this).closest('#' + ScreenId + "ct_frm_8_row_3").length) {
+            activeRow = 'row_3';
+        }
+        if ($(this).index() !== 0 && !checkbox.prop('checked')) {
+            allCheckboxChecked[activeRow] = false;
+        }
+    });
+}
+apz.app.LoanSanction.filterBranchLoan = function () {
+    let branchArray = [];  // Not used in current context
+    let loanArray = [], product = [];
+    let kmNamesArray = [], kmName = [];
+    let kendraNameArry = [], name = [];  // Arrays to store unique kendraName values
+    loansanctionList.forEach(function (el, i) {
+        if (!(name.includes(loansanctionList[i].kendraName))) {
+            let obj = {
+                kendraName: loansanctionList[i].kendraName
+            };
+            kendraNameArry.push(obj);
+            name.push(loansanctionList[i].kendraName);
+        }
+        if (!(kmName.includes(loansanctionList[i].kmid))) {
+            let obj = {
+                kmName: loansanctionList[i].kmid
+            };
+            kmNamesArray.push(obj);
+            kmName.push(loansanctionList[i].kmid);
+        }
+        if (!(product.includes(loansanctionList[i].productType))) {
+            let obj = {
+                product: loansanctionList[i].productType
+            };
+            loanArray.push(obj);
+            product.push(loansanctionList[i].productType);
+        }
+    });
+    kendraNameArry.unshift({ kendraName: "All" });
+    kmNamesArray.unshift({ kmName: "All" });
+    loanArray.unshift({ product: "All" });
+    apz.data.scrdata.LoanSa__IPaintKMsName_Res = kmNamesArray;
+    apz.data.loadData("IPaintKMsName", "LoanSa");
+    apz.data.scrdata.LoanSa__IPaintKendraName_Res = kendraNameArry;
+    apz.data.loadData("IPaintKendraName", "LoanSa");
+    apz.data.scrdata.LoanSa__IPaintLoanDtls_Res = loanArray;
+    apz.data.loadData("IPaintLoanBranchDtls", "LoanSa");
+    apz.data.loadData("IPaintLoanDtls", "LoanSa");
+};
+apz.app.LoanSanction.branchLoanSelection = function (pthis) {
+    let rowNo = $(pthis).attr("rowno");
+    $.each(btnFiltrLoanSanct, function (i) {
+        if (parseInt(rowNo) === i) {
+            $('#' + ScreenId + 'ct_frm_8_row_' + i).addClass('active');
+        } else {
+            $('#' + ScreenId + 'ct_frm_8_row_' + i).removeClass('active');
+        }
+    });
+    if (window.userRole === "BM") {
+        $('#' + ScreenId + "ct_frm_8_row_2").removeClass('sno');
+    } else {
+        $('#' + ScreenId + "ct_frm_8_row_2").addClass('sno');
+    }
+    if (pthis.innerText === "Branch") {
+        $('#' + ScreenId + "ct_lst_4").addClass('sno');  // Hide the Loan list
+        $('#' + ScreenId + "ct_lst_9").addClass('sno');  // Hide the KMs list
+        $('#' + ScreenId + "ct_lst_10").addClass('sno');  // Hide the KMname list
+        $('#' + ScreenId + "ct_lst_3").removeClass('sno');  // Show the Branch list
+    } else if (pthis.innerText === "Loan") {
+        $('#' + ScreenId + "ct_lst_3").addClass('sno');  // Hide the Branch list
+        $('#' + ScreenId + "ct_lst_9").addClass('sno');  // Hide the KMs list
+        $('#' + ScreenId + "ct_lst_10").addClass('sno');  // Hide the KMname list
+        $('#' + ScreenId + "ct_lst_4").removeClass('sno');  // Show the Loan list
+    } else if (pthis.innerText === "KMs") {
+        $('#' + ScreenId + "ct_lst_3").addClass('sno');  // Hide the Branch list
+        $('#' + ScreenId + "ct_lst_4").addClass('sno');  // Hide the Loan list
+        $('#' + ScreenId + "ct_lst_10").addClass('sno');  // Hide the KMname list
+        $('#' + ScreenId + "ct_lst_9").removeClass('sno');  // Show the KMs list
+    } else if (pthis.innerText === "Kendra Name") {
+        $('#' + ScreenId + "ct_lst_3").addClass('sno');  // Hide the Branch list
+        $('#' + ScreenId + "ct_lst_4").addClass('sno');  // Hide the Loan list
+        $('#' + ScreenId + "ct_lst_9").addClass('sno');  // Hide the KMs list
+        $('#' + ScreenId + "ct_lst_10").removeClass('sno');  // Show the KMname list
+    }
+}
+
+apz.app.LoanSanction.CheckboxSelection = function (pthis) {
+    let checkbox = $(pthis).find('input[type="checkbox"]');
+    let isChecked = checkbox.prop('checked');
+    let checkboxListSelector, allCheckboxSelector;
+    let selectedValues = [];
+    let activeRow;
+    if ($('#' + ScreenId + "ct_frm_8_row_0").hasClass('active')) {
+        checkboxListSelector = "#" + ScreenId + "ct_lst_3";
+        allCheckboxSelector = checkboxListSelector + " .srb:first input[type='checkbox']";
+        activeRow = 'row_0';
+    } else if ($('#' + ScreenId + "ct_frm_8_row_1").hasClass('active')) {
+        checkboxListSelector = "#" + ScreenId + "ct_lst_4";
+        allCheckboxSelector = checkboxListSelector + " .srb:first input[type='checkbox']";
+        activeRow = 'row_1';
+    } else if ($('#' + ScreenId + "ct_frm_8_row_2").hasClass('active')) {
+        checkboxListSelector = "#" + ScreenId + "ct_lst_9";
+        allCheckboxSelector = checkboxListSelector + " .srb:first input[type='checkbox']";
+        activeRow = 'row_2';
+    } else if ($('#' + ScreenId + "ct_frm_8_row_3").hasClass('active')) { // New condition for ct_lst_10
+        checkboxListSelector = "#" + ScreenId + "ct_lst_10"; // Target ct_lst_10
+        allCheckboxSelector = checkboxListSelector + " .srb:first input[type='checkbox']";
+        activeRow = 'row_3'; // New row_3 for ct_lst_10
+    }
+    if (pthis.innerText === "All") {
+        let allCheckbox = $(allCheckboxSelector);
+        allCheckbox.prop('checked', isChecked);
+        $(checkboxListSelector + " input[type='checkbox']").not(allCheckbox).prop('checked', isChecked);
+        allCheckboxChecked[activeRow] = isChecked;
+    } else { // Handle other checkboxes
+        let allCheckbox = $(allCheckboxSelector);
+        let otherCheckboxes = $(checkboxListSelector + " input[type='checkbox']").not(allCheckbox);
+        let allOthersChecked = otherCheckboxes.length > 0 && otherCheckboxes.filter(':checked').length === otherCheckboxes.length;
+        if (isChecked && allOthersChecked) {
+            allCheckbox.prop('checked', true);
+            allCheckboxChecked[activeRow] = true;
+        } else {
+            allCheckbox.prop('checked', false);
+            allCheckboxChecked[activeRow] = false;
+        }
+    }
+    $('.srb input[type="checkbox"]').each(function () {
+        let checkedValue = $(this).closest('.srb').find('.ett-para > span').text();
+        if ($(this).prop('checked')) {
+            selectedValues.push(checkedValue);
+        }
+    });
+    selectedCheckboxes = selectedValues;
+}
+apz.app.LoanSanction.fetchClickedRowDetails = function (pthis) {
+    window.clickRow = $(pthis).attr("rowno");
+    if (window.userRole === "BM") {
+        $('#' + ScreenId + "ApproveBMrow").addClass('sno');
+        $('#' + ScreenId + "loanSanctionStatusRow").addClass('sno');
+    }
+    let rowno = pthis.getAttribute("rowno");
+    window.KendraLoans.selectedLoanSanctionAccnt = apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res[rowno];
+    window.selectedCustomerDetail= apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res[rowno];
+    window.KendraLoans.selecteddashboardApp = apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res[rowno];
+    ApzCOB.fetchLoanApplication(window.KendraLoans.selectedLoanSanctionAccnt, 'LoanSanction');
+    if (window.KendraLoans.selectedLoanSanctionAccnt) {
+        /* let data = {
+             selectedCust:  window.KendraLoans.selectedLoanSanctionAccnt,
+             matchingCustomer: custFetchLoanAppRes        //matchingCustomers
+         };
+         ApzCOB.launchMicroApp('LoanSa', 'DetailedScreen', 'APZCBO__BaseScreens__BaseDIV', data);*/
+    } else {
+        console.error("selectedLoanSanctionAccnt is undefined");
+    }
+};
+apz.app.LoanSanction.backNavigate = function () {
+    let loanStatusText = $("#" + ScreenId + "el_txt_12");
+    let loanApplDtlsText = $("#" + ScreenId + "el_txt_95");
+    if (loanStatusText.is(":visible") && (loanStatusText.text() === "Loan Sanction Status" || loanStatusText.text() ===
+        "Pending Loan Sanctions")) {
+        ApzCOB.launchMicroApp('Dashbo', 'dashboard', 'APZCBO__BaseScreens__BaseDIV', KendraApp.selectedKendra);
+    }
+}
+apz.app.LoanSanction.resetBranchLoan = function (pthis) {
+    $('.srb').find('input[type="checkbox"]').prop('checked', false).prop('disabled', false);
+    ApzCOB.toggleModal(ScreenId + "filterModal");
+    apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res = loansanctionList;
+    apz.data.loadData("IPaintLoanCustomerDtls", "LoanSa");
+    apz.app.LoanSanction.loadcrtData();
+}
+apz.app.LoanSanction.applyBranchAndLoan = function (pthis) {
+    let selectedBranches = [];
+    let selectedLoanProductAmounts = [];
+    let selectedKMNames = [];
+    let selectedKendraNames = [];
+    apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res = [];
+    let activeTab = $('.ett-badg.active').text().trim();
+    if ($('#LoanSa__LoanSanction__ct_frm_8_row_0').hasClass('active')) {
+        $('.srb').each(function () {
+            let branchValue = $(this).find('.ett-para > span').html();
+            let checkbox = $(this).find('input[type="checkbox"]');
+            if (checkbox.prop('checked')) {
+                selectedBranches.push(branchValue);
+            }
+        });
+    }
+    else if ($('#LoanSa__LoanSanction__ct_frm_8_row_1').hasClass('active')) {
+        $('.srb').each(function () {
+            let loanValue = $(this).find('.ett-para > span').html();
+            let checkbox = $(this).find('input[type="checkbox"]');
+            if (checkbox.prop('checked')) {
+                selectedLoanProductAmounts.push(loanValue);
+            }
+        });
+    }
+    else if ($('#LoanSa__LoanSanction__ct_frm_8_row_2').hasClass('active')) {
+        $('.srb').each(function () {
+            let kmName = $(this).find('.ett-para > span').html();
+            let checkbox = $(this).find('input[type="checkbox"]');
+            if (checkbox.prop('checked')) {
+                selectedKMNames.push(kmName);
+            }
+        });
+    }
+    else if ($('#LoanSa__LoanSanction__ct_frm_8_row_3').hasClass('active')) {
+        $('.srb').each(function () {
+            let kendraName = $(this).find('.ett-para > span').html();
+            let checkbox = $(this).find('input[type="checkbox"]');
+            if (checkbox.prop('checked')) {
+                selectedKendraNames.push(kendraName);
+            }
+        });
+    }
+    if (selectedBranches.length === 0 && selectedLoanProductAmounts.length === 0 && selectedKMNames.length === 0 && selectedKendraNames.length === 0) {
+        alert("Please select at least one branch, loan, KM, or Kendra.");
+        return;
+    }
+    let filteredCustomers = [];
+    if ($('#LoanSa__LoanSanction__ct_frm_8_row_0').hasClass('active')) {
+        if (selectedBranches.includes("All")) {
+            ApzCOB.toggleModal(ScreenId + "filterModal");
+            apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res = loansanctionList;
+            apz.data.loadData("IPaintLoanCustomerDtls", "LoanSa");
+            apz.app.LoanSanction.loadcrtData();
+            return;
+        }
+        filteredCustomers = loansanctionList.filter(customer => selectedBranches.includes(customer.kendraName));
+    }
+    else if ($('#LoanSa__LoanSanction__ct_frm_8_row_1').hasClass('active')) {
+        filteredCustomers = loansanctionList.filter(customer => selectedLoanProductAmounts.includes(customer.productType));
+    }
+    else if ($('#LoanSa__LoanSanction__ct_frm_8_row_2').hasClass('active')) {
+        filteredCustomers = loansanctionList.filter(customer => selectedKMNames.includes(customer.kmid));
+    }
+    else if ($('#LoanSa__LoanSanction__ct_frm_8_row_3').hasClass('active')) {
+        if (selectedKendraNames.includes("All")) {
+            ApzCOB.toggleModal(ScreenId + "filterModal");
+            apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res = loansanctionList;
+            apz.data.loadData("IPaintLoanCustomerDtls", "LoanSa");
+            apz.app.LoanSanction.loadcrtData();
+            return;
+        }
+        filteredCustomers = loansanctionList.filter(customer => selectedKendraNames.includes(customer.kendraName));
+    }
+    ApzCOB.toggleModal(ScreenId + "filterModal");
+    apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res = filteredCustomers;
+    if (apz.deviceType === 'WEB') {
+        let totalItems = filteredCustomers.length;
+        window.pageNo = 1;
+        apz.app.LoanSanction.InitialisePagination(totalItems, filteredCustomers);
+    } else {
+        apz.data.loadData("IPaintLoanCustomerDtls", "LoanSa");
+        apz.app.LoanSanction.loadcrtData();
+    }
+    $('.ett-badg').removeClass('active'); // Reset all tabs
+    switch (activeTab) {
+        case "Pending By BM":
+            $('#LoanSa__LoanSanction__tab_pending').addClass('active'); // Set Pending tab active
+            break;
+        case "Sanctioned":
+            $('#LoanSa__LoanSanction__tab_sanctioned').addClass('active'); // Set Sanctioned tab active
+            break;
+        case "Rejected":
+            $('#LoanSa__LoanSanction__tab_rejected').addClass('active'); // Set Rejected tab active
+            break;
+        default:
+            $('#LoanSa__IPaintLoanSanctionBtn__o__LoanSa__IPaintLoanSanctionBtn_Res__key_0').addClass('active'); // Set All Applications tab active
+    }
+};
+apz.app.LoanSanction.InitialisePagination = function (totalItems, dataList) {
+    $('#' + ScreenId + PagBtnInp).attr("disabled", false);
+    $('#' + ScreenId + 'row_acc_pagiButtons').css('opacity', '1');
+    window.totalPaginationPages = Math.ceil(Number(totalItems) / Number(configLimit));
+    var page = window.totalPaginationPages > 1 ? "PAGES" : "PAGE";
+    apz.setElmValue(ScreenId + "remPages", "of " + window.totalPaginationPages);
+    var PageArr = [];
+    for (let i = 1; i <= totalPaginationPages; i++) {
+        let obj = { value: i, desc: i };
+        PageArr.push(obj);
+    }
+    apz.populateDropdown(document.getElementById(ScreenId + 'dropDownPage'), PageArr);
+    window.pageNo = window.pageNo || 1;
+    const paginationBar = $('#' + ScreenId + Pagination_Bar);
+    if (paginationBar.data('pagination')) {
+        paginationBar.pagination('destroy'); // Destroy previous instance
+    }
+    paginationBar.pagination({
+        dataSource: dataList,
+        totalNumber: Number(totalItems),
+        pageSize: Number(configLimit),
+        pageNumber: Number(window.pageNo),
+        callback: function (data, pagination) {
+            window.pageNo = pagination.pageNumber;
+            $('#' + ScreenId + 'dropDownPage').val(window.pageNo);
+            apz.app.LoanSanction.displayRecords(dataList); // Display records for the current page
+        }
+    });
+    apz.app.LoanSanction.displayRecords(dataList);
+};
+apz.app.LoanSanction.FuncPaginationPrev = function () {
+    if (window.pageNo > 1) {
+        window.pageNo--; // Decrement page number
+        $('#' + ScreenId + 'dropDownPage').val(window.pageNo);
+        $('#' + ScreenId + Pagination_Bar).pagination('go', window.pageNo); // Go to the previous page
+    }
+};
+apz.app.LoanSanction.FuncPaginationNext = function () {
+    if (window.pageNo < window.totalPaginationPages) {
+        window.pageNo++; // Increment page number
+        $('#' + ScreenId + 'dropDownPage').val(window.pageNo);
+        $('#' + ScreenId + Pagination_Bar).pagination('go', window.pageNo); // Go to the next page
+    }
+};
+apz.app.LoanSanction.OnChangeValue = function (pthis) {
+    window.pageNo = Number(pthis.value); // Update pageNo when dropdown is changed
+    $('#' + ScreenId + Pagination_Bar).pagination('go', window.pageNo); // Go to the selected page
+};
+apz.app.LoanSanction.displayRecords = function (dataList) {
+    const itemsPerPage = configLimit;
+    let startIndex = (window.pageNo - 1) * itemsPerPage;
+    let endIndex = startIndex + itemsPerPage;
+    const currentItems = dataList.slice(startIndex, endIndex);
+    $("#" + ScreenId + "listCount").text(currentItems.length + ' of ' + dataList.length);
+    $(".paginationjs").addClass("sno");  // Hide default pagination (optional)
+    $('#' + ScreenId + 'pageForm').removeClass("sno");
+    $('#' + ScreenId + Pagination_Bar).removeClass("sno");
+    apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res = currentItems;
+    apz.data.loadData("IPaintLoanCustomerDtls", "LoanSa");
+    apz.app.LoanSanction.loadcrtData();
+};
+apz.app.LoanSanction.funcPagination = function () {
+    let dataList = customerListBasedOnStatus.length > 0 ? customerListBasedOnStatus : loansanctionList;
+    totalItems = dataList.length;
+    if (!apz.isNull(dataList)) {
+        $('#' + ScreenId + 'pageForm').removeClass("sno");
+        let num = Number(totalItems) / Number(configLimit);
+        window.totalPaginationPages = Math.ceil(num);
+        if (Number(totalItems) > Number(configLimit)) {
+            apz.app.LoanSanction.InitialisePagination(totalItems, dataList);
+        } else {
+            apz.app.LoanSanction.HidePagination(dataList);
+        }
+        window.currentPageNumber = window.pageNo;  // Track current page
+    } else {
+        apz.app.LoanSanction.HidePagination(dataList);
+    }
+};
+apz.app.LoanSanction.HidePagination = function (dataList) {
+    if (Number(totalItems) <= Number(configLimit)) {
+        $('#' + ScreenId + PagBtnInp).attr("disabled", true);
+        $('#' + ScreenId + 'row_acc_pagiButtons').css('opacity', '0.3');
+    }
+    $('#' + ScreenId + Pagination_Bar).addClass("sno");
+    apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res = dataList;
+    apz.data.loadData("IPaintLoanCustomerDtls", "LoanSa");
+    apz.app.LoanSanction.loadcrtData();
+};
+apz.app.LoanSanction.loadcrtData = function() {
+    apz.data.scrdata.LoanSa__IPaintLoanCustomerDtls_Res.forEach(function(m, n) {
+        var addinfo = m.addInfo;
+        if (typeof addinfo == 'string') {
+            addinfo = JSON.parse(addinfo)
+        }
+        if (apz.isNull(addinfo.isApprovedCRT)) {
+            $('#LoanSa__LoanSanction__crtFlag_' + n).addClass('sno')
+        } else {
+            if (addinfo.isApprovedCRT) {
+                // console.log('true'); 
+                $('#LoanSa__LoanSanction__crtFlag_' + n).removeClass('sno')
+            } else {
+                $('#LoanSa__LoanSanction__crtFlag_' + n).addClass('sno')
+            }
+        }
+        if (typeof addinfo.isQuestionComplete === "undefined") {
+            $('#LoanSa__LoanSanction__iaqFlag_' + n).addClass('sno')
+        } else {
+            if (addinfo.isQuestionComplete == 'Update' || addinfo.isQuestionComplete == 'Insert') {
+                $('#LoanSa__LoanSanction__iaqFlag_' + n).addClass('sno')
+            } else {
+                $('#LoanSa__LoanSanction__iaqFlag_' + n).removeClass('sno')
+            }
+        }
+        // console.log(addinfo.isApprovedCRT,n)
+    });
+};

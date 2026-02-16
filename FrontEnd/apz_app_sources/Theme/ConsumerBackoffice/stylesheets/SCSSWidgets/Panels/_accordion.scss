@@ -1,0 +1,581 @@
+@use "../Abstract" as a;
+
+.plt-acco {
+	margin: auto 1em;
+}
+.pst-acco {
+	&.box {
+		&.pri {
+			margin-bottom: .1em;
+			padding: 0;
+			.ctr {
+				background-color: #fff;
+				border: 1px solid #dcdcdc;
+				border-top: none;
+			}
+			.coll-dis {
+				opacity: 0.2;
+				background-color: #eee;
+			}
+			> .ttl {
+				background-color: #fff;
+				border-radius: 1px 1px 0 0;
+				color: #000;
+				font-weight: 400;
+				padding: 0;
+				margin-bottom: 0;
+				border-bottom: 1px solid #dcdcdc;
+				display: table;
+				width: 100%;
+				&:hover {
+					background-color: #f9f9f9;
+				}
+				li {
+					display: table-cell;
+					padding: .5em;
+					cursor: pointer;
+					&.icn {
+						width: 28px;
+						text-align: center;
+						svg {
+							fill: #333;
+						}
+					}
+					&.tls {
+						vertical-align: middle;
+						width: 30px;
+						text-align: center;
+						border: 0;
+						a {
+							&.expand {
+								margin: 0;
+								vertical-align: middle;
+							}
+							svg {
+								margin: 0;
+								vertical-align: middle;
+								fill: #333;
+								height: 14px;
+								width: 14px;
+							}
+						}
+					}
+					&.lbl h4 {
+						margin: 0;
+						padding: 0;
+						font-weight: 400;
+						font-size: 1.2em;
+						cursor: pointer;
+						color: #333;
+					}
+				}
+				span {
+					margin: 0;
+					padding: 0;
+					white-space: normal;
+				}
+			}
+		}
+		&.sec {
+			margin-bottom: .1em;
+			padding: 0;
+			.ctr {
+				background-color: #fff;
+				border: 1px solid #dcdcdc;
+				border-top: none;
+			}
+			.coll-dis {
+				opacity: 0.2;
+				background-color: #eee;
+			}
+			> .ttl {
+				background-color: #0693ea;
+				border-radius: 1px 1px 0 0;
+				color: #fff;
+				font-weight: 400;
+				padding: 0;
+				margin-bottom: 0;
+				width: 100%;
+				display: table;
+				&:hover {
+					background-color: #30a5ee;
+				}
+				li {
+					display: table-cell;
+					padding: .5em;
+					cursor: pointer;
+					&.icn {
+						width: 28px;
+						text-align: center;
+						svg {
+							fill: #fff;
+						}
+					}
+					&.tls {
+						vertical-align: middle;
+						width: 30px;
+						text-align: center;
+						border: 0;
+						a {
+							&.expand {
+								margin: 0;
+								vertical-align: middle;
+							}
+							svg {
+								margin: 0;
+								vertical-align: middle;
+								fill: #fff;
+								height: 14px;
+								width: 14px;
+							}
+						}
+					}
+					&.lbl h4 {
+						margin: 0;
+						padding: 0;
+						font-weight: 400;
+						font-size: 1.2em;
+						cursor: pointer;
+					}
+				}
+				span {
+					margin: 0;
+					padding: 0;
+					white-space: normal;
+				}
+			}
+		}
+		&.ter {
+			margin-bottom: .1em;
+			padding: 0;
+			.ctr {
+				background-color: #fff;
+				border: 1px solid #dcdcdc;
+				border-top: none;
+			}
+			.coll-dis {
+				opacity: 0.2;
+				background-color: #eee;
+			}
+			> .ttl {
+				background-color: #f2145e;
+				border-radius: 1px 1px 0 0;
+				color: #fff;
+				font-weight: 400;
+				padding: 0;
+				margin-bottom: 0;
+				width: 100%;
+				display: table;
+				&:hover {
+					background-color: #ef3271;
+				}
+				li {
+					display: table-cell;
+					padding: .5em;
+					cursor: pointer;
+					&.icn {
+						width: 28px;
+						text-align: center;
+						svg {
+							fill: #fff;
+						}
+					}
+					&.tls {
+						vertical-align: middle;
+						width: 30px;
+						text-align: center;
+						border: 0;
+						a {
+							&.expand {
+								margin: 0;
+								vertical-align: middle;
+							}
+							svg {
+								margin: 0;
+								vertical-align: middle;
+								fill: #fff;
+								height: 14px;
+								width: 14px;
+							}
+						}
+					}
+					&.lbl h4 {
+						margin: 0;
+						padding: 0;
+						font-weight: 400;
+						font-size: 1.2em;
+						cursor: pointer;
+					}
+				}
+				span {
+					margin: 0;
+					padding: 0;
+					white-space: normal;
+				}
+			}
+		}
+		&.tsp {
+			margin-bottom: .1em;
+			padding: 0;
+			.ctr {
+				background-color: transparent;
+				border: 1px solid rgba(0, 0, 0, 0.07);
+				border-top: none;
+			}
+			.coll-dis {
+				opacity: 0.2;
+				background-color: #eee;
+			}
+			> .ttl {
+				background-color: transparent;
+				border-radius: 1px 1px 0 0;
+				border-bottom: 0;
+				color: #000;
+				font-weight: 400;
+				padding: 0;
+				margin-bottom: 0;
+				border: 1px solid rgba(0, 0, 0, 0.07);
+				display: table;
+				width: 100%;
+				&:hover {
+					background-color: #f9f9f9;
+				}
+				li {
+					display: table-cell;
+					padding: .5em;
+					cursor: pointer;
+					&.icn {
+						width: 28px;
+						text-align: center;
+					}
+					&.tls {
+						vertical-align: middle;
+						width: 30px;
+						text-align: center;
+						border: 0;
+						a {
+							&.expand {
+								margin: 0;
+								vertical-align: middle;
+							}
+							svg {
+								margin: 0;
+								vertical-align: middle;
+								fill: #000;
+								height: 14px;
+								width: 14px;
+							}
+						}
+					}
+					&.lbl h4 {
+						margin: 0;
+						padding: 0;
+						font-weight: 400;
+						font-size: 1.2em;
+						cursor: pointer;
+					}
+				}
+				span {
+					margin: 0;
+					padding: 0;
+					white-space: normal;
+				}
+			}
+		}
+	}
+	&.sld {
+		&.pri {
+			margin-bottom: .4em;
+			padding: 0;
+			border: 1px solid #dcdcdc;
+			background-color: #f9f9f9;
+			.ctr {
+				background-color: #f9f9f9;
+				color: #333;
+			}
+			.coll-dis {
+				opacity: 0.2;
+				background-color: #eee;
+			}
+			> .ttl {
+				padding: 0;
+				margin: 0;
+				background-color: #f9f9f9;
+				border-radius: 1px 1px 0 0;
+				border-bottom: 0;
+				color: #000;
+				font-weight: 400;
+				display: table;
+				width: 100%;
+				&:hover {
+					background-color: #f5f5f5;
+				}
+				li {
+					display: table-cell;
+					padding: .5em;
+					cursor: pointer;
+					&.icn {
+						width: 28px;
+						text-align: center;
+						svg {
+							fill: #333;
+						}
+					}
+					&.tls {
+						vertical-align: middle;
+						width: 30px;
+						text-align: center;
+						border: 0;
+						a {
+							&.expand {
+								margin: 0;
+								vertical-align: middle;
+							}
+							svg {
+								margin: 0;
+								vertical-align: middle;
+								fill: #333;
+								height: 14px;
+								width: 14px;
+							}
+						}
+					}
+					&.lbl h4 {
+						margin: 0;
+						padding: 0;
+						font-weight: 400;
+						font-size: 1.2em;
+						cursor: pointer;
+						color: #333;
+					}
+				}
+				span {
+					margin: 0;
+					padding: 0;
+					white-space: normal;
+				}
+			}
+		}
+		&.sec {
+			margin-bottom: .4em;
+			padding: 0;
+			border: 1px solid #dcdcdc;
+			border-right: 4px solid #29abe2;
+			.ctr {
+				background-color: #fff;
+				color: #333;
+			}
+			.coll-dis {
+				opacity: 0.2;
+				background-color: #eee;
+			}
+			> .ttl {
+				padding: 0;
+				margin-bottom: 0;
+				background-color: #fff;
+				border-radius: 1px 1px 0 0;
+				border-bottom: 0;
+				color: #333;
+				font-weight: 400;
+				display: table;
+				width: 100%;
+				&:hover {
+					background-color: #f9f9f9;
+				}
+				li {
+					display: table-cell;
+					padding: .5em;
+					cursor: pointer;
+					&.icn {
+						width: 28px;
+						text-align: center;
+						svg {
+							fill: #333;
+						}
+					}
+					&.tls {
+						vertical-align: middle;
+						width: 30px;
+						text-align: center;
+						border: 0;
+						a {
+							&.expand {
+								margin: 0;
+								vertical-align: middle;
+							}
+							svg {
+								margin: 0;
+								vertical-align: middle;
+								fill: #333;
+								height: 14px;
+								width: 14px;
+							}
+						}
+					}
+					&.lbl h4 {
+						margin: 0;
+						padding: 0;
+						font-weight: 400;
+						font-size: 1.2em;
+						cursor: pointer;
+					}
+				}
+				span {
+					margin: 0;
+					padding: 0;
+					white-space: normal;
+				}
+			}
+		}
+		&.ter {
+			margin-bottom: .4em;
+			padding: 0;
+			border: 1px solid #dcdcdc;
+			border-right: 4px solid #f2145e;
+			.ctr {
+				background-color: #fff;
+				color: #333;
+			}
+			.coll-dis {
+				opacity: 0.2;
+				background-color: #eee;
+			}
+			> .ttl {
+				padding: 0;
+				margin-bottom: 0;
+				background-color: #fff;
+				border-radius: 1px 1px 0 0;
+				border-bottom: 0;
+				color: #333;
+				font-weight: 400;
+				display: table;
+				width: 100%;
+				&:hover {
+					background-color: #f9f9f9;
+				}
+				li {
+					display: table-cell;
+					padding: .5em;
+					cursor: pointer;
+					&.icn {
+						width: 28px;
+						text-align: center;
+						svg {
+							fill: #333;
+						}
+					}
+					&.tls {
+						vertical-align: middle;
+						width: 30px;
+						text-align: center;
+						border: 0;
+						a {
+							&.expand {
+								margin: 0;
+								vertical-align: middle;
+							}
+							svg {
+								margin: 0;
+								vertical-align: middle;
+								fill: #333;
+								height: 14px;
+								width: 14px;
+							}
+						}
+					}
+					&.lbl h4 {
+						margin: 0;
+						padding: 0;
+						font-weight: 400;
+						font-size: 1.2em;
+						cursor: pointer;
+					}
+				}
+				span {
+					margin: 0;
+					padding: 0;
+					white-space: normal;
+				}
+			}
+		}
+		&.tsp {
+			margin-bottom: .4em;
+			padding: 0;
+			.ctr {
+				background-color: transparent;
+			}
+			.coll-dis {
+				opacity: 0.2;
+				background-color: #eee;
+			}
+			> .ttl {
+				padding: 0;
+				margin-bottom: 0;
+				background-color: transparent;
+				border-radius: 1px 1px 0 0;
+				border-bottom: 0;
+				color: #000;
+				font-weight: 400;
+				display: table;
+				width: 100%;
+				&:hover {
+					background-color: #f9f9f9;
+				}
+				li {
+					display: table-cell;
+					padding: .5em;
+					cursor: pointer;
+					&.icn {
+						width: 28px;
+						text-align: center;
+					}
+					&.tls {
+						vertical-align: middle;
+						width: 30px;
+						text-align: center;
+						border: 0;
+						a {
+							&.expand {
+								margin: 0;
+								vertical-align: middle;
+							}
+							svg {
+								margin: 0;
+								vertical-align: middle;
+								fill: #000;
+								height: 14px;
+								width: 14px;
+							}
+						}
+					}
+					&.lbl h4 {
+						margin: 0;
+						padding: 0;
+						font-weight: 400;
+						font-size: 1.2em;
+						cursor: pointer;
+					}
+				}
+				span {
+					margin: 0;
+					padding: 0;
+					white-space: normal;
+				}
+			}
+		}
+	}
+	.ctr > div {
+		padding: 1em;
+	}
+}
+.slideup {
+	max-height: 0 !important;
+	overflow-y: hidden !important;
+	transition: max-height 0.8s ease-in-out !important;
+}
+.slidedown {
+	max-height: 0 !important;
+	overflow-y: hidden !important;
+	transition: max-height 0.8s ease-in-out !important;
+	max-height: 100px !important;
+}

@@ -1,0 +1,32 @@
+@use "../Abstract" as a;
+
+.pnt-head {
+	top: -150px;
+	&.pri {
+    	background-color: a.$header-bg-pri;
+    	box-shadow: 0 1px 2px #dcdcdc;
+    	color: #000;
+    	svg {
+    		fill: a.$header-svg-fill-pri;
+    		cursor: pointer;
+    	}
+    }
+    &.sec {
+    	background-image: a.$header-img-color-sec;
+    	box-shadow: 0 0 5px rgba(57, 70, 78, 0.2);
+    	color: #FFF;
+    	svg {
+    		fill: a.$header-svg-fill-sec;
+    		cursor: pointer;
+    	}
+    }
+    &.ter {
+    	background-color: a.$header-bg-ter;
+    	box-shadow: 0 3px 5px rgba(57, 70, 78, 0.2);
+    	color: #000;
+    	svg {
+    		fill: a.$header-svg-fill-ter;
+    		cursor: pointer;
+    	}
+    }
+}

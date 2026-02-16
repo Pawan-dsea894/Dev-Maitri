@@ -1,0 +1,148 @@
+@use "../Abstract" as a;
+
+
+/* gauge */
+.crt-gaug {
+	&.pri > .ttl {
+		display: table;
+		list-style: none outside none;
+		margin: 0 0 12px 0;
+		padding: 0;
+		width: 100%;
+		border-bottom: 1px solid #ddd;
+		> span {
+			display: table-cell;
+			margin: 0;
+			white-space: normal;
+			padding: 5px 3px;
+			vertical-align: middle;
+		}
+		> li {
+			display: table-cell;
+			margin: 0;
+			white-space: normal;
+			padding: 5px 3px;
+			vertical-align: middle;
+			&.icn {
+				@include list-ttl-icn;
+			}
+		}
+		.ttv {
+			display: table;
+			width: 100%;
+			> li {
+				display: table-cell;
+				vertical-align: middle;
+				&.icn {
+					width: 1em;
+					padding: 0 3px;
+					svg {
+						fill: #0693ea;
+						height: 24px;
+						width: 24px;
+					}
+				}
+				&.lbl h4 {
+					color: #0693ea;
+					font-size: 1.2em;
+					font-weight: 400;
+				}
+			}
+		}
+	}
+	&.sec > .ttl {
+		display: table;
+		list-style: none outside none;
+		margin: 0 0 12px 0;
+		padding: 0;
+		width: 100%;
+		border-bottom: 1px solid #ddd;
+		> span {
+			display: table-cell;
+			margin: 0;
+			white-space: normal;
+			padding: 5px 3px;
+			vertical-align: middle;
+		}
+		> li {
+			display: table-cell;
+			margin: 0;
+			white-space: normal;
+			padding: 5px 3px;
+			vertical-align: middle;
+			&.icn {
+				@include list-ttl-icn;
+			}
+		}
+		.ttv {
+			display: table;
+			width: 100%;
+			> li {
+				display: table-cell;
+				vertical-align: middle;
+				&.icn {
+					width: 1em;
+					padding: 0 3px;
+					svg {
+						fill: inherit;
+						height: 24px;
+						width: 24px;
+					}
+				}
+				&.lbl h4 {
+					color: inherit;
+					font-size: 1.2em;
+					font-weight: 400;
+				}
+			}
+		}
+	}
+	&.ter > .ttl {
+		display: table;
+		list-style: none outside none;
+		margin: 0 0 12px 0;
+		padding: 0;
+		width: 100%;
+		border-bottom: 1px solid #ddd;
+		> span {
+			display: table-cell;
+			margin: 0;
+			white-space: normal;
+			padding: 5px 3px;
+			vertical-align: middle;
+		}
+		> li {
+			display: table-cell;
+			margin: 0;
+			white-space: normal;
+			padding: 5px 3px;
+			vertical-align: middle;
+			&.icn {
+				@include list-ttl-icn;
+			}
+		}
+		.ttv {
+			display: table;
+			width: 100%;
+			> li {
+				display: table-cell;
+				vertical-align: middle;
+				&.icn {
+					width: 1em;
+					padding: 0 3px;
+					svg {
+						fill: #f2145e;
+						height: 24px;
+						width: 24px;
+					}
+				}
+				&.lbl h4 {
+					color: #f2145e;
+					font-size: 1.2em;
+					font-weight: 400;
+				}
+			}
+		}
+	}
+}
+/* gauge end */

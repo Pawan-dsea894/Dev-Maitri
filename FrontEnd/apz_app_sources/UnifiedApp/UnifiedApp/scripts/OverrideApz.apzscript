@@ -1,0 +1,286 @@
+Apz.prototype.initAppzillonDates = function(params) {
+    var lcontrols = [];
+    var objDateFormat = this.dateformat;
+    var objTimeFormat = this.timeformat;
+    var initid = params.id;
+    var currDateObj = document.getElementById(initid);
+    var $el = $(currDateObj);
+    if (params.dataType === "DATETIME") {
+        var datetimeform = this.datetimeformat;
+        var timeformstart = datetimeform.indexOf("h") > -1 ? datetimeform.indexOf("h") : datetimeform.indexOf("H");
+        if (timeformstart !== -1) {
+            objDateFormat = datetimeform.substr(0, (timeformstart - 1));
+            objTimeFormat = datetimeform.substr(timeformstart);
+        } else {
+            objDateFormat = datetimeform;
+            objTimeFormat = "";
+        }
+    }
+    var present = new Date();
+    //previous and next variables were removed as they were not being used anywhere
+    var objMinDate;
+    if (params.parentMinDate === "TODAY") {
+        objMinDate = present;
+    } else if (params.parentMinDate !== "") {
+        objMinDate = Date.parseExact(params.parentMinDate, this.dateFormat);
+    }
+    var objMaxDate;
+    if (params.parentMaxDate === "TODAY") {
+        objMaxDate = present;
+    } else if (params.parentMaxDate !== "") {
+        objMaxDate = Date.parseExact(params.parentMaxDate, this.dateFormat);
+    }
+    //removed declaration of objPreSet here as it was re assigned in line 86. Now declared in line 86
+    var obj = {
+        theme: params.style.toLowerCase(),
+        display: params.parentDisplay.toLowerCase(),
+        setOnDayTap: params.closeOnSel === "Y" ? true : false,
+        min: objMinDate,
+        max: objMaxDate,
+        multiSelect: params.multiSel === "Y" ? true : false,
+        dateFormat: objDateFormat,
+        timeFormat: objTimeFormat,
+        showOnFocus: false,
+        showOnTap: false
+    };
+    if (params.parentStartYear !== "") {
+        obj.startYear = params.parentStartYear;
+    }
+    if (params.parentEndYear !== "") {
+        obj.endYear = params.parentEndYear;
+    }
+    var readonly = false;
+    var disabled = false;
+    var secinputreadonly = false;
+    var secinputdisabled = false;
+    var secondObj = "";
+    var secObjId = params.secInputId;
+    if (secObjId !== "") {
+        if ($el.attr('rowno')) {
+            secObjId = secObjId + "_" + $el.attr('rowno');
+            secondObj = document.getElementById(secObjId);
+        } else {
+            secondObj = document.getElementById(secObjId);
+        }
+    }
+    if (initid !== "") {
+        if (this.ranges.indexOf(initid) < 0) {
+            readonly = $el[0].readOnly;
+            disabled = $el[0].disabled;
+            if ((params.dataType === "DATE" || params.dataType === "DATETIME") && (params.parentPreset === "CALENDAR" || params.parentPreset ===
+                "DATE" || params.parentPreset === "CALENDAR_DATE" || params.parentPreset === "CALENDAR_DATETIME" || params.parentPreset ===
+                "CALENDAR_TIME")) {
+                if (params.parentPreset === "CALENDAR") {
+                    lcontrols = ['calendar'];
+                } else if (params.parentPreset === "DATE") {
+                    lcontrols = ['date'];
+                } else if (params.parentPreset === "CALENDAR_DATE") {
+                    lcontrols = ['calendar', 'date'];
+                } else if (params.parentPreset === "CALENDAR_DATETIME") {
+                    lcontrols = ['calendar', 'date', 'time'];
+                } else if (params.parentPreset === "CALENDAR_TIME") {
+                    lcontrols = ['calendar', 'time'];
+                }
+                var objPreSet = "calendar";
+                if (params.parentRangePick === "Y") {
+                    if (params.parentMultiInput === "Y" && secondObj !== undefined) {
+                        if ($.mobiscroll.instances[secObjId] !== undefined) {
+                            $(secondObj).mobiscroll("destroy");
+                        }
+                        secinputreadonly = secondObj.readOnly;
+                        secinputdisabled = secondObj.disabled;
+                        $el.mobiscroll().range($.extend(obj, {
+                            preset: objPreSet,
+                            endInput: "#" + secObjId,
+                            controls: lcontrols
+                        })).off('.dw').prop('readonly', false);
+                        $(secondObj).off('.dw').prop('readonly', false);
+                        this.ranges.push(secObjId);
+                        this.rangesmap[secObjId] = params.id;
+                    } else {
+                        $el.mobiscroll().range($.extend(obj, {
+                            preset: objPreSet,
+                            controls: lcontrols
+                        })).off('.dw').prop('readonly', false);
+                    }
+                } else {
+                    $el.mobiscroll($.extend(obj, {
+                        preset: objPreSet,
+                        controls: lcontrols
+                    })).off('.dw').prop('readonly', false);
+                }
+            } else if (params.dataType === "DATETIME" && params.parentPreset === "DATETIME") {
+                if (params.parentRangePick === "Y") {
+                    if (params.parentMultiInput === "Y" && secondObj !== undefined) {
+                        if ($.mobiscroll.instances[secObjId] !== undefined) {
+                            $(secondObj).mobiscroll("destroy");
+                        }
+                        secinputreadonly = secondObj.readOnly;
+                        secinputdisabled = secondObj.disabled;
+                        $el.mobiscroll().range($.extend(obj, {
+                            endInput: "#" + secObjId,
+                            controls: ['date', 'time'],
+                        })).off('.dw').prop('readonly', false);
+                        $(secondObj).off('.dw').prop('readonly', false);
+                        this.ranges.push(secObjId);
+                        this.rangesmap[secObjId] = params.id;
+                    } else {
+                        $el.mobiscroll().range($.extend(obj, {
+                            controls: ['date', 'time'],
+                        })).off('.dw').prop('readonly', false);
+                    }
+                } else {
+                    $el.mobiscroll().datetime(obj).off('.dw').prop('readonly', false);
+                }
+            } else if (params.dataType === "TIME") {
+                if (params.parentRangePick === "Y") {
+                    if (params.parentMultiInput === "Y" && secondObj !== undefined) {
+                        if ($.mobiscroll.instances[secObjId] !== undefined) {
+                            $(secondObj).mobiscroll("destroy");
+                        }
+                        secinputreadonly = secondObj.readOnly;
+                        secinputdisabled = secondObj.disabled;
+                        $el.mobiscroll().range({
+                            theme: params.style.toLowerCase(),
+                            endInput: "#" + secObjId,
+                            display: params.parentDisplay.toLowerCase(),
+                            controls: ['time'],
+                            timeFormat: objTimeFormat,
+                            mode: parentMode.toLowerCase()
+                        }).prop('readonly', false);
+                        $(secondObj).prop('readonly', false);
+                        this.ranges.push(secObjId);
+                        this.rangesmap[secObjId] = params.id;
+                    } else {
+                        $el.mobiscroll().range({
+                            theme: params.style.toLowerCase(),
+                            display: params.parentDisplay.toLowerCase(),
+                            controls: ['time'],
+                            timeFormat: objTimeFormat,
+                            mode: parentMode.toLowerCase()
+                        }).prop('readonly', false);
+                    }
+                } else {
+                    $el.mobiscroll().time({
+                        theme: params.style.toLowerCase(),
+                        display: params.parentDisplay.toLowerCase(),
+                        timeFormat: objTimeFormat,
+                        mode: parentMode.toLowerCase()
+                    }).prop('readonly', false);
+                }
+            } else {
+                if (params.parentRangePick === "Y") {
+                    if (params.parentMultiInput === "Y" && secondObj !== undefined) {
+                        if ($.mobiscroll.instances[secObjId] !== undefined) {
+                            $(secondObj).mobiscroll("destroy");
+                        }
+                        secinputreadonly = secondObj.readOnly;
+                        secinputdisabled = secondObj.disabled;
+                        $el.mobiscroll().range($.extend(obj, {
+                            endInput: "#" + secObjId,
+                            preset: params.parentPreset
+                        })).off('.dw').prop('readonly', false);
+                        $(secondObj).off('.dw').prop('readonly', false);
+                        this.ranges.push(secObjId);
+                        this.rangesmap[secObjId] = params.id;
+                    } else {
+                        $el.mobiscroll().range($.extend(obj, {
+                            preset: params.parentPreset,
+                        })).off('.dw').prop('readonly', false);
+                    }
+                } else {
+                    $el.mobiscroll($.extend(obj, {
+                        preset: params.parentPreset
+                    })).off('.dw').prop('readonly', false);
+                }
+            }
+            if (readonly) {
+                $el[0].readOnly = true;
+            } else if (disabled) {
+                $el[0].disabled = true;
+            }
+            if (secinputreadonly) {
+                secondObj.readOnly = true;
+            } else if (secinputdisabled) {
+                secondObj.disabled = true;
+            }
+        }
+    }
+    //}
+}
+//this fix is for setting the time in calender
+Apz.prototype.showCalendar = function(elmIdC, dataType, rangePicker, multiInput, secInputId) {
+    var elmId = elmIdC;
+    var date1, date2;
+    var lfirstdateval; //declared now as per sonar qube
+    if ($("#" + elmId).hasClass('hasDatepicker')) {
+        $("#" + elmId).trigger('focus');
+    } else {
+        if (elmId !== "" && ($("#" + elmId).attr("disabled") === undefined) && ($("#" + elmId).attr("readonly") === undefined)) {
+            var objVal = $("#" + elmId).val();
+            var origId = elmId;
+            var objFunction = "setDate",
+                functionParam = objVal;
+            var secondIdVal = "",
+                ranges, objFormat = this.dateformat;
+            if (dataType === "DATETIME") {
+                objFormat = this.datetimeformat;
+            } else if (dataType === "TIME") {
+                objFormat = this.timeformat;
+            }
+            if (rangePicker === "Y") {
+                //Declaration of date1 and date2 moved to the top of the function
+                objFunction = "setValue";
+                if (multiInput === "Y" && secInputId !== "") {
+                    secondIdVal = $("#" + secInputId).val();
+                    date1 = mobiscroll.util.datetime.parseDate(objFormat, objVal);
+                    date2 = mobiscroll.util.datetime.parseDate(objFormat, secondIdVal);
+                    if (date1 !== null && date2 !== null) {
+                        functionParam = [date1, date2];
+                    } else {
+                        functionParam = objVal === "" ? new Date() : mobiscroll.util.datetime.parseDate(objFormat, objVal);
+                    }
+                } else {
+                    ranges = objVal.split(" - ");
+                    if (ranges.length > 1) {
+                        date1 = mobiscroll.util.datetime.parseDate(objFormat, ranges[0]);
+                        date2 = mobiscroll.util.datetime.parseDate(objFormat, ranges[1]);
+                        functionParam = [date1, date2];
+                    } else {
+                        functionParam = objVal === "" ? new Date() : mobiscroll.util.datetime.parseDate(objFormat, objVal);
+                    }
+                }
+            } else if (this.ranges.indexOf(elmId) >= 0) {
+                //Declaration of date1 and date2 moved to the top of the function
+                objFunction = "setValue";
+                var lfirstdateid = this.rangesmap[origId];
+                elmId = lfirstdateid;
+                if (lfirstdateid) {
+                    lfirstdateval = $("#" + lfirstdateid).val();
+                }
+                date1 = mobiscroll.util.datetime.parseDate(objFormat, lfirstdateval);
+                date2 = mobiscroll.util.datetime.parseDate(objFormat, objVal);
+                if (date1 !== null && date2 !== null) {
+                    functionParam = [date1, date2];
+                }
+            } else {
+                if (this.isFunction(this.app.preChangeInputDate)) {
+                    objVal = this.app.preChangeInputDate(elmId);
+                }
+                functionParam = objVal === "" ? new Date() : mobiscroll.util.datetime.parseDate(objFormat, objVal);
+            }
+            if (functionParam !== "") {
+                $("#" + elmId).mobiscroll(objFunction, functionParam);
+                $("#" + elmId).mobiscroll('show');
+            }
+        }
+    }
+}
+apz.app.preChangeInputDate = function(pelmId) {
+    if (pelmId === "Transa__Transaction_Schedule_Payment__fromDate" || pelmId === "Transa__Transaction_Schedule_Payment__toDate" || pelmId ===
+        "Deposi__Deposite_Schedule_Payment__fromDate" || pelmId === "Deposi__Deposite_Schedule_Payment__toDate") {
+        return fullDate;
+    } else {
+        return new Date();
+    }
+}

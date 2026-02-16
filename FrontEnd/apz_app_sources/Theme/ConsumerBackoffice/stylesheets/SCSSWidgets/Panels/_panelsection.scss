@@ -1,0 +1,75 @@
+@use "../Abstract" as a;
+
+
+.plt-chat.pst-chat {
+            &.pri{
+                > .msg-scroll{
+                    display:block;
+                    width:100%;
+                    clear:both;
+                    padding: 15px;
+                    background:#f9f9f9
+                   }
+                } 
+        	&.pri{
+        	    > .msg-scroll:after {
+        	        display:table;
+        	        
+        	        }
+        	    }  
+        	&.pri{
+        	    >.msg-scroll{
+            	        >.msg {display:block;
+            	                width:100%; 
+            	                clear:both; 
+            	                border-radius:6px; 
+            	                background:#fff;
+            	                box-shadow: 0 2px 3px rgba(0,0,0,.05); 
+            	                margin-bottom:15px;
+            	           }
+            	        }
+        	}
+        	&.pri{
+        	    > .msg-scroll{
+        	        > .msg:after {
+        	            display:table;
+        	        } 
+        	    }
+        	}	
+        	&.pri{
+        	    > .msg-scroll{
+        	        > .msg{
+        	            > .msg-data {
+        	                padding:3px; font-size:80%
+        	                }
+        	        } 
+        	    }
+        	}
+        	&.pri{
+        	    > .msg-scroll{ 
+        	        > .msg{
+        	            > .msg-data{
+        	                > .msg-time {
+        	                    color: #a8aab1;
+        	                    padding-left: 6px;
+        	                    padding-right:6px;
+        	                }
+        	            }
+        	        }
+        	    }  
+        	}
+        	&.pri{
+        	    > .msg-scroll{
+        	        > .msg{
+        	            > .msg-content {
+        	                padding:10px;
+        	            }
+        	        }
+        	    }
+        	}
+}
+.chat-msg {
+    display:block; 
+    width:100%; 
+    clear:both;
+}

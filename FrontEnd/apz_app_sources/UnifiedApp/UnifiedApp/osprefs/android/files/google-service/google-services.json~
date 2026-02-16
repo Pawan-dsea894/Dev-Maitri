@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "814428534102",
+    "firebase_url": "https://consumerbanking-213906.firebaseio.com",
+    "project_id": "consumerbanking-213906",
+    "storage_bucket": "consumerbanking-213906.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:814428534102:android:12b569c9e3df0436",
+        "android_client_info": {
+          "package_name": "com.iexceed.customerOnboardingBackOffice"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "814428534102-c247kteu4hj8fl1u85mbn4fkfmtf6c2g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwvPf4hH2UNuAu7H9tpfLQVb_iPoNoRwU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
