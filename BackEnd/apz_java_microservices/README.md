@@ -1,3 +1,0 @@
-# MicroServices
-
-Retail Micro-Services
