@@ -1,0 +1,363 @@
+var RegenCount = 0,
+    pwdMaximumLength = 0,
+    otpFieldNumber = 0;
+gApzCOB.newPasswordFlag = false;
+gApzCOB.confNewPasswordFlag = false;
+apz.app.onLoad_Registration = function() {
+    if(apz.deviceType == "WEB") {
+        ["webVerificationSuccessful", 'passwordDiv', 'passwordSetup', "webPasswordSetupSuccessful"].hide();
+        $("#Login__Registration__null").addClass("web-frst-reg").addClass("web-regstn");
+    } else {
+        ['passwordDiv', 'verificationSuccessful', 'passwordSetup', 'passwordSetupSuccessful'].hide();
+    }
+    ['userIdDiv'].show();
+};
+apz.app.onShown_Registration = function() {
+    $('#' + registrationScrId + 'proceed').attr("disabled", true);
+    $(".icon-Eye-Open").css("cursor", "pointer");
+    $(".icon-Eye-Close").css("cursor", "pointer");
+    $('body').addClass("LoginBase");
+    $("input").attr("autocomplete", "off");
+    $("#header").addClass("sno");
+    ApzCOB.disableCutCopyPaste();
+    $('#footer').addClass('sno');
+};
+apz.app.Registration.Proceed = function() {
+    if(apz.deviceType == "WEB") {
+        ['userIdDiv', 'webVerificationSuccessful', 'passwordSetup', 'webPasswordSetupSuccessful'].hide();
+    } else {
+        ['userIdDiv', 'verificationSuccessful', 'passwordSetup', 'passwordSetupSuccessful'].hide();
+    }
+    ['passwordDiv'].show();
+    $('#' + registrationScrId + 'confirmBtn').attr("disabled", true);
+}
+apz.app.Registration.ConfirmVerify = function() {
+    if(apz.deviceType == "WEB") {
+        ['userIdDiv', 'passwordDiv', 'passwordSetup', 'webPasswordSetupSuccessful'].hide();
+        ['webVerificationSuccessful'].show();
+        $("#Login__Registration__gr_row_5").addClass("web-stup-newpwd");
+    } else {
+        ['userIdDiv', 'passwordDiv', 'passwordSetup', 'passwordSetupSuccessful'].hide();
+        ['verificationSuccessful'].show();
+    }
+    
+}
+apz.app.Registration.success = function() {
+    if(apz.deviceType == "WEB") {
+        ['userIdDiv', 'passwordDiv', 'webPasswordSetupSuccessful', 'webVerificationSuccessful'].hide();
+    } else {
+        ['userIdDiv', 'passwordDiv', 'passwordSetupSuccessful', 'verificationSuccessful'].hide();
+    }
+    ['passwordSetup'].show();
+}
+apz.app.Registration.backToLogin = function() {
+    gApzCOB.backNav = true;
+    ApzCOB.launchMicroApp('Login', 'Login', BaseScrId + 'BaseDIV', '');
+}
+apz.app.Registration.validateUserId = function() {
+    $('#' + registrationScrId + 'userId').val($('#' + registrationScrId + 'userId').val().toUpperCase());
+    let userId = $('#' + registrationScrId + 'userId').val();
+    if (userId.length !== 0) {
+        $('#' + registrationScrId + 'userIdErrorDiv').addClass("sno");
+    } else {
+        $('#' + registrationScrId + 'userIdErrorDiv').removeClass("sno");
+    }
+    if (userId.length >= 3) {
+        if (userId.slice(0, 2) == 'GK') {
+            $('#' + registrationScrId + 'userIdErrorDiv').addClass("sno");
+            $('#' + registrationScrId + 'proceed').addClass('btn-enb');
+            $('#' + registrationScrId + 'proceed').attr("disabled", false);
+        } else {
+            $('#' + registrationScrId + 'userIdErrorDiv').removeClass("sno");
+            $('#' + registrationScrId + 'proceed').removeClass('btn-enb');
+            $('#' + registrationScrId + 'proceed').attr("disabled", true);
+        }
+    } else {
+        $('#' + registrationScrId + 'proceed').removeClass('btn-enb');
+        $('#' + registrationScrId + 'proceed').attr("disabled", true);
+    }
+}
+apz.app.Registration.onKeyUpOtp = function() {
+    let inputedOtp = $('#' + registrationScrId + 'otpNum').val();
+    if (inputedOtp.length === 6) {
+        $('#' + registrationScrId + 'confirmBtn').addClass('btn-enb');
+        $('#' + registrationScrId + 'confirmBtn').attr("disabled", false);
+    } else {
+        $('#' + registrationScrId + 'confirmBtn').removeClass('btn-enb');
+        $('#' + registrationScrId + 'confirmBtn').attr("disabled", true);
+    }
+}
+apz.app.Registration.verifyUserId = function() {
+    let userId = $('#' + registrationScrId + 'userId').val();
+    if ("" !== userId) {
+        ApzCOB.verifyUserId(userId, apz.app.Registration.displayOtp);
+    }
+}
+apz.app.Registration.displayOtp = function(params) {
+    gApzCOB.otpResponse = params;
+    pwdMaximumLength = params.otpLength;
+    window.ShowError = false;
+    if(apz.deviceType == "WEB") {
+        $("#Login__Registration__gr_row_4").addClass("web-frst-reg").addClass("web-regstn");
+        ['userIdDiv', 'webVerificationSuccessful', 'passwordSetup', 'webPasswordSetupSuccessful'].hide();
+    } else {
+        ['userIdDiv', 'verificationSuccessful', 'passwordSetup', 'passwordSetupSuccessful'].hide();
+    }
+    
+    ['passwordDiv'].show();//"dummyOtpTxtRow"
+    $('#' + registrationScrId + 'confirmBtn').attr("disabled", true);
+    $('#' + registrationScrId + 'resendText').attr("disabled", true);
+    //$("#" + registrationScrId + "OTPRefno").text(params.RefNo);
+    //$("#" + registrationScrId + "dummyotptxt").text(params.otp);
+    ApzCOB.startTimer(params.otpExpiry, registrationScrId);
+    RegenCount = RegenCount + 1;
+    $("#" + registrationScrId + "otpNum").attr("maxlength", params.otpLength);
+    $("#" + registrationScrId + "otpNum").focus();
+    var mob = gApzCOB.LoggedInUserDetails.userPhone1;
+    $("#" + registrationScrId + "txt_authn_mobileNo").text(mob.substring(0, 2) + "XXX" + mob.substring(4, 5) + "XX" + mob.substring(8, 10));
+};
+apz.app.Registration.resendOTP = function(Count) {
+    apz.startLoader();
+    otpFieldNumber = 0;
+    apz.app.Registration.clearvalue();
+    var req = {
+        "apiRequest": {
+            "interfaceName": "GenerateOTPAndSendSMS",
+            "workflowId": "GenerateOTPAndSendSMS",
+            "appId": apz.appId,
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "actionType": "OTP_SEND",
+                "mobileNo": gApzCOB.LoggedInUserDetails.userPhone1,
+                "workflowId": "GenerateOTPAndSendSMS",
+                "interfaceName": "GenerateOTPAndSendSMS",
+                "type": "PRE_LOGIN"
+            }
+        }
+    }
+    ApzCOB.serverBuildParam(apz.appId, "WorkFlowService", "N", "N", req, true, apz.app.Registration.resendOTPCB);
+};
+apz.app.Registration.resendOTPCB = function(params) {
+    apz.stopLoader();
+    try {
+        var ifaceName = ApzCOB.GetInterfaceResMap(params);
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            $("#" + registrationScrId + "otpWrongTxtRow").addClass('sno');
+            $("#" + registrationScrId + "otpAttmpErrRow").addClass('sno');
+            $("#" + registrationScrId + "otpExpiredMsgRow").addClass('sno');
+            $('#' + registrationScrId + 'confirmBtn').attr("disabled", true);
+            $('#' + registrationScrId + 'confirmBtn').removeClass('btn-enb');
+            var otpRes = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+            var otpResObj = JSON.parse(otpRes.apiResponse.ResponseBody.responseObj).GenerateOTP;
+            gApzCOB.otpResponse = JSON.parse(otpRes.apiResponse.ResponseBody.responseObj).GenerateOTP;
+            RegenCount = RegenCount + 1;
+            //$("#" + registrationScrId + "OTPRefno").text(otpResObj.RefNo);
+            $("#" + registrationScrId + "dummyotptxt").text(otpResObj.otp);
+            ApzCOB.startTimer(otpResObj.otpExpiry, registrationScrId);
+            pwdMaximumLength = otpResObj.otpLength;
+            $("#" + registrationScrId + "otp").attr("maxlength", otpResObj.otpLength);
+            //$("#" + registrationScrId + "Regenerateotp_ul").addClass("sno");
+            //$("#" + registrationScrId + "expiryDIV").removeClass("sno");
+            //$("#" + registrationScrId + "otpconfirm").removeClass("sno");
+            //$("#" + OTPDIV).removeClass("sno");
+            $("#" + registrationScrId + "otpNum").focus();
+            //apz.app.Registration.GenerateInputField()
+        }
+    } catch (e) {
+        ApzCOB.checkAuthenticationServiceErrorCallback(params);
+    }
+};
+apz.app.Registration.clearvalue = function() {
+    $("#" + registrationScrId + "otpNum").val("");
+    otpFieldNumber = 0;
+};
+apz.app.Registration.validateOTP = function() {
+    var AuthPin = $("#" + registrationScrId + "otpNum").val();
+    if (AuthPin.length === 6) {
+        apz.startLoader();
+        $("#" + registrationScrId + "otpWrongTxtRow").addClass('sno');
+        $("#" + registrationScrId + "otpAttmpErrRow").addClass('sno');
+        $("#" + registrationScrId + "otpExpiredMsgRow").addClass('sno');
+        var req = {
+            "apiRequest": {
+                "interfaceName": "ValidateOTP",
+                "appId": gAppId,
+                "userId": LoggedInUserDetails.userID,
+                "requestObj": {
+                    "schedulerEnabled": 'N',
+                    "otp": apz.getElmValue(registrationScrId + "otpNum"),
+                    "RefNo": gApzCOB.otpResponse.RefNo,
+                }
+            }
+        }
+        req.apiRequest.workflowId = "ValidateOTP";
+        req.apiRequest.interfaceName = "ValidateOTP";
+        req.apiRequest.requestObj.RefNo = gApzCOB.otpResponse.RefNo;
+        req.apiRequest.requestObj.otp = AuthPin;
+        ApzCOB.serverBuildParam(gAppId, "WorkFlowService", "N", "N", req, true, apz.app.Registration.ValidateOTPWorkFlowCB);
+    } else {
+        //yet to develop
+    }
+};
+apz.app.Registration.ValidateOTPWorkFlowCB = function(params) {
+    apz.stopLoader();
+    try {
+        otpFieldNumber = 0;
+        apz.app.Registration.clearvalue();
+        var tempOtpObj = "";
+        var ifaceName = ApzCOB.GetInterfaceResMap(params);
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            try {
+                ['passwordDiv'].hide();
+                if(apz.deviceType == "WEB") {
+                    ['webVerificationSuccessful'].show();
+                } else {
+                    ['verificationSuccessful'].show();
+                    setTimeout(function() {
+                        ['verificationSuccessful'].hide();
+                        ['passwordSetup'].show();
+                        $('#' + registrationScrId + 'setupPasswordBtn').attr("disabled", true);
+                        $('#' + registrationScrId + 'setupPasswordBtn').removeClass('btn-enb');
+                    }, 3000);
+                }
+            } catch (e) {
+                if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode != 0) {
+                    ApzCOB.fnDisplayMsg(params.res[ifaceName].apiResponse.ResponseHeader.ResponseMessage, 'E');
+                }
+            }
+        } else {
+            $("#" + registrationScrId + "otpNum").val("");
+            $("#" + registrationScrId + "otpNum").focus();
+            apz.app.Registration.clearvalue();
+            $('#' + registrationScrId + 'confirmBtn').removeClass('btn-enb');
+            $('#' + registrationScrId + 'confirmBtn').attr("disabled", true);
+            try {
+                if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === "1") {
+                    $("#" + registrationScrId + "otpWrongTxtRow").addClass('sno');
+                    $("#" + registrationScrId + "otpAttmpErrRow").addClass('sno');
+                    $("#" + registrationScrId + "otpExpiredMsgRow").addClass('sno');
+                    tempOtpObj = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+                    if (tempOtpObj.Status === "failure") {
+                        if (!apz.isNull(tempOtpObj.OTPValServiceResponse)) {
+                            if (tempOtpObj.OTPValServiceResponse["Attempts Left"] === 0) {
+                                $("#" + registrationScrId + "otpAttmpErrRow").removeClass('sno');
+                            } else {
+                                $("#" + registrationScrId + "otpWrongTxtRow").removeClass('sno');
+                            }
+                        } else {
+                            if (window.otpRegenCount !== RegenCount) {
+                                $("#" + registrationScrId + "Regenerateotp_ul").removeClass("sno");
+                                //$("#" + registrationScrId + "expiryDIV").addClass("sno");
+                                //$("#" + registrationScrId + "otpconfirm").addClass("sno");
+                                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_OTPEXPIRED"));
+                            } else {
+                                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_OTP_REGEN_ERROR"), 'E', ApzCOB.launchLoginScreen);
+                            }
+                        }
+                    }
+                } else {
+                    ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_OTPVALFAIL"));
+                }
+            } catch (e) {
+                //ApzCOB.executeFunByName(Transpayload.failureCB, params);
+            }
+        }
+    } catch (e) {
+        ApzCOB.checkAuthenticationServiceErrorCallback(params);
+    }
+};
+apz.app.Registration.fnShowWebPasswordDiv = function() {
+    ['webVerificationSuccessful'].hide();
+    ['passwordSetup'].show();
+    $("#Login__Registration__gr_row_5").addClass("web-frst-reg").addClass("web-regstn");
+    $('#' + registrationScrId + 'setupPasswordBtn').attr("disabled", true);
+    $('#' + registrationScrId + 'setupPasswordBtn').removeClass('btn-enb');
+};
+apz.app.Registration.setMpin = function() {
+    let mpin = $('#' + registrationScrId + 'mpin').val(),
+        confMpin = $('#' + registrationScrId + 'confMpin').val();
+    if (mpin === confMpin) {
+        $('#' + registrationScrId + 'mpinBtn').addClass('btn-enb');
+        $('#' + registrationScrId + 'mpinBtn').attr("disabled", false);
+    } else {
+        $('#' + registrationScrId + 'mpinBtn').addClass('btn-enb');
+        $('#' + registrationScrId + 'mpinBtn').attr("disabled", false);
+    }
+}
+apz.app.Registration.newPasswordOnkeyUp = function() {
+    let newPassword = $('#' + registrationScrId + 'newPassword').val();
+    /*if (GNUMREGEX.test(newPassword) && GLOWERCASEREGEX.test(newPassword) && GUPPERCASEREGEX.test(newPassword)) {*/
+        $('#' + registrationScrId + 'newPasswordErrMsg').addClass("sno");
+        gApzCOB.newPasswordFlag = true;
+    /*} else {
+        $('#' + registrationScrId + 'newPasswordErrMsg').removeClass("sno");
+        gApzCOB.newPasswordFlag = false;
+    }*/
+}
+apz.app.Registration.confNewPasswordOnkeyUp = function() {
+    let newPassword = $('#' + registrationScrId + 'newPassword').val(),
+        confNewPassword = $('#' + registrationScrId + 'confNewPassword').val();
+    if (gApzCOB.newPasswordFlag && (newPassword === confNewPassword)) {
+        gApzCOB.confNewPasswordFlag = true;
+        $('#' + registrationScrId + 'setupPasswordBtn').addClass('btn-enb');
+        $('#' + registrationScrId + 'setupPasswordBtn').attr("disabled", false);
+        $('#' + registrationScrId + 'passwordMatchSuccess').removeClass("sno");
+        $('#' + registrationScrId + 'passwordMatchFailed').addClass("sno");
+    } else {
+        gApzCOB.confNewPasswordFlag = false;
+        $('#' + registrationScrId + 'setupPasswordBtn').removeClass('btn-enb');
+        $('#' + registrationScrId + 'setupPasswordBtn').attr("disabled", true);
+        $('#' + registrationScrId + 'passwordMatchSuccess').addClass("sno");
+        $('#' + registrationScrId + 'passwordMatchFailed').removeClass("sno");
+    }
+}
+apz.app.Registration.onClickPasswordSetup = function() {
+    if (gApzCOB.confNewPasswordFlag) {
+        let newPassword = $('#' + registrationScrId + 'newPassword').val(),
+            confNewPassword = $('#' + registrationScrId + 'confNewPassword').val();
+        apz.startLoader();
+        var req = {
+            "apiRequest": {
+                "interfaceName": "ForgotPassword",
+                "appId": gAppId,
+                "userId": LoggedInUserDetails.userID,
+                "requestObj": {
+                    "userId": LoggedInUserDetails.userID,
+                    "pin": confNewPassword,
+                    "emailId": LoggedInUserDetails.userEml1,
+                    "mobileNumber": LoggedInUserDetails.userPhone1
+                }
+            }
+        }
+        ApzCOB.serverBuildParam(gAppId, "ForgotPassword", "N", "N", req, true, apz.app.Registration.setPasswordCB);
+    }
+}
+apz.app.Registration.setPasswordCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if(apz.deviceType == "WEB") {
+                ['userIdDiv', 'passwordDiv', 'webVerificationSuccessful', 'passwordSetup'].hide();
+                ['webPasswordSetupSuccessful'].show();
+            } else {
+                ['userIdDiv', 'passwordDiv', 'verificationSuccessful', 'passwordSetup'].hide();
+                ['passwordSetupSuccessful'].show();
+                setTimeout(function(){
+                    ApzCOB.launchMicroApp('Login', 'Login', gAppId + '__BaseScreens__BaseDIV', '');
+                },5000);
+            }
+            
+            $('#' + registrationScrId + 'mpinBtn').removeClass('btn-enb');
+            $('#' + registrationScrId + 'mpinBtn').attr("disabled", true);
+            
+        } else {
+            var failureObj = JSON.parse(params.res.APZCBO__ForgotPassword_Res.apiResponse.ResponseBody.responseObj);
+            ApzCOB.fnDisplayMsg(failureObj.message, "E");
+        }
+    } catch (e) {
+        ApzCOB.checkAuthenticationServiceErrorCallback(params);
+    }
+};
+apz.app.Registration.fnShowWebLogin = function() {
+    ApzCOB.launchMicroApp('Login', 'Login', gAppId + '__BaseScreens__BaseDIV', '');
+};

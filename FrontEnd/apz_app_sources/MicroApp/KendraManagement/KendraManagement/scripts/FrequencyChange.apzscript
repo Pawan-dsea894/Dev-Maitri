@@ -1,0 +1,115 @@
+var FrequencyChangeScrId = 'Kendra__FrequencyChange__';
+var FrequencyChangeStatus = [{
+    key: "All",
+    value: ""
+}, {
+    key: "Day/Time Change",
+    value: ""
+}, {
+    key: "Frequency Change",
+    value: ""
+}];
+var reasonList = [{
+    "key": "Place Holder"
+}, {
+    "key": "Place Holder"
+}, {
+    "key": "Place Holder"
+}, {
+    "key": "Other"
+}];
+apz.app.onLoad_FrequencyChange = function() {}
+apz.app.onShown_FrequencyChange = function() {
+    $("#header").addClass("sno");
+    $("#footer").addClass("sno");
+    apz.app.FrequencyChange.FrequencyChangeStatusBtn();
+    apz.app.FrequencyChange.FrequencyChangeStatus();
+}
+apz.app.FrequencyChange.FrequencyChangeStatusBtn = function() {
+    apz.data.scrdata.Kendra__IPaintFrequencyChangeBtn_Res = {};
+    apz.data.scrdata.Kendra__IPaintFrequencyChangeBtn_Res = FrequencyChangeStatus;
+    apz.data.loadData("IPaintFrequencyChangeBtn", "Kendra");
+    $('#Kendra__IPaintFrequencyChangeBtn__o__Kendra__IPaintFrequencyChangeBtn_Res__key_0').addClass('active');
+};
+apz.app.FrequencyChange.onCLickFrequencyStatus = function(pthis) {}
+apz.app.FrequencyChange.FrequencyChangeStatus = function() {
+    var uploadData = [];
+    KendraApp.KendraResponse.map((data) => {
+        var newObj = {};
+        newObj.kmName = data.kendraDtls.kmName;
+        newObj.kendraName = data.kendraDtls.kendraName;
+        newObj.dateTime = data.kendraDtls.meetingDay + ', ' + data.kendraDtls.time;
+        uploadData.push(newObj);
+    });
+    apz.data.scrdata.Kendra__IPaintKendraDetails_Res = {};
+    apz.data.scrdata.Kendra__IPaintKendraDetails_Res.FetchFrequencyCustomers = uploadData
+    apz.data.loadData("IPaintKendraDetails", "Kendra");
+};
+apz.app.FrequencyChange.fetchClickedRowDetails = function(pthis) {
+    var rowno = $(pthis).attr("rowno");
+    window.selectedData = [];
+    KendraApp.KendraResponse.map((data) => {
+        var newObj = {};
+        newObj.kendraName = data.kendraDtls.kendraName;
+        newObj.kmName = data.kendraDtls.kmName;
+        newObj.kmId = data.kendraDtls.kmId;
+        newObj.kendraId = data.kendraDtls.kendraId;
+        newObj.kendraAddr = data.kendraDtls.kendraAddr;
+        newObj.custCount = data.kendraDtls.custCount;
+        newObj.activationDate = data.kendraDtls.activationDate;
+        selectedData.push(newObj);
+    });
+    apz.data.scrdata.Kendra__IPaintKendraDetails_Res = {};
+    apz.data.scrdata.Kendra__IPaintKendraDetails_Res.IPaintSelectedData = [selectedData[rowno]];
+    apz.data.loadData("IPaintKendraDetails", "Kendra");
+    $("#" + FrequencyChangeScrId + "selectedRowDetails").removeClass('sno');
+    $("#" + FrequencyChangeScrId + "frequencyRowList").addClass('sno');
+    $("#" + FrequencyChangeScrId + "taskHeaderRow").addClass('sno');
+    $("#" + FrequencyChangeScrId + "selectedBackNav").removeClass('sno');
+    $("#" + FrequencyChangeScrId + "taskApprovalHeader").removeClass('sno');
+}
+apz.app.FrequencyChange.SelectedbackNavigate = function() {
+    $("#" + FrequencyChangeScrId + "frequencyRowList").removeClass('sno');
+    $("#" + FrequencyChangeScrId + "taskHeaderRow").removeClass('sno');
+    $("#" + FrequencyChangeScrId + "selectedRowDetails").addClass('sno');
+    $("#" + FrequencyChangeScrId + "selectedBackNav").addClass('sno');
+    $("#" + FrequencyChangeScrId + "taskApprovalHeader").addClass('sno');
+}
+apz.app.FrequencyChange.backNavigate = function() {
+    ApzCOB.launchMicroApp('Dashbo', 'dashboard', 'APZCBO__BaseScreens__BaseDIV', KendraApp.selectedKendra);
+}
+apz.app.KendraDetails.ReasonModalSelection = function() {
+    var dataElement1 = document.getElementById(FrequencyChangeScrId + 'reasonList');
+    var temp = dataElement1.querySelectorAll('input')
+    temp.forEach(function(params, i) {
+        $("#" + params.id).prop('checked', false);
+        $("#" + params.id).prop('disabled', false);
+    })
+    apz.data.scrdata.Kendra__IPaintDataListing_Res = {};
+    apz.data.scrdata.Kendra__IPaintDataListing_Res.RejectReasonList = reasonList;
+    apz.data.loadData("IPaintDataListing", 'Kendra');
+    ApzCOB.toggleModal(FrequencyChangeScrId + "rejectionModal");
+}
+apz.app.FrequencyChange.onClickReasonSelection = function(pthis) {
+    var rowno = $('#' + pthis.id).attr('rowno');
+    var dataElement1 = document.getElementById(FrequencyChangeScrId + 'reasonList');
+    var data2 = "Other";
+    $("#" + FrequencyChangeScrId + "rejectCheckBox" + rowno).prop('checked', true);
+    var temp = dataElement1.querySelectorAll('input')
+    temp.forEach(function(params, i) {
+        if (params.id !== pthis.id) {
+            $("#" + params.id).prop('checked', false);
+            $("#" + FrequencyChangeScrId + "otherTextBoxForm").addClass('sno');
+        } else if (params.id === pthis.id) {
+            var SelectedReason = apz.data.scrdata.Kendra__IPaintDataListing_Res.RejectReasonList[i].key;
+            if (data2 === SelectedReason) {
+                $("#" + FrequencyChangeScrId + "otherTextBoxForm").removeClass('sno');
+            }
+        }
+    })
+}
+apz.app.FrequencyChange.onReasonSubmit = function() {
+    if ($("#" + FrequencyChangeScrId + "otherTextBoxForm").is(':visible')) {
+        if (apz.isNull($("#" + FrequencyChangeScrId + "otherTextField").val())) {}
+    }
+}

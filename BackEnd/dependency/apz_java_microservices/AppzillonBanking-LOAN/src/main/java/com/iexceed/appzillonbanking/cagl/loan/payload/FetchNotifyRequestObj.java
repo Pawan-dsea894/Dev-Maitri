@@ -1,0 +1,23 @@
+package com.iexceed.appzillonbanking.cagl.loan.payload;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class FetchNotifyRequestObj {
+	
+	@JsonProperty("custid")
+	private String custid;
+
+	@JsonProperty("kendraid")
+	private String kendraid;
+
+	@JsonProperty("branchid")
+	private String branchid;
+
+}

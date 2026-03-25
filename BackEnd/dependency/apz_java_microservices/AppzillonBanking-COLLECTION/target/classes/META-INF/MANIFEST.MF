@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Build-Jdk-Spec: 23
+Implementation-Title: AppzillonBanking-COLLECTION
+Implementation-Version: 0.0.1-SNAPSHOT
+Main-Class: com.iexceed.appzillonbanking.cagl.collection.AppzillonBankin
+ gCollectionApp
+Created-By: Maven Integration for Eclipse
+

@@ -1,0 +1,458 @@
+var RpcOnHoldScrId = 'Income__RpcPending__';
+var custDtls;
+var custDtlsPayload;
+var earningMemberDtls;
+var EarningMemberArr = [];
+var fromRPCPending = '';
+var submitReq = '';
+var houseOwner, houseType, noOfRooms, modeOfSavings, otherAssets, wheel2, wheel3, wheel4, smartphones, basicAmenities;
+apz.app.onLoad_RpcPending = function(params) {
+    // Initialization logic if needed
+    // KendraApp = params.KendraApp;
+};
+apz.app.onShown_RpcPending = function(params) {
+    if (params.filterData && params.filterData === 'RPC ON HOLD') {
+        $("#" + RpcOnHoldScrId + 'apprRejectByBMRow').removeClass('sno');
+        $("#" + RpcOnHoldScrId + 'membInfoRow').addClass('sno');
+    } else {
+        $("#" + RpcOnHoldScrId + 'apprRejectByBMRow').addClass('sno');
+        $("#" + RpcOnHoldScrId + 'membInfoRow').addClass('sno');
+    }
+    if (IncomeApp.backToRPCPending) {
+        IncomeApp.editpayload.payload = JSON.stringify(IncomeApp.payload)
+        custDtlsPayload = JSON.stringify(IncomeApp.payload);
+        custDtlsPayload = JSON.parse(custDtlsPayload);
+        $("#" + RpcOnHoldScrId + 'selectedAcDetMainRow').addClass('sno');
+        $("#" + RpcOnHoldScrId + 'MainRow').addClass('sno');
+        $("#" + RpcOnHoldScrId + 'headercolorRow').addClass('sno');
+        $("#" + RpcOnHoldScrId + 'loanAppDetRow').addClass('sno');
+        $("#Income__RpcPending__succRow").removeClass('sno');
+        $("#Income__RpcPending__customName").text(custDtlsPayload.memberProfile.customerName);
+        $("#Income__RpcPending__kendraName1").text(IncomeApp.kendraName);
+    } else {
+        custDtls = apz.isObjectEmpty(params) ? IncomeApp.editpayload : params;
+        custDtlsPayload = JSON.parse(custDtls.payload);
+        apz.app.RpcPending.memberDetails();
+        // apz.app.RpcPending.houseHoldDetails();
+        apz.app.RpcPending.earningMemberDtls();
+        apz.app.RpcPending.incomeDetails();
+        $("#" + RpcOnHoldScrId + 'apprRejectByBMRow').removeClass('sno');
+    }
+    if (params.filterData && params.filterData === 'COMPLETED') {
+        $("#" + RpcOnHoldScrId + 'apprRejectByBMRow').addClass('sno');
+        $("#" + RpcOnHoldScrId + 'headercolorRow').addClass('sno');
+    }
+};
+apz.app.RpcPending.houseHoldDetails = function() {
+    /* if (custDtlsPayload.houseHoldDetails) {
+         custDtlsPayload.houseHoldDetails.questions.forEach(function(el, i) {
+             if (custDtlsPayload.houseHoldDetails.questions[i].title === 'No of rooms in the home?') {
+                 noOfRooms = custDtlsPayload.houseHoldDetails.questions[i].value[0]
+             } else if (custDtlsPayload.houseHoldDetails.questions[i].title === 'House Ownership') {
+                 houseOwner = custDtlsPayload.houseHoldDetails.questions[i].value[0]
+             } else if (custDtlsPayload.houseHoldDetails.questions[i].title === 'Type of house') {
+                 houseType = custDtlsPayload.houseHoldDetails.questions[i].value[0]
+             } else if (custDtlsPayload.houseHoldDetails.questions[i].title === 'Mode of savings') {
+                 modeOfSavings = custDtlsPayload.houseHoldDetails.questions[i].value[0]
+             } else if (custDtlsPayload.houseHoldDetails.questions[i].title === 'Other assets?') {
+                 otherAssets = custDtlsPayload.houseHoldDetails.questions[i].value[0]
+             } else if (custDtlsPayload.houseHoldDetails.questions[i].title === 'No of two whellers?') {
+                 wheel2 = custDtlsPayload.houseHoldDetails.questions[i].value[0]
+             } else if (custDtlsPayload.houseHoldDetails.questions[i].title === 'No of three whellers?') {
+                 wheel3 = custDtlsPayload.houseHoldDetails.questions[i].value[0]
+             } else if (custDtlsPayload.houseHoldDetails.questions[i].title === 'No of four whellers?') {
+                 wheel4 = custDtlsPayload.houseHoldDetails.questions[i].value[0]
+             } else if (custDtlsPayload.houseHoldDetails.questions[i].title === 'No of Smart phones in the family?') {
+                 smartphones = custDtlsPayload.houseHoldDetails.questions[i].value[0]
+             } else if (custDtlsPayload.houseHoldDetails.questions[i].title === 'Basic aminities?') {
+                 basicAmenities = custDtlsPayload.houseHoldDetails.questions[i].value[0]
+             }
+         })
+         apz.app.RpcPending.hideNshow();
+         apz.setElmValue(RpcOnHoldScrId + "houseOwnership", houseOwner ?? "NO DATA")
+         apz.setElmValue(RpcOnHoldScrId + "typeOfHouse", houseType ?? "NO DATA")
+         apz.setElmValue(RpcOnHoldScrId + "noOfRooms", noOfRooms ?? "NO DATA")
+         apz.setElmValue(RpcOnHoldScrId + "modeOfSavings", modeOfSavings ?? "NO DATA")
+         apz.setElmValue(RpcOnHoldScrId + "basicAmenities", basicAmenities ?? "NO DATA")
+         apz.setElmValue(RpcOnHoldScrId + "otherAssets", otherAssets ?? "NO DATA")
+         apz.setElmValue(RpcOnHoldScrId + "wheel4", wheel4 ?? "NO DATA")
+         apz.setElmValue(RpcOnHoldScrId + "wheel3", wheel3 ?? "NO DATA")
+         apz.setElmValue(RpcOnHoldScrId + "wheel2", wheel2 ?? "NO DATA")
+         apz.setElmValue(RpcOnHoldScrId + "smartphones", smartphones ?? "NO DATA")*/
+    var uploadData = [];
+    custDtlsPayload.houseHoldDetails.questions.map((data) => {
+        let newObj = {};
+        newObj.title = data.title;
+        newObj.value = data.value[0];
+        uploadData.push(newObj);
+    });
+    apz.data.scrdata.Income__IPaintRpcHouseholdDetails_Res = {};
+    apz.data.scrdata.Income__IPaintRpcHouseholdDetails_Res = uploadData;
+    apz.data.loadData("IPaintRpcHouseholdDetails", 'Income');
+}
+apz.app.RpcPending.memberDetails = function() {
+    //var isEarning = custDtlsPayload.memberProfile.isEarning = 'no' ? 'NO' : 'YES';
+    if (custDtlsPayload.memberProfile) {
+        apz.setElmValue(RpcOnHoldScrId + "custName", custDtls.customerName ?? "NO DATA")
+        apz.setElmValue(RpcOnHoldScrId + "customerId", custDtls.customerId ?? "NO DATA")
+        apz.setElmValue(RpcOnHoldScrId + "kendraName", custDtls.kendraName ?? "NO DATA")
+        apz.setElmValue(RpcOnHoldScrId + "profileName", custDtls.customerName.slice(0, 1));
+        apz.setElmValue(RpcOnHoldScrId + "groupId", custDtlsPayload.memberProfile.groupId ?? "NO DATA")
+        apz.setElmValue(RpcOnHoldScrId + "vintage", custDtlsPayload.memberProfile.vintageYear ?? "NO DATA")
+        apz.setElmValue(RpcOnHoldScrId + "mobileNum", custDtlsPayload.memberProfile.mobileNum ?? "NO DATA")
+        apz.setElmValue(RpcOnHoldScrId + "maritalStatus", custDtlsPayload.memberProfile.maritalStatus ?? "NO DATA")
+        apz.setElmValue(RpcOnHoldScrId + "kycType", custDtlsPayload.memberProfile.primaryType ?? "NO DATA")
+        apz.setElmValue(RpcOnHoldScrId + "kmId", custDtlsPayload.memberProfile.primaryId ?? "NO DATA")
+        apz.setElmValue(RpcOnHoldScrId + "isEarning", custDtlsPayload.memberProfile.isEarning ?? "NO DATA")
+        apz.setElmValue(RpcOnHoldScrId + "incomeType", "NO DATA")
+    }
+}
+apz.app.RpcPending.incomeDetails = function() {
+    if (custDtlsPayload.income) {
+        var totalIncome = ApzCOB.fn_FormatAmount(custDtlsPayload.income[0].totIncome)
+        var totalExpenses = ApzCOB.fn_FormatAmount(custDtlsPayload.income[0].totExpense)
+        apz.setElmValue(RpcOnHoldScrId + "totalIncome", totalIncome ?? "NO DATA")
+        apz.setElmValue(RpcOnHoldScrId + "totalExpenses", totalExpenses ?? "NO DATA")
+    }
+}
+apz.app.RpcPending.hideNshow = function() {
+    var houseOwner, houseType, noOfRooms, modeOfSavings, otherAssets, wheel2, wheel3, wheel4, smartphones, basicAmenities;
+    if (houseOwner === undefined || houseOwner === '') {
+        $("#" + RpcOnHoldScrId + 'houseOwnershipDiv').addClass('sno');
+    }
+    if (houseType === undefined || houseType === '') {
+        $("#" + RpcOnHoldScrId + 'typeOfHouseDiv').addClass('sno');
+    }
+    if (noOfRooms === undefined || noOfRooms === '') {
+        $("#" + RpcOnHoldScrId + 'noOfRoomsDiv').addClass('sno');
+    }
+    if (modeOfSavings === undefined || modeOfSavings === '') {
+        $("#" + RpcOnHoldScrId + 'modeOfSavingsDiv').addClass('sno');
+    }
+    if (otherAssets === undefined || otherAssets === '') {
+        $("#" + RpcOnHoldScrId + 'otherAssetsDiv').addClass('sno');
+    }
+    if (wheel2 === undefined || wheel2 === '') {
+        $("#" + RpcOnHoldScrId + 'wheel2Div').addClass('sno');
+    }
+    if (wheel3 === undefined || wheel3 === '') {
+        $("#" + RpcOnHoldScrId + 'wheel3Div').addClass('sno');
+    }
+    if (wheel4 === undefined || wheel4 === '') {
+        $("#" + RpcOnHoldScrId + 'wheel4Div').addClass('sno');
+    }
+    if (smartphones === undefined || smartphones === '') {
+        $("#" + RpcOnHoldScrId + 'smartphonesDiv').addClass('sno');
+    }
+    if (basicAmenities === undefined || basicAmenities === '') {
+        $("#" + RpcOnHoldScrId + 'basicAmenitiesDiv').addClass('sno');
+    }
+}
+apz.app.RpcPending.backNavigation = function() {
+    if (!IncomeApp.backToRPCPending) {
+        ApzCOB.toggleModal(RpcOnHoldScrId + 'backModal');
+    } else {
+        window.RpcOnHoldBacknavigation = true;
+        ApzCOB.launchMicroApp("Income", "PendingTask", 'APZCBO__BaseScreens__BaseDIV', '');
+    }
+}
+apz.app.RpcPending.earningMemberDtls = function() {
+    EarningMemberArr = []
+    if (custDtlsPayload.earnings) {
+        earningMemberDtls = custDtlsPayload.earnings;
+        earningMemberDtls.forEach(function(el, i) {
+            let Obj = {
+                name: earningMemberDtls[i].name,
+                dob: earningMemberDtls[i].dob,
+                kycID: earningMemberDtls[i].legaldocId,
+                kycType: earningMemberDtls[i].legaldocName,
+                kycIdFront: earningMemberDtls[i].forntImg,
+                kycIdBack: earningMemberDtls[i].backImg,
+                status: earningMemberDtls[i].status,
+                onholdstatus: earningMemberDtls[i].onholdstatus,
+                reason: 'reason',
+                businessDetails: 'businessDetails',
+                memberRelation: earningMemberDtls[i].memRelation,
+                isEarning: earningMemberDtls[i].isEarning,
+                isEdited: earningMemberDtls[i].isEdited,
+                isKycEdited: earningMemberDtls[i].isKycEdited,
+                isExisting: earningMemberDtls[i].isExisting
+            }
+            EarningMemberArr.push(Obj);
+        })
+    }
+    if (EarningMemberArr.length > 0) {
+        $("#" + RpcOnHoldScrId + 'earningMemberList').removeClass('sno');
+        $("#" + RpcOnHoldScrId + 'noRecordFound').addClass('sno');
+        apz.data.scrdata.Income__RPCEarningMembers_Res = {};
+        apz.data.scrdata.Income__RPCEarningMembers_Res.EarningMembers = EarningMemberArr;
+        apz.data.loadData("RPCEarningMembers", 'Income');
+        for (i = 0; i < EarningMemberArr.length; i++) {
+            var onholdstatus = apz.isNull(EarningMemberArr[i].status) ? EarningMemberArr[i].onholdstatus : EarningMemberArr[i].status;
+            $("#Income__RPCEarningMembers__o__EarningMembers__status_" + i).text(onholdstatus);
+            if (onholdstatus) {
+                $("#Income__RpcPending__reasonText_" + i).parent().parent().removeClass('sno');
+            }
+            $("#" + RpcOnHoldScrId + "retryBtn_" + i).parent().parent().addClass('sno');
+            $("#Income__RPCEarningMembers__o__EarningMembers__memberRelation_" + i).find('svg').addClass('sno');
+            if (apz.isNull(EarningMemberArr[i].kycIdFront)) {
+                $("#Income__RpcPending__kycIdFText_" + i).parent().parent().addClass('sno')
+            } else {
+                $("#Income__RpcPending__kycIdFText_" + i).parent().parent().removeClass('sno');
+            }
+            if (apz.isNull(EarningMemberArr[i].kycIdBack)) {
+                $("#Income__RpcPending__kycIdBText_" + i).parent().parent().addClass('sno')
+            } else {
+                $("#Income__RpcPending__kycIdBText_" + i).parent().parent().removeClass('sno');
+            }
+            if (EarningMemberArr[i].status === 'ON HOLD') {
+                $("#Income__RPCEarningMembers__o__EarningMembers__memberRelation_" + i).find('svg').removeClass('sno');
+                $("#" + RpcOnHoldScrId + "retryBtn_" + i).parent().parent().removeClass('sno');
+                $("#Income__RpcPending__earningMemberList_row_" + i).addClass('onhld');
+            } else if (EarningMemberArr[i].hasOwnProperty('isExisting') && EarningMemberArr[i].isExisting) {
+                $("#Income__RPCEarningMembers__o__EarningMembers__reason_" + i).parent().parent().addClass('sno');
+                $("#Income__RpcPending__kycIdBText_" + i).parent().parent().addClass('sno');
+                $("#Income__RPCEarningMembers__o__EarningMembers__memberRelation_" + i).find('svg').addClass('sno');
+                $("#Income__RpcPending__kycIdFText_" + i).parent().parent().addClass('sno');
+            } else {
+                $("#Income__RPCEarningMembers__o__EarningMembers__memberRelation_" + i).find('svg').addClass('sno');
+            }
+        }
+    } else {
+        $("#" + RpcOnHoldScrId + 'earningMemberList').addClass('sno');
+        $("#" + RpcOnHoldScrId + 'noRecordFound').removeClass('sno');
+    }
+}
+apz.app.RpcPending.frontImg = function(pthis) {
+    let rowNo = $(pthis).attr('rowno');
+    apz.setElmValue(RpcOnHoldScrId + "imgage", '')
+    var img = EarningMemberArr[rowNo].kycIdFront;
+    $("#" + RpcOnHoldScrId + "imgage").attr('src', 'data:image/' + 'png' + ';base64,' + img);
+    ApzCOB.toggleModal(RpcOnHoldScrId + "imageModal");
+}
+apz.app.RpcPending.backImg = function(pthis) {
+    let rowNo = $(pthis).attr('rowno');
+    apz.setElmValue(RpcOnHoldScrId + "imgage", '')
+    var img = EarningMemberArr[rowNo].kycIdBack;
+    $("#" + RpcOnHoldScrId + "imgage").attr('src', 'data:image/' + 'png' + ';base64,' + img);
+    ApzCOB.toggleModal(RpcOnHoldScrId + "imageModal");
+}
+apz.app.RpcPending.onClickOk = function() {
+    ApzCOB.toggleModal(RpcOnHoldScrId + "imageModal");
+}
+apz.app.RpcPending.onClickRetryBtn = function(pthis) {
+    let rowNo = $(pthis).attr('rowno');
+    IncomeApp.payload = JSON.parse(IncomeApp.editpayload.payload);
+    IncomeApp.applicationId = IncomeApp.editpayload.applicationId;
+    IncomeApp.versionNumber = IncomeApp.editpayload.latestVersionNo;
+    IncomeApp.selectedMemRow = IncomeApp.payload.earnings[rowNo];
+    var data = {
+        fromRPCPending: true,
+        selectedMember: earningMemberDtls[rowNo],
+        globalKycName: earningMemberDtls[rowNo].memRelation,
+        rowNo: rowNo,
+        custDtls: custDtls
+    };
+    ApzCOB.launchMicroApp("Income", "KycDetails", 'APZCBO__BaseScreens__BaseDIV', data);
+}
+apz.app.RpcPending.onHoldReasonList = function(pthis) {
+    var remarksList = [];
+    let rowNo = $(pthis).attr('rowno');
+    if (custDtlsPayload.hasOwnProperty('remarks')) {
+        remarksList = custDtlsPayload.remarks
+    }
+    var RArray = [];
+    custDtlsPayload.remarks.forEach(function(obj1) {
+        let obj = {};
+        obj.memRelation = obj1.memRelation.replace(/[\(\)]/g, '');
+        obj1.remarks = obj1.remarks.replace(/(\d+\. )/g, '• ');
+        let remarksArray = obj1.remarks.split(/<br\s*\/?>/).filter(Boolean);
+        obj.remarks = remarksArray.map(remark => ({
+            remarks: remark.trim()
+        }));
+        RArray.push(obj);
+    });
+    $("#" + RpcOnHoldScrId + "ReasonMemRel").text(RArray[0].memRelation);
+    apz.data.scrdata.Income__IPaintRpcReasonsList_Res = [];
+    apz.data.scrdata.Income__IPaintRpcReasonsList_Res = RArray[0].remarks;
+    apz.data.loadData("IPaintRpcReasonsList", 'Income');
+    var paintedText = apz.data.scrdata.Income__IPaintRpcReasonsList_Res[0].remarks;
+    // Add <br> tag at the end of each statement
+    paintedText = paintedText.replace(/(•[^•]+)/g, "$1<br>");
+    apz.data.scrdata.Income__IPaintRpcReasonsList_Res[0].remarks = paintedText;
+    document.getElementById('Income__IPaintRpcReasonsList__o__Income__IPaintRpcReasonsList_Res__remarks_0_txtcnt').innerHTML = apz.data.scrdata
+        .Income__IPaintRpcReasonsList_Res[0].remarks;
+    ApzCOB.toggleModal(RpcOnHoldScrId + "viewReasonModal");
+}
+apz.app.RpcPending.clickMoreOptionsBtn = function() {
+    if ($("#Income__RpcPending__moreDetailsRow").is(':visible')) {
+        $("#Income__RpcPending__moreDetailsRow").addClass('sno');
+    } else {
+        $("#" + RpcOnHoldScrId + "moreDetailsRow").removeClass('sno');
+        $("#" + RpcOnHoldScrId + "depName").text(custDtlsPayload.earnings[rowNo].InputData.name);
+        $("#" + RpcOnHoldScrId + "memRel").text((custDtlsPayload.earnings[rowNo].InputData.memRelation));
+        $("#" + RpcOnHoldScrId + "MemDob").text((custDtlsPayload.earnings[rowNo].InputData.dob));
+        $("#" + RpcOnHoldScrId + "MemkycType").text(custDtlsPayload.earnings[rowNo].InputData.legaldocName);
+        $("#" + RpcOnHoldScrId + "MemkycId").text(custDtlsPayload.earnings[rowNo].InputData.legaldocId);
+    }   
+}
+apz.app.RpcPending.closeApp = function() {
+    if (submitReq === 'DELETE' || submitReq === 'SUBMIT') {
+        ApzCOB.launchMicroApp('Dashbo', 'dashboard', gAppId + '__BaseScreens__BaseDIV', '');
+    } else {
+        IncomeApp.backToRPCPending = false
+        ApzCOB.launchMicroApp("Income", "RpcPending", "APZCBO__BaseScreens__BaseDIV", '');
+    }
+}
+apz.app.RpcPending.existingLoanlist = function() {
+    let tempArray = [];
+    KendraApp.activeLoanDtls = [];
+    if (KendraApp.selectedCustomer.loanDtls.length > 0) {
+        KendraApp.selectedCustomer.loanDtls.forEach(loan => {
+            KendraApp.ProductList.forEach(prod => {
+                if (loan.product == prod.productDtls.productId) {
+                    loan.productType = prod.productDtls.productType;
+                    loan.shortDesc = prod.productDtls.shortDesc;
+                    loan.productId = prod.productDtls.productId;
+                    loan.description = prod.productDtls.shortDesc;
+                }
+            });
+            var wks = ApzCOB.findMaturityWeek(loan.lnMatDate);
+            var maturityDate = ApzCOB.confDateFormatter(ApzCOB.dateStringToDate(loan.lnMatDate), "dd/mm/yy");
+            let tempObj = {
+                "loanType": loan.shortDesc,
+                "maturityDate": maturityDate,
+                "maturityWks": wks + ' Wks ' + '(' + maturityDate + ')',
+                "loanId": loan.loanId,
+                "description": loan.description,
+                /*"dueAmount": ((ApzCOB.getTotalDueAmount(loan.loanId) === 0) ? "₹ " + parseInt(loan.amount) + ' ( ₹ ' + parseInt(loan
+                    .overdueInterest) + parseInt(loan.overduePrincipal) + ' )' : ApzCOB.getTotalDueAmount(loan.loanId))*/
+                "dueAmount": "₹ " + Math.round(parseFloat(loan.outstandingPrincipal)) + ' ( ₹ ' + Math.round((parseFloat(loan
+                    .overdueInterest)) + Math.round(parseFloat(loan.overduePrincipal))) + ' )'
+            }
+            tempArray.push(tempObj);
+            KendraApp.activeLoanDtls.push(loan);
+        });
+        apz.data.scrdata.Income__ViewActiveLoanDetails_Res = {};
+        apz.data.scrdata.Income__ViewActiveLoanDetails_Res.ViewActiveLoanDetailsNode = tempArray;
+        if ($("#" + RpcOnHoldScrId + "loanDtlsActive").hasClass("sno")) {
+            $('#' + RpcOnHoldScrId + 'loanDtlsActive').removeClass('sno');
+        } else {
+            $('#' + RpcOnHoldScrId + 'loanDtlsActive').addClass('sno');
+        }
+        apz.data.loadData("ViewActiveLoanDetails", 'Income');
+    } else {
+        ApzCOB.fnDisplayMsg("No Existing Loans Available", "I");
+    }
+}
+apz.app.PendingTask.onClickDelete = function() {
+    submitReq = 'DELETE';
+    ApzCOB.toggleModal(RpcOnHoldScrId + "warningModel");
+    apz.setElmValue(RpcOnHoldScrId + 'warningText', "Are you sure you want to delete application");
+}
+apz.app.PendingTask.onClickSubmit = function() {
+    if (!apz.isNull(fromRPCPending) || (!apz.isNull(IncomeApp.fromRPCPending) && !IncomeApp.fromRPCPending)) {
+        submitReq = 'SUBMIT';
+        ApzCOB.toggleModal(RpcOnHoldScrId + "warningModel");
+    } else {
+        ApzCOB.fnDisplayMsg("No Changes To Save", "E");
+    }
+}
+apz.app.PendingTask.onClickProceed = function() {
+    if (submitReq === 'DELETE') {
+        ApzCOB.toggleModal(RpcOnHoldScrId + "warningModel");
+        apz.app.PendingTask.deleteApplicationRequest();
+    } else if (submitReq === 'SUBMIT') {
+        ApzCOB.toggleModal(RpcOnHoldScrId + "warningModel");
+        apz.app.PendingTask.updateIncomeAssesmentReq();
+    } else {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.PendingTask.deleteApplicationRequest = function() {
+    let reqObj = {
+        "apiRequest": {
+            "appId": apz.appId,
+            "interfaceId": "DeleteApplication",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "applicationId": IncomeApp.editpayload.applicationId
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "DeleteApplication", "N", "N", reqObj, false, apz.app.PendingTask.onClickDeleteCB);
+}
+apz.app.PendingTask.onClickDeleteCB = function(params) {
+    try {
+        apz.stopLoader();
+        if (params.status && apz.isNull(params.errors)) {
+            if (params.res.APZCBO__DeleteApplication_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+                if (params.res.APZCBO__DeleteApplication_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                    //ApzCOB.toggleModal(RpcOnHoldScrId + "warningModel");
+                    $("#" + RpcOnHoldScrId + 'selectedAcDetMainRow').addClass('sno');
+                    $("#" + RpcOnHoldScrId + 'succRow').removeClass('sno');
+                    $("#" + RpcOnHoldScrId + 'MainRow').addClass('sno');
+                    $("#" + RpcOnHoldScrId + 'headercolorRow').addClass('sno');
+                    $("#" + RpcOnHoldScrId + 'loanAppDetRow').addClass('sno');
+                    apz.setElmValue(RpcOnHoldScrId + 'succText', 'Application deleted successfully');
+                    $("#" + RpcOnHoldScrId + 'moreOptionDiv').addClass('sno');
+                    $("#" + RpcOnHoldScrId + 'rejectApproveFooter').addClass('sno');
+                }
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.PendingTask.updateIncomeAssesmentReq = function() {
+    IncomeApp.editpayload.workflow = {};
+    IncomeApp.editpayload.workflow.remarks = '';
+    var req = {
+        "apiRequest": {
+            "interfaceName": "UpdateIncomeAssessment",
+            "appId": gAppId,
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "appId": gAppId,
+                "applicationId": IncomeApp.editpayload.applicationId,
+                "versionNum": apz.isNull(IncomeApp.editpayload.versionNum) ? IncomeApp.editpayload.latestVersionNo : IncomeApp.editpayload
+                    .versionNum,
+                "status": "MOVE TO CHECKER",
+                "updatedBy": LoggedInUserDetails.userID,
+                "userId": LoggedInUserDetails.userID,
+                "remarks": "",
+                "incAssessmentPayload": JSON.parse(IncomeApp.editpayload.payload),
+                "updatedBy": LoggedInUserDetails.userID,
+                "workflow": IncomeApp.editpayload.workflow,
+                "addInfo": JSON.parse(IncomeApp.editpayload.addInfo)
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "UpdateIncomeAssessment", "N", "N", req, 'Y', apz.app.PendingTask.updateIncomeAssesmentReqCB);
+}
+apz.app.PendingTask.updateIncomeAssesmentReqCB = function(params) {
+    try {
+        apz.stopLoader();
+        if (params.status && apz.isNull(params.errors)) {
+            if (params.res.APZCBO__UpdateIncomeAssessment_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+                if (params.res.APZCBO__UpdateIncomeAssessment_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                    // ApzCOB.toggleModal(RpcOnHoldScrId + "warningModel");
+                    $("#" + RpcOnHoldScrId + 'selectedAcDetMainRow').addClass('sno');
+                    $("#" + RpcOnHoldScrId + 'succRow').removeClass('sno');
+                    $("#" + RpcOnHoldScrId + 'MainRow').addClass('sno');
+                    $("#" + RpcOnHoldScrId + 'headercolorRow').addClass('sno');
+                    $("#" + RpcOnHoldScrId + 'loanAppDetRow').addClass('sno');
+                    apz.setElmValue(RpcOnHoldScrId + 'succText', 'Application Approved successfully');
+                    $("#" + RpcOnHoldScrId + 'moreOptionDiv').addClass('sno');
+                    $("#" + RpcOnHoldScrId + 'rejectApproveFooter').addClass('sno');
+                }
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}

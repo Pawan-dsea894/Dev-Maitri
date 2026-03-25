@@ -1,0 +1,20 @@
+{
+    "Dashbo__ProductService_Res": {
+        "Product": [{
+            "PRODUCT_CODE": "LINK_PLUS",
+            "PROD_DESC": "Link Plus",
+            "PROD_DESC1": "Link",
+            "PROD_DESC2": "Plus",
+            "REWARDS_MULTIPLIER": "1",
+            "IMAGE_PATH": "apps/styles/themes/NoorBankSME/img/LINK_PLUS.png"
+        },
+        {
+            "PRODUCT_CODE": "John",
+            "PROD_DESC": "Link Plus",
+            "PROD_DESC1": "Link",
+            "PROD_DESC2": "Plus",
+            "REWARDS_MULTIPLIER": "1",
+            "IMAGE_PATH": "apps/styles/themes/NoorBankSME/img/LINK_PLUS.png"
+        }]
+    }
+}

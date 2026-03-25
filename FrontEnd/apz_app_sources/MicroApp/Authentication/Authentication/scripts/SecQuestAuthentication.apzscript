@@ -1,0 +1,252 @@
+var ValidateSecQuestionsparams,
+    ValidateSecQuestionsVal,
+    ValidateCustQuest = [],
+    secQuesAuth = "#Authen__SecQuestAuthentication__answ1",
+    dispMsg = "Oops! Something went wrong, Please try again later",
+    ValidateSecQuestionsScreenId = "Authen__SecQuestAuthentication__";
+window.ELEMENT_ARRAY = "";
+window.FUNCTION_NAME = 'ApzRMB.BackNavigationMB();';
+apz.app.onLoad_SecQuestAuthentication = function(params) {
+    apz.startLoader();
+    $("#" + gAppId + "__PostLogin_BaseScreen__mailCol").addClass("sno");
+    ValidateSecQuestionsparams = params;
+    if (!ApzRMB.chkprevscrPageBC(apz.childScr)) {
+        ApzRMB.addscrPageBC(apz.childScr);
+    }
+};
+apz.app.onShown_SecQuestAuthentication = function(params) {
+    let lenCommonCode = ApzRMB.GetCommonCodes("LENGTH").Length;
+    let SecretAnswer = lenCommonCode.filter( item => item.key === "SecretAnswer");
+    let maxLen = parseInt(SecretAnswer[0].Maxvalue);
+    let minLen = parseInt(SecretAnswer[0].Minvalue);
+    $("#" + ValidateSecQuestionsScreenId + 'answ1').attr('onfocus',
+        'apz.app.SecQuestAuthentication.OnFocus(this),ApzRMB.hideErrmsgBlockforString(this);');
+    $("#" + ValidateSecQuestionsScreenId + "quest1_grp_lbl").addClass("req");
+    $("#" + ValidateSecQuestionsScreenId + "answ1_grp_lbl").addClass("req");
+    ApzRMB.showSubHeader("LIT_SECURITYQUESTION");
+    if (ValidateSecQuestionsparams.Module === "FORGOTUSERNAME" || ValidateSecQuestionsparams.Module === "FORGOTPASSWORD" ||
+        ValidateSecQuestionsparams.Module === "FORGOTTXNPIN") {
+        $("#header").removeClass("sno");
+        $("#sidebar").removeClass("sno");
+        $("#sidebar").removeClass("apz-nav-open");
+        $(".rolepage ").addClass("landingpage");
+        $(".rolepage ").removeClass("apz-nav-push");
+        //$("#" + gAppId + "__PreLogin_BaseScreen__hearderTxt").text(apz.lits[apz.currAppId][apz.language]["LIT_AUTH_TRANS"]);
+        ApzRMB.moreScrsetHeader("LIT_SECURITYQUESTION");
+        $("#" + gAppId + "__PreLogin_BaseScreen__web_preLoginHeaderbackCol").removeClass("sno");
+        $("#" + ValidateSecQuestionsScreenId + "valsecquescancel").attr("onclick", ValidateSecQuestionsparams.cancelCB);
+    } else {
+        ApzRMB.showSubHeader("LIT_SECURITYQUESTION")
+    }
+    $("#" + ValidateSecQuestionsScreenId + "answ1").focus();
+    apz.app.SecQuestAuthentication.FetchvalidateSecretQuestions();
+    apz.app.SecQuestAuthentication.PaintHeader();
+    $("#" + ValidateSecQuestionsScreenId + "answ1").attr("minlength", minLen);
+    $("#" + ValidateSecQuestionsScreenId + "answ1").attr("maxlength", maxLen);
+    //$("#" + gAppId + "__PostLogin_BaseScreen__backIconCol").addClass("sno");
+};
+$(secQuesAuth).keypress(function(e) {
+    if (e.which === 13) {
+        apz.app.SecQuestAuthentication.validatesecurityquestions();
+    }
+});
+apz.app.SecQuestAuthentication.FetchvalidateSecretQuestions = function() {
+    var SecUserId = "";
+    if (ValidateSecQuestionsparams.Module === "FORGOTUSERNAME" || ValidateSecQuestionsparams.Module === "FORGOTPASSWORD" ||
+        ValidateSecQuestionsparams.Module === "FORGOTTXNPIN") {
+        SecUserId = ValidateSecQuestionsparams.customerId
+    } else {
+        SecUserId = gApzRMB.LoggedInUserDetails.loginResponse.userDet.id
+    }
+    var req = {
+        "apiRequest": {
+            "interfaceName": "",
+            "appId": apz.appId,
+            "userId": SecUserId,
+            "requestObj": {
+                "action": "FETCHSECRETQUE",
+                "appId": apz.appId,
+                "userId": SecUserId
+            }
+        }
+    }
+    ApzRMB.serverBuildParam(apz.appId, "ValidateSecretQuestions", "N", "N", req, true, apz.app.SecQuestAuthentication.onclicksecquestconfirmCB);
+};
+apz.app.SecQuestAuthentication.onclicksecquestconfirmCB = function(params) {
+    try {
+        if (ApzRMB.handleServiceCallBacks(params)) {
+            var ifaceName = ApzRMB.GetInterfaceResMap(params);
+            ValidateCustQuest = JSON.parse(JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj).secretQueDetails);
+            if (ValidateCustQuest.length > 0) {
+                apz.app.SecQuestAuthentication.validatedropdown(ValidateSecQuestionsScreenId + "quest1", ValidateCustQuest);
+            } else {
+                if (ValidateSecQuestionsparams.Module === "FORGOTUSERNAME" || ValidateSecQuestionsparams.Module === "FORGOTPASSWORD") {
+                    // ApzRMB.fnDisplayMsg("No secret questions found for the userId.", "E", ApzRMB.ReloadApp);
+                    ApzRMB.messageDisplayFunction('SECRET-QUESTION-ERR', 'E', ApzRMB.ReloadApp);
+                } else if (ValidateSecQuestionsparams.Module === "FORGOTTXNPIN") {
+                    // ApzRMB.fnDisplayMsg("In order to Set Transaction PIN for this User ID, Please login and set the Secret Questions.", "E", ApzRMB.ReloadApp);
+                    ApzRMB.messageDisplayFunction('APZRMB-TRNS-PIN', 'E', ApzRMB.ReloadApp);
+                } else {
+                    // ApzRMB.fnDisplayMsg("No secret questions set for the userId. Please set them now.", "E");
+                    ApzRMB.messageDisplayFunction('APZRMB-SCRT-QUESTION', 'E')
+                    ApzRMB.launchMicroAppWithoutAnimation("SecReg", "SetSecurityQuestionandAnswer", gPostLoginBaseDiv, {});
+                }
+            }
+        } else {
+            apz.stopLoader();
+            ApzRMB.fnDisplayMsg(dispMsg, "E", ApzRMB.ReloadApp);
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzRMB.fnDisplayMsg(dispMsg, "E", ApzRMB.ReloadApp);
+    }
+    apz.stopLoader();
+};
+apz.app.SecQuestAuthentication.validatedropdown = function(id, array) {
+    var lid = id;
+    var larray = array;
+    $("#" + lid).html("");
+    var larr = [];
+    $.each(larray, function(item, index) {
+        var lob = {};
+        lob.val = index.QueNum;
+        lob.desc = index.Question;
+        larr.push(lob);
+    });
+    apz.populateDropdown(document.getElementById(id), larr);
+    apz.stopLoader();
+};
+apz.app.SecQuestAuthentication.validatesecurityquestions = function() {
+    apz.startLoader();
+    var SecQuesArray = [];
+    SecQuesArray = apz.app.SecQuestAuthentication.firstvalidatequest();
+    if (SecQuesArray) {
+        if (ValidateSecQuestionsparams.Module === "FORGOTUSERNAME") {
+            apz.app.ForgotUserName.ValidateSecretAnswerAndFetchUserName(SecQuesArray);
+        } else if (ValidateSecQuestionsparams.Module === "FORGOTPASSWORD") {
+            ApzRMB.GetPasswordSecParams("GetPasswordPolicy", ValidateSecQuestionsparams.customerId);
+            apz.app.ForgotPassword.ValidateSecretAnswerAndSetPassword(SecQuesArray);
+        } else if (ValidateSecQuestionsparams.Module === "FORGOTTXNPIN") {
+            ApzRMB.GetPasswordSecParams("GetTxnPinPolicy", ValidateSecQuestionsparams.customerId);
+            apz.app.ForgotTxnPin.ValidateSecretAnswerAndSetTxnPin(SecQuesArray);
+        } else {
+            var req = {
+                "apiRequest": {
+                    "interfaceName": "",
+                    "appId": apz.appId,
+                    "userId": gApzRMB.LoggedInUserDetails.loginResponse.userDet.id,
+                    "requestObj": {
+                        "action": "VALIDATESECRETANS",
+                        "questions": SecQuesArray
+                    }
+                }
+            };
+            ApzRMB.serverBuildParam(apz.appId, "ValidateSecretQuestions", "N", "N", req, true, apz.app.SecQuestAuthentication
+                .validatesecurityquestionsCB);
+        }
+    } else {
+        apz.stopLoader();
+    }
+};
+apz.app.SecQuestAuthentication.validatesecurityquestionsCB = function(params) {
+    try {
+        if (ApzRMB.handleServiceCallBacks(params)) {
+            //ApzRMB.launchMicroApp("Authen", "SecureImage", gPreLoginBaseDiv, "");
+            if (ValidateSecQuestionsparams.transferType === "ChangeSecretQuestions") {
+                ApzRMB.launchMicroAppWithoutAnimation("SecReg", "SetSecurityQuestionandAnswer", gPostLoginBaseDiv, {});
+            } else {
+                ApzRMB.executeFunByName(ValidateSecQuestionsparams.successCB);
+            }
+        } else {
+            apz.stopLoader();
+            $("#" + ValidateSecQuestionsScreenId + "answ1").val("");
+            // ApzRMB.fnDisplayMsg("Incorrect Answer. Please enter the correct answer", "E");
+            ApzRMB.messageDisplayFunction('APZRMB-INCORRECT-ANSWER', "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzRMB.fnDisplayMsg(dispMsg, "E");
+    }
+};
+apz.app.SecQuestAuthentication.firstvalidatequest = function() {
+    if (!apz.isNull($(secQuesAuth).val())) {
+        var SecQuesJson1 = {};
+        var SecQuesArr1 = [];
+        $.each(ValidateCustQuest, function(i, obj) {
+            if ($("#" + ValidateSecQuestionsScreenId + "quest1").val() === obj.Question) {
+                SecQuesJson1.questionNo = obj.QueNum;
+                SecQuesJson1.secretQuestions = obj.Question;
+            }
+        });
+        SecQuesJson1.secretAnswer = $("#" + ValidateSecQuestionsScreenId + "answ1").val().toUpperCase();
+        SecQuesJson1.appId = apz.appId;
+        if (ValidateSecQuestionsparams.Module === "FORGOTUSERNAME" || ValidateSecQuestionsparams.Module === "FORGOTPASSWORD" ||
+            ValidateSecQuestionsparams.Module === "FORGOTTXNPIN") {
+            SecQuesJson1.userId = ValidateSecQuestionsparams.customerId
+        } else {
+            SecQuesJson1.userId = gApzRMB.LoggedInUserDetails.loginResponse.userDet.id;
+        }
+        SecQuesArr1.push(SecQuesJson1);
+        return SecQuesArr1;
+    } else {
+        $(secQuesAuth).addClass("err");
+        $("#" + ValidateSecQuestionsScreenId + "answerr1").removeClass("sno");
+        return SecQuesArr1;
+    }
+};
+apz.app.SecQuestAuthentication.clickCancel = function() {
+     ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode('LIT_CANCEL_REQUEST'), 'C', apz.app.SecQuestAuthentication.cancelCallback);
+    // ApzRMB.launchMicroApp('Dashbo', 'dashboard', gPostLoginBaseDiv, '');
+};
+apz.app.SecQuestAuthentication.cancelCallback = function(params) {
+    if (params.choice === true) {
+        ApzRMB.launchDashboard("backNav");
+        return;
+    } else {
+        return;
+    }
+};
+apz.app.SecQuestAuthentication.OnchangeQuestion = function() {
+    $("#" + ValidateSecQuestionsScreenId + "answ1").val("");
+    $("#" + ValidateSecQuestionsScreenId + 'answerr1').addClass('sno');
+    $("#" + ValidateSecQuestionsScreenId + 'answ1').removeClass('err');
+}
+apz.app.SecQuestAuthentication.BackNavigationMB = function() { // do not add screen name as it is common in backpressevent
+    if (ValidateSecQuestionsparams.transferType === "ChangeSecretQuestions") {
+        if ($("#" + ValidateSecQuestionsScreenId + "questionModal").is(":visible")) {
+            ApzRMB.toggleModal(ValidateSecQuestionsScreenId + 'questionModal');
+        } else if ($("#" + ValidateSecQuestionsScreenId + "secMainDiv").is(":visible")) {
+            ApzRMB.BackNavFromFirstPageMB();
+        }
+    } else {
+        if (ValidateSecQuestionsparams.cancelCB.split("()")[1] === undefined) {
+            ApzRMB.executeFunByName(ValidateSecQuestionsparams.cancelCB);
+        } else {
+            ApzRMB.executeFunByName(ValidateSecQuestionsparams.cancelCB.split("()")[0]);
+        }
+    }
+};
+apz.app.SecQuestAuthentication.selectDropdown = function(ev) { // for MB dropdown
+    $('#' + ValidateSecQuestionsScreenId + 'quest1').val($('#' + ev.id).text());
+    ApzRMB.toggleModal(ValidateSecQuestionsScreenId + 'questionModal');
+};
+apz.app.SecQuestAuthentication.MBCancel = function() {
+    ApzRMB.fnDisplayMsg(ApzRMB.getDescfromLitCode("LIT_CANCEL_MSG"), 'C', apz.app.SecQuestAuthentication.MBCancelCallBack);
+}
+apz.app.SecQuestAuthentication.MBCancelCallBack = function(params) {
+    if (params.choice === true) {
+         ApzRMB.launchDashboard("backNav");
+        // ApzRMB.launchMicroApp('Dashbo', 'dashboard', gPostLoginBaseDiv, '');
+        return;
+    }
+};
+apz.app.SecQuestAuthentication.OnFocus = function() {
+    $("#" + ValidateSecQuestionsScreenId + 'answerr1').addClass('sno');
+}
+apz.app.SecQuestAuthentication.PaintHeader = function() {
+    if (window.forgetSecretQuestFlag) {
+        $('#' + gAppId + '__PostLogin_BaseScreen__' + 'headerText').text(ApzRMB.getDescfromLitCode("LIT_FORGOT_SECQUE"));
+    } else {
+        $('#' + gAppId + '__PostLogin_BaseScreen__' + 'headerText').text(ApzRMB.getDescfromLitCode("LIT_CHG_SECQUE"));
+    }
+}

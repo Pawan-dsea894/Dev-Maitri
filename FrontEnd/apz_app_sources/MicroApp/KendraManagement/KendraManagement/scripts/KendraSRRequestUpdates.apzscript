@@ -1,0 +1,273 @@
+var BMAppovalScrId = 'Kendra__KendraSRRequestUpdates__';
+var srListUpdateFlow = [];
+apz.app.onLoad_BMApproval = function(params) {
+    apz.data.scrdata.Kendra__IPaintKendraSRUpdates_Res = {};
+}
+apz.app.onShown_BMApproval = function(params) {
+    apz.app.KendraSRRequestUpdates.paintFilterData();
+}
+apz.app.KendraSRRequestUpdates.paintFilterData = function() {
+    let filterList = ['All', 'Day', 'Time', 'Frequency'];
+    let paintData = filterList.map((d) => ({
+        filter: d
+    }));
+    apz.data.scrdata.Kendra__IPaintKendraSRUpdates_Res.filterList = paintData;
+    apz.data.loadData("IPaintPaintKMBMDetails", 'Kendra');
+}
+apz.app.KendraSRRequestUpdates.fetchSRRequestBasedOCreatedUser = function() {
+    let UserBranchId = '';
+    let createBy = LoggedInUserDetails.loginResponse.userDet.name;
+    var req = {
+        "apiRequest": {
+            "interfaceName": "FetchSROperation",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "branchId": UserBranchId,
+                "currRole": createBy
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "FetchSROperation", "N", "N", req, false, apz.app.KendraSRRequestUpdates.fetchSRRequestBasedOCreatedUserCB);
+}
+apz.app.KendraSRRequestUpdates.fetchSRRequestListCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__FetchSROperation_Res.apiResponse.ResponseBody.responseObj)) {
+                srListUpdateFlow = params.res.APZCBO__FetchSROperation_Res.apiResponse.ResponseBody.responseObj;
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.KendraSRRequestUpdates.fetchBMApprovals = function(params) {
+    let paintKendraArr = [];
+    srListUpdateFlow.forEach(dta => {
+        let kendraData = kendraResponse.find(d => d.kendraDtls.kendraId == dta.payload.kendraId);
+        let obj = {};
+        obj.kendraName = kendraData.kendraDtls.kmName,
+            obj.kendraInfo = '#' + kendraData.kendraDtls.kendraId + " | By" + kendraData.kendraDtls.kmName,
+            obj.status = dta.appStatus;
+        obj.payload = dta.payload;
+        obj.srChangesType = dta.srType
+        if (dta.srType === "TimeChanges") {
+            obj.srChangesInfo = apz.app.KendraSRRequestUpdates.convertToTimeString(kendraData.kendraDtls.meetingStartTime) + ' -> '
+            apz.app.KendraSRRequestUpdates.convertToTimeString(dta.payload.newStartTime);
+        } else if (dta.srType === "FrequencyChanges") {
+            obj.srChangesInfo = kendraData.kendraDtls.meetingFrequency + ' -> ' + dta.payload.newFrequency;
+        } else {
+            obj.srChangesInfo = kendraData.kendraDtls.meetingDay + ' -> ' + dta.payload.newDay;
+        }
+        paintKendraArr.push(obj);
+    });
+    apz.data.scrdata.Kendra__IPaintKendraSRUpdates_Res.PaintBMApprovalKMValues = paintKendraArr;
+    apz.data.loadData("IPaintKendraSRUpdates", 'Kendra');
+}
+apz.app.KendraSRRequestUpdates.convertToTimeString = function(timeNumber) {
+    let timeStr = timeNumber.toString().padStart(4, '0');
+    let hours = timeStr.slice(0, -2);
+    let minutes = timeStr.slice(-2);
+    return `${hours}:${minutes}`;
+}
+apz.app.BMApproval.paintKendraDetaisl = function(pthis) {
+    $("#" + BMAppovalScrId + 'gr_row_173').addClass('sno')
+    $("#" + BMAppovalScrId + 'gr_row_145').addClass('sno')
+    $("#" + BMAppovalScrId + 'gr_row_146').addClass('sno')
+    $("#" + BMAppovalScrId + 'gr_row_173').addClass('sno')
+    $("#" + BMAppovalScrId + 'gr_row_154').addClass('sno')
+    $("#" + BMAppovalScrId + 'approvalDiv').removeClass('sno')
+    let id = pthis.id.split('_').at(-1);
+    selDataForApproveOrReject = apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.PaintBMApprovalKMValues[id];
+    let kendraData = kendraResponse.find(d => d.kendraDtls.kendraId == selDataForApproveOrReject.kendraId);
+    apz.setElmValue(BMAppovalScrId + 'reqKendra', kendraData.kendraDtls.kendraName);
+    apz.setElmValue(BMAppovalScrId + 'reqKendraId', '#' + kendraData.kendraDtls.kendraId);
+    apz.setElmValue(BMAppovalScrId + 'reqKendraSince', kendraData.kendraDtls.activationDate);
+    apz.setElmValue(BMAppovalScrId + 'reqKendraAdd', kendraData.kendraDtls.kendraAddr);
+    apz.setElmValue(BMAppovalScrId + 'reqTotalCust', kendraData.kendraDtls.customerDtls.length);
+    apz.setElmValue(BMAppovalScrId + 'reqKendraAdd', kendraData.kendraDtls.kendraAddr);
+    if (selDataForApproveOrReject.srType === 'FrequencyChanges') {
+        apz.setElmValue(BMAppovalScrId + 'olderDataTxt', 'Old Frequency');
+        apz.setElmValue(BMAppovalScrId + 'reqDataTxt', 'Requested Frequency');
+        $("#" + BMAppovalScrId + 'timeSchedule').addClass('sno');
+        apz.setElmValue(BMAppovalScrId + 'reqKendraOldTime', kendraData.kendraDtls.meetingFrequency);
+        apz.setElmValue(BMAppovalScrId + 'reqReqTime', selDataForApproveOrReject.payload.newFrequency);
+    } else {
+        $("#" + BMAppovalScrId + 'timeSchedule').removeClass('sno');
+        apz.setElmValue(BMAppovalScrId + 'reqKendraOldTime', apz.app.BMApproval.convertToTimeString(kendraData.kendraDtls.meetingStartTime) +
+            ' - ' + apz.app.BMApproval.convertToTimeString(kendraData.kendraDtls.endingTime) + 'AM');
+        apz.setElmValue(BMAppovalScrId + 'reqReqTime', apz.app.BMApproval.convertToTimeString(selDataForApproveOrReject.payload.newStartTime) +
+            ' - ' + apz.app.BMApproval.convertToTimeString(selDataForApproveOrReject.payload.newEndTime) + 'AM');
+    }
+}
+apz.app.BMApproval.onClickOfApprovalFlow = function() {
+    var req = {
+        "apiRequest": {
+            "interfaceName": "FetchSROperation",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "updateBy": LoggedInUserDetails.loginResponse.userDet.name,
+                "srType": selDataForApproveOrReject.srType,
+                "remarks": "Approved"
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "FetchSROperation", "N", "N", req, false, apz.app.BMApproval.onClickOfApprovalFlowCB);
+}
+apz.app.BMApproval.onClickOfApprovalFlowCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__FetchSROperation_Res.apiResponse.ResponseBody.responseObj)) {
+                $("#" + BMAppovalScrId + 'successDiv').removeClass('sno');
+                $("#" + BMAppovalScrId + 'approvalDiv').addClass('sno');
+                let kendraData = kendraResponse.find(d => d.kendraDtls.kendraId == selDataForApproveOrReject.kendraId);
+                let selType;
+                let updatedData;
+                let oldDate;
+                let requestType = params.req.apiRequest.requestObj;
+                if (requestType.srType === 'FrequencyChanges') {
+                    selType = 'Frequency';
+                    updatedData = requestType.payload.newFrequency;
+                    oldDate = kendraData.meetingFrequency;
+                } else {
+                    selType = 'Time';
+                    updatedData = apz.app.BMApproval.convertToTimeString(requestType.payload.newStartTime);
+                    oldDate = apz.app.BMApproval.convertToTimeString(kendraData.meetingStartTime);
+                };
+                let rejectInfo = ['Previous ' + selType, 'Updated ' + selType, 'Status'];
+                let paintArr = [];
+                rejectInfo.forEach(d => {
+                    let obj = {};
+                    obj.info = d;
+                    if (d.startsWith('Previous')) {
+                        obj.desc = oldDate;
+                    } else if (d.startsWith('Updated')) {
+                        obj.desc = updatedData;
+                    } else if (d === 'Status') {
+                        obj.desc = 'Rejected';
+                    } else {
+                        obj.desc = requestType.remarks;
+                    }
+                })
+                apz.data.scrdata.Kendra__IPaintBMApprovalSuccFai_Res.SuccessData = paintArr;
+                apz.data.loadData("IPaintBMApprovalSuccFai", 'Kendra');
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.BMApproval.onClickOfRejectFlow = function() {
+    let rejectReaArr = ['Time overlapping', 'Placeholder'];
+    let paintData = rejectReaArr.map(d => ({
+        rejet: d
+    }));
+    ApzCOB.toggleModal(BMAppovalScrId + "rejectionModel");
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.RejectResons = paintData;
+    apz.data.loadData("IPaintPaintKMBMDetails", 'Kendra');
+}
+apz.app.BMApproval.rejectReqest = function() {
+    var req = {
+        "apiRequest": {
+            "interfaceName": "FetchSROperation",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "updateBy": LoggedInUserDetails.loginResponse.userDet.name,
+                "srType": selDataForApproveOrReject.srType,
+                "remarks": "Rejected"
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "FetchSROperation", "N", "N", req, false, apz.app.BMApproval.rejectReqestCB);
+}
+apz.app.BMApproval.rejectReqestCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__FetchSROperation_Res.apiResponse.ResponseBody.responseObj)) {
+                $("#" + BMAppovalScrId + 'failureDiv').removeClass('sno');
+                $("#" + BMAppovalScrId + 'approvalDiv').addClass('sno');
+                let kendraData = kendraResponse.find(d => d.kendraDtls.kendraId == selDataForApproveOrReject.kendraId);
+                let selType;
+                let updatedData;
+                let oldDate;
+                let requestType = params.req.apiRequest.requestObj;
+                if (requestType.srType === 'FrequencyChanges') {
+                    selType = 'Frequency';
+                    updatedData = requestType.payload.newFrequency;
+                    oldDate = kendraData.meetingFrequency;
+                } else {
+                    selType = 'Time';
+                    updatedData = apz.app.BMApproval.convertToTimeString(requestType.payload.newStartTime);
+                    oldDate = apz.app.BMApproval.convertToTimeString(kendraData.meetingStartTime);
+                };
+                let rejectInfo = ['Previous ' + selType, 'Updated ' + selType, 'Status', 'Reason'];
+                let paintArr = [];
+                rejectInfo.forEach(d => {
+                    let obj = {};
+                    obj.info = d;
+                    if (d.startsWith('Previous')) {
+                        obj.desc = oldDate;
+                    } else if (d.startsWith('Updated')) {
+                        obj.desc = updatedData;
+                    } else if (d === 'Status') {
+                        obj.desc = 'Rejected';
+                    } else {
+                        obj.desc = requestType.remarks
+                    }
+                    paintArr.push(obj);
+                });
+                apz.data.scrdata.Kendra__IPaintBMApprovalSuccFai_Res.FailureData = paintArr;
+                apz.data.loadData("IPaintBMApprovalSuccFai", 'Kendra');
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.BMApproval.onClickOfKMSchedule = function() {
+    ApzCOB.toggleModal(BMAppovalScrId + "paintTimeSlotsModule");
+    let selKendraData = kendraResponse.find(d => d.kendraDtls.kendraId === selDataForApproveOrReject.kendraId)
+    let day = selKendraData.kendraDtls.kendraDtls.meetingDay;
+    let selKendraName = selKendraData.kmName;
+    let timeSlotsArr = [];
+    let assigeeKendraData = kendraResponse.filter(d => d.kendraDtls.kmName === selKendraName);
+    assigeeKendraData = assigeeKendraData.filter(d => d.kendraDtls.meetingDay === day)
+    assigeeKendraData.map(d => {
+        let obj = {};
+        obj.startTime = d.kendraDtls.meetingStartTime;
+        obj.endTime = d.kendraDtls.endingTime;
+        obj.kendraName = d.kendraDtls.kendraName;
+        timeSlotsArr.push(obj);
+    })
+    let sortedTimeSlots = timeSlotsArr.sort((a, b) => parseInt(a.startTime) - parseInt(b.startTime));
+    let newTimeSlotsArr = [];
+    for (let i = 0; i < sortedTimeSlots.length; i++) {
+        let currentSlot = sortedTimeSlots[i];
+        let nextSlot = sortedTimeSlots[i + 1];
+        newTimeSlotsArr.push({
+            time: `${apz.app.BMApproval.formatTime(parseInt(currentSlot.startTime))}-${apz.app.BMApproval.formatTime(parseInt(currentSlot.endTime))}`,
+            status: "Busy",
+            kendraName: currentSlot.kendraName
+        });
+    }
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.BmApprovalPaintSlots = newTimeSlotsArr;
+    apz.data.loadData("IPaintPaintKMBMDetails", 'Kendra');
+}
+apz.app.BMApproval.formatTime = function(time) {
+    let hour = Math.floor(time / 100);
+    let minute = time % 100;
+    let period = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12 || 12;
+    return `${hour}:${minute.toString().padStart(2, '0')} ${period}`;
+}

@@ -1,0 +1,11 @@
+var appSetting = 'ChgPas__AppSettings__';
+apz.app.onLoad_AppSettings = function(params) {}
+apz.app.onShown_AppSettings = function(params) {
+    ApzCOB.disableCutCopyPaste();
+    apz.hide("header");
+    apz.hide("footer");
+};
+apz.app.AppSettings.fnLaunchChangePass = function() {
+    ApzCOB.launchMicroApp('ChgPas', 'ChangePassword', gAppId + '__BaseScreens__BaseDIV', '');
+};
+

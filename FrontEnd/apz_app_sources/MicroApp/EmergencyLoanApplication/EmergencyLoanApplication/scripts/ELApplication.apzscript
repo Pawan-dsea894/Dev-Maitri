@@ -1,0 +1,198 @@
+var elApplnScreenId = 'EMERGE__ELApplication__',
+    tempObj = {},
+    tempFlag = false,
+    tempArray = [],
+    selLoanProdDesc = '',
+    elSelApplicationObj = {},
+    instantLoanDetailsObj = {
+        'selEligibleLoanDtls': {}
+    };
+window.KendraApp.Transpayload = {};
+apz.app.onLoad_ELApplication = function(params) {
+    elSelApplicationObj.customerDtls = params;
+}
+apz.app.onShown_ELApplication = function() {
+    apz.app.ELApplication.paintCustDetails();
+}
+apz.app.ELApplication.paintCustDetails = function() {
+    apz.setElmValue(elApplnScreenId + "custName", elSelApplicationObj.customerDtls.customerName);
+    apz.setElmValue(elApplnScreenId + "customerId", "#" + elSelApplicationObj.customerDtls.customerId);
+    apz.setElmValue(elApplnScreenId + "groupDesc", "Group 1");
+    //apz.setElmValue(elApplnScreenId + "loanAmount", "-");
+    apz.setElmValue(elApplnScreenId + "tenure", "-");
+    apz.setElmValue(elApplnScreenId + "repayFreq", "Weekly");
+    apz.setElmValue(elApplnScreenId + "disbMode", "Cash");
+    apz.setElmValue(elApplnScreenId + "interestRate", "19%");
+    apz.setElmValue(elApplnScreenId + "upfrontCharges", "190");
+    $("#EMERGE__ELApplication__rupeeIconText").addClass("sno");
+}
+apz.app.ELApplication.onBackNavigation = function() {
+    ApzCOB.launchMicroApp("EMERGE", "EmergencyLoanApplications", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedKendra);
+}
+apz.app.ELApplication.launchLoanProductModal = function(pthis) {
+    apz.app.ELApplication.loadLoanProducts();
+    ApzCOB.toggleModal(elApplnScreenId + "loanProductModal");
+}
+apz.app.ELApplication.loadLoanProducts = function() {
+    var tempLoanPrdArray = [];
+    if (KendraApp.InstantProductResponse.length > 0) {
+        KendraApp.InstantProductResponse.forEach(function(j, k) {
+            var tempLoanObj = {
+                "description": j.productDtls.description
+            }
+            tempLoanPrdArray.push(tempLoanObj);
+        });
+        apz.data.scrdata.EMERGE__LoanProduct_Res = {};
+        apz.data.scrdata.EMERGE__LoanProduct_Res.loanProductNode = tempLoanPrdArray;
+        apz.data.loadData("LoanProduct", 'EMERGE');
+    }
+}
+apz.app.ELApplication.onClickLoanProduct = function(pthis) {
+    let rowNo = $(pthis).attr("rowno");
+    $.each(apz.data.scrdata.EMERGE__LoanProduct_Res.loanProductNode, function(m) {
+        if (parseInt(rowNo) === m) {
+            $('#' + elApplnScreenId + 'loanProductCheckBox_' + m).prop('checked', true);
+            $('#' + elApplnScreenId + 'loanProductList_row_' + m).addClass('active');
+        } else {
+            $('#' + elApplnScreenId + 'loanProductCheckBox_' + m).prop('checked', false);
+            $('#' + elApplnScreenId + 'loanProductList_row_' + m).removeClass('active');
+        }
+    });
+}
+apz.app.ELApplication.paintLoanProduct = function() {
+    let loanProdVal = "";
+    $.each(apz.data.scrdata.EMERGE__LoanProduct_Res.loanProductNode, function(i) {
+        if ($('#' + elApplnScreenId + 'loanProductCheckBox_' + i).prop('checked')) {
+            loanProdVal = $('#EMERGE__LoanProduct__o__loanProductNode__description_' + i).text();
+        }
+    });
+    apz.setElmValue(elApplnScreenId + "loanProductVal", loanProdVal);
+    $("#" + elApplnScreenId + "rupeeIconText_ul").removeClass("sno");
+    $("#" + elApplnScreenId + "rupeeIconText").removeClass("sno");
+    apz.setElmValue(elApplnScreenId + "staticAmount", "1,000");
+    apz.app.ELApplication.onChangeLoanProduct(loanProdVal);
+    ApzCOB.toggleModal(elApplnScreenId + "loanProductModal");
+}
+apz.app.ELApplication.onChangeLoanProduct = function(prodDesc) {
+    selLoanProdDesc = prodDesc;
+    let selLoanProdArray = KendraApp.InstantProductResponse.filter(val => (val.productDtls.description === selLoanProdDesc));
+    if (selLoanProdArray.length > 0) {
+        tempObj = selLoanProdArray[0];
+        instantLoanDetailsObj.selEligibleLoanDtls = tempObj.productDtls;
+        if (apz.isNull(tempObj.productDtls.intRate)) {
+            tempObj.productDtls.intRate = 23;
+        }
+        apz.setElmValue(elApplnScreenId + "tenure", parseInt(tempObj.productDtls.term.slice(0, -1)) + " Weeks");
+        apz.setElmValue(elApplnScreenId + "interestRate", tempObj.productDtls.intRate + "%");
+        /*apz.setElmValue(elApplnScreenId + "tenure", "-");
+        apz.setElmValue(elApplnScreenId + "repayFreq", "-");
+        apz.setElmValue(elApplnScreenId + "upfrontCharges", "-");*/
+    }
+};
+apz.app.ELApplication.confirmWithOtp = function() {
+    if (!apz.app.ELApplication.validateFields()) {
+        KendraApp.currentLoanAppRequest = {};
+        instantLoanDetailsObj.disburseMode = {
+            "id": 1,
+            "idDesc": 'CASH'
+        };
+        instantLoanDetailsObj.repayFrequency = {
+            "id": 1,
+            "idDesc": 'WEEKLY'
+        };
+        instantLoanDetailsObj.chargeAndBreakupDtls = {
+            "loanAmt": instantLoanDetailsObj.selEligibleLoanDtls.amountDefault,
+            "aprxLoanCharges": (parseInt(ApzCOB.calAmtInPercentage(instantLoanDetailsObj.selEligibleLoanDtls.intRate, instantLoanDetailsObj
+                .selEligibleLoanDtls.amountDefault)) + parseInt(ApzCOB.calAmtInPercentage(instantLoanDetailsObj.selEligibleLoanDtls
+                .insurancePercentage, instantLoanDetailsObj.selEligibleLoanDtls.amountDefault))).toString(),
+            "loanProcessingFee": ApzCOB.calAmtInPercentage(instantLoanDetailsObj.selEligibleLoanDtls.intRate, instantLoanDetailsObj
+                .selEligibleLoanDtls.amountDefault),
+            "aprxLoanAmt": (instantLoanDetailsObj.selEligibleLoanDtls.amountDefault - (parseInt(ApzCOB.calAmtInPercentage(
+                    instantLoanDetailsObj.selEligibleLoanDtls.intRate, instantLoanDetailsObj.selEligibleLoanDtls.amountDefault)) +
+                parseInt(ApzCOB.calAmtInPercentage(instantLoanDetailsObj.selEligibleLoanDtls.insurancePercentage,
+                    instantLoanDetailsObj.selEligibleLoanDtls.amountDefault)))).toString(),
+            "aprxInstallmentAmt": ""
+        };
+        KendraApp.selectedELCustomer.instantLoanDetailsObj = instantLoanDetailsObj;
+        KendraApp.currentLoanAppRequest = ApzCOB.createInstantLoanRequest();
+        ApzCOB.toggleModal(elApplnScreenId + "mobConfirmModal");
+    }
+}
+apz.app.ELApplication.validateFields = function() {
+    tempFlag = false;
+    if (apz.getElmValue(elApplnScreenId + "loanProductVal") === "") {
+        tempFlag = true;
+        $("#" + elApplnScreenId + "loanProductValErrorDiv").removeClass("sno");
+    } else {
+        $("#" + elApplnScreenId + "loanProductValErrorDiv").addClass("sno");
+    }
+    return tempFlag;
+}
+apz.app.ELApplication.generateOtp = function() {
+    var req = {
+        "apiRequest": {
+            "interfaceName": "GenerateOTPAndSendSMS",
+            "appId": apz.appId,
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "payload": {}
+            }
+        }
+    }
+    req.apiRequest.requestObj.actionType = "OTP_SEND";
+    req.apiRequest.requestObj.mobileNo = "9877771911";
+    req.apiRequest.requestObj.workflowId = "GenerateOTPAndSendSMS";
+    req.apiRequest.requestObj.interfaceName = "GenerateOTPAndSendSMS";
+    req.apiRequest.workflowId = "GenerateOTPAndSendSMS";
+    req.apiRequest.interfaceName = "GenerateOTPAndSendSMS";
+    window.KendraApp.Transpayload.req = req;
+    ApzCOB.serverBuildParam(gAppId, "WorkFlowService", "N", "N", req, true, apz.app.ELApplication.generateOtpCB);
+};
+apz.app.ELApplication.generateOtpCB = function(params) {
+    apz.stopLoader();
+    if (ApzCOB.handleServiceCallBacks(params)) {
+        if (!apz.isNull(params.res.APZCBO__WorkFlowService_Res.apiResponse.ResponseBody.responseObj)) {
+            var otpRes = JSON.parse(params.res.APZCBO__WorkFlowService_Res.apiResponse.ResponseBody.responseObj);
+            otpRes = JSON.parse(otpRes.apiResponse.ResponseBody.responseObj).GenerateOTP;
+            window.KendraApp.Transpayload.otpResObj = otpRes;
+            window.KendraApp.Transpayload.Module = "INSTANT LOAN";
+            var data = [];
+            data.push(KendraApp.currentLoanAppRequest.applicationdtls);
+            var req = {
+                "apiRequest": {
+                    "interfaceName": "ValidateOTPAndInstantLoan",
+                    "appId": gAppId,
+                    "userId": LoggedInUserDetails.userID,
+                    "requestObj": {
+                        //"applicationId": KendraApp.currentLoanAppRequest.applicationdtls.applicationId,
+                        //"versionNo": KendraApp.currentLoanAppRequest.applicationdtls.versionNo,
+                        "applicationdtls": data,
+                        "schedulerEnabled": 'N',
+                        "otp": '',
+                        "RefNo": '',
+                    }
+                }
+            }
+            req.apiRequest.workflowId = "ValidateOTPAndInstantLoan";
+            req.apiRequest.interfaceName = "ValidateOTPAndInstantLoan";
+            KendraApp.WorkflowRequest = req;
+            ApzCOB.LaunchAuthentication("", "EMERGE__ELApplication__mobConfirmModal", "EMERGE__ELApplication__AuthenticateBaseDiv",
+                "apz.app.ELApplication.cancelAuthentication", "apz.app.ELApplication.validateOtpCB", req, 'OTP',
+                "apz.app.ELApplication.failureFn");
+        }
+    }
+};
+apz.app.ELApplication.failureFn = function(params) {
+    apz.stopLoader();
+};
+apz.app.ELApplication.cancelAuthentication = function(params) {
+    apz.stopLoader();
+};
+apz.app.ELApplication.validateOtpCB = function(params) {
+    apz.stopLoader();
+    var instLoanResp = JSON.parse(params.res["APZCBO__WorkFlowService_Res"].APZCBO__CreateLoanApplication.apiResponse.ResponseBody.responseObj);
+    KendraApp.selectedELCustomer.isInstantLoanDisbursed = true;
+    KendraApp.selectedELCustomer.applicationId = instLoanResp.applicationId;
+    KendraApp.selectedELCustomer.versionNo = instLoanResp.versionNo;
+    ApzCOB.launchMicroApp("SUCCES", "SuccessScreen", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedELCustomer);
+}

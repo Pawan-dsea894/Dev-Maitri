@@ -1,0 +1,497 @@
+var screenId = 'Income__KycDetails__';
+var Validation = true;
+var isMinor = false;
+var drivingDob = '';
+var preRow = '';
+var RpcPendingCust = '';
+var fromRPCPending = false;
+apz.app.KycDetails.existingMem = false;
+var kycDetailsList = [
+    /*{
+        key: "Aadhaar Card"
+    },*/
+    {
+        key: "Voter-Id"
+    }, {
+        key: "Pan Card"
+    }, {
+        key: "Driver\'s License"
+    }
+]
+var kycName = "";
+var rowNo = "";
+var inputField = "";
+var SelGender = '';
+apz.app.onLoad_KycDetails = function(params) {
+    // Initialization logic if needed
+    // KendraApp = params.KendraApp;
+    rowNo = params.rowNo;
+    apz.app.KycDetails.existingMem = params.existingMem;
+};
+apz.app.onShown_KycDetails = function(params) {
+    // KendraApp = params.KendraApp;
+    kycName = params.globalKycName;
+    rowNo = params.rowNo;
+    gApzCOB.addedFamilyMemberObj.rowNo = rowNo;
+    if (params.fromRPCPending) {
+        RpcPendingCust = params;
+        fromRPCPending = true;
+        //  IncomeApp.payload = params.custDtls.payload;
+        gApzCOB.addedFamilyMembersArray = JSON.parse(JSON.stringify(IncomeApp.payload.earnings))
+    }
+    $('#Income__IncomeAssessment__selfDeclareIncRow ').addClass('sno');
+    $('#' + screenId + 'kycRow').removeClass('sno');
+    apz.data.scrdata.Income__IPaintkyc_Res = kycDetailsList;
+    apz.data.loadData("IPaintkyc", 'Income');
+    /*$("#Income__KycDetails__el_img_8_0").attr("src", 'apps/styles/themes/AppzillonConsumerOnboardingBackOffice/img/front-img.png');
+    $("#Income__KycDetails__el_img_8_1").attr("src", 'apps/styles/themes/AppzillonConsumerOnboardingBackOffice/img/pan.png');
+    $("#Income__KycDetails__el_img_8_2").attr("src", 'apps/styles/themes/AppzillonConsumerOnboardingBackOffice/img/back-img.png');*/
+    $("#Income__KycDetails__el_img_8_0").attr("src", 'apps/styles/themes/AppzillonConsumerOnboardingBackOffice/img/voter-front.png');
+    $("#Income__KycDetails__el_img_8_1").attr("src", 'apps/styles/themes/AppzillonConsumerOnboardingBackOffice/img/pan.png');
+    $("#Income__KycDetails__el_img_8_2").attr("src", 'apps/styles/themes/AppzillonConsumerOnboardingBackOffice/img/dl-front.png');
+};
+apz.app.KycDetails.selectKycIds = function(pthis) {
+    let checkbox = $(pthis); // Get the checkbox element
+    let rowno = checkbox.attr('rowno'); // Get the row number
+    preRow = rowno;
+    /* if (!apz.isNull(preRow)) {
+         $("#" + screenId + "kycDocTypeInp_" + preRow).val('');
+         $("#Income__KycDetails__ct_lst_46_row_" + preRow).find("#Income__KycDetails__dobRow_row").addClass('sno');
+     }*/
+    if (!rowno) {
+        console.error('Row number attribute not found on checkbox');
+        return;
+    }
+    let parentRow = checkbox.closest('li[rowno="' + rowno + '"]');
+    let kycDetailsField = parentRow.find('[id^="Income__KycDetails__kycDetailsField_row"]');
+    if (kycDetailsField.length === 0) {
+        console.error('KYC Details Field not found for row number:', rowno);
+        return;
+    }
+    /* if (checkbox.prop('checked')) {
+         kycDetailsField.removeClass('sno'); // Show the input field and button
+     } else {
+         kycDetailsField.addClass('sno'); // Hide the input field and button
+     }*/
+    $("#Income__KycDetails__ct_lst_46 ul li").each(function(m, el) {
+        let listRow = $(el).find('span');
+        let targetSpan = $(listRow).find('span[id="' + 'Income__KycDetails__kycDetailsField_row' + '"]')
+        targetSpan.addClass('sno');
+    })
+    $("#Income__KycDetails__ct_lst_46 ul li").each(function(i, ele) {
+        if (i != rowno) {
+            $('#Income__KycDetails__el_cbx_15_' + i).prop('checked', false)
+        } else {
+            if (checkbox.prop('checked')) {
+                kycDetailsField.removeClass('sno'); // Show the input field and button
+                let listRow = $(ele).find('span');
+                let targetSpan = $(listRow).find('span[id="' + 'Income__KycDetails__kycDetailsField_row' + '"]')
+                targetSpan.removeClass('sno');
+            } else {
+                kycDetailsField.addClass('sno'); // Hide the input field and button
+            }
+        }
+    })
+    if (apz.data.scrdata.Income__IPaintkyc_Res[rowno].key === 'Driver\'s License') {
+        $("#Income__KycDetails__dobErrorMsg_ul").addClass('sno');
+        $("#Income__KycDetails__dobInputField_ul").removeClass('sno');
+    } else {
+        $("#Income__KycDetails__dobErrorMsg_ul").addClass('sno');
+        $("#Income__KycDetails__dobInputField_ul").addClass('sno');
+    }
+};
+// Function to activate submit button
+apz.app.KycDetails.activateSubmitButton = function(rowno) {
+    $('#Income__KycDetails__checkAndSubmitBtn_' + rowno).addClass('active');
+    $('#Income__KycDetails__checkAndSubmitBtn_' + rowno).removeClass('disabled', true);
+    $('#Income__KycDetails__checkAndSubmitBtn_' + rowno).prop('disabled', false);
+};
+// Function to deactivate submit button
+apz.app.KycDetails.deactivateSubmitButton = function(rowno) {
+    $('#Income__KycDetails__checkAndSubmitBtn_' + rowno).removeClass('active');
+    $('#Income__KycDetails__checkAndSubmitBtn_' + rowno).addClass('disabled', true);
+    $('#Income__KycDetails__checkAndSubmitBtn_' + rowno).prop('disabled', true);
+};
+// Function to validate KYC ID numbers
+apz.app.KycDetails.enterKycIds = function(pthis) {
+    let rowno = $(pthis).attr("rowno");
+    pthis.value = pthis.value.toUpperCase();
+    window.inputValue = pthis.value.trim(); // Get the input value and remove leading/trailing spaces
+    let kycType = $('#Income__IPaintkyc__o__Income__IPaintkyc_Res__key_' + pthis.getAttribute('rowno')).text().trim(); // Get KYC type
+    let isValid = false;
+    let errorMessage = "";
+    switch (kycType) {
+        case 'Aadhaar Card':
+            ApzCOB.fnValidatealphanumeric(pthis);
+            // Remove non-numeric characters and restrict to 12 digits
+            pthis.value = inputValue.replace(/\D/g, '').slice(0, 12);
+            isValid = /^\d{12}$/.test(pthis.value); // Ensure exactly 12 digits
+            errorMessage = "Aadhaar number must be a 12-digit number.";
+            break;
+        case 'Pan Card':
+            ApzCOB.fnValidatealphanumeric(pthis);
+            isValid = /^[A-Z]{5}\d{4}[A-Z]{1}$/.test(inputValue); // Ensure proper PAN format
+            if (inputValue.length > 10) {
+                pthis.value = inputValue.slice(0, 10); // Restrict to 10 characters
+            }
+            errorMessage = "PAN number must be a 10-character alphanumeric code (e.g., ABCDE1234F).";
+            break;
+        case 'Driver\'s License':
+            ApzCOB.fnValidatealphanumeric(pthis);
+            //isValid = /^([A-Z]{2}\d{2} ?\d{11})$/.test(inputValue); // Ensure proper driver's license format
+            if (inputValue.length >= 15) {
+                pthis.value = inputValue.slice(0, 15); // Restrict to 15 characters
+                isValid = true;
+            }
+            errorMessage = "Driver's license must be in the format DL-1420110012345 or DL14 20110012345.";
+            if (isValid) {
+                $("#Income__KycDetails__ct_lst_46_row_" + rowno).find("#Income__KycDetails__dobRow_row").removeClass('sno');
+                //$("#Income__KycDetails__dobInputField_" + rowno);
+            }
+            break;
+        case 'Voter-Id':
+            ApzCOB.fnValidatealphanumericvoter(pthis);
+            //isValid = /^([A-Z]{2}\d{2} ?\d{11})$/.test(inputValue); // Ensure proper driver's license format
+            if (inputValue.length >= 10) {
+                isValid = true;
+                pthis.value = inputValue.slice(0, 20); // Restrict to 20 characters
+            }
+            errorMessage = "Voter-Id must be a 10 to 20-character alphanumeric code.";
+            break;
+        default:
+            isValid = false;
+            errorMessage = "Invalid KYC type.";
+    }
+    // Store kycType for later use
+    apz.app.KycDetails.currentKycType = kycType;
+    apz.app.KycDetails.currentKycId = inputValue;
+    if (isValid) {
+        if (apz.app.KycDetails.currentKycType === 'Driver\'s License') {
+            if (apz.isNull($("#Income__KycDetails__dobInputField").val())) {
+                isValid = true;
+            }
+        }
+    }
+    // Display error message if input is invalid
+    let errorField = $('#Income__KycDetails__el_ipb_err_' + pthis.getAttribute('rowno')); // Ensure there's a specific error field
+    if (isValid) {
+        errorField.text('');
+        $(pthis).removeClass('error');
+        // Activate submit button or perform other actions if input is valid
+        apz.app.KycDetails.activateSubmitButton(pthis.getAttribute('rowno'));
+    } else {
+        errorField.text(errorMessage);
+        $(pthis).addClass('error');
+        // Deactivate submit button or perform other actions if input is invalid
+        apz.app.KycDetails.deactivateSubmitButton(pthis.getAttribute('rowno'));
+    }
+};
+apz.app.KycDetails.checkAndsubmit = function() {
+    if (apz.app.KycDetails.currentKycType === 'Driver\'s License') {
+        ApzCOB.toggleModal(screenId + "dobModal");
+    } else {
+        apz.app.KycDetails.checkKycDetails();
+    }
+}
+var mandFields = [screenId + "dobInputField"];
+apz.app.KycDetails.closeDOBmodal = function() {
+    if (ApzCOB.customeValidateFields(mandFields)) {
+        ApzCOB.toggleModal(screenId + "dobModal");
+        apz.app.KycDetails.checkKycDetails();
+    }
+}
+apz.app.KycDetails.checkKycDetails = function() {
+    Validation = true;
+    if (!fromRPCPending) {
+        gApzCOB.addedFamilyMembersArray.forEach(function(obj, i) {
+            if (obj.hasOwnProperty('legaldocId')) {
+                if (apz.isNull(IncomeApp.currentDocId)) {
+                    if (obj.legaldocId === apz.app.KycDetails.currentKycId.toUpperCase().trim()) {
+                        ApzCOB.fnDisplayMsg("Please enter different documentId.This is already exist", "E");
+                        Validation = false;
+                    }
+                } else {
+                    if (obj.legaldocId === apz.app.KycDetails.currentKycId.toUpperCase().trim()) {
+                        if (IncomeApp.currentDocId != apz.app.KycDetails.currentKycId.toUpperCase().trim()) {
+                            ApzCOB.fnDisplayMsg("Please enter different documentId.This is already exist", "E");
+                            Validation = false;
+                        }
+                    }
+                }
+            }
+        })
+    }
+    if (Validation) {
+        var req = {
+            "apiRequest": {
+                "interfaceName": "DedupeCheck",
+                "appId": gAppId,
+                "serviceName": "kyc",
+                "userId": LoggedInUserDetails.userID,
+                "requestObj": {
+                    // "kycId":  apz.app.KycDetails.currentKycId? apz.app.KycDetails.currentKycId:KendraApp.selectedCustomer.primaryId
+                    "kycId": apz.app.KycDetails.currentKycId
+                }
+            }
+        }
+        apz.startLoader();
+        ApzCOB.serverBuildParam(gAppId, "DedupeCheck", "N", "N", req, false, apz.app.KycDetails.kycIdsServiceCB);
+    }
+};
+/*apz.app.KycDetails.checkKycDetails = function() {
+    Validation = true;
+    if(!fromRPCPending ){
+    gApzCOB.addedFamilyMembersArray.forEach(function(obj, i) {
+        if (obj.hasOwnProperty('legaldocId')) {
+            if (obj.legaldocId === apz.app.KycDetails.currentKycId.toUpperCase().trim()) {
+                ApzCOB.fnDisplayMsg("Please enter different documentId.This is already exist", "E");
+                Validation = false;
+            }
+        }
+    })
+    }
+    if (Validation) {
+        var req = {
+            "apiRequest": {
+                "interfaceName": "DedupeCheck",
+                "appId": gAppId,
+                "serviceName": "kyc",
+                "userId": LoggedInUserDetails.userID,
+                "requestObj": {
+                    // "kycId":  apz.app.KycDetails.currentKycId? apz.app.KycDetails.currentKycId:KendraApp.selectedCustomer.primaryId
+                    "kycId": apz.app.KycDetails.currentKycId
+                }
+            }
+        }
+        apz.startLoader();
+        ApzCOB.serverBuildParam(gAppId, "DedupeCheck", "N", "N", req, false, apz.app.KycDetails.kycIdsServiceCB);
+    }
+};*/
+apz.app.KycDetails.kycIdsServiceCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            var ifaceName = ApzCOB.GetInterfaceResMap(params);
+            var response = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+            if (response.response === "Success" && response.msg === "No records available") {
+                apz.app.KycDetails.PanVoterFunc();
+            } else if (response.response === "Success" && response.hasOwnProperty('result')) {
+                if (KendraApp.selectedCustomer.customerId === response.result[0].customer_id) {
+                    apz.app.KycDetails.PanVoterFunc();
+                } else {
+                    ApzCOB.fnDisplayMsg("Record already exist for customerId " + response.result[0].customer_id + " with relation " + response
+                        .result[0].Relation, "I");
+                }
+            }
+        } else {
+            apz.stopLoader();
+            //ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_TECHNICALDIFF"), "E");
+            ApzCOB.fnDisplayMsg('The Dedupe Service is unavailable!', "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg('The Dedupe Service is unavailable!', "E");
+    }
+}
+apz.app.KycDetails.success = function() {
+    var data = {
+        kycName,
+        kycType: apz.app.KycDetails.currentKycType,
+        gender: SelGender,
+        rowNo: rowNo,
+        fromRPCPending: RpcPendingCust.fromRPCPending
+    };
+    ApzCOB.launchMicroApp('Income', 'KycSuccess', 'APZCBO__BaseScreens__BaseDIV', data);
+    //ApzCOB.launchMicroApp('Income', 'UploadKyc', 'APZCBO__BaseScreens__BaseDIV', data);
+}
+apz.app.KycDetails.backNavigateIncomeDtls = function(pthis) {
+    if (RpcPendingCust.fromRPCPending) {
+        data = RpcPendingCust.custDtls;
+        ApzCOB.launchMicroApp("Income", "RpcPending", "APZCBO__BaseScreens__BaseDIV", data);
+    } else {
+        var data = {
+            rowNo: rowNo
+        };
+        ApzCOB.launchMicroApp('Income', 'AddEarningFamilyMem', 'APZCBO__BaseScreens__BaseDIV', data);
+    }
+}
+apz.app.KycDetails.PanVoterFunc = function() {
+    var ifaceName = '';
+    if (apz.app.KycDetails.currentKycType === "Pan Card") {
+        ifaceName = "PanAuth";
+        var req = {
+            "apiRequest": {
+                "interfaceName": ifaceName,
+                "appId": gAppId,
+                "userId": LoggedInUserDetails.userID,
+                "requestObj": {
+                    "pan": apz.app.KycDetails.currentKycId
+                }
+            }
+        }
+    } else if (apz.app.KycDetails.currentKycType === "Voter-Id") {
+        ifaceName = "VoterAuth";
+        var req = {
+            "apiRequest": {
+                "interfaceName": ifaceName,
+                "appId": gAppId,
+                "userId": LoggedInUserDetails.userID,
+                "requestObj": {
+                    "requestId": "1226266363636363",
+                    "voterId": apz.app.KycDetails.currentKycId
+                }
+            }
+        }
+    } else if (apz.app.KycDetails.currentKycType === "Driver\'s License") {
+        ifaceName = "DriverLicenseVerify";
+        var req = {
+            "apiRequest": {
+                "interfaceName": ifaceName,
+                "appId": gAppId,
+                "userId": LoggedInUserDetails.userID,
+                "requestObj": {
+                    "client_ref_num": "1226266363636363",
+                    "dl_number": apz.app.KycDetails.currentKycId,
+                    "dob": $("#Income__KycDetails__dobInputField").val()
+                }
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, ifaceName, "N", "N", req, false, apz.app.KycDetails.PanVoterFuncCB);
+}
+apz.app.KycDetails.PanVoterFuncCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            var ifaceName = ApzCOB.GetInterfaceResMap(params);
+            if (params.res[ifaceName].apiResponse.ResponseHeader.ResponseCode === '0') {
+                var response = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+                if (response.error) {
+                    //if(response.error==="400"){
+                    ApzCOB.fnDisplayMsg('Invalid ' + apz.app.KycDetails.currentKycType + ' . Please try again with a valid ' + apz.app.KycDetails
+                        .currentKycType + ' again.', 'E');
+                    /*}else{
+                       ApzCOB.fnDisplayMsg('Kyc id validation failed.Please try again', 'E');  
+                    }*/
+                    return;
+                } else if (response.result_code == 103) {
+                    ApzCOB.fnDisplayMsg('Invalid ' + apz.app.KycDetails.currentKycType + ' . Please try again with a valid ' + apz.app.KycDetails
+                        .currentKycType + ' again.', 'E');
+                    return;
+                }
+                if (!apz.isObjectEmpty(response)) {
+                    if (apz.app.KycDetails.currentKycType === "Voter-Id" || apz.app.KycDetails.currentKycType === "Driver's License") {
+                        if (response.result && response.result.hasOwnProperty('gender')) { // Ensure response.result exists
+                            SelGender = response.result.gender;
+                        } else {
+                            //ApzCOB.fnDisplayMsg('Kyc id validation failed.Please try again', 'E');
+                            //return;
+                            if (kycName.toUpperCase() === "DAUGHTER") {
+                                SelGender = "FEMALE";
+                            } else if (kycName.toUpperCase() === "SON" || kycName.toUpperCase() === "SPOUSE") {
+                                SelGender = "MALE";
+                            }
+                        }
+                    }
+                    if (apz.app.KycDetails.existingMem) {
+                        gApzCOB.existingFamilyMemberObj.ValidateResp = {};
+                    } else {
+                        gApzCOB.addedFamilyMemberObj.ValidateResp = {};
+                    }
+                    if (apz.app.KycDetails.currentKycType === "Voter-Id") {
+                        if (apz.app.KycDetails.existingMem) {
+                            gApzCOB.existingFamilyMemberObj.ValidateResp = {
+                                name: !apz.isNull(response.result.name) ? response.result.name : '-',
+                                dob: response.result.hasOwnProperty('dob') ? response.result.dob : "-",
+                                legaldocName: !apz.isNull(apz.app.KycDetails.currentKycType) ? apz.app.KycDetails.currentKycType : '-',
+                                legaldocId: !apz.isNull(response.result.epic_no) ? response.result.epic_no : ''
+                            }
+                        } else {
+                            gApzCOB.addedFamilyMemberObj.ValidateResp = {
+                                name: !apz.isNull(response.result.name) ? response.result.name : '-',
+                                dob: response.result.hasOwnProperty('dob') ? response.result.dob : "-",
+                                legaldocName: !apz.isNull(apz.app.KycDetails.currentKycType) ? apz.app.KycDetails.currentKycType : '-',
+                                legaldocId: !apz.isNull(response.result.epic_no) ? response.result.epic_no : ''
+                            }
+                        }
+                    } else if (apz.app.KycDetails.currentKycType === "Pan Card") {
+                        if (apz.app.KycDetails.existingMem) {
+                            gApzCOB.existingFamilyMemberObj.ValidateResp = {
+                                name: !apz.isNull(response.result.name) ? response.result.name : '-',
+                                dob: response.result.hasOwnProperty('dob') ? response.result.dob : "-",
+                                legaldocName: !apz.isNull(apz.app.KycDetails.currentKycType) ? apz.app.KycDetails.currentKycType : '-',
+                                legaldocId: !apz.isNull(response.result.epic_no) ? response.result.epic_no : ''
+                            }
+                        } else {
+                            gApzCOB.addedFamilyMemberObj.ValidateResp = {
+                                name: !apz.isNull(response.result.name) ? response.result.name : '-',
+                                dob: response.result.hasOwnProperty('dob') ? response.result.dob : "-",
+                                legaldocName: !apz.isNull(apz.app.KycDetails.currentKycType) ? apz.app.KycDetails.currentKycType : '-',
+                                legaldocId: !apz.isNull(response.result.pan) ? response.result.pan : '-'
+                            }
+                        }
+                    } else if (apz.app.KycDetails.currentKycType === "Driver\'s License") {
+                        if (apz.app.KycDetails.existingMem) {
+                            gApzCOB.existingFamilyMemberObj.ValidateResp = {
+                                name: !apz.isNull(response.result.details_of_driving_licence.name) ? response.result
+                                    .details_of_driving_licence.name : '-',
+                                dob: response.result.hasOwnProperty('dob') ? response.result.dob : "-",
+                                legaldocName: !apz.isNull(apz.app.KycDetails.currentKycType) ? apz.app.KycDetails.currentKycType : '-',
+                                legaldocId: !apz.isNull(response.result.dl_number) ? response.result.dl_number : ''
+                            }
+                        } else {
+                            gApzCOB.addedFamilyMemberObj.ValidateResp = {
+                                name: !apz.isNull(response.result.name) ? response.result.details_of_driving_licence.name : '-',
+                                dob: response.result.hasOwnProperty('dob') ? response.result.dob : "-",
+                                legaldocName: !apz.isNull(apz.app.KycDetails.currentKycType) ? apz.app.KycDetails.currentKycType : '-',
+                                legaldocId: !apz.isNull(response.result.dl_number) ? response.result.dl_number : '-'
+                            }
+                        }
+                    }
+                    apz.app.KycDetails.success();
+                    if (apz.app.KycDetails.existingMem) {
+                        gApzCOB.existingFamilyMemberObj.legaldocName = apz.app.KycDetails.currentKycType;
+                        gApzCOB.existingFamilyMemberObj.legaldocId = apz.app.KycDetails.currentKycId;
+                    } else {
+                        gApzCOB.addedFamilyMemberObj.legaldocName = apz.app.KycDetails.currentKycType;
+                        gApzCOB.addedFamilyMemberObj.legaldocId = apz.app.KycDetails.currentKycId;
+                    }
+                } else {
+                    ApzCOB.fnDisplayMsg('Kyc id validation failed.Please try again', 'E');
+                }
+            } else {
+                ApzCOB.fnDisplayMsg('Kyc id validation failed.Please try again', 'E');
+            }
+        } else {
+            ApzCOB.fnDisplayMsg('The Auth Service is unavailable!', "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg('The Auth Service is unavailable!', "E");
+    }
+}
+apz.app.KycDetails.checkDOb = function(pthis) {
+    let rowno = $(pthis).attr("rowno");
+    let DOB = '';
+    DOB = $("#Income__KycDetails__dobInputField").val()
+    if (!apz.isNull(DOB)) {
+        var age = '';
+        var Minor = 18;
+        age = ApzCOB.ageCalculator(DOB);
+        isMinor = (age < parseInt(Minor));
+        if (isMinor) {
+            $("#" + "Income__KycDetails__" + 'dobErrorMsg_ul').removeClass('sno');
+            $("#" + "Income__KycDetails__" + 'dobErrorMsg').text('Dob should be Major');
+            $('#Income__KycDetails__checkAndSubmitBtn_' + preRow).removeClass('active');
+            $('#Income__KycDetails__checkAndSubmitBtn_' + preRow).addClass('disabled', false);
+            $('#Income__KycDetails__checkAndSubmitBtn_' + preRow).prop('disabled', true);
+        } else {
+            drivingDob = $("#Income__KycDetails__dobInputField").val();
+            $("#" + "Income__KycDetails__" + 'dobErrorMsg_ul').addClass('sno');
+            $('#Income__KycDetails__checkAndSubmitBtn_' + preRow).addClass('active');
+            $('#Income__KycDetails__checkAndSubmitBtn_' + preRow).removeClass('disabled', true);
+            $('#Income__KycDetails__checkAndSubmitBtn_' + preRow).prop('disabled', false);
+        }
+    }
+}

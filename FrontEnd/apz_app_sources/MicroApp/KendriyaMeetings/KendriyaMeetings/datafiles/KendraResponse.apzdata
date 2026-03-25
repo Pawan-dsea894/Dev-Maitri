@@ -1,0 +1,198 @@
+[
+  {
+    "kendraId": "301890",
+    "branchId": "IN0010026",
+    "kendraName": "Basha Nagara 12th Cross 2",
+    "meetingDate": "2024-08-29 00:00:00",
+    "meetingDay": "MON",
+    "startTime": "08:00 AM",
+    "kmId": "GK25797",
+    "lat": "",
+    "long": "",
+    "colldtls": {
+      "collId": "K-1037292-1-20240827",
+      "collDate": "20240827",
+      "groups": [
+        {
+          "id": 1402294,
+          "totalDue": 131217,
+          "totalAdv": 25548,
+          "netDue": 105669,
+          "totCollAmt": 0, 
+          "members": [
+            {
+              "id": "1116549",
+              "name": "Shamshad S",
+			  "depname":"Arun Das",
+              "totalDue": 957,
+              "totalAdv": 2554,
+              "netDue": 0,
+              "collAmount": 0,
+              "attend": "P",
+              "parflg": "Y",
+              "parAmt": "",
+              "loans": [
+                {
+                  "id": "LD2304877043",
+                  "dueAmt": 957,
+                  "prodCode": "GL.IGL.PRAGATI.PLUS.2",
+                  "osAmt": 10423,
+                  "cashAmt": 0,
+				  "upiAmt":0,
+                  "odAmt": 0
+                }
+              ]
+            },
+            {
+              "id": "1116549",
+              "name": "Shamshad S",
+              "totalDue": 957,
+              "totalAdv": 2554,
+              "netDue": 0,
+              "collAmount": 0,
+              "attend": "P",
+              "parflg": "Y",
+              "parAmt": "",
+              "loans": [
+                {
+                  "id": "LD2304877043",
+                  "dueAmt": 957,
+                  "prodCode": "GL.IGL.PRAGATI.PLUS.2",
+                  "osAmt": 10423,
+                  "cashAmt": 0,
+				  "upiAmt":0,
+                  "odAmt": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "kendraId": "32077",
+    "branchId": "IN0010044",
+    "kendraName": "Valmikinagara9thCrs",
+    "meetingDate": "2024-08-29 00:00:00",
+    "meetingDay": "MON",
+    "startTime": "08:00 AM",
+    "kmId": "GK15661",
+    "lat": "",
+    "long": "",
+    "colldtls": {
+      "collId": "K-1037292-1-20240827",
+      "collDate": "20240828",
+      "groups": [
+        {
+          "id": 32221,
+          "totalDue": 131217,
+          "totalAdv": 25548,
+          "netDue": 105669,
+          "totCollAmt": 0, 
+          "members": [
+            {
+              "id": "1116549",
+              "name": "Shamshad S",
+			  "depname":"Arun Das",
+              "totalDue": 957,
+              "totalAdv": 2554,
+              "netDue": 0,
+              "collAmount": 0,
+              "attend": "P",
+              "parflg": "Y",
+              "parAmt": "",
+              "loans": [
+                {
+                  "id": "LD2304877043",
+                  "dueAmt": 957,
+                  "prodCode": "GL.IGL.PRAGATI.PLUS.2",
+                  "osAmt": 10423,
+                  "cashAmt": 0,
+				  "upiAmt":0,
+                  "odAmt": 0
+                }
+              ]
+            },
+            {
+              "id": "1116549",
+              "name": "Shamshad S",
+              "totalDue": 957,
+              "totalAdv": 2554,
+              "netDue": 0,
+              "collAmount": 0,
+              "attend": "P",
+              "parflg": "Y",
+              "parAmt": "",
+              "loans": [
+                {
+                  "id": "LD2304877043",
+                  "dueAmt": 957,
+                  "prodCode": "GL.IGL.PRAGATI.PLUS.2",
+                  "osAmt": 10423,
+                  "cashAmt": 0,
+				  "upiAmt":0,
+                  "odAmt": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 32222,
+          "totalDue": 131217,
+          "totalAdv": 25548,
+          "netDue": 105669,
+          "totCollAmt": 0, 
+          "members": [
+            {
+              "id": "1116549",
+              "name": "Shamshad S",
+			  "depname":"Arun Das",
+              "totalDue": 957,
+              "totalAdv": 2554,
+              "netDue": 0,
+              "collAmount": 0,
+              "attend": "P",
+              "parflg": "Y",
+              "parAmt": "",
+              "loans": [
+                {
+                  "id": "LD2304877043",
+                  "dueAmt": 957,
+                  "prodCode": "GL.IGL.PRAGATI.PLUS.2",
+                  "osAmt": 10423,
+                  "cashAmt": 0,
+				  "upiAmt":0,
+                  "odAmt": 0
+                }
+              ]
+            },
+            {
+              "id": "1116549",
+              "name": "Shamshad S",
+              "totalDue": 957,
+              "totalAdv": 2554,
+              "netDue": 0,
+              "collAmount": 0,
+              "attend": "P",
+              "parflg": "Y",
+              "parAmt": "",
+              "loans": [
+                {
+                  "id": "LD2304877043",
+                  "dueAmt": 957,
+                  "prodCode": "GL.IGL.PRAGATI.PLUS.2",
+                  "osAmt": 10423,
+                  "cashAmt": 0,
+				  "upiAmt":0,
+                  "odAmt": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

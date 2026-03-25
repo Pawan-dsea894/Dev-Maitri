@@ -1,0 +1,122 @@
+var captchaRef, captchaString;
+var screenID = "Authen__CaptchaAuthentication__";
+apz.app.onLoad_CaptchaAuthentication = function(params) {
+    window.SecureImageparams = params;
+    if (!ApzRMB.chkprevscrPageBC(apz.childScr)) {
+        ApzRMB.addscrPageBC(apz.childScr);
+    }
+};
+apz.app.onShown_CaptchaAuthentication = function(params) {
+    apz.startLoader();
+    ApzRMB.showSubHeader("LIT_AUTH_TRANS");
+    /*$("#header").removeClass("sno");
+    $("#sidebar").removeClass("sno");
+    $("#sidebar").removeClass("apz-nav-open");
+    $(".rolepage ").addClass("landingpage");
+    $(".rolepage ").removeClass("apz-nav-push");*/
+    apz.app.CaptchaAuthentication.GenerateImageCaptcha();
+    $("#" + screenID +"Captchacancel").attr("onclick", SecureImageparams.cancelCB);
+    $("#" + screenID + "refreshicon").attr("onclick", "apz.app.CaptchaAuthentication.RefreshImageCaptcha();");
+};
+apz.app.CaptchaAuthentication.GenerateImageCaptcha = function() {
+    apz.currAppId = apz.appId;
+    var request = {};
+    request.appzillonGenerateCaptchaRequest = {};
+    request.appzillonGenerateCaptchaRequest.interfaceId = gAppId + "__ValidateImageCaptcha"; //gAppId + "__GenImageCaptcha";
+    request.appzillonGenerateCaptchaRequest.appId = apz.appId;
+    request.appzillonGenerateCaptchaRequest.sessionId = "";
+    var params = {};
+    params.callBackObj = this;
+    params.buildReq = "N";
+    params.paintResp = "N";
+    params.req = request;
+    params.ifaceName = "appzillonGenerateCaptcha";
+    params.async = false;
+    params.internal = true;
+    params.callBack = apz.app.CaptchaAuthentication.refreshcaptchaCallback;
+    apz.server.callServer(params);
+};
+// apz.app.CaptchaAuthentication.captchaCallback = function(params) {
+//     apz.currAppId = "Authen";
+//     apz.stopLoader();
+//     captchaRef = params.res.appzillonGenerateCaptchaResponse.captchaRef;
+//     captchaString = params.res.appzillonGenerateCaptchaResponse.captchaString;
+//     if (captchaString !== "") {
+//         $("#Authen__CaptchaAuthentication__SecureImage").attr('src', 'data:image/png;base64,' + captchaString + '');
+//     }
+// };
+apz.app.CaptchaAuthentication.RefreshImageCaptcha = function() {
+    apz.startLoader();
+    apz.currAppId = apz.appId;
+    var request = {};
+    request.appzillonGenerateCaptchaRequest = {};
+    request.appzillonGenerateCaptchaRequest.interfaceId = gAppId + "__ValidateImageCaptcha"; //gAppId + "__GenImageCaptcha";
+    request.appzillonGenerateCaptchaRequest.appId = apz.appId;
+    request.appzillonGenerateCaptchaRequest.sessionId = "";
+    request.appzillonGenerateCaptchaRequest.captchaRef = captchaRef;
+    var params = {};
+    params.callBackObj = this;
+    params.buildReq = "N";
+    params.paintResp = "N";
+    params.req = request;
+    params.ifaceName = "appzillonGenerateCaptcha";
+    params.async = false;
+    params.internal = true;
+    params.callBack = apz.app.CaptchaAuthentication.refreshcaptchaCallback;
+    apz.server.callServer(params);
+};
+apz.app.CaptchaAuthentication.refreshcaptchaCallback = function(params) {
+    apz.currAppId = "Authen";
+    apz.stopLoader();
+    captchaRef = params.res.appzillonGenerateCaptchaResponse.captchaRef;
+    captchaString = params.res.appzillonGenerateCaptchaResponse.captchaString;
+    if (captchaString !== "") {
+        $("#" + screenID +"SecureImage").attr('src', 'data:image/png;base64,' + captchaString + '');
+    }
+};
+apz.app.CaptchaAuthentication.ValidateImageCaptcha = function() {
+    /*ApzRMB.executeFunByName(SecureImageparams.successCB);
+    apz.stopLoader();*/
+    apz.startLoader();
+    apz.currAppId = apz.appId;
+    var request = {};
+    var params = {};
+    //request.userId = apz.admin.appglobals.userId;
+    request.appId = apz.currAppId;
+    params.callBackObj = this;
+    params.buildReq = "N";
+    params.paintResp = "N";
+    params.req = request;
+    params.ifaceName = "ValidateImageCaptcha";
+    params.async = false;
+    params.callBack = apz.app.CaptchaAuthentication.validatecaptchaCallback;
+    params.captchaRef = captchaRef;
+    params.captchaString = apz.getElmValue(screenID + 'captchastring');
+    apz.server.callServer(params);
+};
+apz.app.CaptchaAuthentication.validatecaptchaCallback = function(params) {
+    try {
+        apz.currAppId = "Authen";
+        var ifaceName = ApzRMB.GetInterfaceResMap(params);
+        if (params.res[ifaceName].validateCaptchaResponse.captchaStatus === "success") {
+            ApzRMB.executeFunByName(SecureImageparams.successCB);
+        } else {
+            apz.stopLoader();
+            $("#" + screenID +"captchastring").val("");
+            ApzRMB.fnDisplayMsg(params.errors[0].errorMessage, "E", apz.app.CaptchaAuthentication.RefreshImageCaptcha);
+            //ApzRMB.fnDisplayMsg("Oops! Something went wrong, Please try again later", "E", apz.app.CaptchaAuthentication.RefreshImageCaptcha);
+        }
+    } catch (e) {
+        apz.stopLoader();
+        $("#" + screenID +"captchastring").val("");
+        // ApzRMB.fnDisplayMsg("Incorrect Captcha or Something went wrong", "E", apz.app.CaptchaAuthentication.RefreshImageCaptcha);
+        ApzRMB.messageDisplayFunction('APRMB-CAPTCHA',"E",apz.app.CaptchaAuthentication.RefreshImageCaptcha)
+    }
+};
+apz.app.CaptchaAuthentication.onclicksecimagecancel = function() {
+    ApzRMB.toggleModal(screenID + "SecImagecancelmodal");
+};
+apz.app.CaptchaAuthentication.onclicksecimageyes = function() {
+    ApzRMB.executeFunByName(SecureImageparams.cancelCB);
+    //ApzRMB.launchMicroApp("Authen", "SecureImage", gPreLoginBaseDiv, "");
+};

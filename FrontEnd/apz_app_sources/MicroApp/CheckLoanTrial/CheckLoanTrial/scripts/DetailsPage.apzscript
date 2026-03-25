@@ -1,0 +1,11 @@
+var screenId = "";
+apz.app.onLoad_DetailsPage = function(params) {
+  
+}
+apz.app.onShown_DetailsPage = function() {
+    $("#header").addClass("sno");
+    $("#footer").addClass("sno");
+}
+apz.app.DetailsPage.BackNavigate = function (){
+    ApzCOB.dashboardAppListAPI(); 
+}

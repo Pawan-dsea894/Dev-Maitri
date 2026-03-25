@@ -1,0 +1,182 @@
+var screenId = "Dashbo__DashboardActivity__";
+var Pagination_Bar = 'pagination-bar';
+var PagBtnInp = 'row_acc_pagiButtons :input';
+var configLimit = 10;
+apz.app.onLoad_DashboardActivity = function (params) {
+      window.pageNo = 1;
+    console.log("Received params:", params);
+    apz.app.DashboardActivity.performanceData = params || {};
+};
+apz.app.onShown_DashboardActivity = function (params) {
+    $("#header").addClass("sno");
+    $("#footer").addClass("sno");
+    if (params?.clickedText) {
+        $('#Dashbo__DashboardActivity__el_txt_484').text(params.clickedText);
+    }
+    apz.app.DashboardActivity.funcPagination();
+    apz.app.DashboardActivity.paintPerformanceData();
+};
+apz.app.DashboardActivity.onCLickBackNav = function(){
+    window.showActivity = true;
+    ApzCOB.dashboardAppListAPI();
+}
+apz.app.DashboardActivity.paintPerformanceData = function () {
+    let data = apz.app.DashboardActivity.performanceData;
+    let resultList = [];
+    if (data.pendingData) {
+        resultList = data.pendingData;
+    } else if (data.disbursementPending) {
+        resultList = data.disbursementPending;
+    } else if (data.disbursementToday) {
+        resultList = data.disbursementToday;
+    } else if (data.todaySancCBApproved) {
+        resultList = data.todaySancCBApproved;
+    }else if(data.loanInputData){
+        resultList = data.loanInputData;
+    }else if(data.cbApproved){
+        resultList = data.cbApproved;
+    }else if(data.cbPending){
+        resultList = data.cbPending;
+    }else if(data.cbRejected){
+        resultList = data.cbRejected;
+    }else if(data.draftApplications){
+        resultList = data.draftApplications;
+    }else if(data.crtLoans){
+        resultList = data.crtLoans;
+    }else if(data.disbursedTodayList){
+        resultList = data.disbursedTodayList;
+    }else if(data.loansToBeDisbursedTodayList){
+        resultList = data.loansToBeDisbursedTodayList;
+    }else if(data.iglRenewalTodayList){
+        resultList = data.iglRenewalTodayList;
+    }else if(data.outstandingZeroList){
+        resultList = data.outstandingZeroList;
+    }
+    apz.data.scrdata.Dashbo__IPaintActivities_Res = resultList;
+    if (!resultList || resultList.length === 0) {
+        $('#Dashbo__DashboardActivity__ct_lst_63').addClass('sno'); 
+        $('#Dashbo__DashboardActivity__ct_frm_22').removeClass('sno'); 
+    } 
+    // else {
+    //     apz.data.loadData("IPaintActivities", "Dashbo"); 
+    // }
+};
+apz.app.DashboardActivity.onSearch = function (othis){
+    ApzCOB.fnDisplayMsg("Feature coming soon!", "I");
+}
+apz.app.DashboardActivity.onCLickFilterTabs = function (pthis){
+    ApzCOB.fnDisplayMsg("Feature coming soon!", "I");
+}
+apz.app.DashboardActivity.funcPagination = function () {
+    let data = apz.app.DashboardActivity.performanceData;
+    let dataList = [];
+    if (data.pendingData) dataList = data.pendingData;
+    else if (data.disbursementPending) dataList = data.disbursementPending;
+    else if (data.disbursementToday) dataList = data.disbursementToday;
+    else if (data.todaySancCBApproved) dataList = data.todaySancCBApproved;
+    else if (data.loanInputData) dataList = data.loanInputData;
+    else if (data.cbApproved) dataList = data.cbApproved;
+    else if (data.cbPending) dataList = data.cbPending;
+    else if (data.cbRejected) dataList = data.cbRejected;
+    else if (data.draftApplications) dataList = data.draftApplications;
+    else if (data.crtLoans) dataList = data.crtLoans;
+    else if (data.disbursedTodayList) dataList = data.disbursedTodayList;
+    else if (data.loansToBeDisbursedTodayList) dataList = data.loansToBeDisbursedTodayList;
+    else if (data.iglRenewalTodayList) dataList = data.iglRenewalTodayList;
+    totalItems = dataList.length;
+    if (!apz.isNull(dataList) && totalItems > 0) {
+        $('#' + screenId + 'pageForm').removeClass("sno");
+        window.totalPaginationPages = Math.ceil(totalItems / configLimit);
+
+        if (totalItems > configLimit) {
+            apz.app.DashboardActivity.InitialisePagination(totalItems, dataList);
+        } else {
+            apz.app.DashboardActivity.HidePagination(dataList);
+        }
+
+        window.currentPageNumber = window.pageNo || 1;
+    } else {
+        apz.app.DashboardActivity.HidePagination(dataList);
+    }
+};
+apz.app.DashboardActivity.InitialisePagination = function (totalItems, dataList) {
+    $('#' + screenId + PagBtnInp).attr("disabled", false);
+    $('#' + screenId + 'row_acc_pagiButtons').css('opacity', '1');
+    window.totalPaginationPages = Math.ceil(totalItems / configLimit);
+    $('#' + screenId + 'remPages').val("of " + window.totalPaginationPages);
+    let PageArr = [];
+    for (let i = 1; i <= totalPaginationPages; i++) {
+        PageArr.push({ value: i, desc: i });
+    }
+    apz.populateDropdown(document.getElementById(screenId + 'dropDownPage'), PageArr);
+    window.pageNo = window.pageNo || 1;
+    let paginationBar = $('#' + screenId + "pagination-bar");
+    if (paginationBar.data('pagination')) {
+        paginationBar.pagination('destroy');
+    }
+    paginationBar.pagination({
+        dataSource: dataList,
+        totalNumber: totalItems,
+        pageSize: configLimit,
+        pageNumber: window.pageNo,
+        callback: function (data, pagination) {
+            window.pageNo = pagination.pageNumber;
+            $('#' + screenId + 'dropDownPage').val(window.pageNo);
+            apz.app.DashboardActivity.displayRecords(dataList);
+        }
+    });
+    apz.app.DashboardActivity.displayRecords(dataList);
+};
+apz.app.DashboardActivity.displayRecords = function (dataList) {
+    const itemsPerPage = configLimit;
+    let startIndex = (window.pageNo - 1) * itemsPerPage;
+    let endIndex = startIndex + itemsPerPage;
+    const currentItems = dataList.slice(startIndex, endIndex);
+    $("#" + screenId + "listCount").text(currentItems.length + ' of ' + dataList.length);
+    if (dataList.length > configLimit) {
+        $(".paginationjs").addClass("sno");
+        $('#' + screenId + 'pagination-bar').removeClass("sno");
+        $('#Dashbo__DashboardActivity__gr_col_205').removeClass("sno"); 
+    } else {
+        $(".paginationjs").addClass("sno");
+        $('#' + screenId + 'pagination-bar').addClass("sno");
+        $('#Dashbo__DashboardActivity__gr_col_205').addClass("sno");
+    }
+    $('#' + screenId + 'pageForm').removeClass("sno");
+    apz.data.scrdata.Dashbo__IPaintActivities_Res = currentItems;
+    apz.data.loadData("IPaintActivities", "Dashbo");
+};
+apz.app.DashboardActivity.HidePagination = function (dataList) {
+    if (totalItems <= configLimit) {
+        $('#' + screenId + PagBtnInp).attr("disabled", true);
+        $('#' + screenId + 'row_acc_pagiButtons').css('opacity', '0.3');
+    }
+    $('#' + screenId + Pagination_Bar).addClass("sno");
+    apz.data.scrdata.Dashbo__IPaintActivities_Res = dataList;
+    apz.data.loadData("IPaintActivities", "Dashbo");
+};
+apz.app.DashboardActivity.FuncPaginationPrev = function () {
+    if (window.pageNo > 1) {
+        window.pageNo--; 
+        $('#' + screenId + 'dropDownPage').val(window.pageNo);
+        $('#' + screenId + "pagination-bar").pagination('go', window.pageNo); 
+    }
+};
+
+apz.app.DashboardActivity.FuncPaginationNext = function () {
+    if (window.pageNo < window.totalPaginationPages) {
+        window.pageNo++; 
+        $('#' + screenId + 'dropDownPage').val(window.pageNo); 
+        $('#' + screenId + "pagination-bar").pagination('go', window.pageNo); 
+    }
+};
+
+apz.app.DashboardActivity.OnChangeValue = function (pthis) {
+    const newPage = Number(pthis.value);
+    if (!isNaN(newPage) && newPage >= 1 && newPage <= window.totalPaginationPages) {
+        window.pageNo = newPage;
+        $('#' + screenId + "pagination-bar").pagination('go', window.pageNo);
+    } else {
+        ApzCOB.fnDisplayMsg("Invalid page number", "W");
+    }
+};

@@ -1,0 +1,67 @@
+var SuccessScreen = "Collec__SuccessScreen__";
+var paintData = '';
+var statusNode = "#Collec__IPaintSuccessScreenDetails__o__Collec__IPaintSuccessScreenDetails_Res__value_";
+apz.app.onLoad_SuccessScreen = function(params) {
+    // Initialization logic if needed
+};
+apz.app.onShown_SuccessScreen = function(params) {
+    //   $('#header').addClass('sno');
+    //  $('#footer').addClass('sno');
+    paintData = params;
+    // apz.app.SuccessScreen.moreDetailsFunc();
+    if (paintData.fromScreen === "CollectionDeposit") {
+        $("#" + SuccessScreen + "selValue").text(ApzCOB.getDescfromLitCode("LIT_COL_LBL_TO") + paintData.depPoints);
+        $("#" + SuccessScreen + "selRefnoValue").text(paintData.refNo);
+    } else {
+        $("#" + SuccessScreen + "successHeaderText").text(ApzCOB.getDescfromLitCode("LIT_COL_LBL_VERIFIED"));
+        $("#" + SuccessScreen + "selValue").text(ApzCOB.getDescfromLitCode("LIT_COL_LBL_SENT"));
+        $("#" + SuccessScreen + "RefnoText").text('for ' + paintData.kmName + ' | ' + paintData.kendraCount + ' kendras' + '( ₹ ' + ApzCOB
+            .fn_FormatAmount(paintData.totalColAmt) + ')');
+        $("#" + SuccessScreen + "selRefnoValue").text('');
+    }
+}
+apz.app.SuccessScreen.moreDetailsFunc = function() {
+    let paintList = paintData.data;
+    if (paintData.fromScreen === "CollectionDeposit") {
+        if ($("#" + SuccessScreen + "depPointSuccesForm").is(':visible')) {
+            $("#" + SuccessScreen + "depPointSuccesForm").addClass('sno');
+            $("#" + SuccessScreen + "moreDetailsIcon").removeClass('active');
+        } else {
+            $("#" + SuccessScreen + "moreDetailsIcon").addClass('active');
+            $("#" + SuccessScreen + "succDepAmt").text("₹" + ApzCOB.fn_FormatAmount(paintList.DepositAmount));
+            $("#" + SuccessScreen + "succRefNo").text(paintList.DepositPointRefno);
+            $("#" + SuccessScreen + "depPointSuccesForm").removeClass('sno');
+        }
+    } else {
+        if ($("#" + SuccessScreen + "moreDetList").is(':visible')) {
+            $("#" + SuccessScreen + "moreDetList").addClass('sno');
+            $("#" + SuccessScreen + "moreDetailsIcon").removeClass('active');
+        } else {
+            $("#" + SuccessScreen + "moreDetList").removeClass('sno');
+            $("#" + SuccessScreen + "moreDetailsIcon").addClass('active');
+            let combinedData = Object.keys(paintList).map((key, index) => ({
+                key: key !== 'UPI' ? key.replace(/([A-Z])/g, ' $1').trim() : 'UPI',
+                value: Object.values(paintList)[index]
+            }));
+            apz.data.scrdata.Collec__IPaintSuccessScreenDetails_Res = {};
+            apz.data.scrdata.Collec__IPaintSuccessScreenDetails_Res = combinedData;
+            apz.data.loadData("IPaintSuccessScreenDetails", 'Collec');
+            combinedData.forEach(function(obj, i) {
+                if (obj.key === 'Status') {
+                    if (obj.value === "APPROVAL PENDING BY BM") {
+                        $(statusNode + i).addClass('bg-info');
+                    } else if (obj.value === "PUSHBACK") {
+                        $(statusNode + i).addClass('bg-dark-err');
+                    }
+                }
+                if (obj.key === "Amount Disbursed") {
+                    $(statusNode + i).parents().eq(1).addClass('brd-btm');
+                }
+            })
+        }
+    }
+}
+apz.app.SuccessScreen.viewImage = function() {
+    ApzCOB.toggleModal(SuccessScreen + "imageModalPop");
+    $("#" + SuccessScreen + "depImage").attr('src', 'data:image/' + 'png' + ';base64,' + paintData.base64Value);
+}

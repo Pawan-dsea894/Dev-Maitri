@@ -1,0 +1,28 @@
+var CGDScrId = "KenMet__CollectionsGroupData__";
+apz.app.onLoad_CollectionsGroupData = function (params) {
+    apz.stopLoader();
+}
+apz.app.onShown_CollectionsGroupData = function (params) {
+    apz.app.CollectionsGroupData.loadGroupsData(params);
+}
+apz.app.CollectionsGroupData.loadGroupsData = function (selectedGrpData) {
+    var obj = {};
+    var customersData = [];
+    if (selectedGrpData.hasOwnProperty('customers') && selectedGrpData.customers.length > 0) {
+        selectedGrpData.customers.forEach((o, j) =>{
+            obj.customerName = o.customerName;
+            // obj.kendraId = selectedGrpData.kendraId;
+            obj.kendraId = KMId;
+            obj.outstandingAmt = o.outstandingAmt;
+            obj.dueAmount = o.dueAmount;
+            obj.parAmount = o.parAmount;
+            // obj.member = o.member;
+            obj.member = o.KMName;
+            
+        })
+        
+    }
+    apz.data.scrdata.KenMet__IPaintKendMeetings_Res.CustomerDetails = [];
+    apz.data.scrdata.KenMet__IPaintKendMeetings_Res.CustomerDetails = params;
+    apz.data.loadData('IPaintKendMeetings', 'KenMet');
+}

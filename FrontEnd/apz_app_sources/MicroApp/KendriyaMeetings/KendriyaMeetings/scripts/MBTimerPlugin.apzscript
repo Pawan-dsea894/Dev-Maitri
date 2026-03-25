@@ -1,0 +1,171 @@
+//******MB Timer Progeress bar Plugin******//
+//** Do not Format this. It wiont work if we format**/////
+//Timer HTML Injection///
+var baseTimerPath = "base-timer-path-remaining";
+window.ShowError = false;
+
+function TimerHTMLInjection() {
+    //     if (apz.deviceType !== "WEB") {
+    //     document.getElementById("Authen__OTPAuthentication__otptimer").innerHTML = `
+    // <div class="base-timer">
+    //   <svg class="base-timer__svg svgsize" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    //     <g class="base-timer__circle">
+    //       <circle class="base-timer__path-elapsed" cx="50" cy="50" r="45"></circle>
+    //       <path
+    //         id=${basetimeremaining}
+    //         stroke-dasharray="283"
+    //         class="base-timer__path-remaining ${remainingPathColor}"
+    //         d="
+    //           M 50, 50
+    //           m -45, 0
+    //           a 45,45 0 1,0 90,0
+    //           a 45,45 0 1,0 -90,0
+    //         "
+    //       ></path>
+    //     </g>
+    //   </svg>
+    //   <span id="base-timer-label" class="base-timer__label">${formatTime(
+    //     timeLeft
+    //   )}</span>
+    // </div>
+    // `;
+    // }
+}
+//start Timer function
+function startTimer() {
+    window.timerInterval = setInterval(() => {
+        window.timePassed = window.timePassed += 1;
+        window.timeLeft = TIME_LIMIT - window.timePassed;
+        if (document.getElementById("KenMet__GroupsData__otptimertext")) {
+            document.getElementById("KenMet__GroupsData__otptimertext").innerHTML = formatTime(window.timeLeft);
+        }
+        setRemainingPathColor(window.timeLeft);
+        setCircleDasharray();
+        if (window.timeLeft <= 0) {
+            onTimesUp();
+        // } else if (window.timeLeft <= 60) {
+        //     document.getElementById("Authen__OTPAuthentication__TimerDescription").innerHTML = ApzRMB.getDescfromLitCode("LIT_SECLEFT");
+        }
+    }, 1000);
+}
+//Will be executed when the time reaches zero
+function onTimesUp() {
+    clearInterval(timerInterval);
+    apz.app.GroupsData.timerEnd();
+    //$("#Authen__OTPAuthentication__otpconfirm").addClass("sno");
+    // if (apz.deviceType !== "WEB") {
+    //     $("#Authen__OTPAuthentication__refnumRow").addClass("sno");
+    //     document.getElementById("Authen__OTPAuthentication__TimerDescription").innerHTML = ApzRMB.getDescfromLitCode("LIT_MINLEFT");
+    // }
+}
+//Formatting the time while displaying in the timer
+function formatTime(time) {
+    var minutes = Math.floor(time / 60);
+    var seconds = time % 60;
+    if (seconds < 10) {
+        seconds = `0${seconds}`;
+    }
+    return `${minutes}:${seconds}`;
+}
+//Initializing the timer threshold params
+function initializeTimer() {
+    window.FULL_DASH_ARRAY = 283;
+    window.WARNING_THRESHOLD = 30;
+    window.ALERT_THRESHOLD = 10; //TIME_LIMIT = TIME_LIMIT; useless self-assignment
+    window.timePassed = 0;
+    window.timeLeft = TIME_LIMIT;
+    window.timerInterval = null;
+    window.remainingPathColor = "green";
+}
+//Setting the threshhold colors
+function setRemainingPathColor(timeLeft) {
+    var {
+        alert,
+        warning,
+        info
+    } = COLOR_CODES;
+    if (window.timeLeft <= alert.threshold) {
+        document.getElementById(baseTimerPath).classList.remove(warning.color, info.color);
+        document.getElementById(baseTimerPath).classList.add(alert.color);
+    } else if (window.timeLeft <= warning.threshold) {
+        document.getElementById(baseTimerPath).classList.remove(info.color, alert.color);
+        document.getElementById(baseTimerPath).classList.add(warning.color);
+    } else {
+        document.getElementById(baseTimerPath).classList.remove(warning.color, alert.color);
+        document.getElementById(baseTimerPath).classList.add(info.color);
+    }
+}
+
+function calculateTimeFraction() {
+    var rawTimeFraction = window.timeLeft / TIME_LIMIT;
+    return rawTimeFraction - (1 / TIME_LIMIT) * (1 - rawTimeFraction);
+}
+//Timer progressbar strokes setting function
+function setCircleDasharray() {
+    var circleDasharray = `${(calculateTimeFraction() * FULL_DASH_ARRAY).toFixed(0)} 283`;
+    document.getElementById(basetimeremaining).setAttribute("stroke-dasharray", circleDasharray);
+}
+//Reset timer and start again
+function resetTimer() {
+    clearInterval(timerInterval);
+    initializeTimer();
+    startTimer();
+}
+/*function changeWholeTime(seconds) {
+    if ((wholeTime + seconds) > 0) {
+        wholeTime += seconds;
+        update(wholeTime, wholeTime);
+    }
+}
+
+function timer(seconds) { //counts time, takes seconds
+    var remainTime = Date.now() + (seconds * 1000);
+    displayTimeLeft(seconds);
+    intervalTimer = setInterval(function() {
+        window.timeLeft = Math.round((remainTime - Date.now()) / 1000);
+        if (window.timeLeft < 0) {
+            clearInterval(intervalTimer);
+            isStarted = false;
+            setterBtns.forEach(function(btn) {
+                btn.disabled = false;
+                btn.style.opacity = 1;
+            });
+            return;
+        }
+        displayTimeLeft(window.timeLeft);
+    }, 1000);
+}
+//Don't beautify the code- display string should be in single line
+function displayTimeLeft(timeLeft) { //displays time on the input
+    var minutes = Math.floor(timeLeft / 60);
+    var seconds = timeLeft % 60;
+    //var displayString = `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    if (minutes < 10) {
+        minutes = '0' + minutes;
+    }
+    if (seconds < 10) {
+        seconds = '0' + seconds;
+    }
+    var displayString = minutes + ':' + seconds;
+    displayOutput.textContent = displayString;
+    update(timeLeft, wholeTime);
+    if (minutes === "00" && seconds == "00") {
+        $("#Authen__OTPAuthentication__Regenerateotp").removeClass("sno");
+        $("#Authen__OTPAuthentication__Regenerateotp_ul").removeClass("sno");
+        $("#Authen__OTPAuthentication__expiryDIV").addClass("sno");
+        $("#Authen__OTPAuthentication__otpconfirm").addClass("sno");
+        if (apz.deviceType !== "WEB") {
+            $("#Authen__OTPAuthentication__refnumRow").addClass("sno");
+        }
+    }
+}
+
+function update(value, timePercent) {
+    var offset = length + length * value / (timePercent);
+    progressBar.style.strokeDashoffset = offset;
+    var val = (-360 * value / (timePercent));
+    pointer.style.transform = "rotate(" + val + "deg)"; //`rotate(${-360 * value / (timePercent)}deg)`;
+    pointer.style.msTransform = "rotate(" + val + "deg)";
+    pointer.style.MozTransform = "rotate(" + val + "deg)";
+}
+*/

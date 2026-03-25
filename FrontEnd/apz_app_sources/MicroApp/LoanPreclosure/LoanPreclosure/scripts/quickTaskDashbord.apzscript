@@ -1,0 +1,58 @@
+var scrid = 'LoanPr__quickTaskDashbord__';
+var qtItfId = 'LoanPr__IPaintQuickTask__o__'
+apz.app.onLoad_quickTaskDashbord = function(params) {
+    apz.data.scrdata.LoanPr__IPaintQuickTask_Res = {};
+}
+apz.app.onShown_quickTaskDashbord = function(params) {
+    apz.data.scrdata.LoanPr__IPaintQuickTask_Res.quickTask = [];
+    apz.app.quickTaskDashbord.loadQuickTaskDetails();
+    apz.app.quickTaskDashbord.loanOtherTaskType();
+    apz.app.quickTaskDashbord.loanOtherTaskDetails();
+}
+apz.app.quickTaskDashbord.loadQuickTaskDetails = function() {
+    let quickTaskHead = ['New Collection Meeting', 'New Loan Appllication', 'New Customer KYC', 'Capture Leads'];
+    let quickTassDesc = ['Adding A New Kendra Meeting To Task', 'Document Filling For A New Loan', '', ''];
+    let paintArr = [];
+    quickTaskHead.forEach((d, i) => {
+        let obj = {};
+        obj.info = d;
+        obj.desc = quickTassDesc[i];
+        paintArr.push(obj);
+    });
+    apz.data.scrdata.LoanPr__IPaintQuickTask_Res.quickTask = paintArr;
+    apz.data.loadData('IPaintQuickTask', "LoanPr");
+    paintArr.forEach((d, i) => {
+        if (d.desc === '') {
+            document.getElementById(qtItfId + "quickTask__desc_" + i).classList.add('sno');
+        } else {
+            document.getElementById(qtItfId + "quickTask__desc_" + i).classList.remove('sno');
+        }
+    });
+}
+apz.app.quickTaskDashbord.loanOtherTaskType = function() {
+    let type = ['All', 'Loans', 'KYC'];
+    let paintArr = type.map(d => ({
+        names: d
+    }));
+    apz.data.scrdata.LoanPr__IPaintQuickTask_Res.typeOfTask = paintArr;
+    apz.data.loadData('IPaintQuickTask', "LoanPr");
+}
+apz.app.quickTaskDashbord.loanOtherTaskDetails = function() {
+    let otherTaskDts = ['RF Lead Capture', 'Check Survey Book', 'Check Pre Clousre Amount', 'Create New Kendra', 'Check PAR Customers',
+        'Change Meeting Time'
+    ];
+    let iconsList = ['icon-AddNewMember', 'icon-calendar', 'icon-change_circle', 'icon-AddNewMember', 'icon-calendar', 'icon-change_circle'];
+    let paintArr = [];
+    otherTaskDts.forEach((d, i) => {
+        let obj = {};
+        obj.info = d;
+        obj.icon = iconsList[i];
+        paintArr.push(obj);
+    });
+    apz.data.scrdata.LoanPr__IPaintQuickTask_Res.otherTask = paintArr;
+    apz.data.loadData('IPaintQuickTask', "LoanPr");
+}
+apz.app.quickTaskDashbord.onClickOtherTaskIcon = function(pthis) {
+    let row = pthis.id.split("_").at(-1);
+    //do something
+}

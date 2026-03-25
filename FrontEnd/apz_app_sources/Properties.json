@@ -1,0 +1,14 @@
+{
+  "BaseAppName": "UnifiedApp",
+  "ServerWarName": "AppzillonServer",
+  "ServerType": "Tomcat",
+  "AppzillonBuildPath": "",
+  "BuildAppPath": "",
+  "BuildServerPath": "",
+  "ServerDebugLevel": "",
+  "DBType": "POSTGRESQL",
+  "BundleWebProps": "N",
+  "BundleServerProps": "N",
+  "DisableSessionStickyness": "N",
+  "IncludeMicroApp": "Y"
+}

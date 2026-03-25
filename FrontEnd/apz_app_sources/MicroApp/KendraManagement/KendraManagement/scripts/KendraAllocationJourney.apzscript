@@ -1,0 +1,1096 @@
+var KdScrId = 'Kendra__KendraAllocationJourney__';
+var baseScrId = 'APZCBO__BaseScreens__';
+var fromAssignToOneKM = false;
+var fromAssignToMulKM = false;
+var selAssignKM;
+var dayMapping;
+var selKendraData;
+var assigeeKendraData;
+var selKendraRow;
+var selWeeklyRow = true;
+var allocationType = 'WEEKLY';
+var createRasonReqest = {};
+var fromMultipleSelectFlow = false;
+var mulAssigArr = [];
+var painttimeSlotsData;
+var selUnaasignedRow;
+var unAssignedFlow = true;
+var mulUnAssKdArr = [];
+var fromMultipleSelectUnassignedFlow = false;
+var timeSlotsArr = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+apz.data.scrdata.Kendra__IPaintKMDetails_Res = {};
+var WeekAlloctDataArr = {
+    "ALL" : [],
+    "MON" : [],
+    "TUE" : [],
+    "WED" : [],
+    "THU" : [],
+    "FRI" : []
+}
+var WeekAlloctDataObjArr  = [];
+var selectedDays = [];
+var rowForKm = "";
+apz.app.onLoad_KendraAllocationJourney = function(params) {
+    document.getElementById(KdScrId + 'confirmBtn').disabled = true;
+}
+apz.app.onShown_KendraAllocationJourney = function(params) {
+    if (params !== 'Unassigned') {
+        apz.setElmValue(KdScrId + 'headerKmName_txtcnt', params);
+        selKendraData = kendraResponse.filter(d => d.kendraDtls.kmId === params);
+        if (selKendraData[0]) {
+            apz.setElmValue(KdScrId + 'headerKmId_txtcnt', '#' + selKendraData[0].kendraDtls.kmId);
+            apz.setElmValue(KdScrId + 'headerKmName_txtcnt', selKendraData[0].kendraDtls.kmName);
+        }
+        assigeeKendraData = kendraResponse.filter(d => d.kendraDtls.kmName !== params && d.kendraDtls.kmName !== 'DEO');
+        unAssignedFlow = false;
+    } else {
+        selKendraData = kendraResponse.filter(d => d.kendraDtls.kmName === 'DEO');
+        apz.setElmValue(KdScrId + 'headerKmName_txtcnt', params);
+        apz.setElmValue(KdScrId + 'headerKmId_txtcnt', '');
+        assigeeKendraData = kendraResponse.filter(d => d.kendraDtls.kmName !== 'DEO');
+        //apz.app.KendraAllocationJourney.paintKenraDetailsOfUnassigedKendra();
+        unAssignedFlow = true;
+    }
+    apz.app.KendraAllocationJourney.setDateForTemporary();
+    $("#" + baseScrId + "sidebarController").addClass('sno');
+    $('#footer').addClass('sno');
+}
+apz.app.KendraAllocationJourney.paintKenraDetailsOfUnassigedKendra = function() {
+    let uploadData = [];
+    selKendraData.map((data) => {
+        let newObj = {};
+        newObj.kendraName = data.kendraDtls.kendraName;
+        newObj.kendraId = data.kendraDtls.kendraId;
+        newObj.meetingStartTime = data.kendraDtls.meetingStartTime;
+        newObj.meetingDay = data.kendraDtls.meetingDay;
+        newObj.branchId = data.kendraDtls.branchId;
+        uploadData.push(newObj);
+    });
+    apz.data.scrdata.Kendra__IPaintKMDetails_Res = {};
+    apz.data.scrdata.Kendra__IPaintKMDetails_Res.UnassignedKMData = uploadData;
+    apz.data.loadData("IPaintKMDetails", apz.currAppId);
+}
+apz.app.KendraAllocationJourney.onClickTempOrPerChk = function() {
+    let check = true;
+    let tempChkSel = $("#" + KdScrId + "temporaryChkBx").prop("checked");
+    let perChkSel = $("#" + KdScrId + "pernamentChkBx").prop("checked");
+    if (!perChkSel && !tempChkSel) {
+        ApzCOB.fnDisplayMsg("Please select allocation reason.", "E");
+        check = false;
+    } else if (tempChkSel) {
+        let startDt = $("#" + KdScrId + "tempStartDt").val();
+        let endDt = $("#" + KdScrId + "tempEndDt").val();
+        if (apz.isNull(startDt) || apz.isNull(endDt)) {
+            ApzCOB.fnDisplayMsg("Please enter start date and end date.", "E");
+            check = false;
+        }
+    }
+    return check;
+}
+apz.app.KendraAllocationJourney.onClickOfMulitpleKendraChkBox = function() {
+    if ($("#" + KdScrId + "mulKDchBox").prop("checked")) {
+        $("#" + KdScrId + "assignMultiplechkBox").removeClass("sno");
+        let uploadData = [];
+        KendraApp.KendraResponse.map((data) => {
+            let newObj = {};
+            newObj.kendraName = data.kendraDtls.kendraName;
+            newObj.kendraId = '#' + data.kendraDtls.kendraId;
+            uploadData.push(newObj);
+        });
+        apz.data.scrdata.Kendra__IPaintKMDetails_Res = {};
+        apz.data.scrdata.Kendra__IPaintKMDetails_Res.MultipleKMList = uploadData;
+        apz.data.loadData("IPaintKMDetails", apz.currAppId);
+    } else {
+        $("#" + KdScrId + "assignMultiplechkBox").addClass("sno");
+    }
+    $("#" + KdScrId + "assignToOnechkBoxRow").addClass("sno");
+    $("#" + KdScrId + "sinKDchBox").prop("checked", false);
+    $("#" + KdScrId + "assignToSelfChkBox").prop("checked", false);
+    $('#' + KdScrId + 'assignToOnechkBoxRow').addClass('sno');
+}
+apz.app.KendraAllocationJourney.onClickOfSelectKM = function(pthis) {
+    rowForKm = $(pthis).attr('rowno');
+    if (!apz.isNull(pthis)) {
+        fromMultipleSelectFlow = false;
+        selKendraRow = pthis.id.split("_").at(-1);
+    }
+    if ($('#' + KdScrId + 'allBtn').hasClass('active')) {
+        selWeeklyRow = true;
+    } else {
+        selWeeklyRow = false;
+    }
+    ApzCOB.toggleModal(KdScrId + "selectKmModel");
+    /*let uniqueArray = assigeeKendraData.filter((value, index, self) => index === self.findIndex((t) => (t.kendraDtls.kmId === value.kendraDtls
+        .kmId)));
+    //below code added to remove from kendra
+    uniqueArray = uniqueArray.filter((d) => d.kendraDtls.kmId !== createRasonReqest.oldKmId);
+    let uploadData = [];
+    uniqueArray.map((data) => {
+        let newObj = {};
+        newObj.kmName = data.kendraDtls.kmName;
+        newObj.kendraId = data.kendraDtls.kmId;
+        uploadData.push(newObj);
+    });
+	if(createRasonReqest.assignmentType === 'Temporary') {
+	uploadData.unshift({
+        "kmName": 'ASSIGN TO SELF',
+        "kendraId": LoggedInUserDetails.userID
+	})
+	}*/
+	
+	
+	var filteredKMList = window.KendraApp.userList.filter(entry => entry.role.replace(/[{}]/g, '') // Remove curly braces
+        .split(',') // Split by comma
+        .map(role => role.trim()) // Trim spaces
+        .includes("KM") // Check if "KM" exists
+    ).map(entry => ({
+        role: "KM", // Convert role field to a simple string
+        kmName: entry.userName,
+        kendraId: entry.userId
+    }));
+    let uploadData  = filteredKMList.filter((d) => d.kendraId !== createRasonReqest.oldKmId);
+    // Define the "Unassigned" object
+    var unassignedKM = {
+        role: "SELF",
+        kmName: "ASSIGN TO SELF",
+        kendraId: LoggedInUserDetails.userID
+    };
+    // Insert "Unassigned" object at the 0th index
+    uploadData.unshift(unassignedKM);
+    
+    apz.data.scrdata.Kendra__IPaintKMDetails_Res.SelKMNames = uploadData;
+    apz.data.loadData("IPaintKMDetails", apz.currAppId);
+    apz.app.KendraAllocationJourney.resetAssignKendraModel();
+    apz.data.scrdata.Kendra__IPaintKMDetails_Res.SelKMNames.forEach(function(o, idx) {
+        var idName = KdScrId + 'sheduleLaunch__' + idx;
+        $('#' + KdScrId + 'ct_lst_6_row_' + idx).find('#' + KdScrId + 'Scrdiv_row').attr('id', idName);
+    });
+}
+apz.app.KendraAllocationJourney.onClickOfSheduleTable = function(pthis) {
+    let selRowNo = pthis.id.split("_").at(-1)
+    selLiDiv = document.getElementById('Kendra__KendraAllocationJourney__ct_lst_6_row_' + selRowNo);
+    if (selLiDiv.querySelector("#Kendra__KendraAllocationJourney__slotsDiv_row").classList.contains('sno')) {
+        selLiDiv.querySelector("#Kendra__KendraAllocationJourney__slotsDiv_row").classList.remove('sno');
+        let togPaintData = apz.data.scrdata.Kendra__IPaintKMDetails_Res.SelKMNames[selRowNo];
+        let assigeeKendraData = kendraResponse.filter(d => d.kendraDtls.kmId === togPaintData.kendraId);
+        painttimeSlotsData = {
+            MON: [],
+            TUE: [],
+            WED: [],
+            THU: [],
+            FRI: []
+        };
+        assigeeKendraData.forEach(data => {
+            const meetingDay = data.kendraDtls.meetingDay;
+            if (painttimeSlotsData[meetingDay]) {
+                painttimeSlotsData[meetingDay].push(data);
+            }
+        });
+        let timeSlotsData = apz.app.KendraAllocationJourney.getTimeSlotsData('MON');
+        apz.app.KendraAllocationJourney.paintTimeSlots(timeSlotsData, selRowNo);
+    } else {
+        selLiDiv.querySelector("#Kendra__KendraAllocationJourney__slotsDiv_row").classList.add('sno');
+    }
+}
+apz.app.KendraAllocationJourney.paintTimeSlots = function(data, rowDiv) {
+    let div = document.getElementById(KdScrId + "ct_lst_6_row_" + rowDiv);
+    if (data.length === 0) {
+        selLiDiv = document.getElementById(KdScrId + 'ct_lst_6_row_' + rowDiv);
+        selLiDiv.querySelector("#" + KdScrId + "noRecDiv_row").classList.remove('sno');
+        selLiDiv.querySelector("#" + KdScrId + "sc_row_645_row").classList.add('sno');
+    } else {
+        selLiDiv = document.getElementById(KdScrId + 'ct_lst_6_row_' + rowDiv);
+        selLiDiv.querySelector("#" + KdScrId + "noRecDiv_row").classList.add('sno');
+        selLiDiv.querySelector("#" + KdScrId + "sc_row_645_row").classList.remove('sno');
+        data.forEach((d, idx) => {
+            $("#" + KdScrId + 'noRecDiv').addClass('sno');
+            let slotRow = timeSlotsArr[idx];
+            if (!apz.isNull(div.querySelector("#" + KdScrId + "timeSlotRow_" + slotRow + "_row"))) {
+                div.querySelector("#" + KdScrId + "timeSlotRow_" + slotRow + "_row").classList.remove('sno');
+                apz.setElmValue(KdScrId + 'timeSlotVal_' + slotRow + '_' + rowDiv, d.timeSlot);
+                apz.setElmValue(KdScrId + 'statusVal_' + slotRow + '_' + rowDiv, d.status);
+                if (d.status === 'Free') {
+                    document.getElementById(KdScrId + 'statusVal_' + slotRow + '_' + rowDiv).classList.remove('var4');
+                    document.getElementById(KdScrId + 'statusVal_' + slotRow + '_' + rowDiv).classList.add('var5');
+                } else {
+                    document.getElementById(KdScrId + 'statusVal_' + slotRow + '_' + rowDiv).classList.add('var4');
+                    document.getElementById(KdScrId + 'statusVal_' + slotRow + '_' + rowDiv).classList.remove('var5');
+                }
+                apz.setElmValue(KdScrId + 'kendraVal_' + slotRow + '_' + rowDiv, d.kendraName);
+            }
+        })
+    }
+}
+apz.app.KendraAllocationJourney.onClickOfSingleKendraChkBox = function() {
+    if ($("#" + KdScrId + "sinKDchBox").prop("checked")) {
+        $("#" + KdScrId + "assignToOnechkBoxRow").removeClass("sno");
+        let uploadData = [];
+        KendraApp.KendraResponse.map((data) => {
+            let newObj = {};
+            newObj.kendraName = data.kendraDtls.kendraName;
+            newObj.kendraId = '#' + data.kendraDtls.kendraId;
+            uploadData.push(newObj);
+        });
+        apz.data.scrdata.Kendra__IPaintKMDetails_Res.SingleKMList = {};
+        apz.data.scrdata.Kendra__IPaintKMDetails_Res.SingleKMList = uploadData;
+        apz.data.loadData("IPaintKMDetails", apz.currAppId);
+    } else {
+        $("#" + KdScrId + "assignToOnechkBoxRow").addClass("sno");
+    }
+    $("#" + KdScrId + "assignMultiplechkBox").addClass("sno");
+    $("#" + KdScrId + "mulKDchBox").prop("checked", false);
+    $("#" + KdScrId + "assignToSelfChkBox").prop("checked", false);
+    $('#' + KdScrId + 'assignMultiplechkBox').addClass('sno');
+}
+apz.app.KendraAllocationJourney.onClickOfSubmitToggleModel = function() {
+    let selkdRowOnToggleMdl;
+    let lselectedkmId = "";
+    let lselectedkmName = "";
+    var selectedOpt='';
+    apz.data.scrdata.Kendra__IPaintKMDetails_Res.SelKMNames.forEach((d, idx) => {
+        if ($('#' + KdScrId + 'el_cbx_5_' + idx).prop('checked')) {
+            selectedOpt=$('#Kendra__IPaintKMDetails__o__SelKMNames__kmName_'+idx+'_txtcnt').text();
+            selkdRowOnToggleMdl = idx;
+            lselectedkmId = d.kendraId;
+            lselectedkmName = d.kmName;
+        }
+    });
+    ApzCOB.toggleModal(KdScrId + "selectKmModel");
+    if (!apz.isNull(selkdRowOnToggleMdl)) {
+        if (allocationType === 'WEEKLY') {
+            apz.app.KendraAllocationJourney.paintSelRowNo(selkdRowOnToggleMdl);
+        } else {
+            apz.app.KendraAllocationJourney.paintWeeklyDataSelToggleModel(selkdRowOnToggleMdl);
+        }
+        document.getElementById(KdScrId + 'confirmBtn').disabled = false;
+    }
+    $("#" + KdScrId + 'assignMultipleKm').addClass('sno');
+    if(window.isSingleKendra){
+        var lobj = {};
+        lobj.index = 0;
+        lobj.selectedDay = apz.data.scrdata.Kendra__IPaintKMDetails_Res.KMDataOnDaily[0].meetingDay;
+        lobj.kendraId = apz.data.scrdata.Kendra__IPaintKMDetails_Res.KMDataOnDaily[0].kendraId;
+        lobj.branchId = apz.data.scrdata.Kendra__IPaintKMDetails_Res.KMDataOnDaily[0].branchId;
+        lobj.kmId = lselectedkmId;
+        lobj.kmName = lselectedkmName;
+        if (WeekAlloctDataObjArr.lenght !== 0) {
+            WeekAlloctDataObjArr = WeekAlloctDataObjArr.filter(arr => arr.kendraId !== lobj.kendraId);
+        }
+        WeekAlloctDataObjArr.push(lobj);
+    }if(allocationType !== 'WEEKLY' && !fromMultipleSelectFlow){
+        WeekAlloctDataArr[selectedDays].push(rowForKm);
+        var lobj = {};
+        lobj.index = rowForKm;
+        lobj.selectedDay = selectedDays;
+        lobj.kendraId = dayMapping[selectedDays][rowForKm].kendraDtls.kendraId;
+        lobj.branchId = dayMapping[selectedDays][rowForKm].kendraDtls.branchId;
+        lobj.kmId = lselectedkmId;
+        lobj.kmName = lselectedkmName;
+        if (WeekAlloctDataObjArr.lenght !== 0) {
+            WeekAlloctDataObjArr = WeekAlloctDataObjArr.filter(arr => arr.kendraId !== lobj.kendraId);
+        }
+        WeekAlloctDataObjArr.push(lobj);
+    }else if(allocationType !== 'WEEKLY' && fromMultipleSelectFlow){
+        mulAssigArr.forEach((mulIndex) => {
+            WeekAlloctDataArr[selectedDays].push(mulIndex);
+            let lobj = {};
+            lobj.index = mulIndex;
+            lobj.selectedDay = selectedDays;
+            lobj.kendraId = dayMapping[selectedDays][mulIndex].kendraDtls.kendraId;
+            lobj.branchId = dayMapping[selectedDays][mulIndex].kendraDtls.branchId;
+            lobj.kmId = lselectedkmId;
+            lobj.kmName = lselectedkmName; 
+           if (WeekAlloctDataObjArr.lenght !== 0) {
+               WeekAlloctDataObjArr = WeekAlloctDataObjArr.filter(arr => arr.kendraId !== lobj.kendraId);
+           }
+            WeekAlloctDataObjArr.push(lobj);
+        });
+    }else if(allocationType === 'WEEKLY' && fromMultipleSelectFlow) {
+        let daysOfAll = ['MON', 'TUE', 'WED', 'THU', 'FRI'];
+        mulAssigArr.forEach((mulIndex) => {
+            dayMapping[daysOfAll[mulIndex]].forEach((data, index) => {
+                let kendraDetails = data.kendraDtls;
+                let lobj = {
+                    index: index,
+                    selectedDay: daysOfAll[mulIndex],
+                    kendraId: kendraDetails.kendraId,
+                    branchId: kendraDetails.branchId,
+                    kmId: lselectedkmId || kendraDetails.kmId,
+                    kmName: kendraDetails.kmName || lselectedkmName,
+                };
+                if(selectedOpt ==="ASSIGN TO SELF"){
+                  lobj.kmId= lselectedkmId;
+                }
+               if (WeekAlloctDataObjArr.lenght !== 0) {
+                   WeekAlloctDataObjArr = WeekAlloctDataObjArr.filter(arr => arr.kendraId !== lobj.kendraId);
+               }
+                WeekAlloctDataObjArr.push(lobj); 
+            });
+        });
+    }    
+    else{
+        let daysOfAll = ['MON','TUE','WED','THU','FRI'];
+        dayMapping[daysOfAll[rowForKm]].forEach((data, index) => {
+            let kendraDetials = data.kendraDtls;
+            let lobj = {
+                index: index,
+                selectedDay: selectedDays,
+                kendraId:kendraDetials.kendraId,
+                branchId: kendraDetials.branchId,
+                kmId: lselectedkmId || kendraDetials.kmId,
+                kmName: kendraDetials.kmName || lselectedkmName,
+            };
+            if (selectedOpt === "ASSIGN TO SELF") {
+                lobj.kmId = lselectedkmId;
+            }
+           if (WeekAlloctDataObjArr.lenght !== 0) {
+               WeekAlloctDataObjArr = WeekAlloctDataObjArr.filter(arr => arr.kendraId !== lobj.kendraId);
+           }
+            WeekAlloctDataObjArr.push(lobj);
+        })
+    }
+}
+apz.app.KendraAllocationJourney.paintWeeklyDataSelToggleModel = function(selValue) {
+    let selData = apz.data.scrdata.Kendra__IPaintKMDetails_Res.SelKMNames[selValue];
+    if (fromMultipleSelectFlow) {
+        mulAssigArr.forEach(d => {
+            apz.app.KendraAllocationJourney.removeSnoOnSelKendraAlloDaily(d);
+            apz.setElmValue(KdScrId + 'selDaysKendraName_' + d, selData.kmName);
+            apz.setElmValue(KdScrId + 'selDaysKendraId_' + d, selData.kendraId);
+        })
+    } else {
+        apz.app.KendraAllocationJourney.removeSnoOnSelKendraAlloDaily(selKendraRow);
+        apz.setElmValue(KdScrId + 'selDaysKendraName_' + selKendraRow, selData.kmName);
+        apz.setElmValue(KdScrId + 'selDaysKendraId_' + selKendraRow, selData.kendraId);
+    }
+}
+apz.app.KendraAllocationJourney.paintSelRowNo = function(selValue) {
+    let selData = apz.data.scrdata.Kendra__IPaintKMDetails_Res.SelKMNames[selValue];
+    if (fromMultipleSelectFlow) {
+        mulAssigArr.forEach(d => {
+            apz.app.KendraAllocationJourney.removeSnoOnSelKendraAlloWeekly(d);
+            apz.setElmValue(KdScrId + 'selWeekKendraName_' + d, selData.kmName);
+            apz.setElmValue(KdScrId + 'selWeekKendraId_' + d, selData.kendraId);
+        });
+        $("#" + KdScrId + 'selMulChkBox').prop("checked", false);
+        //apz.app.KendraAllocationJourney.onClickOfCheckBox();
+    } else {
+        apz.app.KendraAllocationJourney.removeSnoOnSelKendraAlloWeekly(selKendraRow);
+        apz.setElmValue(KdScrId + 'selWeekKendraName_' + selKendraRow, selData.kmName);
+        apz.setElmValue(KdScrId + 'selWeekKendraId_' + selKendraRow, selData.kendraId);
+    }
+}
+apz.app.KendraAllocationJourney.removeSnoOnSelKendraAlloDaily = function(rowNo) {
+    let liElement = document.getElementById('Kendra__KendraAllocationJourney__ct_lst_7_row_' + rowNo);
+    let spanElement = liElement.querySelector('#Kendra__KendraAllocationJourney__sc_row_653_row');
+    liElement.querySelector('#Kendra__KendraAllocationJourney__daysEditIcon_li').classList.remove('sno');
+    spanElement.classList.remove('sno');
+    $("#" + KdScrId + 'assignNowWeekBtn_' + rowNo).addClass('sno');
+}
+apz.app.KendraAllocationJourney.removeSnoOnSelKendraAlloWeekly = function(rowNo) {
+    let liElement = document.getElementById('Kendra__KendraAllocationJourney__ct_lst_5_row_' + rowNo);
+    let spanElement = liElement.querySelector('#Kendra__KendraAllocationJourney__sc_row_648_row');
+    liElement.querySelector('#Kendra__KendraAllocationJourney__allEditIcon_li').classList.remove('sno');
+    spanElement.classList.remove('sno');
+    $("#" + KdScrId + 'assignNow_' + rowNo).addClass('sno');
+}
+// apz.app.KendraAllocationJourney.onClickOfToggleModelChkBox = function(pthis) {
+//     let selRow = parseInt(pthis.split("_").at("-1"));
+//     if (fromAssignToOneKM) {
+//         apz.data.scrdata.Kendra__IPaintKMDetails_Res.SelKMNames.map((data, index) => {
+//             if (selRow !== index) {
+//                 $("#" + KdScrId + "selKMOfToggleModel_" + index).prop("checked", false);
+//             }
+//         });
+//     } else {
+//         apz.data.scrdata.Kendra__IPaintKMDetails_Res.MultipleKMList.map.map((data, index) => {
+//             if (selRow !== index) {
+//                 $("#" + KdScrId + "selKMOfToggleModel_" + index).prop("checked", false);
+//             }
+//         });
+//     }
+// }
+apz.app.KendraAllocationJourney.kdReasonAlloNextBtn = function() {
+    if (apz.app.KendraAllocationJourney.onClickTempOrPerChk()) {
+        $("#" + KdScrId + "kdStage1").addClass("sno");
+        $("#" + KdScrId + "reasonEditDiv").removeClass("sno");
+        $("#" + KdScrId + "kdStage2").removeClass("sno");
+        if ($('#' + KdScrId + 'temporaryChkBx').prop('checked')) {
+            createRasonReqest.assignmentType = 'Temporary'
+            createRasonReqest.startDate = apz.app.KendraAllocationJourney.modifyKendraDatFormat($("#" + KdScrId + 'tempStartDt').val());
+            createRasonReqest.endDate = apz.app.KendraAllocationJourney.modifyKendraDatFormat($("#" + KdScrId + 'tempEndDt').val());
+        } else if ($('#' + KdScrId + 'pernamentChkBx').prop('checked')) {
+            createRasonReqest.assignmentType = 'Permanent'
+            createRasonReqest.startDate = '';
+            createRasonReqest.endDate = '';
+        }
+        if (unAssignedFlow) {
+            createRasonReqest.oldKmId = '';
+            createRasonReqest.oldKmName = '';
+        } else {
+            createRasonReqest.oldKmId = selKendraData[0].kendraDtls.kmId;
+            createRasonReqest.oldKmName = selKendraData[0].kendraDtls.kmName;
+        }
+        apz.app.KendraAllocationJourney.splitDataBasedOnDays();
+        apz.app.KendraAllocationJourney.loadWeeklyData(dayMapping);
+    }
+}
+apz.app.KendraAllocationJourney.modifyKendraDatFormat = function(date) {
+    let parts = date.split('/');
+    return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+}
+apz.app.KendraAllocationJourney.splitDataBasedOnDays = function() {
+    dayMapping = {
+        MON: [],
+        TUE: [],
+        WED: [],
+        THU: [],
+        FRI: []
+    };
+    selKendraData.forEach(data => {
+        const meetingDay = data.kendraDtls.meetingDay;
+        if (dayMapping[meetingDay]) {
+            dayMapping[meetingDay].push(data);
+        }
+    });
+}
+apz.app.KendraAllocationJourney.loadWeeklyData = function(mappingData) {
+    let daysArray = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    let updatedArr = [];
+    daysArray.forEach(d => {
+        let obj = {};
+        obj.noOfKendras = mappingData[d.slice(0, 3).toUpperCase()].length + " Kendras";
+        obj.days = d;
+        updatedArr.push(obj);
+    })
+    if (window.allocate) {
+        $("#" + KdScrId + 'ct_frm_109').addClass('sno');
+        $("#" + KdScrId + 'sc_row_619').addClass('sno');
+        $("#" + KdScrId + 'dailyRecDiv').removeClass('sno');
+        $("#" + KdScrId + 'weeklyRecDiv').addClass('sno');
+        //var selDay = btnId.slice(0, 3).toUpperCase();
+        apz.app.KendraAllocationJourney.loadDailyData(window.selectedKendraData);
+        window.allocate = false;
+        allocationType = 'DAILY';
+        window.selectedKendraData = [];
+    } else {
+        apz.data.scrdata.Kendra__IPaintKMDetails_Res.KMDataWeekly = updatedArr;
+        apz.data.loadData("IPaintKMDetails", 'Kendra');
+        updatedArr.forEach((d, i) => {
+            (d.noOfKendras.split(" ")[0] === '0') ? document.getElementById(KdScrId + 'assignNow_' + i).disabled = true: document
+                .getElementById(KdScrId + 'assignNow_' + i).disabled = false;
+        });
+    }
+}
+apz.app.KendraAllocationJourney.afterAllocationConfirm = function() {
+    ApzCOB.toggleModal(KdScrId + "submitKendrasConfirm");
+}
+apz.app.KendraAllocationJourney.onClickOfSelectAll = function() {
+    let isChecked = $("#" + KdScrId + 'selAllChkBox').prop("checked");
+    let isActive = $('#' + KdScrId + 'allBtn').hasClass('active');
+    let dataSet = isActive ? apz.data.scrdata.Kendra__IPaintKMDetails_Res.KMDataWeekly : apz.data.scrdata.Kendra__IPaintKMDetails_Res
+        .KMDataOnDaily;
+    let checkboxPrefix = isActive ? 'alloWeekChk_' : 'alloDateChk_';
+    dataSet.forEach((d, idx) => {
+        $("#" + KdScrId + checkboxPrefix + idx).prop("checked", isChecked);
+    });
+}
+apz.app.KendraAllocationJourney.onClickOfEdit = function() {
+    $("#" + KdScrId + "kdStage1").removeClass("sno");
+    $("#" + KdScrId + "reasonEditDiv").addClass("sno");
+    $("#" + KdScrId + "kdStage2").addClass("sno");
+}
+apz.app.KendraAllocationJourney.onChangeOfDay = function(pthis) {
+    let btnId = pthis.id.split("__")[2];
+    apz.app.KendraAllocationJourney.addClassActivateBasedOnClick(btnId);
+    if ($('#' + KdScrId + 'allBtn').hasClass('active')) {
+        $("#" + KdScrId + 'dailyRecDiv').addClass('sno');
+        $("#" + KdScrId + 'weeklyRecDiv').removeClass('sno');
+        apz.app.KendraAllocationJourney.loadWeeklyData(dayMapping);
+        apz.data.scrdata.Kendra__IPaintKMDetails_Res.KMDataWeekly.forEach((d, idx) => {
+            document.getElementById(KdScrId + "alloWeekChk_" + idx + "_xlabelspan").classList.add('sno');
+            $("#" + KdScrId + 'alloWeekChk_' + idx).prop('checked', false)
+        })
+        allocationType = 'WEEKLY';
+         // apz.app.KendraAllocationJourney.clearAllWeeklyData();
+    } else {
+        $("#" + KdScrId + 'dailyRecDiv').removeClass('sno');
+        $("#" + KdScrId + 'weeklyRecDiv').addClass('sno');
+        let selDay = btnId.slice(0, 3).toUpperCase();
+         selectedDays = selDay;
+        let paintData = dayMapping[selDay];
+        apz.app.KendraAllocationJourney.loadDailyData(paintData);
+        apz.data.scrdata.Kendra__IPaintKMDetails_Res.KMDataOnDaily.forEach((d, idx) => {
+            document.getElementById(KdScrId + "alloDateChk_" + idx + "_xlabelspan").classList.add('sno');
+            $("#" + KdScrId + 'alloDateChk_' + idx).prop('checked', false)
+        })
+        allocationType = 'DAILY';
+        apz.app.KendraAllocationJourney.clearAllDayData();
+    }
+    $("#" + KdScrId + 'selAllDiv').addClass('ssp');
+    $("#" + KdScrId + 'selAllChkBox').prop('checked', false);
+    $("#" + KdScrId + 'selMulChkBox').prop('checked', false);
+    $("#" + KdScrId + 'el_cbx_1').prop('checked', false);
+    //apz.app.KendraAllocationJourney.onClickOfCheckBox();
+     apz.app.KendraAllocationJourney.paintselecteddata(selectedDays);
+}
+apz.app.KendraAllocationJourney.paintselecteddata = function (selectedDays) {
+    for(var i=0; i< WeekAlloctDataArr[selectedDays].length; i++) {
+    apz.app.KendraAllocationJourney.removeSnoOnSelKendraAlloDaily(WeekAlloctDataArr[selectedDays][i]);
+}
+};
+apz.app.KendraAllocationJourney.loadDailyData = function(perticularDayData) {
+    let uploadData = [];
+    perticularDayData.map((data) => {
+        let newObj = {};
+        newObj.kendraName = data.kendraDtls.kendraName;
+        newObj.kendraId = data.kendraDtls.kendraId;
+        newObj.meetingStartTime = apz.app.KendraAllocationJourney.convertToTimeString(data.kendraDtls.meetingStartTime) + ' AM';
+        newObj.meetingDay = data.kendraDtls.meetingDay;
+        newObj.branchId = data.kendraDtls.branchId;
+        uploadData.push(newObj);
+    });
+    if (uploadData.length === 0) {
+        $("#" + KdScrId + "kendraRecDiv").addClass("sno");
+        $("#" + KdScrId + "noRecordDiv").removeClass("sno");
+        document.getElementById(KdScrId + "selMulChkBox").disabled = true;
+    } else {
+        $("#" + KdScrId + "kendraRecDiv").removeClass("sno");
+        $("#" + KdScrId + "noRecordDiv").addClass("sno");
+        apz.data.scrdata.Kendra__IPaintKMDetails_Res = {};
+        apz.data.scrdata.Kendra__IPaintKMDetails_Res.KMDataOnDaily = uploadData;
+        apz.data.loadData("IPaintKMDetails", 'Kendra');
+        document.getElementById(KdScrId + "selMulChkBox").disabled = false;
+    }
+}
+apz.app.KendraAllocationJourney.onClickOfSelMukCheckBox = function() {
+    if ($("#" + KdScrId + 'selMulChkBox').prop('checked')) {
+        $("#" + KdScrId + 'selAllDiv').removeClass('ssp');
+        if ($('#' + KdScrId + 'allBtn').hasClass('active')) {
+            apz.data.scrdata.Kendra__IPaintKMDetails_Res.KMDataWeekly.forEach((d, idx) => {
+                document.getElementById(KdScrId + "alloWeekChk_" + idx + "_xlabelspan").classList.remove('sno');
+            })
+        } else {
+            apz.data.scrdata.Kendra__IPaintKMDetails_Res.KMDataOnDaily.forEach((d, idx) => {
+                document.getElementById(KdScrId + "alloDateChk_" + idx + "_xlabelspan").classList.remove('sno');
+            })
+        }
+        $("#" + KdScrId + 'assignMultipleKm').removeClass('sno');
+    } else {
+        $("#" + KdScrId + 'selAllDiv').addClass('ssp');
+        if ($('#' + KdScrId + 'allBtn').hasClass('active')) {
+            apz.data.scrdata.Kendra__IPaintKMDetails_Res.KMDataWeekly.forEach((d, idx) => {
+                document.getElementById(KdScrId + "alloWeekChk_" + idx + "_xlabelspan").classList.add('sno')
+            })
+        } else {
+            apz.data.scrdata.Kendra__IPaintKMDetails_Res.KMDataOnDaily.forEach((d, idx) => {
+                document.getElementById(KdScrId + "alloDateChk_" + idx + "_xlabelspan").classList.add('sno');
+            })
+        }
+        $("#" + KdScrId + 'assignMultipleKm').addClass('sno');
+    }
+}
+apz.app.KendraAllocationJourney.addClassActivateBasedOnClick = function(selBtnId) {
+    let btnArr = ['allBtn', 'monBtn', 'tueBtn', 'wedBtn', 'thuBtn', 'friBtn'];
+    btnArr.forEach(d => {
+        if (d === selBtnId) {
+            $("#" + KdScrId + d).addClass('active');
+        } else {
+            $('#' + KdScrId + d).removeClass('active')
+        }
+    })
+}
+apz.app.KendraAllocationJourney.createRequest = function() {
+    let assignRequest = [];
+    /*if (allocationType === 'WEEKLY') {
+        assignRequest = [];
+        apz.data.scrdata.Kendra__IPaintKMDetails_Res.KMDataWeekly.forEach((d, idx) => {
+            if (!apz.app.KendraAllocationJourney.checkIfKendraAssignedForAllData(idx)) {
+                dayMapping[d.days.substring(0, 3).toUpperCase()].forEach((data, index) => {
+                    let obj = {};
+                    obj.kendraId = data.kendraDtls.kendraId;
+                    obj.kmName = apz.getElmValue(KdScrId + 'selWeekKendraName_' + idx);
+                    obj.kmId = apz.getElmValue(KdScrId + 'selWeekKendraId_' + idx);
+                    obj.branchId = data.kendraDtls.branchId;
+                    obj.assignmentType = createRasonReqest.assignmentType;
+                    obj.endDate = createRasonReqest.endDate;
+                    obj.startDate = createRasonReqest.startDate;
+                    obj.oldKmId = createRasonReqest.oldKmId;
+                    obj.oldKmName = createRasonReqest.oldKmName;
+                    obj.createdBy = LoggedInUserDetails.loginResponse.userDet.name;
+                    assignRequest.push(obj);
+                });
+            }
+        })
+    } else {
+        apz.data.scrdata.Kendra__IPaintKMDetails_Res.KMDataOnDaily.forEach((d, idx) => {
+            if (!apz.app.KendraAllocationJourney.checkIfKenraHasAssigned(idx) || window.allocate) {
+                let obj = {};
+                obj.kendraId = d.kendraId;
+                obj.kmName = apz.getElmValue(KdScrId + 'selDaysKendraName_' + idx);
+                obj.kmId = apz.getElmValue(KdScrId + 'selDaysKendraId_' + idx);
+                obj.branchId = d.branchId;
+                obj.assignmentType = createRasonReqest.assignmentType;
+                obj.endDate = createRasonReqest.endDate;
+                obj.startDate = createRasonReqest.startDate;
+                obj.oldKmId = createRasonReqest.oldKmId;
+                obj.oldKmName = createRasonReqest.oldKmName;
+                obj.createdBy = LoggedInUserDetails.loginResponse.userDet.name;
+                assignRequest.push(obj);
+            }
+        });
+    }
+    */
+
+    for(var i=0; i< WeekAlloctDataObjArr.length; i++ ) {
+        let obj = {};
+        obj.kendraId = WeekAlloctDataObjArr[i].kendraId;
+        obj.kmName =  WeekAlloctDataObjArr[i].kmName === 'ASSIGN TO SELF' ? LoggedInUserDetails.loginResponse.userDet.name : WeekAlloctDataObjArr[i].kmName;
+        obj.kmId = WeekAlloctDataObjArr[i].kmId;
+        obj.branchId = WeekAlloctDataObjArr[i].branchId;
+        obj.assignmentType = createRasonReqest.assignmentType;
+        obj.endDate = createRasonReqest.endDate;
+        obj.startDate = createRasonReqest.startDate;
+        obj.oldKmId = createRasonReqest.oldKmId;
+        obj.oldKmName = createRasonReqest.oldKmName;
+        obj.createdBy = LoggedInUserDetails.loginResponse.userDet.name;
+        assignRequest.push(obj);
+    }
+    var req = {
+        "apiRequest": {
+            "interfaceName": "KendraAssignmentAdd",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.loginResponse.userDet.id,
+            "requestObj": {
+                kendraAssignmentListObj: assignRequest
+            }
+        }
+    }
+    apz.startLoader();
+    if (createRasonReqest.assignmentType === "Permanent") {
+        ApzCOB.serverBuildParam(gAppId, "KendraAssignmentAdd", "N", "N", req, false, apz.app.KendraAllocationJourney.createRequestPernamentCB);
+    } else {
+        ApzCOB.serverBuildParam(gAppId, "KendraAssignmentAdd", "N", "N", req, false, apz.app.KendraAllocationJourney.createRequestTempCB);
+    }
+}
+apz.app.KendraAllocationJourney.createRequestPernamentCB = function(params) {
+    let failedRes = [];
+    apz.stopLoader();
+    try {
+        if (params.status && apz.isNull(params.errors)) {
+            if (params.res.APZCBO__KendraAssignmentAdd_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+                if (params.res.APZCBO__KendraAssignmentAdd_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                    let response = JSON.parse(params.res.APZCBO__KendraAssignmentAdd_Res.apiResponse.ResponseBody.responseObj);
+                    if (response.hasOwnProperty("t24Response")) {
+                        let allHaveErrors = true;
+                        let failedRes = [];
+                        response.t24Response.forEach((d) => {
+                            let tTwentyFourRes = JSON.parse(d);
+                            if (tTwentyFourRes.hasOwnProperty("error")) {
+                                failedRes.push(tTwentyFourRes);
+                            } else {
+                                allHaveErrors = false;
+                            }
+                        });
+                        if (allHaveErrors) {
+                            ApzCOB.fnDisplayMsg(failedRes[0].error.errorDetails[0].message, "E");
+                        } else {
+                            $("#" + KdScrId + "kdStage1").addClass("sno");
+                            $("#" + KdScrId + "reasonEditDiv").addClass("sno");
+                            $("#" + KdScrId + "kdStage2").addClass("sno");
+                            $("#" + KdScrId + "kmHeader").addClass("sno");
+                            $("#" + KdScrId + "kmProfile").addClass("sno");
+                            $("#" + KdScrId + "successScreen").removeClass("sno");
+                            apz.app.KendraAllocationJourney.paintKendraPrenamentSuccessScr(params.req, response.t24Response);
+                        }
+                    }
+                } else {
+                    ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+                }
+            } else {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        } else {
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    } catch (e) {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.KendraAllocationJourney.createRequestTempCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (params.status && apz.isNull(params.errors)) {
+            if (params.res.APZCBO__KendraAssignmentAdd_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+                if (params.res.APZCBO__KendraAssignmentAdd_Res.apiResponse.ResponseHeader && params.res.APZCBO__KendraAssignmentAdd_Res
+                    .apiResponse.ResponseHeader.ResponseCode === '0') {
+                    $("#" + KdScrId + "kdStage1").addClass("sno");
+                    $("#" + KdScrId + "reasonEditDiv").addClass("sno");
+                    $("#" + KdScrId + "kdStage2").addClass("sno");
+                    $("#" + KdScrId + "kmHeader").addClass("sno");
+                    $("#" + KdScrId + "kmProfile").addClass("sno");
+                    $("#" + KdScrId + "successScreen").removeClass("sno");
+                    apz.app.KendraAllocationJourney.paintKendraSuccessData(params.req);
+                } else {
+                    ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+                }
+            } else {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        } else {
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    } catch (e) {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+    if(window.isSingleKendra){
+        window.isSingleKendra=false;
+    }
+}
+apz.app.KendraAllocationJourney.paintKendraPrenamentSuccessScr = function(req, res) {
+    let count = 0;
+    let paintArr = [];
+    let successKendraArr = [];
+    res.forEach((d) => {
+        let tTwentyFourRes = JSON.parse(d);
+        if (tTwentyFourRes.hasOwnProperty("body")) {
+            let kendraList = tTwentyFourRes.body.KendraList;
+            kendraList.forEach((kendra) => {
+                successKendraArr.push(tTwentyFourRes.body.toKM);
+            });
+        }
+    });
+    req.apiRequest.requestObj.kendraAssignmentListObj.forEach((d) => {
+        let kendraName = apz.app.KendraAllocationJourney.returnKendraName(d.kendraId);
+        kendraName = apz.app.KendraAllocationJourney.capitalizeWords(kendraName) + " #" + d.kendraId;
+        let oldKmName = apz.app.KendraAllocationJourney.capitalizeWords(d.oldKmName) + " " + d.oldKmId;
+        let KmName = apz.app.KendraAllocationJourney.capitalizeWords(d.kmName) + " " + d.kmId;
+        let status = successKendraArr.includes(d.kmId) ? "Status Succcess" : "Status Failed";
+        if (successKendraArr.includes(d.kmId)) {
+            count++;
+        }
+        let existingEntry = paintArr.find(
+            (entry) => entry.data === status && entry.info.includes(`allocation from KM ${oldKmName} to ${KmName}`));
+        if (existingEntry) {
+            let parts = existingEntry.info.split(" allocation from KM ");
+            parts[0] = parts[0] + ", " + kendraName;
+            existingEntry.info = parts.join(" allocation from KM ");
+        } else {
+            let obj = {};
+            obj.info = "Kendra " + kendraName + " allocation from KM " + oldKmName + " to " + KmName;
+            obj.data = status;
+            paintArr.push(obj);
+        }
+    });
+    apz.data.scrdata.Kendra__IPaintKMDetails_Res.successData = paintArr;
+    apz.data.loadData("IPaintKMDetails", apz.currAppId);
+    apz.setElmValue(KdScrId + "kendraAllocatedData", count + " Kendra Allocated");
+};
+apz.app.KendraAllocationJourney.capitalizeWords = function(input) {
+    if (typeof input !== 'string' || input.length === 0) {
+        return input;
+    }
+    return input.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+}
+apz.app.KendraAllocationJourney.returnKendraName = function(kendraId) {
+    let kendraDts = kendraResponse.find((d) => d.kendraDtls.kendraId == kendraId);
+    return kendraDts.kendraDtls.kendraName;
+}
+apz.app.KendraAllocationJourney.returnKmName = function(kmName) {
+    let kendraDts = kendraResponse.find((d) => d.kendraDtls.kmId == kmName);
+    return kendraDts.kendraDtls.kmName;
+}
+apz.app.KendraAllocationJourney.checkIfKenraHasAssigned = function(rowNo) {
+    let liElement = document.getElementById('Kendra__KendraAllocationJourney__ct_lst_7_row_' + rowNo);
+    let spanElement = liElement.querySelector('#Kendra__KendraAllocationJourney__sc_row_653_row');
+    return spanElement.classList.contains('sno');
+}
+apz.app.KendraAllocationJourney.checkIfKendraAssignedForAllData = function(rowNo) {
+    let liElement = document.getElementById('Kendra__KendraAllocationJourney__ct_lst_5_row_' + rowNo);
+    let spanElement = liElement.querySelector('#Kendra__KendraAllocationJourney__sc_row_648_row');
+    return spanElement.classList.contains('sno');
+}
+apz.app.KendraAllocationJourney.onClickOfAssignToMultipleKendra = function() {
+    mulAssigArr = [];
+    fromMultipleSelectFlow = true;
+    let isActive = $('#' + KdScrId + 'allBtn').hasClass('active');
+    let dataSet = allocationType === 'WEEKLY' ? apz.data.scrdata.Kendra__IPaintKMDetails_Res.KMDataWeekly : apz.data.scrdata
+        .Kendra__IPaintKMDetails_Res.KMDataOnDaily;
+    let checkboxPrefix = isActive ? 'alloWeekChk_' : 'alloDateChk_';
+    dataSet.forEach((d, idx) => {
+        if ($("#" + KdScrId + checkboxPrefix + idx).prop("checked")) {
+            mulAssigArr.push(idx);
+        }
+    });
+    apz.app.KendraAllocationJourney.onClickOfSelectKM();
+}
+//below code added for painting time slots 
+apz.app.KendraAllocationJourney.formatTime = function(time) {
+    let hour = Math.floor(time / 100);
+    let minute = time % 100;
+    let period = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12 || 12;
+    return `${hour}:${minute.toString().padStart(2, '0')} ${period}`;
+}
+//function to add time in minutes to a time in the format HHMM
+apz.app.KendraAllocationJourney.addMinutes = (time, minutes) => {
+    let hour = Math.floor(time / 100);
+    let minute = time % 100;
+    minute += minutes;
+    hour += Math.floor(minute / 60);
+    minute = minute % 60;
+    return hour * 100 + minute;
+};
+apz.app.KendraAllocationJourney.getTimeSlotsData = function(day) {
+    let timeSlotsArr = []
+    painttimeSlotsData[day].map(d => {
+        let obj = {};
+        obj.startTime = d.kendraDtls.meetingStartTime;
+        obj.endTime = d.kendraDtls.endingTime;
+        obj.kendraName = d.kendraDtls.kendraName;
+        timeSlotsArr.push(obj);
+    })
+    let sortedTimeSlots = timeSlotsArr.sort((a, b) => parseInt(a.startTime) - parseInt(b.startTime));
+    let newTimeSlotsArr = [];
+    for (let i = 0; i < sortedTimeSlots.length; i++) {
+        let currentSlot = sortedTimeSlots[i];
+        let nextSlot = sortedTimeSlots[i + 1];
+        newTimeSlotsArr.push({
+            timeSlot: `${apz.app.KendraAllocationJourney.formatTime(parseInt(currentSlot.startTime))}-${apz.app.KendraAllocationJourney.formatTime(parseInt(currentSlot.endTime))}`,
+            status: "Busy",
+            kendraName: currentSlot.kendraName
+        });
+        if (nextSlot) {
+            let currentEndTime = parseInt(currentSlot.endTime);
+            let nextStartTime = parseInt(nextSlot.startTime);
+            let timeDifference = nextStartTime - currentEndTime;
+            if (timeDifference > 30) {
+                newTimeSlotsArr.push({
+                    timeSlot: `${apz.app.KendraAllocationJourney.formatTime(currentEndTime)}-${apz.app.KendraAllocationJourney.formatTime(nextStartTime)}`,
+                    status: "Free",
+                    kendraName: "-"
+                });
+            }
+        }
+    }
+    return newTimeSlotsArr;
+}
+apz.app.KendraAllocationJourney.paintTimeSlotsOnChangeOdDay = function(pthis) {
+    let rowNoSel = 0;
+    if (selLiDiv) {
+        rowNoSel = selLiDiv.id.split("_").at(-1);
+    }
+    let btnArr = ['monTimeSlot', 'tueTimeSlot', 'wedTimeSlot', 'thuTimeSlot', 'friTimeSlot'];
+    let btnSel = pthis.id.split("__").at(-1).slice(0, 3).toUpperCase();
+    let rowNo = pthis.id.split("_").at(-1);
+    btnArr.forEach((data, idx) => {
+        document.getElementById(KdScrId + data + '_' + rowNo).classList.remove('active');
+    })
+    $("#" + pthis.id).addClass("active");
+    painttimeSlotsData = {
+        MON: [],
+        TUE: [],
+        WED: [],
+        THU: [],
+        FRI: []
+    };
+    let togPaintData = apz.data.scrdata.Kendra__IPaintKMDetails_Res.SelKMNames[rowNoSel];
+    let timeSlotsKendraData = kendraResponse.filter(d => d.kendraDtls.kmId === togPaintData.kendraId);
+    timeSlotsKendraData.forEach(data => {
+        const meetingDay = data.kendraDtls.meetingDay;
+        if (painttimeSlotsData[meetingDay]) {
+            painttimeSlotsData[meetingDay].push(data);
+        }
+    });
+    let timeSlotsData = apz.app.KendraAllocationJourney.getTimeSlotsData(btnSel);
+    apz.app.KendraAllocationJourney.paintTimeSlots(timeSlotsData, rowNo);
+}
+apz.app.KendraAllocationJourney.resetAssignKendraModel = function() {
+    apz.data.scrdata.Kendra__IPaintKMDetails_Res.SelKMNames.forEach((d, idx) => {
+        $("#" + KdScrId + 'el_cbx_5_' + idx).prop("checked", false);
+        selLiDiv = document.getElementById('Kendra__KendraAllocationJourney__ct_lst_6_row_' + idx);
+        selLiDiv.querySelector("#Kendra__KendraAllocationJourney__slotsDiv_row").classList.add('sno');
+    });
+}
+apz.app.KendraAllocationJourney.onClickOfSuccessMoreOpt = function() {
+    if ($("#" + KdScrId + 'succMoreOpt').hasClass('sno')) {
+        $("#" + KdScrId + 'succMoreOpt').removeClass('sno');
+    } else {
+        $("#" + KdScrId + 'succMoreOpt').addClass('sno');
+    }
+}
+apz.app.KendraAllocationJourney.paintKendraSuccessData = function(data) {
+    let paintArr = [];
+    let paintData = data.apiRequest.requestObj.kendraAssignmentListObj;
+    let uniqueKmData = paintData.filter((value, index, self) => index === self.findIndex((t) => t.kmName === value.kmName));
+    uniqueKmData.map(data => {
+        let obj = {};
+        let count = paintData.filter(item => item.kmName === data.kmName).length;
+        obj.info = `${data.kmName} (  ${data.kmId} )`;
+        obj.data = `${count} Kendras assigned`;
+        paintArr.push(obj);
+    });
+    let addOnDetailsPaintArr = ['Allocation Type', 'Allocation Duration'];
+    addOnDetailsPaintArr.forEach(d => {
+        let newObj = {};
+        if (d === 'Allocation Type') {
+            newObj.info = d;
+            newObj.data = paintData[0].assignmentType;
+            paintArr.push(newObj);
+        } else if (d === 'Allocation Duration' && paintData[0].assignmentType === 'Temporary') {
+            newObj.info = d;
+            newObj.data = ApzCOB.dateformatter(paintData[0].startDate, 'd M y') + ' - ' + ApzCOB.dateformatter(paintData[0].endDate,
+                'd M y');
+            paintArr.push(newObj);
+        }
+    })
+    apz.data.scrdata.Kendra__IPaintKMDetails_Res.successData = paintArr;
+    apz.data.loadData("IPaintKMDetails", apz.currAppId);
+    apz.setElmValue(KdScrId + 'kendraAllocatedData', paintData.length + ' Kendra Allocated');
+}
+apz.app.KendraAllocationJourney.lauchDasbord = function() {
+    // $('#footer').removeClass('sno');
+    // $("#APZCBO__BaseScreens__sc_col_199").addClass('active');
+    // $("#APZCBO__BaseScreens__sc_col_201").removeClass('active');
+    // apz.app.BaseScreens.launchDashBoard();
+    ApzCOB.backNavigation();
+}
+apz.app.KendraAllocationJourney.backNavigation = function() {
+    $("#" + baseScrId + "sc_row_140").removeClass('sno');
+    $("#" + baseScrId + "sc_col_199").addClass('active');
+    $("#" + baseScrId + "sc_col_201").removeClass('active');
+    ApzCOB.backNavigation();
+}
+apz.app.KendraAllocationJourney.onClickOfAssignToKMCheckBox = function(pthis) {
+    let selId = pthis.id.split("_").at(-1);
+    apz.data.scrdata.Kendra__IPaintKMDetails_Res.SelKMNames.forEach((d, i) => {
+        if (parseInt(selId) === i && $("#" + pthis.id).prop('checked')) {
+            $("#" + KdScrId + "ct_lst_6_row_" + i).addClass('active');
+        } else if (!$("#" + pthis.id).prop('checked')) {
+            $("#" + KdScrId + "ct_lst_6_row_" + i).removeClass('active');
+        } else {
+            $("#" + KdScrId + 'el_cbx_5_' + i).prop('checked', false);
+            $("#" + KdScrId + "ct_lst_6_row_" + i).removeClass('active');
+        }
+    })
+}
+apz.app.KendraAllocationJourney.ProceedKendraConfirm = function() {
+    ApzCOB.toggleModal(KdScrId + "submitKendrasConfirm");
+    apz.app.KendraAllocationJourney.createRequest();
+}
+apz.app.KendraAllocationJourney.cancelKendraConfirm = function() {
+    ApzCOB.toggleModal(KdScrId + "submitKendrasConfirm");
+}
+apz.app.KendraAllocationJourney.setDateForTemporary = function() {
+    let today = new Date();
+    let newDate = new Date(today);
+    newDate.setMonth(newDate.getMonth() + 2);
+    $('#Kendra__KendraAllocationJourney__tempStartDt').datepicker("option", "maxDate", newDate);
+    $('#Kendra__KendraAllocationJourney__tempEndDt').datepicker("option", "maxDate", newDate);
+}
+apz.app.KendraAllocationJourney.kendraAllocationSuccessScreen = function() {
+    if ($("#" + KdScrId + 'moreOptionsAllocation').hasClass('sno')) {
+        $("#" + KdScrId + 'moreOptionsAllocation').removeClass('sno');
+    } else {
+        $("#" + KdScrId + 'moreOptionsAllocation').addClass('sno');
+    }
+}
+apz.app.KendraAllocationJourney.convertToTimeString = function(timeNumber) {
+    let timeStr = timeNumber.toString().padStart(4, '0');
+    let hours = timeStr.slice(0, -2);
+    let minutes = timeStr.slice(-2);
+    return `${hours}:${minutes}`;
+}
+apz.app.KendraAllocationJourney.onClickOfCheckBox = function(pthis) {
+    let selId = pthis.id;
+    if (selId === KdScrId + 'temporaryChkBx') {
+        $("#" + KdScrId + "kdFromTodateDiv_row").removeClass('sno');
+        $("#" + KdScrId + 'pernamentChkBx').prop('check', false);
+        $('#' + KdScrId + 'pernamentChkBx').prop('checked', false)
+    } else {
+        $("#" + KdScrId + "kdFromTodateDiv_row").addClass('sno');
+        $("#" + KdScrId + 'temporaryChkBx').prop('check', false);
+        $('#' + KdScrId + 'temporaryChkBx').prop('checked', false);
+    }
+}
+apz.app.KendraAllocationJourney.clearAllDayData = function() {
+    apz.data.scrdata.Kendra__IPaintKMDetails_Res.KMDataOnDaily.forEach((d, r) => {
+        let liElement = document.getElementById('Kendra__KendraAllocationJourney__ct_lst_7_row_' + r);
+        let spanElement = liElement.querySelector('#Kendra__KendraAllocationJourney__sc_row_653_row');
+        liElement.querySelector('#Kendra__KendraAllocationJourney__daysEditIcon_li').classList.add('sno');
+        spanElement.classList.add('sno');
+        $("#" + KdScrId + 'assignNowWeekBtn_' + r).removeClass('sno');
+    })
+}
+apz.app.KendraAllocationJourney.clearAllWeeklyData = function() {
+    apz.data.scrdata.Kendra__IPaintKMDetails_Res.KMDataWeekly.forEach((d, r) => {
+        let liElement = document.getElementById('Kendra__KendraAllocationJourney__ct_lst_5_row_' + r);
+        let spanElement = liElement.querySelector('#Kendra__KendraAllocationJourney__sc_row_648_row');
+        liElement.querySelector('#Kendra__KendraAllocationJourney__allEditIcon_li').classList.add('sno');
+        spanElement.classList.add('sno');
+        $("#" + KdScrId + 'assignNow_' + r).removeClass('sno');
+    })
+}
+// apz.app.KendraAllocationJourney.unAssignedOnClickConfirmBtn = function() {
+// }
+// apz.app.KendraAllocationJourney.onClickOfUnassignedSelMul = function() {
+//     let selMulChk = $("#" + KdScrId + 'selMulUnAssigned').prop("checked") ? true : false;
+//     let showAllChkBoxInRow;
+//     if(selMulChk){
+//         showAllChkBoxInRow = true;
+//         $("#" + KdScrId + 'selAllChkDiv').removeClass('sno');
+//         $("#" + KdScrId + 'unAssMulSelAssign').removeClass('sno');
+//     }else{
+//         showAllChkBoxInRow = false;
+//         $("#" + KdScrId + 'selAllChkDiv').addClass('sno');
+//         $("#" + KdScrId + 'unAssMulSelAssign').addClass('sno');
+//     }
+//     apz.data.scrdata.Kendra__IPaintKMDetails_Res.UnassignedKMData.forEach((d,idx)=>{
+//         liDiv = document.getElementById('Kendra__KendraAllocationJourney__ct_lst_8_row_' + idx)
+//         showAllChkBoxInRow ? liDiv.querySelector('#' + KdScrId + "unAssRowSelChkBox_li").classList.remove('sno') : liDiv.querySelector('#' + KdScrId + "unAssRowSelChkBox_li").classList.add('sno');
+//     })
+// }
+// apz.app.KendraAllocationJourney.onClickOfUnassignedSelectAll = function() {
+//     let selAllChk = $("#" + KdScrId + 'selAllChkBox').prop("checked") ? true : false;
+//     apz.data.scrdata.Kendra__IPaintKMDetails_Res.UnassignedKMData.forEach((d,idx)=>{
+//         selAllChk ? $("#" + KdScrId + 'unAssRowSelChkBox_' + idx).prop("checked", true) : $("#" + KdScrId + 'unAssRowSelChkBox_' + idx).prop("checked", false);
+//     })
+// }
+// apz.app.KendraAllocationJourney.onClickOfUnassignedSelectKM = function(pthis) {
+//     if (!apz.isNull(pthis)) {
+//         selUnaasignedRow = pthis.id.split("_").at(-1);
+//     }
+//     ApzCOB.toggleModal(KdScrId + "selectKmModel");
+//     let uniqueArray = assigeeKendraData.filter((value, index, self) => index === self.findIndex((t) => (t.kendraDtls.kmId === value.kendraDtls
+//         .kmId)));
+//     let uploadData = [];
+//     uniqueArray.map((data) => {
+//         let newObj = {};
+//         newObj.kmName = data.kendraDtls.kmName;
+//         newObj.kendraId = data.kendraDtls.kmId;
+//         uploadData.push(newObj);
+//     });
+//     apz.data.scrdata.Kendra__IPaintKMDetails_Res.SelKMNames = uploadData;
+//     apz.data.loadData("IPaintKMDetails", apz.currAppId);
+// }
+// apz.app.KendraAllocationJourney.paintKendraUnassignedData = function(selValue) {
+//     let selData = apz.data.scrdata.Kendra__IPaintKMDetails_Res.SelKMNames[selValue];
+//     if (fromMultipleSelectUnassignedFlow) {
+//         mulUnAssKdArr.forEach(d => {
+//             apz.app.KendraAllocationJourney.removeSnoOnSelKendraAlloWeekly(d);
+//             apz.setElmValue(KdScrId + 'selUnAssKdName_' + d, selData.kmName);
+//             apz.setElmValue(KdScrId + 'selUnAssKdId_' + d, selData.kendraId);
+//         })
+//     } else {
+//         apz.app.KendraAllocationJourney.removeSnoForUnassignedRow(selUnaasignedRow);
+//         apz.setElmValue(KdScrId + 'selUnAssKdName_' + selUnaasignedRow, selData.kmName);
+//         apz.setElmValue(KdScrId + 'selUnAssKdId_' + selUnaasignedRow, selData.kendraId);
+//     }
+// }
+// apz.app.KendraAllocationJourney.removeSnoForUnassignedRow = function(rowNo) {
+//     let liElement = document.getElementById('Kendra__KendraAllocationJourney__ct_lst_8_row_' + rowNo);
+//     let spanElement = liElement.querySelector('#' + KdScrId + 'unAssignedKmData_row');
+//     spanElement.classList.remove('sno');
+// }
+// apz.app.KendraAllocationJourney.onClickOfAssignToMultipleUnAssignedKendra = function() {
+// }

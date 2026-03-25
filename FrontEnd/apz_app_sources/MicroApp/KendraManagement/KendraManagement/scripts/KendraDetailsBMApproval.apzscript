@@ -1,0 +1,76 @@
+var KendraDetailscrId = 'Kendra__KendraDetailsBMApproval__';
+apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res = {};
+apz.data.scrdata.Kendra__PaintBMApprovalKMValues_Res = {};
+var filterData = ['All', 'Loan Sanctions', 'Loan disbursement', 'Kendra Date/Time'];
+var nodes = ['Kendra', 'Kendra ID', 'Kendra Since', 'Kendra Address', 'Total Members', 'Old-Frequency', 'Requested Frequency'];
+apz.app.onLoad_KendraDetailsBMApproval = function(params) {
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res = {}
+}
+apz.app.onShown_KendraDetailsBMApproval = function(params) {
+    $("#APZCBO__BaseScreens__sidebarController").addClass('sno');
+    apz.app.KendraDetailsBMApproval.paintFilterData();
+    apz.app.KendraDetailsBMApproval.paintKendraApprovals();
+}
+apz.app.KendraDetailsBMApproval.paintFilterData = function() {
+    let paintData = filterData.map((data) => ({
+        'filter': data
+    }));
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.PaintFilterData = paintData;
+    apz.data.loadData("IPaintPaintKMBMDetails", apz.currAppId);
+}
+apz.app.KendraDetailsBMApproval.paintKendraApprovals = function() {
+    let kdDetils = [];
+    KendraApp.KendraResponse.forEach((data) => {
+        let obj = {};
+        obj.kmName = data.kendraDtls.kmName;
+        obj.kendraId = data.kendraDtls.kendraId;
+        obj.kendraAddr = data.kendraDtls.kendraAddr;
+        kdDetils.push(obj);
+    });
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.PaintBMApprovalKMValues = kdDetils;
+    apz.data.loadData("IPaintPaintKMBMDetails", apz.currAppId);
+}
+apz.app.KendraDetailsBMApproval.onClickOfDescKMApproval = function(pthis) {}
+apz.app.KendraDetailsBMApproval.onClickOfDescKMApproval = function(pthis) {
+    let id = pthis.id.split("_").at("-1")
+    $("#" + KendraDetailscrId + "bmAppRejList").addClass('sno');
+    $("#" + KendraDetailscrId + "bmAppRejKmDetails").removeClass('sno');
+    let nodeValues = nodes.map((data) => ({
+        node: data
+    }));
+    let paintVal = KendraApp.KendraResponse[0].kendraDtls;
+    nodeValues.forEach((item, idx) => {
+        if (item.node === "Kendra") {
+            item.values = paintVal.kendraName;
+        } else if (item.node === "Kendra ID") {
+            item.values = "#" + paintVal.kendraId;
+        } else if (item.node === "Kendra Since") {
+            item.values = "19 May 23";
+        } else if (item.node === "Kendra Address") {
+            item.values = paintVal.kendraAddr;
+        } else if (item.node === "Total Members") {
+            item.values = paintVal.custCount;
+        } else if (item.node === "Old-Frequency") {
+            item.values = "Bi-weekly";
+        } else {
+            item.values = paintVal.meetingFrequency;
+        }
+    });
+    apz.data.scrdata.Kendra__IPaintPaintKMBMDetails_Res.PaintBMApprovalList = nodeValues;
+    apz.data.loadData("IPaintPaintKMBMDetails", apz.currAppId);
+}
+apz.app.KendraDetailsBMApproval.onClickOfApprove = function() {
+    $('#' + KendraDetailscrId + "bmAppRejKmDetails").addClass('sno');
+    $('#' + KendraDetailscrId + 'successDiv').removeClass('sno');
+}
+apz.app.KendraDetailsBMApproval.onClickOfReject = function() {
+    $('#' + KendraDetailscrId + "bmAppRejKmDetails").addClass('sno');
+    $('#' + KendraDetailscrId + 'failureDiv').removeClass('sno');
+}
+apz.app.KendraDetailsBMApproval.onClickOfMoreOptionsInSuccess = function(){
+    $("#" + KendraDetailscrId + "moreInfoData").removeClass('sno');
+    
+}
+apz.app.KendraDetailsBMApproval.ononClickOfMoreOptionsInFailure = function(){
+    $("#" + KendraDetailscrId + "moreInfoDataRej").removeClass('sno');
+}

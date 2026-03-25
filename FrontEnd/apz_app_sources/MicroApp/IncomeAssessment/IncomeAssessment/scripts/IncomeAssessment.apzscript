@@ -1,0 +1,448 @@
+var screenId = 'Income__IncomeAssessment__';
+var fromstagethree = '';
+var checkedQues = false;
+var incomeDtlsField = [{
+    key: "Business",
+    value: ""
+}, {
+    key: "Agriculture",
+    value: "Agriculture"
+}, {
+    key: "Salary",
+    value: "Salary"
+}, {
+    key: "Wage",
+    value: "Wage"
+}, {
+    key: "Pension",
+    value: "Pension"
+}, {
+    key: "Rental Income",
+    value: "Rental Income"
+}, {
+    key: "Wlfare Benefits",
+    value: "Wlfare Benefits"
+}, {
+    key: "Remittances",
+    value: "Remittances"
+}, {
+    key: "Any Other Income",
+    value: "Any Other Income"
+}];
+var earningMembersIncome = [{
+    key: "Business",
+    value: "Business"
+}, {
+    key: "Agriculture",
+    value: "Agriculture"
+}, {
+    key: "Salary",
+    value: "Salary"
+}, {
+    key: "Wage",
+    value: "Wage"
+}, {
+    key: "Pension",
+    value: "Pension"
+}, {
+    key: "Rental Income",
+    value: "Rental Income"
+}, {
+    key: "Wlfare Benefits",
+    value: "Wlfare Benefits"
+}, {
+    key: "Remittances",
+    value: "Remittances"
+}, {
+    key: "Any Other Income",
+    value: "Any Other Income"
+}];
+var otherAssets = [{
+    key: "Livestock(Cattle)",
+    value: ""
+}, {
+    key: "TV",
+    value: ""
+}, {
+    key: "Fridge",
+    value: ""
+}, {
+    key: "Washing Machine",
+    value: ""
+}, {
+    key: "Air Cooler(AC)",
+    value: ""
+}, {
+    key: "None",
+    value: ""
+}];
+var basicAmenities = [{
+    key: "Electricity"
+}, {
+    key: "Water Connection"
+}, {
+    key: "Toilet"
+}, {
+    key: "Sewage"
+}, {
+    key: "Other"
+}, ]
+//var KendraApp=""
+var memberProfile = "";
+if(!window.reIncomeAssessment){
+    window.IncomeApp.payLoad = {};
+}
+apz.app.onLoad_IncomeAssessment = function(params) {
+    // Initialization logic if needed
+    // KendraApp = params.KendraApp;
+};
+apz.app.onShown_IncomeAssessment = function(params) {
+    // KendraApp = params.KendraApp;
+    $('#NEWLOA__AddLoanDetails__gr_row_92 ').addClass('sno');
+    $('#NEWLOA__AddLoanDetails__gr_col_68 ').addClass('sno');;
+    $('#NEWLOA__AddLoanDetails__el_txt_528 ').addClass('sno');;
+    $('#' + screenId + 'addedDetailsRow_row').addClass('sno');
+    $('#' + screenId + 'selfDeclareIncRow').removeClass('sno');
+    if (window.fromIncomeAssmt) {
+        KendraApp.selectedCustomer = uploadCustData[1];
+        KendraApp.selectedKendra = uploadCustData[0];
+    }
+    gApzCOB.addedFamilyMembersArray = [];
+    if (IncomeApp.backNav) {
+        apz.app.IncomeAssessment.paintexstingData();
+    } else {
+        apz.app.IncomeAssessment.PaintIncomeAssessmentDetails();
+    }
+    if (!apz.isNull(params)) {
+        if (params.hasOwnProperty('checkedQues')) {
+            // IncomeApp.payLoad.houseHoldDetails = params.incomepayload.hasOwnProperty('houseHoldDetails') ? params.incomepayload.houseHoldDetails :
+            //     '';
+            IncomeApp.payLoad.houseHoldDetails = {};
+        }
+    }
+};
+apz.app.IncomeAssessment.paintexstingData = function() {
+    // Calculate vintage year if custVintage is valid
+    let vintageYear = KendraApp.selectedCustomer.custVintage ? +KendraApp.selectedCustomer.custVintage + ' Years' : '';
+    apz.setElmValue(screenId + "updCustName", KendraApp.selectedCustomer.customerName ? KendraApp.selectedCustomer.customerName : "");
+    apz.setElmValue(screenId + "el_txt_11", KendraApp.selectedCustomer.customerName.substring(0, 2));
+    apz.setElmValue(screenId + "updCustGroupID", (KendraApp.selectedCustomer.groupId ? KendraApp.selectedCustomer.groupId : ""));
+    apz.setElmValue(screenId + "updCustID", (KendraApp.selectedCustomer.customerId ? KendraApp.selectedCustomer.customerId : ""));
+    apz.setElmValue(screenId + "updVintage", "Customer Vintage: " + vintageYear);
+    apz.setElmValue(screenId + "updCustPhone", KendraApp.selectedCustomer.mobileNum ? KendraApp.selectedCustomer.mobileNum : "");
+    apz.setElmValue(screenId + "updMaritalStatus", KendraApp.selectedCustomer.maritalStatus ? KendraApp.selectedCustomer.maritalStatus : "");
+    apz.setElmValue(screenId + "updKyc", KendraApp.selectedCustomer.primaryType ? KendraApp.selectedCustomer.primaryType : "");
+    apz.setElmValue(screenId + "updDrivLicense", KendraApp.selectedCustomer.primaryId ? KendraApp.selectedCustomer.primaryId : "");
+    if (KendraApp.selectedCustomer.income.length != 0) {
+        var formattedDate = ApzCOB.plaintoDateformat(KendraApp.selectedCustomer.income[0].assesmentDt);
+        apz.setElmValue(screenId + "assesId", formattedDate ? formattedDate : "");
+        $('#Income__IncomeAssessment__assessmentRow').removeClass('sno');
+    } else {
+        $('#Income__IncomeAssessment__assessmentRow').addClass('sno');
+    }
+    apz.data.scrdata.Income__IPaintIncDtls_Res = incomeDtlsField ? incomeDtlsField : {};
+    apz.data.loadData("IPaintIncDtls", 'Income');
+    if (KendraApp.selectedCustomer.isEarning) {
+        $("#Income__IncomeAssessment__el_tgl_5").prop('checked', true)
+        $('#' + screenId + 'yes_ul').removeClass('sno');
+        $('#' + screenId + 'no').addClass('sno');
+    } else {
+        $("#Income__IncomeAssessment__el_tgl_5").prop('checked', false)
+        $('#' + screenId + 'no').removeClass('sno');
+        $('#' + screenId + 'yes_ul').addClass('sno');
+    }
+    IncomeApp.backNav = false;
+}
+apz.app.IncomeAssessment.PaintIncomeAssessmentDetails = function() {
+    // Calculate vintage year if custVintage is valid
+    let vintageYear = KendraApp.selectedCustomer.custVintage ? +KendraApp.selectedCustomer.custVintage + ' Years' : '';
+    apz.setElmValue(screenId + "updCustName", KendraApp.selectedCustomer.customerName ? KendraApp.selectedCustomer.customerName : "");
+    apz.setElmValue(screenId + "el_txt_11", KendraApp.selectedCustomer.customerName.substring(0, 2));
+    apz.setElmValue(screenId + "updCustGroupID", (KendraApp.selectedCustomer.groupId ? KendraApp.selectedCustomer.groupId : ""));
+    apz.setElmValue(screenId + "updCustID", (KendraApp.selectedCustomer.customerId ? KendraApp.selectedCustomer.customerId : ""));
+    apz.setElmValue(screenId + "updVintage", "Customer Vintage: " + vintageYear);
+    apz.setElmValue(screenId + "updCustPhone", KendraApp.selectedCustomer.mobileNum ? KendraApp.selectedCustomer.mobileNum : "");
+    apz.setElmValue(screenId + "updMaritalStatus", KendraApp.selectedCustomer.maritalStatus ? KendraApp.selectedCustomer.maritalStatus : "");
+    apz.setElmValue(screenId + "updKyc", KendraApp.selectedCustomer.primaryType ? KendraApp.selectedCustomer.primaryType : "");
+    apz.setElmValue(screenId + "updDrivLicense", KendraApp.selectedCustomer.primaryId ? KendraApp.selectedCustomer.primaryId : "");
+    if (KendraApp.selectedCustomer.income.length != 0) {
+        var formattedDate = ApzCOB.plaintoDateformat(KendraApp.selectedCustomer.income[0].assesmentDt);
+        apz.setElmValue(screenId + "assesId", formattedDate ? formattedDate : "");
+        $('#Income__IncomeAssessment__assessmentRow').removeClass('sno');
+    } else {
+        $('#Income__IncomeAssessment__assessmentRow').addClass('sno');
+    }
+    apz.data.scrdata.Income__IPaintIncDtls_Res = incomeDtlsField ? incomeDtlsField : {};
+    apz.data.loadData("IPaintIncDtls", 'Income');
+    apz.app.IncomeAssessment.toggleAddDetailsVisibility();
+}
+apz.app.IncomeAssessment.toggleAddDetailsVisibility = function() {
+    window.listItems = $('#' + screenId + 'ct_lst_25').find('li'); // Get all list items
+    listItems.each(function() { // Loop through each list item
+        var listItem = $(this);
+        var checkbox = listItem.find('input[type="checkbox"]');
+        var addButton = listItem.find('button[type="button"]');
+        var anyCheckboxChecked = listItem.find('input[type="checkbox"]:checked').length >
+        0; // Check if any checkbox within the list item is checked
+        if (anyCheckboxChecked) { // Toggle the visibility of the "ADD DETAILS" button based on checkbox state
+            addButton.show(); // Show the button if any checkbox is checked
+        } else {
+            addButton.hide(); // Hide the button if no checkbox is checked
+        }
+    });
+    if (apz.isNull(KendraApp.selectedCustomer.isEarning)) {
+        $("#Income__IncomeAssessment__el_tgl_5").prop('checked', true)
+        $('#' + screenId + 'yes_ul').removeClass('sno');
+        $('#' + screenId + 'no').addClass('sno');
+    } else {
+        if (KendraApp.selectedCustomer.isEarning) {
+            $("#Income__IncomeAssessment__el_tgl_5").prop('checked', true)
+            $('#' + screenId + 'yes_ul').removeClass('sno');
+            $('#' + screenId + 'no').addClass('sno');
+        } else {
+            $("#Income__IncomeAssessment__el_tgl_5").prop('checked', false)
+            $('#' + screenId + 'no').removeClass('sno');
+            $('#' + screenId + 'yes_ul').addClass('sno');
+        }
+    }
+};
+// Function to handle checkbox click
+apz.app.IncomeAssessment.onCLickCheckBoxList = function(checkbox) {
+    window.listItem = $(checkbox).closest('li'); // Find the parent list item
+    apz.app.IncomeAssessment.toggleAddDetailsVisibility(); // Toggle visibility of "ADD DETAILS" button
+}
+apz.app.IncomeAssessment.onAddDetailsClick = function(pthis) {
+    var selectedLabel = "";
+    for (var i = 0; i < listItem.length; i++) { // Loop through listItem to find the selected label
+        var text = listItem[i].innerText.trim(); // Remove leading and trailing whitespace
+        text = text.replace(/\n\t\n.*/, "");
+        if (text !== "") {
+            selectedLabel = text;
+            break; // Exit the loop once the selected label is found
+        }
+    }
+    $('#Income__IncomeAssessment__addDetailsOne_grp_lbl').text(selectedLabel); // Update the form label text with the selected label
+    $('#' + screenId + 'selfDeclareIncRow').addClass('sno'); // Hide selfDeclareIncRow and show sourcesIncomeDtlsRow
+    $('#' + screenId + 'sourcesIncomeDtlsRow').removeClass('sno');
+}
+apz.app.IncomeAssessment.addDetailsIncomeField = function() { // Get form input values
+    let addDetailsOne = $('#' + screenId + 'addDetailsOne').val();
+    let addDetailsTwo = $('#' + screenId + 'addDetailsTwo').val();
+    let addDetailsThree = $('#' + screenId + 'addDetailsThree').val();
+    // Perform form validation
+    // if (!addDetailsOne || !addDetailsTwo || !addDetailsThree) {
+    //     // Handle validation failure, display error message or prevent form submission
+    //     alert("Please fill in all fields.");
+    //     return;
+    // }
+    // Construct object with form data
+    let formData = {
+        addDetailsOne: addDetailsOne,
+        addDetailsTwo: addDetailsTwo,
+        addDetailsThree: addDetailsThree
+    };
+    apz.app.IncomeAssessment.updateListWithData(formData); // Update list with form data
+};
+apz.app.IncomeAssessment.updateListWithData = function(formData) { // Function to update list with form data
+    let listItemIndex = listItem.attr('rowno'); // Get the selected list item index
+    // Update text content with formData
+    let businessTypeText = $('#' + screenId + 'el_txt_635_' + listItemIndex + '_txtcnt');
+    let tenureText = $('#' + screenId + 'el_txt_637_' + listItemIndex + '_txtcnt');
+    let incomeText = $('#' + screenId + 'el_txt_639_' + listItemIndex + '_txtcnt');
+    businessTypeText.text(formData.addDetailsOne || '');
+    tenureText.text(formData.addDetailsTwo || '');
+    incomeText.text(formData.addDetailsThree || '');
+    listItem.find('#' + screenId + 'addedDetailsRow_row').removeClass('sno'); // Show added details row
+    let editRowElement = listItem.find('#' + screenId + 'editRow_row'); // Locate and show the editRow element
+    editRowElement.removeClass('sno');
+    $('#' + screenId + 'el_btn_62_' + listItemIndex).addClass('sno'); // Hide Add Details button
+    $('#' + screenId + 'el_btn_64_' + listItemIndex).removeClass('sno'); // Show Edit button
+    // Hide form screen and show previous screen
+    $('#' + screenId + 'sourcesIncomeDtlsRow').addClass('sno');
+    $('#' + screenId + 'selfDeclareIncRow').removeClass('sno');
+};
+apz.app.IncomeAssessment.backNavigateIncomeDtls = function(pthis) {
+    if (IncomeApp.isPendingTask) {
+        window.RpcOnHoldBacknavigation = true;
+        ApzCOB.launchMicroApp("Income", "PendingTask", 'APZCBO__BaseScreens__BaseDIV', '');
+        //$('#APZCBO__BaseScreens__BaseDIV').removeClass('sno');
+        //$('#APZCBO__BaseScreens__STAGE4').addClass('sno');
+        IncomeApp.isPendingTask = false;
+    } else if (window.fromIncomeAssmt) {
+        ApzCOB.launchMicroApp('Kendra', 'MemberDetails', 'APZCBO__BaseScreens__BaseDIV', uploadCustData);
+    } else if (IncomeApp.flow === 'fromApp') {
+        IncomeApp.checkedQues = false;
+        $('#APZCBO__BaseScreens__STAGE1').removeClass('sno');
+        $('#' + screenId + 'stage2').removeClass('sno');
+        $('#APZCBO__BaseScreens__BaseDIV').addClass('sno');
+        $('#NEWLOA__AddLoanDetails__gr_col_68').removeClass('sno');
+        screenId='NEWLOA__AddLoanDetails__';
+    } else {
+        var data = {
+            //Kendra: KendraApp.selectedCustomer
+        };
+        ApzCOB.launchMicroApp('Income', 'IncomeAssessment', 'APZCBO__BaseScreens__BaseDIV', data);
+    }
+    // if ($('#' + screenId + 'el_txt_41:contains("Business Income Details")').is(':visible')) {
+    //     $('#' + screenId + 'sourcesIncomeDtlsRow').addClass('sno');
+    //     $('#Income__IncomeAssessment__selfDeclareIncRow ').removeClass('sno');
+    // } else {
+    //      $('#Income__IncomeAssessment__el_txt_20').removeClass('sno');
+    //     $('#Income__IncomeAssessment__gr_row_16').removeClass('sno');
+    //     $('#Income__IncomeAssessment__ct_frm_180').removeClass('sno');
+    //     $('#Income__IncomeAssessment__gr_row_215').removeClass('sno');
+    //     $('#Income__IncomeAssessment__ct_frm_180').addClass('sno');
+    //     $('#Income__IncomeAssessment__sc_col_276').addClass('sno');
+    //     $('#Income__IncomeAssessment__el_bdg_1').removeClass('sno');
+    //     $('#Income__IncomeAssessment__el_btn_59').removeClass('sno');
+    //     $("#Income__IncomeAssessment__ct_frm_12").removeClass('sno');
+    //     $("#Income__IncomeAssessment__ps_pls_22").removeClass('sno');
+    //     $('#Income__IncomeAssessment__gr_row_20').removeClass('sno');
+    //     $('#Income__IncomeAssessment__houseHoldRow').addClass('sno');
+    // }
+}
+apz.app.IncomeAssessment.onClickEditMemberProfile = function() {
+    $('#Income__IncomeAssessment__el_txt_20').removeClass('sno');
+    $('#Income__IncomeAssessment__gr_row_16').removeClass('sno');
+    $('#Income__IncomeAssessment__ct_frm_180').removeClass('sno');
+    $('#Income__IncomeAssessment__gr_row_215').removeClass('sno');
+    $('#Income__IncomeAssessment__ct_frm_180').addClass('sno');
+    $('#Income__IncomeAssessment__sc_col_276').addClass('sno');
+    $('#Income__IncomeAssessment__el_bdg_1').removeClass('sno');
+    $('#Income__IncomeAssessment__el_btn_59').removeClass('sno');
+    $("#Income__IncomeAssessment__ct_frm_12").removeClass('sno');
+    $("#Income__IncomeAssessment__ps_pls_22").removeClass('sno');
+    $('#Income__IncomeAssessment__gr_row_20').removeClass('sno');
+    $('#Income__IncomeAssessment__houseHoldRow').addClass('sno');
+}
+apz.app.IncomeAssessment.onChangeOfMember = function(pthis) {
+    var listItem = $(pthis).closest('li');
+    var rowToToggle = listItem.find('#Income__IncomeAssessment__sc_row_964_row');
+    var toggleInput = $(pthis).find('input[type="CHECKBOX"]');
+    if (toggleInput.is(':checked')) {
+        rowToToggle.removeClass('sno');
+    } else {
+        rowToToggle.addClass('sno');
+    }
+};
+apz.app.IncomeAssessment.onChangeOfEarningMember = function(pthis) {
+    let checkbox = $(pthis).find('input[type="checkbox"]'); // Get the checkbox element
+    if (checkbox.length === 0) { // Check if the checkbox is found and log an error if not
+        console.error('Checkbox not found within pthis context');
+        return;
+    }
+    let isChecked = checkbox.prop('checked'); // Check if the checkbox is checked
+    if (isChecked) {
+        $('#' + screenId + 'yes_ul').removeClass('sno');
+        $('#' + screenId + 'no').addClass('sno');
+        /* According to new requirement commenting these lines for phase 1 */
+        //  $('#Income__IncomeAssessment__gr_row_18').removeClass('sno');
+        //  apz.data.scrdata.Income__IPaintIncDtls_Res = incomeDtlsField ? incomeDtlsField : {};
+        // apz.data.loadData("IPaintIncDtls", 'Income');
+    } else {
+        $('#' + screenId + 'no').removeClass('sno');
+        $('#' + screenId + 'yes_ul').addClass('sno');
+        /* According to new requirement commenting these lines for phase 1 */
+        //  $('#Income__IncomeAssessment__gr_row_18').addClass('sno');
+    }
+}
+apz.app.IncomeAssessment.onChangeOfEarningMember = function(pthis) {
+    if ($("#Income__IncomeAssessment__el_tgl_5").prop('checked')) {
+        KendraApp.selectedCustomer.isEarning = true;
+        $('#' + screenId + 'yes_ul').removeClass('sno');
+        $('#' + screenId + 'no').addClass('sno');
+        //KendraApp.selectedCustomer.earnings[0].isEarning=true; 
+    } else {
+        KendraApp.selectedCustomer.isEarning = false;
+        $('#' + screenId + 'no').removeClass('sno');
+        $('#' + screenId + 'yes_ul').addClass('sno');
+    }
+}
+apz.app.IncomeAssessment.nextStepToAddMemberProfile = function() {
+    window.IncomeApp.payLoad.memberProfile = {};
+    IncomeApp.payLoad.memberProfile = {
+        customerName: KendraApp.selectedCustomer.customerName ? KendraApp.selectedCustomer.customerName : "",
+        groupId: KendraApp.selectedCustomer.groupId ? KendraApp.selectedCustomer.groupId : "",
+        customerId: KendraApp.selectedCustomer.customerId ? KendraApp.selectedCustomer.customerId : "",
+        vintageYear: KendraApp.selectedCustomer.custVintage ? 'Vintage ' + KendraApp.selectedCustomer.custVintage + ' Years' : '',
+        mobileNum: KendraApp.selectedCustomer.mobileNum ? KendraApp.selectedCustomer.mobileNum : "",
+        maritalStatus: KendraApp.selectedCustomer.maritalStatus ? KendraApp.selectedCustomer.maritalStatus : "",
+        primaryType: KendraApp.selectedCustomer.primaryType ? KendraApp.selectedCustomer.primaryType : "",
+        primaryId: KendraApp.selectedCustomer.primaryId ? KendraApp.selectedCustomer.primaryId : "",
+        isEarning: $('#' + screenId + 'yes_ul').hasClass('sno') ? 'no' : 'yes',
+        depname: KendraApp.selectedCustomer.depname ? KendraApp.selectedCustomer.depname : '',
+        depDob: KendraApp.selectedCustomer.depDob ? KendraApp.selectedCustomer.depDob : '',
+        dob: KendraApp.selectedCustomer.dob ? KendraApp.selectedCustomer.dob : '',
+    };
+    window.IncomeApp.screen = apz.childScr;
+    IncomeApp.status = 'INITIATE';
+    window.IncomeApp.currentStage = 'AddMember';
+    apz.app.CommonScript.saveIncomeAssesment();
+    // ApzCOB.launchMicroApp('Income', 'AddHouseHoldDetails', 'APZCBO__BaseScreens__BaseDIV','');
+    //  apz.app.IncomeAssessment.saveMemberProfileDetails(memberProfile);
+}
+apz.app.IncomeAssessment.saveMemberProfileDetails = function(memberProfile) {
+    let appDate = KendraApp.selectedCustomer.activationDate;
+    let formattedDate = appDate.slice(0, 4) + '-' + appDate.slice(4, 6) + '-' + appDate.slice(6, 8);
+    var req = {
+        "apiRequest": {
+            "interfaceName": "SaveIncomeAssessment",
+            "appId": gAppId,
+            "userId": LoggedInUserDetails.kmId,
+            "requestObj": {
+                "customerId": KendraApp.selectedCustomer.customerId,
+                "kendraId": KendraApp.selectedCustomer.kendraId,
+                "kmId": LoggedInUserDetails.kmId,
+                "versionNum": "",
+                "applicationDate": formattedDate,
+                "createdBy": "",
+                "kycType": KendraApp.selectedCustomer.primaryType,
+                "applicationStatus": "PENDING",
+                "productGrpCode": "",
+                "productCode": "",
+                "currentStage": "",
+                "currentScrId": "",
+                "branchCode": KendraApp.selectedCustomer.bankIfscCode,
+                "cbCheck": "",
+                "incAssessmentPayload": memberProfile,
+                "applicationRefNo": KendraApp.selectedCustomer.customerId + ApzCOB.generateRandomNumber()
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "SaveIncomeAssessment", "N", "N", req, 'Y', apz.app.IncomeAssessment.saveMemberProfileDetailsCB);
+}
+apz.app.IncomeAssessment.saveMemberProfileDetailsCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            var ifaceName = ApzCOB.GetInterfaceResMap(params);
+            var response = params.res[ifaceName].apiResponse.ResponseBody.responseObj;
+            if (response === "Application details saved successfully!!") {
+                let data = {
+                    // KendraApp: KendraApp,
+                    memberProfile: window.memberProfile
+                }
+                ApzCOB.launchMicroApp('Income', 'AddHouseHoldDetails', 'APZCBO__BaseScreens__BaseDIV', data);
+            } else {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("Already records available!"), "E");
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_TECHNICALDIFF"), "E");
+    }
+}
+apz.app.IncomeAssessment.editMobile = function() {
+    window.customerMobNum = KendraApp.selectedCustomer.mobileNum;
+    $('#APZCBO__BaseScreens__BaseDIV').addClass('sno');
+    let data = {
+        selectedCust: KendraApp.selectedCustomer,
+        childScr: 'IncomeAssessment'
+    };
+    ApzCOB.launchMicroApp("NEWLOA", "UpdateMobNumber", "APZCBO__BaseScreens__STAGE15", data);
+}
+apz.app.IncomeAssessment.onUpdateMobNum = function() {
+    apz.setElmValue(screenId + "updCustPhone", KendraApp.selectedCustomer.mobileNum);
+    apz.childScr = 'IncomeAssessment'
+}

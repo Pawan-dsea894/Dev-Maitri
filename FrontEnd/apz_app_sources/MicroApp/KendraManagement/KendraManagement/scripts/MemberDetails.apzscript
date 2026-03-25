@@ -1,0 +1,115 @@
+var MemberDetailsScrId = 'Kendra__MemberDetails__';
+apz.app.onLoad_MemberDetails = function(params) {
+    //initialization
+}
+apz.app.onShown_MemberDetails = function(params) {
+    window.uploadCustData = [];
+    window.uploadCustData = params;
+    apz.setElmValue(MemberDetailsScrId + "custName", uploadCustData[1].customerName);
+    apz.setElmValue(MemberDetailsScrId + "custId", uploadCustData[1].customerId);
+    apz.setElmValue(MemberDetailsScrId + "activationDt", ApzCOB.plaintoDateformat(uploadCustData[1].activationDate));
+    if (window.fromIncomeAssmt) {
+        $("#Kendra__MemberDetails__incAssmtPanel_li").trigger('onclick');
+        $("#Kendra__MemberDetails__overviewDetPanel_li").removeClass('current');
+        $("#Kendra__MemberDetails__incAssmtPanel_li").addClass('current');
+    } else {
+        apz.app.MemberDetails.OverViewDetails();
+    }
+}
+apz.app.MemberDetails.OverViewDetails = function() {
+    apz.setElmValue(MemberDetailsScrId + "kendraGroup", uploadCustData[0].kendraName);
+    apz.setElmValue(MemberDetailsScrId + "membresDob", uploadCustData[1].dob);
+    apz.setElmValue(MemberDetailsScrId + "maritalStatus", uploadCustData[1].maritalStatus);
+    apz.setElmValue(MemberDetailsScrId + "spouseNameDob", uploadCustData[1].earnings[0].memRelation + "," + uploadCustData[1].earnings[0].dob);
+    apz.setElmValue(MemberDetailsScrId + "mobileNo", uploadCustData[1].mobileNum);
+    var loanDetails = [];
+    uploadCustData[1].loanDtls.forEach(function(obj, i) {
+        var loanDet = {};
+        loanDet = "₹" + ApzCOB.fn_FormatAmount(obj.amount) + "(" + obj.product + ")";
+        loanDetails.push(loanDet);
+    })
+    apz.setElmValue(MemberDetailsScrId + "activeLoans", loanDetails);
+}
+apz.app.MemberDetails.MemberDetails = function() {
+    apz.setElmValue(MemberDetailsScrId + "maritalStatusDet", uploadCustData[1].maritalStatus);
+    apz.setElmValue(MemberDetailsScrId + "membersDobDet", uploadCustData[1].dob);
+    apz.setElmValue(MemberDetailsScrId + "mobileNoDet", uploadCustData[1].mobileNum);
+    apz.setElmValue(MemberDetailsScrId + "membersKycDet", uploadCustData[1].primaryId);
+    apz.setElmValue(MemberDetailsScrId + "membersKycType", uploadCustData[1].primaryType);
+    apz.setElmValue(MemberDetailsScrId + "spouseNameDobDet", uploadCustData[1].earnings[0].name + "," + uploadCustData[1].earnings[0].dob);
+    apz.setElmValue(MemberDetailsScrId + "spouseKycIdDet", uploadCustData[1].earnings[0].legaldocId);
+    apz.setElmValue(MemberDetailsScrId + "spouseKycTypeDet", uploadCustData[1].earnings[0].legaldocName);
+}
+apz.app.MemberDetails.ActiveLoans = function() {
+    apz.data.scrdata.Kendra__IPaintMemberDetails_Res = {};
+    apz.data.scrdata.Kendra__IPaintMemberDetails_Res.ActiveLoanDet = uploadCustData[1].loanDtls;
+    apz.data.loadData("IPaintMemberDetails", 'Kendra');
+}
+apz.app.MemberDetails.EligibleProducts = function() {
+    if (uploadCustData[1].eligibleLoan.length === 0) {
+        $("#" + MemberDetailsScrId + "noRecordFound").removeClass('sno');
+        $("#" + MemberDetailsScrId + "eligibleProdList").addClass('sno');
+    } else {
+        $("#" + MemberDetailsScrId + "noRecordFound").addClass('sno');
+        $("#" + MemberDetailsScrId + "eligibleProdList").removeClass('sno');
+        apz.data.scrdata.Kendra__IPaintMemberDetails_Res = {};
+        apz.data.scrdata.Kendra__IPaintMemberDetails_Res.ActiveLoanDet = uploadCustData[1].eligibleLoan;
+        apz.data.loadData("IPaintMemberDetails", 'Kendra');
+    }
+}
+apz.app.MemberDetails.IncomeAssessment = function() {
+    var selCustEarningData = [];
+    uploadCustData[1].earnings.forEach(function(obj, i) {
+        var det = {};
+        det = obj.name + "(" + obj.memRelation + ")";
+        selCustEarningData.push(det)
+    });
+    if (uploadCustData[1].earnings.length > 0) {
+        apz.setElmValue(MemberDetailsScrId + "earningMemberDet", selCustEarningData);
+        apz.setElmValue(MemberDetailsScrId + "earningMembersCount", "(" + uploadCustData[1].earnings.length + ")");
+    }
+    if (uploadCustData[1].income.length > 0) {
+        var income = uploadCustData[1].income.map(inc => inc.totIncome).reduce((acc, curValue) => acc + parseInt(curValue), 0);
+        var yearExp = uploadCustData[1].income.map(exp => exp.totExpense).reduce((acc, curValue) => acc + parseInt(curValue), 0);
+        apz.setElmValue(MemberDetailsScrId + "totalFamilyIncomeVal", "₹" + ApzCOB.fn_FormatAmount(income));
+        apz.setElmValue(MemberDetailsScrId + "yearlyExpenseVal", "(-)" + "₹" + ApzCOB.fn_FormatAmount(yearExp));
+        if (apz.isNull(uploadCustData[1].income[0].assesmentDt)) {
+            $("#" + MemberDetailsScrId + "lastIncomeRow").addClass('sno');
+        } else {
+            $("#" + MemberDetailsScrId + "lastIncomeRow").removeClass('sno');
+            apz.setElmValue(MemberDetailsScrId + "lastAsstDt", ApzCOB.plaintoDateformat(uploadCustData[1].income[0].assesmentDt));
+        }
+    }else{
+         $("#" + MemberDetailsScrId + "lastIncomeRow").addClass('sno');
+    }
+    if (window.fromIncomeAssmt) {
+        $("#" + MemberDetailsScrId + "incNextBtn").text("Update Income Assessment");
+    } else if (uploadCustData[1].earnings === 0 || uploadCustData[1].income === 0) {
+        $("#" + MemberDetailsScrId + "incNextBtn").text("Add Earning Member Details");
+    }
+}
+apz.app.MemberDetails.MemberPhoto = function() {
+    $("#" + MemberDetailsScrId + "MemberPhotoRow").removeClass('sno');
+}
+apz.app.MemberDetails.backNavigationPhoto = function() {
+    $("#" + MemberDetailsScrId + "MemberPhotoRow").addClass('sno');
+}
+apz.app.MemberDetails.backNavigation = function() {
+    if (window.fromIncomeAssmt) {
+        ApzCOB.launchMicroApp('Income', 'UpdateIncomeAssessment', 'APZCBO__BaseScreens__BaseDIV', '');
+    } else if (window.fromKendraDet) {
+        ApzCOB.launchMicroApp('Kendra', 'KendraDetails', 'APZCBO__BaseScreens__BaseDIV', uploadCustData[0]);
+    } else {
+        ApzCOB.backNavigation();
+    }
+}
+apz.app.MemberDetails.nextIncomeDetails = function(pthis) {
+    var ptext = $("#" + pthis.id).text();
+    if (window.fromIncomeAssmt) {
+        if (ptext === 'Update Income Assessment' || ptext === 'Add Earning Member Details') {
+            window.IncomeApp = {};
+            IncomeApp.flow === 'dashboard';
+            ApzCOB.launchMicroApp('Income', 'IncomeAssessment', 'APZCBO__BaseScreens__BaseDIV', '');
+        }
+    }
+}
