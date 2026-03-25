@@ -1,0 +1,135 @@
+var searchCustAppScreenId = "NEWLOA__SearchCustomerApplication__";
+var details = "";
+apz.app.onLoad_SearchCustomerApplication = function(params) {
+    $('#header').addClass('sno');
+    $('#footer').addClass('sno');
+}
+apz.app.onShown_SearchCustomerApplication = function() {
+    apz.data.scrdata.NEWLOA__ApplicationDtlsList_Res = {};
+    apz.data.scrdata.NEWLOA__ApplicationDtlsList_Res.ApplicationDtlsListNode = [];
+    apz.app.SearchCustomerApplication.fnFetchCBPendingApplns();
+    /*apz.app.SearchCustomerApplication.paintCustomerDetails();
+    apz.app.SearchCustomerApplication.paintStatusList();*/
+};
+apz.app.SearchCustomerApplication.backNavigate = function() {
+    ApzCOB.launchMicroApp('Dashbo', 'dashboard', 'APZCBO__BaseScreens__BaseDIV', KendraApp.selectedKendra);
+}
+/*Service Call*/
+apz.app.SearchCustomerApplication.fnFetchCBPendingApplns = function() {
+    var req = {
+        "apiRequest": {
+            "interfaceName": "FetchApplicationList",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "userRole": "CB_PENDING",
+                "userId": LoggedInUserDetails.userID
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "FetchApplicationList", "N", "N", req, false, apz.app.SearchCustomerApplication.fnFetchCBPendingApplnsCB);
+};
+apz.app.SearchCustomerApplication.fnFetchCBPendingApplnsCB = function(params) {
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (params.res.APZCBO__FetchApplicationList_Res.apiResponse.ResponseHeader.ResponseCode === '0') {
+                if (!apz.isNull(params.res.APZCBO__FetchApplicationList_Res.apiResponse.ResponseBody.responseObj)) {
+                    apz.stopLoader();
+                    let pendingApplns = params.res.APZCBO__FetchApplicationList_Res.apiResponse.ResponseBody.responseObj;
+                    if (typeof pendingApplns === "string") {
+                        pendingApplns = JSON.parse(pendingApplns);
+                    }
+                    var mappingdet = [];
+                    for (var i = 0; i < pendingApplns.length; i++) {
+                        mappingdet[i] = {};
+                        mappingdet[i].customerName = pendingApplns[i].customerName;
+                        mappingdet[i].amount = pendingApplns[i].amount;
+                        mappingdet[i].productshortDesc = pendingApplns[i].productshortDesc;
+                        mappingdet[i].kendraName = pendingApplns[i].kendraName;
+                        mappingdet[i].kendraId = pendingApplns[i].kendraId;
+                        mappingdet[i].applicationId = pendingApplns[i].applicationId;
+                        var char1 = pendingApplns[i].customerName.split(" ")[0].substr(0, 1);
+                        var char2 = pendingApplns[i].customerName.split(" ")[1] ? pendingApplns[i].customerName.split(" ")[1].substr(0, 1) : "";
+                        mappingdet[i].shortName = (char1 + char2).toUpperCase();;
+                    }
+                    apz.data.scrdata.NEWLOA__ApplicationDtlsList_Res.ApplicationDtlsListNode = mappingdet;
+                    details = JSON.parse(JSON.stringify(apz.data.scrdata.NEWLOA__ApplicationDtlsList_Res.ApplicationDtlsListNode));
+                    apz.data.loadData("ApplicationDtlsList", "NEWLOA");
+                    apz.show(searchCustAppScreenId + "searchMemRow");
+                    apz.show(searchCustAppScreenId + "SearchMemListRow");
+                    apz.hide(searchCustAppScreenId + "noCustomerRow");
+                } else {
+                    apz.stopLoader();
+                    //SHow No Records Found.
+                    apz.hide(searchCustAppScreenId + "searchMemRow");
+                    apz.hide(searchCustAppScreenId + "SearchMemListRow");
+                    apz.show(searchCustAppScreenId + "noCustomerRow");
+                }
+            } else {
+                apz.stopLoader();
+                ApzCOB.fnDisplayMsg("Unable to fetch Pending Applications.", "E");
+                apz.hide(searchCustAppScreenId + "searchMemRow");
+                apz.hide(searchCustAppScreenId + "SearchMemListRow");
+                apz.show(searchCustAppScreenId + "noCustomerRow");
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg("Unable to fetch Pending Applications.", "E");
+        apz.hide(searchCustAppScreenId + "searchMemRow");
+        apz.hide(searchCustAppScreenId + "customerListRow");
+        apz.show(searchCustAppScreenId + "noCustomerRow");
+    }
+};
+apz.app.SearchCustomerApplication.onCustomerSearch = function(pthis) {
+    let searchText = $("#" + pthis.id).val();
+    custDtls = details.filter(function(obj) {
+        return obj.customerName.includes(searchText)
+    });
+    apz.data.scrdata.NEWLOA__ApplicationDtlsList_Res = {};
+    apz.data.scrdata.NEWLOA__ApplicationDtlsList_Res.ApplicationDtlsListNode = custDtls;
+    apz.data.loadData("ApplicationDtlsList", 'NEWLOA');
+}
+apz.app.SearchCustomerApplication.paintCustomerDetails = function() {
+    let custDtls = [];
+    appCustDtls.apiRequest.requestObj.applicationdtls.forEach(function(k, i) {
+        let tempCustObj = {
+            'customerName': appCustDtls.apiRequest.requestObj.applicationdtls[i].customerDtls.customerName,
+            'customerId': '#' + appCustDtls.apiRequest.requestObj.applicationdtls[i].customerDtls.customerId,
+            'status': appCustDtls.apiRequest.requestObj.applicationdtls[i].status
+        }
+        custDtls.push(tempCustObj);
+    });
+    if (custDtls.length > 0) {
+        apz.data.scrdata.NEWLOA__ApplicationDtlsList_Res = {};
+        apz.data.scrdata.NEWLOA__ApplicationDtlsList_Res.ApplicationDtlsListNode = custDtls;
+        apz.data.loadData("ApplicationDtlsList", 'NEWLOA');
+    }
+}
+apz.app.SearchCustomerApplication.paintStatusList = function() {
+    var statusList = [],
+        status = [];
+    appCustDtls.apiRequest.requestObj.applicationdtls.forEach(function(k, i) {
+        if (!(status.includes(appCustDtls.apiRequest.requestObj.applicationdtls[i].status))) {
+            let tempStatusObj = {
+                "status": appCustDtls.apiRequest.requestObj.applicationdtls[i].status
+            }
+            statusList.push(tempStatusObj);
+            status.push(appCustDtls.apiRequest.requestObj.applicationdtls[i].status)
+        }
+    });
+    if (statusList.length > 0) {
+        apz.data.scrdata.NEWLOA__StatusList_Res = {};
+        apz.data.scrdata.NEWLOA__StatusList_Res.StatusListNode = statusList;
+        apz.data.loadData("StatusList", 'NEWLOA');
+    }
+}
+apz.app.SearchCustomerApplication.onClickCustomer = function(pthis) {
+    let rowNo = $(pthis).attr('rowno');
+    let selectedCustDtls = appCustDtls.apiRequest.requestObj.applicationdtls.filter(function(e, i) {
+        return ((e.customerDtls.customerName == apz.data.scrdata.NEWLOA__ApplicationDtlsList_Res.ApplicationDtlsListNode[rowNo]
+            .customerName))
+    });
+    ApzCOB.launchMicroApp("NEWLOA", "AddLoanDetails", "APZCBO__BaseScreens__BaseDIV", selectedCustDtls)
+}

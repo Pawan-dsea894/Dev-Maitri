@@ -1,0 +1,109 @@
+var ScrId = "Widget__BranchDetails__";
+apz.app.onLoad_BranchDetails = function () {};
+
+apz.app.onShown_BranchDetails = function (params) {
+    apz.app.BranchDetails.checkBranchStatus();
+};
+apz.app.BranchDetails.checkBranchStatus = function () {
+    let loanStatus = [],
+        status = [];
+    loansanctionList.forEach(function (el, i) {
+        if (!(status.includes(loansanctionList[i].status))) {
+            loanStatus.push({ key: loansanctionList[i].status });
+            status.push(loansanctionList[i].status);
+        }
+        if (el.customerName) {
+            loansanctionList[i].profileName = el.customerName.substr(0, 1);
+        }
+    });
+    loanStatus.unshift({ key: "All Applications" });
+    loanStatus = loanStatus.filter(e => e.key !== 'Sanctioned');
+    if (loanStatus.length > 0) {
+        apz.data.scrdata.Widget__IPaintBranchStatus_Res = {};
+        apz.data.scrdata.Widget__IPaintBranchStatus_Res = loanStatus;
+        apz.data.loadData("IPaintBranchStatus", "Widget");
+        $('#Widget__IPaintBranchStatus__o__Widget__IPaintBranchStatus_Res__key_0').addClass('active');
+    }
+    apz.app.BranchDetails.paintMemberDtls();
+};
+
+apz.app.BranchDetails.formatBranchRecord = function (el) {
+    let parsedAddInfo = {};
+    try {
+        parsedAddInfo = el.addInfo ? JSON.parse(el.addInfo) : {};
+    } catch (err) {
+        parsedAddInfo = {};
+    }
+
+    let cbapprovedAmount, amount;
+
+    if (el.amount === parsedAddInfo.caglAmt || parsedAddInfo.caglAmt === undefined) {
+        cbapprovedAmount = parsedAddInfo.caglAmt
+            ? ApzCOB.fn_FormatAmount(parsedAddInfo.caglAmt)
+            : 'NO DATA';
+        amount = el.amount >= 0 ? ApzCOB.fn_FormatAmount(el.amount) : 'NO DATA';
+    } else {
+        cbapprovedAmount = el.amount
+            ? ApzCOB.fn_FormatAmount(el.amount)
+            : 'NO DATA';
+        amount = parsedAddInfo.caglAmt
+            ? ApzCOB.fn_FormatAmount(parsedAddInfo.caglAmt)
+            : 'NO DATA';
+    }
+
+    return {
+        applicationId: el.applicationId ?? 'NO DATA',
+        customerId: el.customerId ?? 'NO DATA',
+        customerName: el.customerName ?? 'NO DATA',
+        branchCode: el.branchCode ?? 'NO DATA',
+        branchName: parsedAddInfo.branchName ?? 'NO DATA',
+        productCode: el.productCode ?? 'NO DATA',
+        productName: el.productshortDesc ?? 'NO DATA',
+        applicationDate: el.applicationDate ?? 'NO DATA',
+        areaName: parsedAddInfo.areaName ?? 'NO DATA',
+        regionName: parsedAddInfo.regionName ?? 'NO DATA',
+        state: parsedAddInfo.state ?? 'NO DATA',
+        amount: amount ?? 'NO DATA',
+        approvedAmount: cbapprovedAmount ?? 'NO DATA',
+        applicationStatus: el.status ?? 'NO DATA'
+    };
+};
+apz.app.BranchDetails.paintMemberDtls = function () {
+    let branchDtls = loansanctionList.map(apz.app.BranchDetails.formatBranchRecord);
+
+    if (branchDtls.length > 0) {
+        apz.data.scrdata.Widget__BranchDetailList_Res = {};
+        apz.data.scrdata.Widget__BranchDetailList_Res.BranchDetails = branchDtls;
+        apz.data.loadData("BranchDetailList", 'Widget');
+        $("#" + ScrId + "noRecordForm").addClass('sno');
+    } else {
+        $("#" + ScrId + "noRecordForm").removeClass('sno');
+    }
+};
+apz.app.BranchDetails.onCLickBranchStatus = function (pthis) {
+    apz.startLoader();
+    setTimeout(function () {
+        let status = $('#' + pthis.id).text().trim();
+        $('.ett-badg').removeClass('active');
+        $(pthis).addClass('active');
+        let filteredList = [];
+        if (status === 'All Applications') {
+            filteredList = loansanctionList;
+        } else {
+            filteredList = loansanctionList.filter(el => el.status === status);
+        }
+        let formattedBranchDtls = filteredList.map(apz.app.BranchDetails.formatBranchRecord);
+        apz.app.BranchDetails.paintFilteredBranchDtls(formattedBranchDtls);
+        apz.stopLoader();
+    }, 300);
+};
+apz.app.BranchDetails.paintFilteredBranchDtls = function (branchDtls) {
+    if (branchDtls && branchDtls.length > 0) {
+        apz.data.scrdata.Widget__BranchDetailList_Res = {};
+        apz.data.scrdata.Widget__BranchDetailList_Res.BranchDetails = branchDtls;
+        apz.data.loadData("BranchDetailList", "Widget");
+        $("#" + ScrId + "noRecordForm").addClass('sno');
+    } else {
+        $("#" + ScrId + "noRecordForm").removeClass('sno');
+    }
+};

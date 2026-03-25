@@ -1,0 +1,1922 @@
+var screenId = 'NEWLOA__NewLoanApplication__';
+var defGroupArrayList = [],
+    globleSearchArrayList = [],
+    defLoanArrayList = [],
+    uniqueGroupIds = [],
+    uniqueProductIds = [],
+    loanApplicationObj = {},
+    arrayList = [];
+var memberWise = true;
+loanWise = false;
+leadsWise = false;
+viewCustomer=false;
+isexsitingApp=false;
+window.fromGlobalSearch = false;
+isKendraDtlsToAddLoan = false;
+var mahiLeadData = '';
+var existingScr = [newLoanscreenId + 'gr_row_4',newLoanscreenId + 'gr_row_16',newLoanscreenId + 'gr_row_13'];
+var isMahiLead = false,leadFromViewMore = false,leadFromDashboard=false,leadFromLoanInput=false;
+var dayList = [
+    { day: 'ALL' },
+    { day: 'MONDAY' },
+    { day: 'TUESDAY' },
+    { day: 'WEDNESDAY' },
+    { day: 'THURSDAY' },
+    { day: 'FRIDAY' },
+    { day: 'SATURDAY' }
+];
+const dayMap = {
+    MON: 'MONDAY',
+    TUE: 'TUESDAY',
+    WED: 'WEDNESDAY',
+    THU: 'THURSDAY',
+    FRI: 'FRIDAY',
+    SAT: 'SATURDAY'
+};
+apz.app.onLoad_NewLoanApplication = function(params) {
+    //loanApplicationObj.params=params;
+    isMahiLead = false;
+    if (params && params.sourceScreen) {
+        loanApplicationObj.sourceScreen = params.sourceScreen;
+    } else if (!loanApplicationObj.sourceScreen) {
+        loanApplicationObj.sourceScreen = '';
+    }
+    if(isMahiFromViewMore || isMahiFromDashboard || isMahiLeadFromLoanInputToDtls){
+        leadFromViewMore = isMahiFromViewMore;
+        leadFromDashboard = isMahiFromDashboard;
+        leadFromLoanInput = isMahiLeadFromLoanInputToDtls;
+        isMahiFromViewMore = false;
+        isMahiFromDashboard = false;
+        isMahiLeadFromLoanInputToDtls = false;
+        isMahiLead = true;
+        mahiLeadData = params
+        existingScr.forEach(id=>{
+            $('#'+id).addClass('sno');
+        })
+    }else{
+        loanApplicationObj.kendraDtls = params;
+    }
+    if (!ApzCOB.chkprevscrPageBC(apz.childScr)) {
+        ApzCOB.addscrPageBC(apz.childScr);
+    }
+    //yet to do
+}
+apz.app.onShown_NewLoanApplication = function(params) {
+    if(userRole === 'BST'){
+        kendraResponse = KendraApp.KendraResponse
+    }
+    window.KendraApp.remarks='NA';
+    if (params?.isDeoViewMore === true) {
+        $('#NEWLOA__NewLoanApplication__el_btn_45').addClass('sno');
+        $('#NEWLOA__NewLoanApplication__sc_col_12').addClass('sno');
+        memberWise = false;
+        apz.app.DeoLeads.fullDeoList = params.deoKendraList || [];
+        apz.app.NewLoanApplication.deoKendraList = params.deoKendraList || [];
+        apz.app.NewLoanApplication.deoMahiLeadsRecords();
+        return;
+    }
+    if (loanApplicationObj.sourceScreen === 'DeoLeads' && window.currentUserRole === 'DEO') {
+        $('#NEWLOA__NewLoanApplication__el_btn_45').addClass('sno');
+        $('#NEWLOA__NewLoanApplication__sc_col_12').addClass('sno');
+        window.isDeo = false;
+        leadsWise = true;
+        memberWise = false;
+        apz.app.NewLoanApplication.activateLeadsTab();
+        apz.app.NewLoanApplication.paintDeoWiseDetails();
+    } else{
+        if(window.isDeo){
+             $('#NEWLOA__NewLoanApplication__ps_pls_26_li').removeClass('sno');
+             window.isDeo = false;
+        }else{
+            $('#NEWLOA__NewLoanApplication__ps_pls_26_li').addClass('sno');
+            window.isDeo = false;
+        }
+    }
+    if(isMahiLead){
+        $('#footer').addClass('sno');
+        $("#NEWLOA__NewLoanApplication__mahiLeadDiv").removeClass('sno');
+        apz.app.NewLoanApplication.loadMahiLeadDiv();
+    }else{
+        apz.app.NewLoanApplication.paintDetails();
+    }
+    if ($('#NEWLOA__NewLoanApplication__memberWiseTab_li').hasClass('current')) {
+        memberWise = true;
+    }
+    window.IncomeApp.payLoad={};
+    $('#header').addClass('sno');
+      window.IncomeApp = {};
+}
+apz.app.NewLoanApplication.deoMahiLeadsRecords = function () {
+    $("#header").addClass("sno");
+    $("#footer").addClass("sno");
+    existingScr.forEach(function (id) {
+        $('#' + id).addClass('sno');
+    });
+    $('#NEWLOA__NewLoanApplication__deoAllLeadsHeader').removeClass('sno');
+    $('#NEWLOA__NewLoanApplication__deoAllLeadsRow').removeClass('sno');
+    apz.data.scrdata.NEWLOA__DeoDayTabs_Res = {};
+    apz.data.scrdata.NEWLOA__DeoDayTabs_Res.DayListNode = dayList;
+    apz.data.loadData("DeoDayTabs", "NEWLOA");
+    setTimeout(function () {
+        $("#NEWLOA__DeoDayTabs__o__DayListNode__day_0").addClass("active");
+    }, 0);
+    apz.app.NewLoanApplication.filterDeoByDay('ALL');
+};
+apz.app.NewLoanApplication.activateLeadsTab = function () {
+    $('#NEWLOA__NewLoanApplication__pl_tab_1_ul li').removeClass('current').attr('aria-selected', 'false').attr('aria-expanded', 'false');
+    var leadsTab = $('#NEWLOA__NewLoanApplication__ps_pls_26_li');
+    leadsTab.addClass('current').attr('aria-selected', 'true').attr('aria-expanded', 'true');
+    apz.tabAction(leadsTab[0]);
+    memberWise = false;
+};
+apz.app.NewLoanApplication.paintDeoWiseDetails = function () {
+    let custDtls = loanApplicationObj?.kendraDtls?.customerDtls;
+    if (!Array.isArray(custDtls) || custDtls.length === 0) {
+        $("#" + newLoanscreenId + "deoGrpList").addClass("sno");
+        $("#" + newLoanscreenId + "leadListDeo").addClass("sno");
+        $("#" + newLoanscreenId + "noDeoRecordsRow").removeClass("sno");
+        return;
+    }
+    let groupMap = {};
+    custDtls.forEach(function (cust) {
+        if (
+            cust.groupId &&
+            Array.isArray(cust.mahiLeads) &&
+            cust.mahiLeads.length > 0
+        ) {
+            groupMap[cust.groupId] = true;
+        }
+    });
+    let groupIds = Object.keys(groupMap);
+    if (groupIds.length === 0) {
+        $("#" + newLoanscreenId + "deoGrpList").addClass("sno");
+        $("#" + newLoanscreenId + "leadListDeo").addClass("sno");
+        $("#" + newLoanscreenId + "noDeoRecordsRow").removeClass("sno");
+        return;
+    }
+    let deoWiseList = groupIds.map(function (gid, index) {
+        return {
+            groupId: Number(gid),
+            groupIdDesc: "Group " + (index + 1)
+        };
+    });
+    apz.data.scrdata.NEWLOA__DeoWiseList_Res = {
+        DeoWiseList: deoWiseList
+    };
+    apz.data.loadData("DeoWiseList", "NEWLOA");
+    let selectedGroupId = Number(groupIds[0]);
+    $("#NEWLOA__DeoWiseList__o__DeoWiseList__groupId_0").addClass("active");
+    let groupCustomers = custDtls.filter(function (cust) {
+        return cust.groupId === selectedGroupId && Array.isArray(cust.mahiLeads) &&cust.mahiLeads.length > 0; }).map(function (cust) {
+        let firstLead = cust.mahiLeads[0] || {};
+        cust.leadStatus = firstLead.leadStatus || '';
+        cust.eligibleLoanAmount = firstLead.eligibleLoanAmount || 0;
+        cust.kendraName = loanApplicationObj?.kendraDtls?.kendraName || '';
+        return cust;
+    });
+    apz.data.scrdata.NEWLOA__DeoWiseCustList_Res = {};
+    apz.data.scrdata.NEWLOA__DeoWiseCustList_Res.DeoWiseCustList = groupCustomers;
+    apz.data.loadData("DeoWiseCustList", "NEWLOA");
+    $("#" + newLoanscreenId + "deoGrpList").removeClass("sno");
+    $("#" + newLoanscreenId + "leadListDeo").removeClass("sno");
+    $("#" + newLoanscreenId + "noDeoRecordsRow").addClass("sno");
+};
+apz.app.NewLoanApplication.onClickDeoWiseGroup = function (pthis) {
+    let rowNo = $(pthis).attr('rowno');
+    apz.data.scrdata.NEWLOA__DeoWiseList_Res.DeoWiseList.forEach(function (g, i) {
+        if (parseInt(rowNo) === i) {
+            $("#NEWLOA__DeoWiseList__o__DeoWiseList__groupId_" + i).addClass("active");
+        } else {
+            $("#NEWLOA__DeoWiseList__o__DeoWiseList__groupId_" + i).removeClass("active");
+        }
+    });
+    let selectedGroupId = Number(apz.data.scrdata.NEWLOA__DeoWiseList_Res.DeoWiseList[rowNo].groupId);
+    let deoGroupCustomers = loanApplicationObj.kendraDtls.customerDtls
+        .filter(function (cust) {
+            return cust.groupId === selectedGroupId &&
+                   Array.isArray(cust.mahiLeads) &&
+                   cust.mahiLeads.length > 0;
+        }).map(function (cust) {
+            let firstLead = cust.mahiLeads[0] || {};
+            cust.leadStatus = firstLead.leadStatus || '';
+            cust.eligibleLoanAmount = firstLead.eligibleLoanAmount || 0;
+            cust.kendraName = loanApplicationObj?.kendraDtls?.kendraName || '';
+            return cust;
+        });
+    if (deoGroupCustomers.length === 0) {
+        $("#" + newLoanscreenId + "deoGrpList").addClass("sno");
+        $("#" + newLoanscreenId + "leadListDeo").addClass("sno");
+        $("#" + newLoanscreenId + "noDeoRecordsRow").removeClass("sno");
+        return;
+    }
+    apz.data.scrdata.NEWLOA__DeoWiseCustList_Res = {};
+    apz.data.scrdata.NEWLOA__DeoWiseCustList_Res.DeoWiseCustList = deoGroupCustomers;
+    apz.data.loadData("DeoWiseCustList", "NEWLOA");
+    $("#" + newLoanscreenId + "deoGrpList").removeClass("sno");
+    $("#" + newLoanscreenId + "leadListDeo").removeClass("sno");
+    $("#" + newLoanscreenId + "noDeoRecordsRow").addClass("sno");
+};
+apz.app.NewLoanApplication.paintDeoKendrasBasedOnDay = function (pthis) {
+    $("[id^='NEWLOA__DeoDayTabs__o__DayListNode__day_']").removeClass("active");
+    $(pthis).addClass("active");
+    var rowNo = $(pthis).attr("rowno");
+    var selectedDay = dayList[rowNo].day;
+    apz.app.NewLoanApplication.selectedDay = selectedDay;
+    var fullList = apz.app.NewLoanApplication.deoKendraList || [];
+    var deoKendraList = [];
+    if (selectedDay === 'ALL') {
+        deoKendraList = fullList;
+    } else {
+        deoKendraList = fullList.filter(function (k) {
+            if (!k.meetingDay) return false;
+            return dayMap[k.meetingDay] === selectedDay;
+        });
+    }
+    $("#" + newLoanscreenId + "deoMeetingDay").text(selectedDay);
+    if (deoKendraList.length > 0) {
+        apz.data.scrdata.NEWLOA__DeoKendraMahiList_Res = {};
+        apz.data.scrdata.NEWLOA__DeoKendraMahiList_Res.DeoMahiNode = deoKendraList;
+        apz.data.loadData('DeoKendraMahiList', 'NEWLOA');
+        $("#" + newLoanscreenId + "DeoKendraList").removeClass("sno");
+        $("#" + newLoanscreenId + "noRecords").addClass("sno");
+    } else {
+        $("#" + newLoanscreenId + "noRecords").removeClass("sno");
+        $("#" + newLoanscreenId + "DeoKendraList").addClass("sno");
+    }
+};
+apz.app.NewLoanApplication.filterDeoByDay = function (dayKey) {
+    var fullList = apz.app.NewLoanApplication.deoKendraList || [];
+    var filteredList = [];
+    if (dayKey === 'ALL') {
+        filteredList = fullList;
+    } else {
+         filteredList = fullList.filter(function (k) {
+            return dayMap[k.meetingDay] === dayKey;
+        });
+    }
+      if (filteredList.length > 0) {
+        apz.data.scrdata.NEWLOA__DeoKendraMahiList_Res = {};
+        apz.data.scrdata.NEWLOA__DeoKendraMahiList_Res.DeoMahiNode = filteredList;
+        apz.data.loadData('DeoKendraMahiList', 'NEWLOA');
+
+        $("#" + newLoanscreenId + "DeoKendraList").removeClass("sno");
+        $("#" + newLoanscreenId + "noRecords").addClass("sno");
+    } else {
+        $("#" + newLoanscreenId + "noRecords").removeClass("sno");
+        $("#" + newLoanscreenId + "DeoKendraList").addClass("sno");
+    }
+};
+apz.app.NewLoanApplication.onDeoViewMoreSearch = function (pthis) {
+    var searchText = $("#" + pthis.id).val().trim().toLowerCase();
+    var listContainer = $("#" + newLoanscreenId + "DeoKendraList");
+    var rows = listContainer.find("li");
+    if (searchText === "") {
+        rows.removeClass("sno");
+        $("#" + newLoanscreenId + "noRecords").addClass("sno");
+        return;
+    }
+    var matchFound = false;
+    rows.each(function () {
+        var row = $(this);
+        var rowNo = row.attr("rowno");
+        var kendraName = row.find('span[id$="_kendraName_' + rowNo + '_txtcnt"]').text().trim().toLowerCase();
+        var kendraId = row.find('span[id$="_kendraId_' + rowNo + '_txtcnt"]').text().trim().toLowerCase();
+
+        if (
+            kendraName.indexOf(searchText) !== -1 ||
+            kendraId.indexOf(searchText) !== -1
+        ) {
+            row.removeClass("sno");
+            matchFound = true;
+        } else {
+            row.addClass("sno");
+        }
+    });
+    if (!matchFound) {
+        $("#" + newLoanscreenId + "noRecords").removeClass("sno");
+    } else {
+        $("#" + newLoanscreenId + "noRecords").addClass("sno");
+    }
+};
+apz.app.NewLoanApplication.paintDetails = function() {
+    apz.app.NewLoanApplication.paintKendraDetails();
+    apz.app.NewLoanApplication.paintMemberWiseDetails();
+    apz.app.NewLoanApplication.paintLoanWiseDetails();
+    if(leadsWise){
+        apz.app.NewLoanApplication.paintDeoWiseDetails();
+    }
+}
+apz.app.NewLoanApplication.loadMahiLeadDiv = function(params) {
+    if(params === 'leadFromViewMore'){
+        leadFromViewMore = true;
+        leadFromDashboard = false;
+    }
+    if(leadFromViewMore){
+        $("#NEWLOA__NewLoanApplication__viewMoreDiv").removeClass('sno');
+        apz.app.NewLoanApplication.paintDayList();
+        apz.app.NewLoanApplication.paintMahiLeadList();
+    }else if(leadFromDashboard || leadFromLoanInput){
+        $("#NEWLOA__NewLoanApplication__leadDtlsDiv").removeClass('sno');
+        if((mahiLeadData.mahiLeads[0].leadStatus).toLowerCase() == 'pending'){
+            $("#" + newLoanscreenId + "gr_row_33").removeClass("sno");
+        }else{
+            $("#" + newLoanscreenId + "gr_row_33").addClass("sno");
+        }
+        apz.app.NewLoanApplication.paintLeadDtls();
+    }
+}
+apz.app.NewLoanApplication.leadsWise = function () {
+    leadsWise = true;
+    memberWise = false;
+    loanWise = false;
+    apz.app.NewLoanApplication.paintDeoWiseDetails();
+};
+apz.app.NewLoanApplication.onDeoLeadWiseSearch = function (pthis) {
+    var searchText = $("#" + pthis.id).val().trim().toLowerCase();
+    var listContainer = $("#NEWLOA__NewLoanApplication__leadListDeo");
+    var rows = listContainer.find("li");
+    if (searchText === "") {
+        rows.removeClass("sno");
+        $("#" + newLoanscreenId + "noDeoRecordsRow").addClass("sno");
+        return;
+    }
+    var matchFound = false;
+    rows.each(function () {
+        var row = $(this);
+        var rowNo = row.attr("rowno");
+        var nameSpan = row.find('span[id$="_customerName_' + rowNo + '_txtcnt"]');
+        var customerName = nameSpan.text().trim().toLowerCase();
+        var custIdSpan = row.find('span[id$="_customerId_' + rowNo + '_txtcnt"]');
+        var customerId = custIdSpan.text().trim().toLowerCase();
+        if (
+            customerName.startsWith(searchText) ||
+            customerId.startsWith(searchText)
+        ) {
+            row.removeClass("sno");
+            matchFound = true;
+        } else {
+            row.addClass("sno");
+        }
+    });
+    if (!matchFound) {
+        $("#" + newLoanscreenId + "noDeoRecordsRow").removeClass("sno");
+    } else {
+        $("#" + newLoanscreenId + "noDeoRecordsRow").addClass("sno");
+    }
+};
+apz.app.NewLoanApplication.paintKendraDetails = function() {
+    apz.setElmValue(newLoanscreenId + "kendraName", loanApplicationObj.kendraDtls.kendraName);
+    apz.setElmValue(newLoanscreenId + "kendraId", loanApplicationObj.kendraDtls.kendraId);
+    apz.setElmValue(newLoanscreenId + "meetingTime", "| " + apz.isNull(loanApplicationObj.kendraDtls.time) ? '' : loanApplicationObj.kendraDtls
+        .time);
+    if (apz.isNull(loanApplicationObj.kendraDtls.parCount)) {
+        $("#NEWLOA__NewLoanApplication__parCount").addClass('sno');
+    } else {
+        $("#NEWLOA__NewLoanApplication__parCount").removeClass('sno');
+    }
+    // apz.setElmValue(newLoanscreenId + "parCount", apz.isNull(loanApplicationObj.kendraDtls.newApplication) ? '' : apz.isNull(loanApplicationObj.kendraDtls.newApplication));
+    $('#NEWLOA__NewLoanApplication__parCount').text(loanApplicationObj.kendraDtls.newApplication);
+    apz.setElmValue(newLoanscreenId + "memberCount", loanApplicationObj.kendraDtls.customerDtls.length);
+}
+apz.app.NewLoanApplication.paintMemberWiseDetails = function() {
+    matchedKendraFromdashboardAppList = Array.isArray(dashboardAppList?.response)
+        ? dashboardAppList.response.filter(item => Number(item.kendraId) === KendraApp.selectedKendra.kendraId)
+        : [];
+    defGroupArrayList = [];
+    if (loanApplicationObj.kendraDtls.customerDtls.length > 0) {
+        arrayList = [];
+        uniqueGroupIds = [...new Set(loanApplicationObj.kendraDtls.customerDtls.map(obj => obj.groupId))];
+        let tempArray0 = [];
+        if (uniqueGroupIds.length > 0) {
+            uniqueGroupIds.forEach(function(j, k) {
+                let tempObj0 = {
+                    "groupIdDesc": "Group " + k,
+                    "groupId": j
+                }
+                tempArray0.push(tempObj0);
+            });
+            apz.data.scrdata.NEWLOA__MemberWiseList_Res = {};
+            apz.data.scrdata.NEWLOA__MemberWiseList_Res.MemberWiseList = tempArray0;
+            apz.data.loadData("MemberWiseList", 'NEWLOA');
+            $("#NEWLOA__MemberWiseList__o__MemberWiseList__groupId_0").addClass("active");
+        }
+        //NQA Group notification
+        loanApplicationObj.kendraDtls.customerDtls.forEach(function (k,i) {
+            if(k.custStatus === 'NQA'){
+                apz.data.scrdata.NEWLOA__MemberWiseList_Res.MemberWiseList.forEach(function(item,index){
+                    if(k.groupId === item.groupId){
+                        $("#" + "NEWLOA__NewLoanApplication__el_txt_31_" + index).removeClass("sno");
+                    }
+                })
+            }    
+        })
+        arrayList = loanApplicationObj.kendraDtls.customerDtls.filter(val => (val.groupId === uniqueGroupIds[0]));
+        for (let i = 0; i < arrayList.length; i++) {
+            /*            let tempObj1 = {
+                            "customerId": arrayList[i].customerId,
+                            "customerName": arrayList[i].customerName
+                        }*/
+            if (arrayList[i].eligibleLoan.length > 0) {
+                let tempArray1 = arrayList[i].eligibleLoan;
+                for (let j = 0; j < tempArray1.length; j++) {
+                    arrayList[i]["eligibleProduct" + j] = tempArray1[j].productType;
+                }
+            }
+            if (arrayList[i].loanDtls.length > 0) {
+                arrayList[i].loanMatureDate = apz.app.NewLoanApplication.findExpLoan(arrayList[i].loanDtls);
+            }
+            if (loanApplicationObj.kendraDtls.customerDtls.length > 0) {
+                let maxAmt = arrayList;
+                maxAmt.forEach(function(el, i) {
+                    let amt = maxAmt[i].maxAmountLimit === "" ? 0 : maxAmt[i].maxAmountLimit;
+                    arrayList[i].maxAmountLimit = ApzCOB.fn_FormatAmount(amt);
+                })
+            }
+            arrayList.forEach(function(el, i) {
+                if (arrayList[i].maritalStatus === 'MARRIED') {
+                    if (arrayList[i].earnings.length > 0) {
+                        arrayList[i].earnings.forEach(function(e, k) {
+                            if (arrayList[i].earnings[k].memRelation === 'SPOUSE') {
+                                arrayList[i].spouseName = arrayList[i].earnings[k].name;
+                            }
+                        })
+                    }
+                }
+            })
+            defGroupArrayList.push(arrayList[i]);
+        }
+        if (defGroupArrayList.length > 0) {
+            apz.data.scrdata.NEWLOA__MemberWiseCustList_Res = {};
+            apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList = defGroupArrayList;
+            apz.data.loadData("MemberWiseCustList", 'NEWLOA');
+            apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList.forEach(function(j, k) {
+                if (j.loanDtls.length > 0) {
+                    var parCount = ApzCOB.findOverdueCustomers(j);
+                    if (parCount !== 0) {
+                        $("#" + "NEWLOA__NewLoanApplication__el_bdg_1_" + k).removeClass("sno");
+                    } else {
+                        $("#" + "NEWLOA__NewLoanApplication__el_bdg_1_" + k).addClass("sno");
+                    }
+                } else {
+                    $("#" + "NEWLOA__NewLoanApplication__el_bdg_1_" + k).addClass("sno");
+                }
+                // if (apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList[k].custStatus === "NQA") {
+                //     $("#" + "NEWLOA__NewLoanApplication__el_bdg_2_" + k).removeClass("sno");
+                // } else {
+                //     $("#" + "NEWLOA__NewLoanApplication__el_bdg_2_" + k).addClass("sno");
+                // }
+                 if (!apz.isNull(j.newCustStatus)) {
+                        $("#" + "NEWLOA__NewLoanApplication__el_bdg_2_" + k).removeClass("sno");
+                        $("#" + "NEWLOA__NewLoanApplication__el_bdg_2_" + k).removeClass("sno").text(j.newCustStatus);
+                    } else {
+                          $("#" + "NEWLOA__NewLoanApplication__el_bdg_2_" + k).addClass("sno");
+                    }
+                if (!(j.hasOwnProperty('loanMatureDate') && j.loanMatureDate != "")) {
+                    $("#NEWLOA__MemberWiseCustList__o__MemberWiseCustList__loanMatureDate_" + k).addClass("sno");
+                }
+                if ((apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList[k].hasOwnProperty('eligibleProduct0'))) {
+                    $("#NEWLOA__NewLoanApplication__el_txt_12_" + k).removeClass("sno");
+                    $("#NEWLOA__MemberWiseCustList__o__MemberWiseCustList__eligibleProduct0_" + k).removeClass("sno");
+                } else {
+                    $("#NEWLOA__NewLoanApplication__el_txt_12_" + k).addClass("sno");
+                    $("#NEWLOA__MemberWiseCustList__o__MemberWiseCustList__eligibleProduct0_" + k).addClass("sno");
+                }
+                if ((apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList[k].hasOwnProperty('eligibleProduct1'))) {
+                    $("#NEWLOA__MemberWiseCustList__o__MemberWiseCustList__eligibleProduct1_" + k).removeClass("sno");
+                } else {
+                    $("#NEWLOA__MemberWiseCustList__o__MemberWiseCustList__eligibleProduct1_" + k).addClass("sno");
+                }
+                if ((apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList[k].hasOwnProperty('eligibleProduct2'))) {
+                    $("#NEWLOA__NewLoanApplication__eligibleProductMore_" + k).removeClass("sno");
+                } else {
+                    $("#NEWLOA__NewLoanApplication__eligibleProductMore_" + k).addClass("sno");
+                }
+                if (apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList[k].maxAmountLimit != '0'&& j.eligibleLoan.length != 0) {
+                    $("#NEWLOA__NewLoanApplication__el_txt_10_" + k).removeClass("sno");
+                    $("#NEWLOA__NewLoanApplication__el_txt_26_" + k).removeClass("sno");
+                    $("#NEWLOA__MemberWiseCustList__o__MemberWiseCustList__maxAmountLimit_" + k).removeClass("sno");
+                } else {
+                    $("#NEWLOA__NewLoanApplication__el_txt_10_" + k).addClass("sno");
+                    $("#NEWLOA__NewLoanApplication__el_txt_26_" + k).addClass("sno");
+                    $("#NEWLOA__MemberWiseCustList__o__MemberWiseCustList__maxAmountLimit_" + k).addClass("sno");
+                }
+                if (apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList[k].spouseName) {
+                    $("#NEWLOA__NewLoanApplication__el_txt_28_" + k).removeClass("sno");
+                    $("#NEWLOA__MemberWiseCustList__o__MemberWiseCustList__spouseName_" + k).removeClass("sno");
+                } else {
+                    $("#NEWLOA__NewLoanApplication__el_txt_28_" + k).addClass("sno");
+                    $("#NEWLOA__MemberWiseCustList__o__MemberWiseCustList__spouseName_" + k).addClass("sno");
+                }
+                let showIcon = apz.app.NewLoanApplication.hideAndShowIdentificationsCust(j.kendraId, j.customerId);
+                if (!showIcon) {
+                    $("#NEWLOA__NewLoanApplication__icn_pendUpdateIcn_" + k).removeClass("sno");
+                } else {
+                    $("#NEWLOA__NewLoanApplication__icn_pendUpdateIcn_" + k).addClass("sno");
+                }
+                if(matchedKendraFromdashboardAppList.length>0){
+                    var flag=false;
+                    matchedKendraFromdashboardAppList.forEach(item=>{
+                        if(item.customerId === j.customerId){
+                            flag = true;
+                            var matchedStage;
+                            window.ApplicationStage.forEach(val => {
+                                if(val.stage === item.wfStatus){
+                                    matchedStage = val.stageName 
+                            }});
+                            if(item.wfStatus === "DISBURSEINPROGRESS" && item.applicationStatus ==="DISBURSED"){
+                                matchedStage = 'DISBURSED'
+                            }
+                            $("#" + "NEWLOA__NewLoanApplication__appStaus_" + k).text(matchedStage??'Stage not found')
+                            $(`#${'NEWLOA__NewLoanApplication__memberWiseCustomerList_row_'+k} #${'NEWLOA__NewLoanApplication__appStausDiv_row'}`).removeClass("sno");
+                        }
+                    })
+                    if(!flag){
+                        $(`#${'NEWLOA__NewLoanApplication__memberWiseCustomerList_row_'+k} #${'NEWLOA__NewLoanApplication__appStausDiv_row'}`).addClass("sno");
+                    }
+                }else{
+                    $(`#${'NEWLOA__NewLoanApplication__memberWiseCustomerList_row_'+k} #${'NEWLOA__NewLoanApplication__appStausDiv_row'}`).addClass("sno");
+                }
+            });
+            $("#" + newLoanscreenId + "noFromAccountsRow").addClass("sno");
+            $("#" + newLoanscreenId + "memberWiseList").removeClass("sno");
+            $("#" + newLoanscreenId + "member_search").removeClass("sno");
+            $("#" + newLoanscreenId + "group_buttons").removeClass("sno");
+        } else {
+            $("#" + newLoanscreenId + "noFromAccountsRow").removeClass("sno");
+            $("#" + newLoanscreenId + "memberWiseList").addClass("sno");
+            $("#" + newLoanscreenId + "member_search").addClass("sno");
+            $("#" + newLoanscreenId + "group_buttons").addClass("sno");
+        }
+    }
+}
+apz.app.NewLoanApplication.paintLoanWiseDetails = function() {
+    defLoanArrayList = [];
+    if (loanApplicationObj.kendraDtls.customerDtls.length > 0) {
+        arrayList = [];
+        uniqueProductIds = [];
+        loanApplicationObj.kendraDtls.customerDtls.forEach(ele => {
+            if (ele.eligibleLoan.length > 0) {
+                ele.eligibleLoan.forEach(loan => {
+                    if (loan.productType) {
+                        if (!uniqueProductIds.contains(loan.productType)) {
+                            uniqueProductIds.push(loan.productType);
+                        }
+                    }
+                });
+            }
+        });
+        if (uniqueProductIds.length > 0) {
+            let tempUniqueProdArray = [];
+            uniqueProductIds.forEach(function(j, k) {
+                let tempUniqueProdObj = {
+                    "productIdDesc": j
+                }
+                tempUniqueProdArray.push(tempUniqueProdObj);
+            });
+            apz.data.scrdata.NEWLOA__LoanWiseList_Res = {};
+            apz.data.scrdata.NEWLOA__LoanWiseList_Res.LoanWiseList = tempUniqueProdArray;
+            apz.data.loadData("LoanWiseList", 'NEWLOA');
+            $("#NEWLOA__LoanWiseList__o__LoanWiseList__productIdDesc_0").addClass("active");
+        }
+        /*uniqueGroupIds = [...new Set(loanApplicationObj.kendraDtls.customerDtls.map(obj => obj.groupId))];
+        let tempArray0 = [];
+        if (uniqueGroupIds.length > 0) {
+            uniqueGroupIds.forEach(function(j, k) {
+                let tempObj0 = {
+                    "groupIdDesc": "Group " + k,
+                    "groupId": j
+                }
+                tempArray0.push(tempObj0);
+            });
+            apz.data.scrdata.NEWLOA__MemberWiseList_Res = {};
+            apz.data.scrdata.NEWLOA__MemberWiseList_Res.MemberWiseList = tempArray0;
+            apz.data.loadData("MemberWiseList", 'NEWLOA');
+        }
+        arrayList = loanApplicationObj.kendraDtls.customerDtls.filter(val => (val.groupId === uniqueProductIds[0]));
+        for (let i = 0; i < arrayList.length; i++) {
+            let tempObj1 = {
+                 "customerId": arrayList[i].customerId,
+                 "customerName": arrayList[i].customerName
+             }
+            defGroupArrayList.push(arrayList[i]);
+        }*/
+        loanApplicationObj.kendraDtls.customerDtls.forEach(function(el, i) {
+            if (loanApplicationObj.kendraDtls.customerDtls[i].maritalStatus === 'MARRIED') {
+                if (loanApplicationObj.kendraDtls.customerDtls[i].earnings.length > 0) {
+                    loanApplicationObj.kendraDtls.customerDtls[i].earnings.forEach(function(e, k) {
+                        if (loanApplicationObj.kendraDtls.customerDtls[i].earnings[k].memRelation === 'SPOUSE') {
+                            loanApplicationObj.kendraDtls.customerDtls[i].spouseName = loanApplicationObj.kendraDtls.customerDtls[
+                                i].earnings[k].name;
+                        }
+                    })
+                }
+            }
+        })
+        loanApplicationObj.kendraDtls.customerDtls.forEach(function(el, idx) {
+            if (el.eligibleLoan.length > 0) {
+                loanApplicationObj.kendraDtls.customerDtls[idx].eligibleLoan.forEach(function(el, id) {
+                    if (loanApplicationObj.kendraDtls.customerDtls[idx].eligibleLoan[id].productType === uniqueProductIds[0]) {
+                        defLoanArrayList.push(loanApplicationObj.kendraDtls.customerDtls[idx]);
+                    }
+                });
+            }
+        });
+        if (defLoanArrayList.length > 0) {
+            apz.data.scrdata.NEWLOA__LoanWiseCustList_Res = {};
+            apz.data.scrdata.NEWLOA__LoanWiseCustList_Res.LoanWiseCustList = defLoanArrayList;
+            apz.data.loadData("LoanWiseCustList", 'NEWLOA');
+            apz.data.scrdata.NEWLOA__LoanWiseCustList_Res.LoanWiseCustList.forEach(function(j, k) {
+                if (!(j.hasOwnProperty('loanMatureDate') && j.loanMatureDate != "")) {
+                    $("#NEWLOA__LoanWiseCustList__o__LoanWiseCustList__loanMatureDate_" + k).addClass("sno");
+                }
+                if (apz.data.scrdata.NEWLOA__LoanWiseCustList_Res.LoanWiseCustList[k].spouseName) {
+                    $("#NEWLOA__NewLoanApplication__el_txt_30_" + k).removeClass("sno");
+                    $("#NEWLOA__LoanWiseCustList__o__LoanWiseCustList__spouseName_" + k).removeClass("sno");
+                } else {
+                    $("#NEWLOA__NewLoanApplication__el_txt_30_" + k).addClass("sno");
+                    $("#NEWLOA__LoanWiseCustList__o__LoanWiseCustList__spouseName_" + k).addClass("sno");
+                }
+                let showIcon = apz.app.NewLoanApplication.hideAndShowIdentificationsCust(j.kendraId, j.customerId);
+                if (!showIcon) {
+                    $("#NEWLOA__NewLoanApplication__icn_pendUpdateIcnLoan_" + k).removeClass("sno");
+                } else {
+                    $("#NEWLOA__NewLoanApplication__icn_pendUpdateIcnLoan_" + k).addClass("sno");
+                }
+            });
+            $("#" + newLoanscreenId + "loan_search").removeClass("sno");
+            $("#" + newLoanscreenId + "loan_buttons").removeClass("sno");
+            $("#" + newLoanscreenId + "loanWiseList").removeClass("sno");
+            $("#" + newLoanscreenId + "zeroLoanRecRow").addClass("sno");
+        } else {
+            $("#" + newLoanscreenId + "zeroLoanRecRow").removeClass("sno");
+            $("#" + newLoanscreenId + "loanWiseList").addClass("sno");
+            $("#" + newLoanscreenId + "loan_search").addClass("sno");
+            $("#" + newLoanscreenId + "loan_buttons").addClass("sno");
+        }
+    }
+}
+apz.app.NewLoanApplication.onClickGroupWiseList = function(pthis) {
+    let id = pthis.id;
+    rowNo = $('#' + id).attr('rowno');
+    let selGroupDesc = $("#" + id).text();
+    let selGroupDescArray = apz.data.scrdata.NEWLOA__MemberWiseList_Res.MemberWiseList.filter(val => (val.groupIdDesc === selGroupDesc));
+    if (selGroupDescArray.length > 0) {
+        let selGroupId = selGroupDescArray[0].groupId;
+        window.selGroupId = selGroupId;
+        apz.app.NewLoanApplication.onClickCustomer(window.selGroupId);
+    }
+}
+apz.app.NewLoanApplication.onClickLoanWiseList = function(pthis) {
+    let id = pthis.id;
+    rowNo = $('#' + id).attr('rowno');
+    let selLoanDesc = $("#" + id).text();
+    let selLoanDescArray = apz.data.scrdata.NEWLOA__LoanWiseList_Res.LoanWiseList.filter(val => (val.groupIdDesc === selLoanDesc));
+    if (selLoanDescArray.length > 0) {
+        let selGroupId = selLoanDescArray[0].productId;
+        window.selProductId = selProductId;
+        apz.app.NewLoanApplication.onClickLoanWiseList(window.selProductId);
+    }
+}
+apz.app.NewLoanApplication.onClickGroup = function(pthis) {
+    apz.app.NewLoanApplication.ensurePopoverExists();
+    defGroupArrayList = [];
+    rowNo = $(pthis).attr('rowno');
+    apz.data.scrdata.NEWLOA__MemberWiseList_Res.MemberWiseList.forEach(function(m, n) {
+        if (parseInt(rowNo) === n) {
+            $("#" + "NEWLOA__MemberWiseList__o__MemberWiseList__groupId_" + n).addClass("active");
+        } else {
+            $("#" + "NEWLOA__MemberWiseList__o__MemberWiseList__groupId_" + n).removeClass("active");
+        }
+    });
+    arrayList = loanApplicationObj.kendraDtls.customerDtls.filter(val => (val.groupId === uniqueGroupIds[rowNo]));
+    for (let i = 0; i < arrayList.length; i++) {
+        if (arrayList[i].eligibleLoan.length > 0) {
+            let tempArray1 = arrayList[i].eligibleLoan;
+            for (let j = 0; j < tempArray1.length; j++) {
+                arrayList[i]["eligibleProduct" + j] = tempArray1[j].productType;
+            }
+        }
+        if (arrayList[i].loanDtls.length > 0) {
+            arrayList[i].loanMatureDate = apz.app.NewLoanApplication.findExpLoan(arrayList[i].loanDtls);
+        }
+        if (loanApplicationObj.kendraDtls.customerDtls.length > 0) {
+            let maxAmt = arrayList;
+            maxAmt.forEach(function(el, i) {
+                arrayList[i].maxAmountLimit = ApzCOB.fn_FormatAmount(maxAmt[i].maxAmountLimit);
+            })
+        }
+        arrayList.forEach(function(el, i) {
+            if (arrayList[i].maritalStatus === 'MARRIED') {
+                if (arrayList[i].earnings.length > 0) {
+                    arrayList[i].earnings.forEach(function(e, k) {
+                        if (arrayList[i].earnings[k].memRelation === 'SPOUSE') {
+                            arrayList[i].spouseName = arrayList[i].earnings[k].name;
+                        }
+                    })
+                }
+            }
+        })
+        defGroupArrayList.push(arrayList[i]);
+    }
+    if (defGroupArrayList.length > 0) {
+        apz.data.scrdata.NEWLOA__MemberWiseCustList_Res = {};
+        apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList = defGroupArrayList;
+        apz.data.loadData("MemberWiseCustList", 'NEWLOA');
+        apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList.forEach(function(j, k) {
+            if (j.loanDtls.length > 0) {
+                var parCount = ApzCOB.findOverdueCustomers(j);
+                if (parCount !== 0) {
+                    $("#" + "NEWLOA__NewLoanApplication__el_bdg_1_" + k).removeClass("sno");
+                } else {
+                    $("#" + "NEWLOA__NewLoanApplication__el_bdg_1_" + k).addClass("sno");
+                }
+            } else {
+                $("#" + "NEWLOA__NewLoanApplication__el_bdg_1_" + k).addClass("sno");
+            }
+            // if (apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList[k].custStatus === "NQA") {
+            //     $("#" + "NEWLOA__NewLoanApplication__el_bdg_2_" + k).removeClass("sno");
+            // } else {
+            //     $("#" + "NEWLOA__NewLoanApplication__el_bdg_2_" + k).addClass("sno");
+            // }
+            if (!apz.isNull(j.newCustStatus)) {
+                        $("#" + "NEWLOA__NewLoanApplication__el_bdg_2_" + k).removeClass("sno");
+                        $("#" + "NEWLOA__NewLoanApplication__el_bdg_2_" + k).removeClass("sno").text(j.newCustStatus);
+                    } else {
+                          $("#" + "NEWLOA__NewLoanApplication__el_bdg_2_" + k).addClass("sno");
+                    }
+            if (!(j.hasOwnProperty('loanMatureDate') && j.loanMatureDate != "")) {
+                $("#NEWLOA__MemberWiseCustList__o__MemberWiseCustList__loanMatureDate_" + k).addClass("sno");
+            }
+            if ((apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList[k].hasOwnProperty('eligibleProduct0'))) {
+                $("#NEWLOA__NewLoanApplication__el_txt_12_" + k).removeClass("sno");
+                $("#NEWLOA__MemberWiseCustList__o__MemberWiseCustList__eligibleProduct0_" + k).removeClass("sno");
+            } else {
+                $("#NEWLOA__NewLoanApplication__el_txt_12_" + k).addClass("sno");
+                $("#NEWLOA__MemberWiseCustList__o__MemberWiseCustList__eligibleProduct0_" + k).addClass("sno");
+            }
+            if ((apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList[k].hasOwnProperty('eligibleProduct1'))) {
+                $("#NEWLOA__MemberWiseCustList__o__MemberWiseCustList__eligibleProduct1_" + k).removeClass("sno");
+            } else {
+                $("#NEWLOA__MemberWiseCustList__o__MemberWiseCustList__eligibleProduct1_" + k).addClass("sno");
+            }
+            if ((apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList[k].hasOwnProperty('eligibleProduct2'))) {
+                $("#NEWLOA__NewLoanApplication__eligibleProductMore_" + k).removeClass("sno");
+            } else {
+                $("#NEWLOA__NewLoanApplication__eligibleProductMore_" + k).addClass("sno");
+            }
+            if (apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList[k].maxAmountLimit != '0'&& j.eligibleLoan.length != 0) {
+                $("#NEWLOA__NewLoanApplication__el_txt_10_" + k).removeClass("sno");
+                $("#NEWLOA__NewLoanApplication__el_txt_26_" + k).removeClass("sno");
+                $("#NEWLOA__MemberWiseCustList__o__MemberWiseCustList__maxAmountLimit_" + k).removeClass("sno");
+            } else {
+                $("#NEWLOA__NewLoanApplication__el_txt_10_" + k).addClass("sno");
+                $("#NEWLOA__NewLoanApplication__el_txt_26_" + k).addClass("sno");
+                $("#NEWLOA__MemberWiseCustList__o__MemberWiseCustList__maxAmountLimit_" + k).addClass("sno");
+            }
+            if (apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList[k].maxAmountLimit != '0'&& j.eligibleLoan.length != 0) {
+                $("#NEWLOA__NewLoanApplication__el_txt_10_" + k).removeClass("sno");
+                $("#NEWLOA__NewLoanApplication__el_txt_10_" + k).removeClass("sno");
+            } else {
+                $("#NEWLOA__NewLoanApplication__el_txt_10_" + k).addClass("sno");
+                $("#NEWLOA__NewLoanApplication__el_txt_10_" + k).addClass("sno");
+            }
+            if (apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList[k].spouseName) {
+                $("#NEWLOA__NewLoanApplication__el_txt_28_" + k).removeClass("sno");
+                $("#NEWLOA__MemberWiseCustList__o__MemberWiseCustList__spouseName_" + k).removeClass("sno");
+            } else {
+                $("#NEWLOA__NewLoanApplication__el_txt_28_" + k).addClass("sno");
+                $("#NEWLOA__MemberWiseCustList__o__MemberWiseCustList__spouseName_" + k).addClass("sno");
+            }
+             let showIcon = apz.app.NewLoanApplication.hideAndShowIdentificationsCust(j.kendraId, j.customerId);
+             if (!showIcon) {
+                 $("#NEWLOA__NewLoanApplication__icn_pendUpdateIcn_" + k).removeClass("sno");
+             } else {
+                 $("#NEWLOA__NewLoanApplication__icn_pendUpdateIcn_" + k).addClass("sno");
+             }
+             if(matchedKendraFromdashboardAppList.length>0){
+                    var flag=false;
+                    matchedKendraFromdashboardAppList.forEach(item=>{
+                        if(item.customerId === j.customerId){
+                            flag = true;
+                            var matchedStage;
+                            window.ApplicationStage.forEach(val => {
+                                if(val.stage === item.wfStatus){
+                                    matchedStage = val.stageName 
+                            }});
+                            if(item.wfStatus === "DISBURSEINPROGRESS" && item.applicationStatus ==="DISBURSED"){
+                                matchedStage = 'DISBURSED'
+                            }
+                            $("#" + "NEWLOA__NewLoanApplication__appStaus_" + k).text(matchedStage??'Stage not found')
+                            $(`#${'NEWLOA__NewLoanApplication__memberWiseCustomerList_row_'+k} #${'NEWLOA__NewLoanApplication__appStausDiv_row'}`).removeClass("sno");
+                        }
+                    })
+                    if(!flag){
+                        $(`#${'NEWLOA__NewLoanApplication__memberWiseCustomerList_row_'+k} #${'NEWLOA__NewLoanApplication__appStausDiv_row'}`).addClass("sno");
+                    }
+            }else{
+                $(`#${'NEWLOA__NewLoanApplication__memberWiseCustomerList_row_'+k} #${'NEWLOA__NewLoanApplication__appStausDiv_row'}`).addClass("sno");
+            }
+        });
+    }
+}
+apz.app.NewLoanApplication.onClickproduct = function(pthis) {
+    defLoanArrayList = [];
+    rowNo = $(pthis).attr('rowno');
+    apz.data.scrdata.NEWLOA__LoanWiseList_Res.LoanWiseList.forEach(function(m, n) {
+        if (parseInt(rowNo) === n) {
+            $("#" + "NEWLOA__LoanWiseList__o__LoanWiseList__productIdDesc_" + n).addClass("active");
+        } else {
+            $("#" + "NEWLOA__LoanWiseList__o__LoanWiseList__productIdDesc_" + n).removeClass("active");
+        }
+    });
+    //arrayList = loanApplicationObj.kendraDtls.customerDtls.filter(val => (val.groupId === uniqueProductIds[rowNo]));
+    loanApplicationObj.kendraDtls.customerDtls.forEach(function(el, idx) {
+        if (el.eligibleLoan.length > 0) {
+            loanApplicationObj.kendraDtls.customerDtls[idx].eligibleLoan.forEach(function(el, id) {
+                if (loanApplicationObj.kendraDtls.customerDtls[idx].eligibleLoan[id].productType === uniqueProductIds[rowNo]) {
+                    defLoanArrayList.push(loanApplicationObj.kendraDtls.customerDtls[idx]);
+                }
+            });
+        }
+    });
+    /*for (let i = 0; i < arrayList.length; i++) {
+        let tempObj1 = {
+            "customerId": arrayList[i].customerId,
+            "customerName": arrayList[i].customerName
+        }
+        defGroupArrayList.push(arrayList[i]);
+    }*/
+    apz.data.scrdata.NEWLOA__LoanWiseCustList_Res = {};
+    apz.data.scrdata.NEWLOA__LoanWiseCustList_Res.LoanWiseCustList = defLoanArrayList;
+    apz.data.loadData("LoanWiseCustList", 'NEWLOA');
+    apz.data.scrdata.NEWLOA__LoanWiseCustList_Res.LoanWiseCustList.forEach(function (cust, index) {
+        let showIcon = apz.app.NewLoanApplication.hideAndShowIdentificationsCust(cust.kendraId, cust.customerId);
+        if (!showIcon) {
+            $("#NEWLOA__NewLoanApplication__icn_pendUpdateIcnLoan_" + index).removeClass("sno");
+        } else {
+            $("#NEWLOA__NewLoanApplication__icn_pendUpdateIcnLoan_" + index).addClass("sno");
+        }
+    });
+}
+apz.app.NewLoanApplication.memberWise = function() {
+    memberWise = true;
+    loanWise = false;
+    leadsWise = false;
+    window.isDeoLeadsDraft  = false;
+     if (loanApplicationObj.sourceScreen === 'DeoLeads' && window.currentUserRole === 'DEO') {
+        window.isDeo = true;
+     }
+}
+apz.app.NewLoanApplication.LoanWise = function() {
+    loanWise = true;
+    memberWise = false;
+    leadsWise = false;
+    window.isDeoLeadsDraft  = false;
+     if (loanApplicationObj.sourceScreen === 'DeoLeads' && window.currentUserRole === 'DEO') {
+        window.isDeo = true;
+     }
+}
+apz.app.NewLoanApplication.selectLoan = function(pthis) {
+    event.preventDefault();
+    event.stopPropagation();
+    window.isDeoLeadsDraft  = true;
+    KendraApp.currentLoanAppRequest = {};
+    KendraApp.AppCreateResObj = {};
+    let rowNo = $(pthis).attr('rowno');
+    if (LOANLIMIT?.dayCheck?.isCheck === true) {
+        const todayName = new Date().toLocaleDateString('en-US', {
+            weekday: 'long'
+        });
+        if (LOANLIMIT?.dayCheck?.days.includes(todayName)) {
+            //console.log("Blocked: today is", todayName);
+            ApzCOB.fnDisplayMsg("Loan input is not allowed on (" + todayName + ").", 'E');
+            return
+        }
+    }
+    if (memberWise) {
+        window.isDeoLeadsDraft  = false;
+        KendraApp.selectedCustomer = JSON.parse(JSON.stringify(apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList[rowNo]));
+    } else if (loanWise) {
+        window.isDeoLeadsDraft  = false;
+        KendraApp.selectedCustomer = JSON.parse(JSON.stringify(apz.data.scrdata.NEWLOA__LoanWiseCustList_Res.LoanWiseCustList[rowNo]));
+    }else if(leadsWise){
+        KendraApp.selectedCustomer = JSON.parse(JSON.stringify(apz.data.scrdata.NEWLOA__DeoWiseCustList_Res.DeoWiseCustList[rowNo]));
+    }
+    // if(window.isLoanCreateFromCalculator){
+    //     if(KendraApp.selectedCustomer.custStatus === 'NQA'){
+    //         ApzCOB.fnDisplayMsg("NQA customers cannot be selected as products are different.", 'I');
+    //         return
+    //     }
+    // }
+    KendraApp.selectedCustomer.loanDtls.forEach((item) => {
+        item.overdueInterest = item.overdueInterest || "0";
+        item.overduePrincipal = item.overduePrincipal || "0";
+        item.outstandingPrincipal = item.outstandingPrincipal || "0";
+    });
+    let totalOut = 0;
+    if (
+        Array.isArray(KendraApp.selectedCustomer.loanDtls) &&
+        KendraApp.selectedCustomer.loanDtls.length > 0
+    ) {
+        KendraApp.selectedCustomer.loanDtls.forEach(function (loan) {
+            let outstanding = Math.round(parseFloat(loan.outstandingPrincipal) || 0);
+            let overdueInt = Math.round(parseFloat(loan.overdueInterest) || 0);
+            let overduePrin = Math.round(parseFloat(loan.overduePrincipal) || 0);
+            let overdueAmt = overdueInt + overduePrin;
+            let otherInt = 0;
+
+            totalOut += outstanding + overdueAmt + otherInt;
+        });
+    }
+    KendraApp.selectedCustomer.totalOutPrinciplAmt = totalOut;
+    if (KendraApp.selectedCustomer.custQualify==='CREDIT') {
+        if (KendraApp.selectedCustomer.hasOwnProperty("customerId") && "" !== KendraApp.selectedCustomer.customerId) {
+            ApzCOB.fetchCustomerIdDetails(KendraApp.selectedCustomer.customerId);
+        } else {
+            apz.app.NewLoanApplication.selectLoanContinueFn();
+        }
+    } else {
+       ApzCOB.fnDisplayMsg("Customer not belongs to group lending. Hence loan application is not allowed.", "E"); 
+    }
+}
+apz.app.NewLoanApplication.customerDtls = function(pthis) {
+    event.preventDefault();
+    event.stopPropagation();
+    let rowNo = $(pthis).attr('rowno');
+    isexsitingApp=false;
+    viewCustomer=true;
+    if (loanWise) {
+        window.isDeoLeadsDraft  = false;
+        KendraApp.selectedCustomer = JSON.parse(JSON.stringify(apz.data.scrdata.NEWLOA__LoanWiseCustList_Res.LoanWiseCustList[rowNo]));
+    }else if(leadsWise){
+        KendraApp.selectedCustomer = JSON.parse(JSON.stringify(apz.data.scrdata.NEWLOA__DeoWiseCustList_Res.DeoWiseCustList[rowNo]));
+    }else {
+        window.isDeoLeadsDraft  = false;
+        KendraApp.selectedCustomer = JSON.parse(JSON.stringify(apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList[rowNo]));
+    }
+    // KendraApp.selectedCustomer = JSON.parse(JSON.stringify(defGroupArrayList[rowNo]));
+    ApzCOB.fetchCustomerIdDetails(KendraApp.selectedCustomer.customerId);
+    //ApzCOB.launchMicroApp("Custom", "CustomerDetails", "APZCBO__BaseScreens__BaseDIV", "");
+}
+apz.app.NewLoanApplication.emergencyLoanApplications = function() {
+    ApzCOB.launchMicroApp("EMERGE", "EmergencyLoanApplications", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedKendra);
+}
+apz.app.NewLoanApplication.findExpLoan = function(arrayList) {
+    var currentTime = new Date();
+    var currentTimeFormat = new Date(currentTime.toISOString()).format("Ymd");
+    var finalExpLoanDate = "";
+    var loanProdDesc = "";
+    if (arrayList.length > 0) {
+        var expDates = [...new Set(arrayList.map(obj => obj.lnMatDate))];
+        expDates.push(currentTimeFormat);
+        expDates.sort();
+        expDates.filter(function(val, index) {
+            if (val === currentTimeFormat && !(index === expDates.length - 1)) {
+                finalExpLoanDate = expDates[index + 1];
+            }
+        });
+        loanProdDesc = arrayList.filter(val => (val.lnMatDate === finalExpLoanDate));
+        if (loanProdDesc.length > 0) {
+            KendraApp.ProductList.filter(val => {
+                if (val.productDtls.productId === loanProdDesc[0].product) {
+                    loanProdDesc = val.productDtls.shortDesc;
+                }
+            });
+        }
+    }
+    if (finalExpLoanDate !== "") {
+        var lnMatDate = finalExpLoanDate.split("");
+        lnMatDate = new Date(lnMatDate[4] + lnMatDate[5] + " " + lnMatDate[6] + lnMatDate[7] + " " + lnMatDate[0] + lnMatDate[1] + lnMatDate[2] +
+            lnMatDate[3]).format("d M Y");
+        finalExpLoanDate = lnMatDate.split(" ")[0] + apz.app.NewLoanApplication.getOrdNum(lnMatDate.split(" ")[0]) + lnMatDate.split(" ")[1] +
+            " " + lnMatDate.split(" ")[2];
+        finalExpLoanDate = loanProdDesc + " Expires On " + finalExpLoanDate;
+    }
+    return finalExpLoanDate;
+}
+apz.app.NewLoanApplication.getOrdNum = function(ordNum) {
+    if (ordNum !== "") {
+        if (parseInt(ordNum) < 10) {
+            if (ordNum.endsWith("1")) {
+                return "st ";
+            } else if (ordNum.endsWith("2")) {
+                return "nd ";
+            } else if (ordNum.endsWith("3")) {
+                return "rd ";
+            } else {
+                return "th ";
+            }
+        } else {
+            return "th ";
+        }
+    }
+}
+apz.app.NewLoanApplication.onGroupWiseSearch = function(pthis) {
+    globleSearchArrayList = [];
+    searcharrayList = loanApplicationObj.kendraDtls.customerDtls;
+    for (let i = 0; i < searcharrayList.length; i++) {
+        if (searcharrayList[i].eligibleLoan.length > 0) {
+            let tempArray1 = searcharrayList[i].eligibleLoan;
+            for (let j = 0; j < tempArray1.length; j++) {
+                searcharrayList[i]["eligibleProduct" + j] = tempArray1[j].productType;
+            }
+        }
+        if (searcharrayList[i].loanDtls.length > 0) {
+            searcharrayList[i].loanMatureDate = apz.app.NewLoanApplication.findExpLoan(searcharrayList[i].loanDtls);
+        }
+        if (loanApplicationObj.kendraDtls.customerDtls.length > 0) {
+            let maxAmt = searcharrayList;
+            maxAmt.forEach(function(el, i) {
+                let amt = maxAmt[i].maxAmountLimit === "" ? 0 : maxAmt[i].maxAmountLimit;
+                searcharrayList[i].maxAmountLimit = ApzCOB.fn_FormatAmount(amt);
+            })
+        }
+        searcharrayList.forEach(function(el, i) {
+            if (searcharrayList[i].maritalStatus === 'MARRIED') {
+                if (searcharrayList[i].earnings.length > 0) {
+                    searcharrayList[i].earnings.forEach(function(e, k) {
+                        if (searcharrayList[i].earnings[k].memRelation === 'SPOUSE') {
+                            searcharrayList[i].spouseName = searcharrayList[i].earnings[k].name;
+                        }
+                    })
+                }
+            }
+        })
+        globleSearchArrayList.push(searcharrayList[i]);
+    }
+    if (globleSearchArrayList.length > 0) {
+        apz.data.scrdata.NEWLOA__MemberWiseCustList_Res = {};
+        apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList = globleSearchArrayList;
+        //apz.data.loadData("MemberWiseCustList", 'NEWLOA');
+    }
+    var searchText = $("#" + pthis.id).val();
+    if (searchText === '') {
+        $("#" + "NEWLOA__MemberWiseList__o__MemberWiseList__groupId_" + 0).addClass("active");
+    } else {
+        apz.data.scrdata.NEWLOA__MemberWiseList_Res.MemberWiseList.forEach(function(el, i) {
+            $("#" + "NEWLOA__MemberWiseList__o__MemberWiseList__groupId_" + i).removeClass("active");
+        })
+    }
+    var searchResult = ApzCOB.arraySearch(searchText, globleSearchArrayList, ["customerName", "customerId", "spouseName"],
+        'NEWLOA__MemberWiseCustList_Res', "", '', '');
+    if (searchResult.length === 0) {
+        $("#" + newLoanscreenId + "noFromAccountsRow").removeClass("sno");
+        $("#" + newLoanscreenId + "memberWiseCustomerList").addClass("sno");
+        if (searchText === "") {
+            searchResult = defGroupArrayList;
+            $("#" + newLoanscreenId + "noFromAccountsRow").addClass("sno");
+            $("#" + newLoanscreenId + "memberWiseCustomerList").removeClass("sno");
+        }
+    } else {
+        $("#" + newLoanscreenId + "noFromAccountsRow").addClass("sno");
+        $("#" + newLoanscreenId + "memberWiseCustomerList").removeClass("sno");
+    }
+    apz.data.scrdata.NEWLOA__MemberWiseCustList_Res = {};
+    apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList = searchResult;
+    apz.data.loadData("MemberWiseCustList", 'NEWLOA');
+    apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList.forEach(function(j, k) {
+        if (apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList[k].custStatus === "NQA") {
+            $("#" + "NEWLOA__NewLoanApplication__el_bdg_2_" + k).removeClass("sno");
+        } else {
+            $("#" + "NEWLOA__NewLoanApplication__el_bdg_2_" + k).addClass("sno");
+        }
+        if (j.loanDtls.length > 0) {
+            var parCount = ApzCOB.findOverdueCustomers(j);
+            if (parCount !== 0) {
+                $("#" + "NEWLOA__NewLoanApplication__el_bdg_1_" + k).removeClass("sno");
+            } else {
+                $("#" + "NEWLOA__NewLoanApplication__el_bdg_1_" + k).addClass("sno");
+            }
+        } else {
+            $("#" + "NEWLOA__NewLoanApplication__el_bdg_1_" + k).addClass("sno");
+        }
+        if(matchedKendraFromdashboardAppList.length>0){
+             var flag = false;
+             matchedKendraFromdashboardAppList.forEach(item => {
+                 if (item.customerId === j.customerId) {
+                     flag = true;
+                     var matchedStage;
+                     window.ApplicationStage.forEach(val => {
+                        if(val.stage === item.wfStatus){
+                                    matchedStage = val.stageName 
+                     }});
+                     if (item.wfStatus === "DISBURSEINPROGRESS" && item.applicationStatus === "DISBURSED") {
+                         matchedStage = 'DISBURSED'
+                     }
+                     $("#" + "NEWLOA__NewLoanApplication__appStaus_" + k).text(matchedStage?? 'Stage not found')
+                     $(`#${'NEWLOA__NewLoanApplication__memberWiseCustomerList_row_'+k} #${'NEWLOA__NewLoanApplication__appStausDiv_row'}`).removeClass("sno");
+                 }
+             })
+             if (!flag) {
+                $(`#${'NEWLOA__NewLoanApplication__memberWiseCustomerList_row_'+k} #${'NEWLOA__NewLoanApplication__appStausDiv_row'}`).addClass("sno");
+             }
+        }else{
+            $(`#${'NEWLOA__NewLoanApplication__memberWiseCustomerList_row_'+k} #${'NEWLOA__NewLoanApplication__appStausDiv_row'}`).addClass("sno");
+        }
+    })
+}
+apz.app.NewLoanApplication.onLoanWiseSearch = function(pthis) {
+    var searchText = $("#" + pthis.id).val();
+    var searchResult = ApzCOB.arraySearch(searchText, defLoanArrayList, ["customerName", "customerId"], 'NEWLOA__LoanWiseCustList_Res', "", '',
+        '');
+    if (searchResult.length === 0) {
+        $("#" + newLoanscreenId + "zeroLoanRecRow").removeClass("sno");
+        $("#" + newLoanscreenId + "loanWiseList").addClass("sno");
+        if (searchText === "") {
+            searchResult = defLoanArrayList;
+            $("#" + newLoanscreenId + "zeroLoanRecRow").addClass("sno");
+            $("#" + newLoanscreenId + "loanWiseList").removeClass("sno");
+        }
+    } else {
+        $("#" + newLoanscreenId + "zeroLoanRecRow").addClass("sno");
+        $("#" + newLoanscreenId + "loanWiseList").removeClass("sno");
+    }
+    apz.data.scrdata.NEWLOA__LoanWiseCustList_Res = {};
+    apz.data.scrdata.NEWLOA__LoanWiseCustList_Res.LoanWiseCustList = searchResult;
+    apz.data.loadData("LoanWiseCustList", 'NEWLOA');
+}
+/*apz.app.NewLoanApplication.onClickCustomer = function(grpId) {
+    arrayList = [];
+    defGroupArrayList = [];
+    let arrayList = loanApplicationObj.kendraDtls.customerDtls.filter(val => (val.groupId === uniqueGroupIds[0]));
+    for (let i = 0; i < arrayList.length; i++) {
+        let tempObj1 = {
+            "customerId": arrayList[i].customerId,
+            "customerName": arrayList[i].customerName
+        }
+        if (arrayList[i].eligibleLoan.length > 0) {
+            let tempArray1 = arrayList[i].eligibleLoan;
+            for (let j = 0; j < tempArray1.length; j++) {
+                tempObj1["eligibleProduct" + j] = tempArray1[j].product;
+            }
+        }
+        defGroupArrayList.push(tempObj1);
+    }
+    apz.data.scrdata.NEWLOA__MemberWiseCustList_Res = {};
+    apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList = defGroupArrayList;
+    apz.data.loadData("MemberWiseCustList", 'NEWLOA');
+}*/
+apz.app.NewLoanApplication.selectLoanContinueFn = function(params) {
+    if (!viewCustomer) {
+        // let dob = ApzCOB.ageCalculator(KendraApp.selectedCustomer.depDob);
+        // if(window.isLoanCreateFromCalculator){
+        //     if(window.isDraft){
+        //         window.isDraft=false;
+        //         ApzCOB.fnDisplayMsg("Application exists in Draft stage.", 'I');
+        //         apz.stopLoader();
+        //         return
+        //     }
+        // }
+        let age = ApzCOB.ageCalculator(KendraApp.selectedCustomer.dob);
+        if (age > 65) {
+            if(window.isCalcFromCustToLoanInput){
+                setTimeout(function() {
+                    apz.stopLoader();
+	                ApzCOB.fnDisplayMsg("Member above 65 years.", "E");
+	            }, 1000);
+            }else{
+                ApzCOB.fnDisplayMsg("Member above 65 years.", "E");
+                KendraApp.selectedCustomer = {};
+            }
+            return;
+        } else if (age < 18) {
+            if(window.isCalcFromCustToLoanInput){
+                setTimeout(function() {
+                    apz.stopLoader();
+	                ApzCOB.fnDisplayMsg("Member below 18 years.", "E");
+	            }, 1000);
+            }else{
+                ApzCOB.fnDisplayMsg("Member below 18 years.", "E");
+                KendraApp.selectedCustomer = {};
+            }
+            return;
+        }
+        if (apz.isNull(KendraApp.selectedCustomer.income)) {
+            KendraApp.selectedCustomer.income = [];
+        }
+        if (apz.isNull(KendraApp.selectedCustomer.earnings)) {
+            KendraApp.selectedCustomer.earnings = [];
+        }
+        if (KendraApp.selectedCustomer.income.length == 0) {
+            /*var income = [{
+                "customerId": KendraApp.selectedCustomer.customerId,
+                "totIncome": "300000",
+                "totExpense": "150000",
+                "assesmentDt": "20220624"
+            }];*/
+            //KendraApp.selectedCustomer.income = income;
+        }
+        KendraApp.selectedCustomer.isEarning = true;
+        if (KendraApp.selectedCustomer.earnings.length == 0) {
+            KendraApp.selectedCustomer.isEarning = false;
+            /*var earnings = [{
+                "customerId": KendraApp.selectedCustomer.customerId,
+                "name": "Tajammul Pasha",
+                "dob": "19820801",
+                "memRelation": "SPOUSE",
+                "legaldocName": "VOTER-ID",
+                "legaldocId": "EENPM5694R"
+            }];*/
+            //KendraApp.selectedCustomer.earnings = earnings;
+        }
+        if (apz.isNull(KendraApp.selectedCustomer.primaryId) || apz.isNull(KendraApp.selectedCustomer.primaryType)) {
+            if(window.isCalcFromCustToLoanInput){
+                setTimeout(function() {
+                    apz.stopLoader();
+	                ApzCOB.fnDisplayMsg("KYC ID is missing.Kindly update details to enter loan application.", "E");
+	            }, 1000);
+            }else{
+                ApzCOB.fnDisplayMsg("KYC ID is missing.Kindly update details to enter loan application.", "E");
+                KendraApp.selectedCustomer = {};
+            }
+            return;
+        }
+        if (apz.isNull(KendraApp.selectedCustomer.bankAccNo)) {
+            if(window.isCalcFromCustToLoanInput){
+                setTimeout(function() {
+                    apz.stopLoader();
+	                ApzCOB.fnDisplayMsg("Bank details is missing.Kindly update details to enter loan application.", "E");
+	            }, 1000);
+            }
+            else{
+                ApzCOB.fnDisplayMsg("Bank details is missing.Kindly update details to enter loan application.", "E");
+                KendraApp.selectedCustomer = {};
+            }
+            return;
+        }
+        if (KendraApp.selectedCustomer.maritalStatus === "MARRIED") {
+            if (!apz.isNull(KendraApp.selectedCustomer.memRelation.split(',')[0])) {
+                if (apz.isNull(KendraApp.selectedCustomer.depname.split(',')[0]) || apz.isNull(KendraApp.selectedCustomer.depDocId.split(',')[
+                    0]) || apz.isNull(KendraApp.selectedCustomer.depDocType.split(',')[0]) || apz.isNull(KendraApp.selectedCustomer.depDob.split(
+                        ',')[0])) {
+                    // ApzCOB.fnDisplayMsg("Spouse information is missing. Kindly update details to enter loan application.", "E");
+                    // KendraApp.selectedCustomer = {};
+                    if(window.isCalcFromCustToLoanInput){
+                        setTimeout(function() {
+                            apz.stopLoader();
+                            ApzCOB.fnDisplayMsg("Spouse information is missing. Kindly update details to enter loan application.", "E");
+                        }, 1000);
+                    }else{
+                        ApzCOB.fnDisplayMsg("Spouse information is missing. Kindly update details to enter loan application.", "E");
+                        KendraApp.selectedCustomer = {};
+                    }
+                } else {
+                    var depDetails = [{
+                        "customerId": KendraApp.selectedCustomer.customerId,
+                        "name": KendraApp.selectedCustomer.depname.split(',')[0],
+                        "dob": KendraApp.selectedCustomer.depDob.split(',')[0],
+                        "memRelation": KendraApp.selectedCustomer.memRelation.split(',')[0],
+                        "legaldocId": KendraApp.selectedCustomer.depDocId.split(',')[0],
+                        "legaldocName": KendraApp.selectedCustomer.depDocType.split(',')[0]
+                    }];
+                    if (memberWise) {
+                        //KendraApp.selectedCustomer = defGroupArrayList[rowNo];
+                        window.isDeoLeadsDraft  = false;
+                        memberWise = false;
+                    } else if (loanWise) {
+                        //KendraApp.selectedCustomer = defLoanArrayList[rowNo];
+                        window.isDeoLeadsDraft  = false;
+                        loanWise = false;
+                    }
+                    KendraApp.selectedCustomer.household = depDetails;
+                    $('#APZCBO__BaseScreens__BaseDIV').addClass('sno');
+                    let customerId = KendraApp.selectedCustomer.customerId,
+                        branchId = KendraApp.selectedKendra.branchId;
+                    /*if (customerId && customerId !== '' && branchId && branchId !== '') {
+                        ApzCOB.customerPayoffDtls(branchId, customerId);
+                    } else {*/
+                     let obj='';
+                     if(window.isDraft){
+                        obj={
+                            data:params.matchingCustomer
+                        }
+                     }else{
+                        obj= KendraApp.selectedCustomer
+                     }
+                     if(window.isCalcFromCustToLoanInput){
+                        apz.stopLoader();
+                     }
+                     if (leadsWise) {
+                        leadsWise = false;
+                         ApzCOB.launchMicroApp("NEWLOA", "DeoCustDetails", "APZCBO__BaseScreens__STAGE1", obj);
+                         return;
+                     }
+                    ApzCOB.launchMicroApp("NEWLOA", "AddLoanDetails", "APZCBO__BaseScreens__STAGE1", obj);
+                    /*}*/
+                }
+            } else {
+                if(window.isCalcFromCustToLoanInput){
+                    setTimeout(function() {
+                        apz.stopLoader();
+                        ApzCOB.fnDisplayMsg("Spouse information is missing. Kindly update details to enter loan application.", "E");
+                    }, 1000);
+                }
+                else{
+                    ApzCOB.fnDisplayMsg("Spouse information is missing. Kindly update details to enter loan application.", "E");
+                    KendraApp.selectedCustomer = {};
+                }
+            }
+        } else {
+            var depDetails = [];
+            if (memberWise) {
+                //KendraApp.selectedCustomer = defGroupArrayList[rowNo];
+                window.isDeoLeadsDraft  = false;
+                memberWise = false;
+            } else if (loanWise) {
+                //KendraApp.selectedCustomer = defLoanArrayList[rowNo];
+                window.isDeoLeadsDraft  = false;
+                loanWise = false;
+            }
+            KendraApp.selectedCustomer.household = depDetails;
+            $('#APZCBO__BaseScreens__BaseDIV').addClass('sno');
+            let customerId = KendraApp.selectedCustomer.customerId,
+                branchId = KendraApp.selectedKendra.branchId;
+            /*if (customerId && customerId !== '' && branchId && branchId !== '') {
+                ApzCOB.customerPayoffDtls(branchId, customerId);
+            } else {*/
+            let obj='';
+            if(window.isDraft){
+               obj=params.matchingCustomer
+            }else{
+               obj= KendraApp.selectedCustomer
+            }
+             if(window.isCalcFromCustToLoanInput){
+                        apz.stopLoader();
+                     }
+            if(leadsWise){
+                leadsWise = false;
+                ApzCOB.launchMicroApp("NEWLOA", "DeoCustDetails", "APZCBO__BaseScreens__STAGE1", obj);
+                return;
+            }
+            ApzCOB.launchMicroApp("NEWLOA", "AddLoanDetails", "APZCBO__BaseScreens__STAGE1", obj);
+            /*}*/
+        }
+    } else {
+        let obj={
+            'scr':apz.childScr,
+            'childScrId':apz.currAppId
+        }
+        if(isViewCustFromKMLeadList){
+            isViewCustFromKMLeadList = false;
+            obj = selectedDataFromLoanKMLead;
+        }
+        ApzCOB.launchMicroApp("Custom", "CustomerDetails", "APZCBO__BaseScreens__BaseDIV", obj);
+    }
+}
+apz.app.NewLoanApplication.onClickOfDetails = function() {
+    kendraBackNavigationObj.stage = 'LoanApplication';
+    kendraBackNavigationObj.data = JSON.stringify(KendraApp.selectedKendra);
+    ApzCOB.launchMicroApp('Kendra', 'KendraDetails', 'APZCBO__BaseScreens__BaseDIV', loanApplicationObj);
+}
+apz.app.NewLoanApplication.getDeoKendraListFromResponse = function () {
+    var deoKendraList = [];
+    var newApplications = dashboardObj.KendraResponse || [];
+    newApplications.forEach(function (el) {
+        if (
+            el.kendraDtls &&
+            el.kendraDtls.kendraStatus === 'ACTIVE' &&
+            Number(el.kendraDtls.mahiLeads || 0) > 0
+        ) {
+            var meetTime = el.kendraDtls.meetingStartTime;
+            var meridiem = " PM";
+            if (meetTime) {
+                meetTime = meetTime.split("");
+                if (meetTime.length <= 3) {
+                    meetTime.unshift("0");
+                }
+                if (parseInt(meetTime[0] + meetTime[1]) < 12) {
+                    meridiem = " AM";
+                }
+                meetTime =
+                    meetTime[0] + meetTime[1] + ":" +
+                    meetTime[2] + meetTime[3] + meridiem;
+                el.kendraDtls.time = meetTime;
+            }
+            deoKendraList.push(el.kendraDtls);
+        }
+    });
+    deoKendraList.sort(function (a, b) {
+        return (a.time || "").localeCompare(b.time || "");
+    });
+    return deoKendraList;
+};
+apz.app.NewLoanApplication.viewMahiLeads = function () {
+    isViewMoreFiltered = true;
+     var deoData = apz.app.DeoLeads.getDeoKendraListFromResponse();
+    var params = {
+        sourceScreen: 'DeoLeads',
+        isDeoViewMore: true,
+        deoKendraList: deoData
+    };
+    ApzCOB.launchMicroApp("NEWLOA","NewLoanApplication","APZCBO__BaseScreens__BaseDIV",params);
+};
+
+apz.app.NewLoanApplication.onClickBackNavigation = function() {
+    if (isFromKMDashboardLoan) {
+        ApzCOB.launchMicroApp('KenMet', 'KMDashboard', 'APZCBO__BaseScreens__BaseDIV', selectedKendra);
+        isFromKMDashboardLoan = false;
+    } else if (userRole === 'BST') {
+        isBacknavigationFromBstDashboard = true;
+        ApzCOB.backNavigation();
+    }else {
+        if(isSelfAssigned){
+           ApzCOB.fetchKendraDetailsDeoRole(window.LoggedInUserDetails.userID, 'KM');  
+        }else if(isViewMoreFiltered){
+             window.isDeo = true;
+            loanApplicationObj.sourceScreen = '';
+            apz.app.NewLoanApplication.viewMahiLeads();
+        }else{
+            isViewMoreFiltered = false;
+            loanApplicationObj.sourceScreen = '';
+            ApzCOB.backNavigation(); 
+        }
+    }
+}
+apz.app.NewLoanApplication.moveBackDeoViewMore = function (){
+     loanApplicationObj.sourceScreen = '';
+     window.isDeo = false;
+     isViewMoreFiltered = false;
+    ApzCOB.backNavigation(); 
+}
+// Flag for identification of mobile number authenticated customers
+apz.app.NewLoanApplication.loadPendUpdateDetails = function (pthis) {
+    let selRowNo = $(pthis).attr('rowno');
+    let selCustDet = "";
+    if (loanWise) {
+        window.isDeoLeadsDraft  = false;
+        selCustDet = apz.data.scrdata.NEWLOA__LoanWiseCustList_Res.LoanWiseCustList[selRowNo];
+    } else if (memberWise) {
+        window.isDeoLeadsDraft  = false;
+        selCustDet = apz.data.scrdata.NEWLOA__MemberWiseCustList_Res.MemberWiseCustList[selRowNo];
+    }
+    let mobileNumb = selCustDet.mobileNumber
+        ? "Mobile No. not verified (" + selCustDet.mobileNumber + ")"
+        : "Mobile No. not updated";
+    let kendraDts = kendraResponse.find(d => d.kendraDtls.kendraId == selCustDet.kendraId);
+    let customerDts = kendraDts?.kendraDtls?.customerDtls.find(cust => cust.customerId == selCustDet.customerId);
+    setTimeout(() => {
+        $("#" + screenId + "txt_mobileNumUpdate").text(mobileNumb);
+        const sectionsToHide = [
+            "mobNoErrDiv",
+            "kycErrDiv",
+            "txt_spousekyc_dts",
+            "txt_acc_dts",
+            "sc_col_96", 
+            "sc_col_97" 
+        ];
+        sectionsToHide.forEach(id => {
+            document.getElementById(screenId + id)?.classList.add("sno");
+        });
+        if (!selCustDet.mobileNumber) {
+            document.getElementById(screenId + 'mobNoErrDiv')?.classList.remove("sno");
+        }
+        if (!selCustDet.primaryId) {
+            document.getElementById(screenId + 'kycErrDiv')?.classList.remove("sno");
+        }
+        if (!customerDts?.bankAccNo) {
+            document.getElementById(screenId + 'txt_acc_dts')?.classList.remove("sno");
+            document.getElementById(screenId + 'sc_col_97')?.classList.remove("sno");
+        }
+        if (customerDts?.maritalStatus === "MARRIED" && apz.isNull(customerDts?.depDocId)) {
+            document.getElementById(screenId + 'txt_spousekyc_dts')?.classList.remove("sno");
+            document.getElementById(screenId + 'sc_col_96')?.classList.remove("sno");
+        }
+    }, 100);
+};
+apz.app.NewLoanApplication.launchCalculator = function() {
+    // if (Object.keys(KendraApp.LoanCalculatorObj).length === 0) {
+    //     ApzCOB.launchMicroApp('Calcu', 'LoanEmiCalculator', 'APZCBO__BaseScreens__BaseDIV', 'NewLoanApplication');
+    // }
+    // if (!KendraApp.LoanCalculatorObj || Object.keys(KendraApp.LoanCalculatorObj).length === 0) {
+    // ApzCOB.launchMicroApp('Calcu', 'LoanEmiCalculator', 'APZCBO__BaseScreens__BaseDIV', 'NewLoanApplication');
+    // }
+    ApzCOB.launchMicroApp('Calcu', 'LoanEmiCalculator', 'APZCBO__BaseScreens__BaseDIV', 'NewLoanApplication');
+}
+apz.app.NewLoanApplication.onClickPopoverClose = function() {
+    $(".popover").fadeOut(200, function() {
+        $(this).remove();
+    });
+}
+apz.app.NewLoanApplication.hideAndShowIdentificationsCust = function(kendraId, customerId) {
+    let kendraDts = kendraResponse.find((d) => d.kendraDtls.kendraId == kendraId);
+    if (!apz.isNull(kendraDts.kendraDtls.customerDtls)) {
+        let customerDts = kendraDts.kendraDtls.customerDtls.find((cust) = cust => cust.customerId == customerId);
+        if ((customerDts.hasOwnProperty("mobileNum") && apz.isNull(customerDts.mobileNum) && customerDts.mobileNum === "")) {
+            return false;
+        } else if ((customerDts.hasOwnProperty("primaryId") && apz.isNull(customerDts.primaryId) && customerDts.primaryId === "")) {
+            return false;
+        } else if ((customerDts.hasOwnProperty("bankAccNo") && apz.isNull(customerDts.bankAccNo) && customerDts.bankAccNo === "")) {
+            return false;
+        } else if ((customerDts.hasOwnProperty("maritalStatus") && apz.isNull(customerDts.maritalStatus) && customerDts.maritalStatus ===
+                "MARRIED" && apz.isNull(customerDts.depDocId))) {
+            return false;
+        }
+    }
+    return true;
+}
+apz.app.NewLoanApplication.paintDayList = function() {
+    var weekDays = [{"dayDesc": "All"} , ...window.businessDays];
+    apz.data.scrdata.NEWLOA__MahiDayList_Res = {};
+    apz.data.scrdata.NEWLOA__MahiDayList_Res =  weekDays;
+    apz.data.loadData("MahiDayList", 'NEWLOA');
+    $("#NEWLOA__MahiDayList__o__NEWLOA__MahiDayList_Res__dayDesc_0").addClass('active');
+}
+apz.app.NewLoanApplication.paintMahiLeadDtlsBasedOnDay = function(pthis) {
+    var id = pthis.id
+    var dateStr,parts,leadsDate;
+    var meetingDay = $('#' + pthis.id).text();
+    $('.ett-para').removeClass('active');
+    $(pthis).addClass('active');
+    $("#NEWLOA__MahiDayList__o__NEWLOA__MahiDayList_Res__dayDesc_"+id).addClass('active');
+    if(meetingDay === 'All'){
+        $("#NEWLOA__NewLoanApplication__meetingDayDiv").addClass('sno');
+    }else{
+        $("#NEWLOA__NewLoanApplication__meetingDayDiv").removeClass('sno');
+        $("#NEWLOA__NewLoanApplication__meetingDay").text(meetingDay)
+    }
+    var leadsBasedOnDay=[]
+    //var prod ='-';
+    if (KendraApp.MahiLeadList.length > 0) {
+        KendraApp.MahiLeadList.forEach(k => {
+            if((meetingDay).toLowerCase() === (dayMap[k.meetingDay]).toLowerCase() || meetingDay === 'All'){
+                // KendraApp.ProductResponse.forEach(item =>{
+                //     if(item.productDtls.productId === k.mahiLeads[0].productName){
+                //         prod = item.productDtls.shortDesc
+                //     }
+                // })
+                dateStr = k.mahiLeads[0].leadUpdateDate
+                parts = dateStr.split("-");
+                leadsDate = parts[2] + "-" + parts[1] + "-" + parts[0];
+                var obj={
+                'customerName':k.customerName,
+                'customerId':k.customerId,
+                'kendraName':k.kendraName,
+                'leadUpdateDate':leadsDate,
+                'leadStatus':k.mahiLeads[0].leadStatus,
+                'eligibleLoanAmount':k.mahiLeads[0].eligibleLoanAmount,
+                'productName':k.mahiLeads[0].productName
+                }
+                leadsBasedOnDay.push(obj)
+            }
+        });
+        if(leadsBasedOnDay.length > 0){
+            apz.data.scrdata.NEWLOA__MahiLeadList_Res = {};
+            apz.data.scrdata.NEWLOA__MahiLeadList_Res.Lead =  leadsBasedOnDay;
+            $('#NEWLOA__NewLoanApplication__noRecord').addClass('sno');
+        }else{
+            apz.data.scrdata.NEWLOA__MahiLeadList_Res = {};
+            $('#NEWLOA__NewLoanApplication__noRecord').removeClass('sno');
+        }
+        apz.data.loadData('MahiLeadList', apz.currAppId);
+    } else {
+        apz.data.scrdata.NEWLOA__MahiLeadList_Res = {};
+        $('#NEWLOA__NewLoanApplication__noRecord').removeClass('sno');
+    }
+   
+}    
+apz.app.NewLoanApplication.paintMahiLeadList = function() { 
+    apz.data.scrdata.NEWLOA__MahiLeadList_Res = {};
+    apz.data.scrdata.NEWLOA__MahiLeadList_Res.Lead =  mahiLeadListDtls;
+    apz.data.loadData("MahiLeadList", 'NEWLOA');
+}
+apz.app.NewLoanApplication.MahiBackNavigation = function(params) {
+    if(params === 'viewMore'){
+        window.MahiLeadFromDashboard = false;
+		window.MahiLeadFromList = false;
+        ApzCOB.backNavigation();
+    }else if(params === 'leadDtls'){
+        if(isMahiLeadFromDashboardToDtls){
+            isMahiLeadFromDashboardToDtls = false;
+            ApzCOB.backNavigation();
+        }else if(isMahiLeadFromListToDtls){
+            isMahiLeadFromListToDtls = false;
+            $("#NEWLOA__NewLoanApplication__leadDtlsDiv").addClass('sno');
+            apz.app.NewLoanApplication.loadMahiLeadDiv('leadFromViewMore')
+        }else{
+            ApzCOB.backNavigation();
+        }
+    }
+}
+apz.app.NewLoanApplication.onSearchLeads = function(pthis) {
+    var searchText = $("#" + pthis.id).val();
+    var searchResult = [];
+    searchResult = ApzCOB.arraySearch(searchText, mahiLeadListDtls, ["customerName", "customerId","kendraName"],'NEWLOA__MahiLeadList_Res', "", '', '');
+    searchResult.forEach((item, index) => {
+        item.rowNo = index;
+    });
+    if (searchResult.length === 0) {
+        $("#" + newLoanscreenId + "noRecord").removeClass("sno");
+        $("#" + newLoanscreenId + "ct_lst_7").addClass("sno");
+    } else {
+        $("#" + newLoanscreenId + "noRecord").addClass("sno");
+        $("#" + newLoanscreenId + "ct_lst_7").removeClass("sno");
+    }
+    if (searchText.length === 0) {
+        apz.data.scrdata.NEWLOA__MahiLeadList_Res.Lead = mahiLeadListDtls;
+        apz.data.loadData("MahiLeadList", 'NEWLOA');
+        $("#" + newLoanscreenId + "noRecord").addClass("sno");
+        $("#" + newLoanscreenId + "ct_lst_7").removeClass("sno");
+    } else {
+        apz.data.scrdata.NEWLOA__MahiLeadList_Res = {};
+        apz.data.scrdata.NEWLOA__MahiLeadList_Res.Lead = searchResult;
+        apz.data.loadData("MahiLeadList", 'NEWLOA');
+    }
+}
+apz.app.NewLoanApplication.paintLeadDtls = function() {
+    let dateStr = mahiLeadData?.mahiLeads[0].dateSubmitted
+    let parts = dateStr.split("-");
+    let leadsDate = parts[2] + "-" + parts[1] + "-" + parts[0];
+    $("#NEWLOA__NewLoanApplication__leadCustName").text(mahiLeadData?.customerName)
+    $("#NEWLOA__NewLoanApplication__leadgroupId").text(mahiLeadData?.groupId)
+    $("#NEWLOA__NewLoanApplication__leadKendraid").text(mahiLeadData?.kendraId)
+    $("#NEWLOA__NewLoanApplication__leadCustId").text(mahiLeadData?.customerId)
+    $("#NEWLOA__NewLoanApplication__leadProduct").text(mahiLeadData?.mahiLeads[0].productName)
+    $("#NEWLOA__NewLoanApplication__leadPurpose").text(mahiLeadData?.mahiLeads[0].loanPurpose)
+    $("#NEWLOA__NewLoanApplication__leadEligibleAmt").text(mahiLeadData?.mahiLeads[0].eligibleLoanAmount)
+    $("#NEWLOA__NewLoanApplication__leadSubmittedDate").text(leadsDate)
+    $("#NEWLOA__NewLoanApplication__leadTransactionId").text(mahiLeadData?.mahiLeads[0].transactionId)
+    $("#NEWLOA__NewLoanApplication__leadSatus").text(mahiLeadData?.mahiLeads[0].leadStatus)
+}
+apz.app.NewLoanApplication.proceedLead = function (){
+    $('#scr__NEWLOA__DeoCustDetails__main').addClass('sno');
+    var params = {
+        ...KendraApp.selectedKendra,
+        sourceScreen: 'DeoLeads'
+    };
+    ApzCOB.launchMicroApp("NEWLOA", "AddLoanDetails", "APZCBO__BaseScreens__STAGE1", params);
+}
+var rejectionReasons = ['Collection Issue', 'Kendra Issue', 'Low Attendance in Kendra Meeting','Member Issue', 'Others'];
+apz.app.NewLoanApplication.rejectLeads = function() {
+    ApzCOB.toggleModal(newLoanscreenId + "rejectReasonModal");
+    let paintData = rejectionReasons.map((data) => ({
+        reason: data
+    }));
+    apz.data.scrdata.NEWLOA__MahiRejectReason_Res = {};
+    apz.data.scrdata.NEWLOA__MahiRejectReason_Res.Reject = paintData;
+    apz.data.loadData("MahiRejectReason", "NEWLOA");
+}
+var leadRajectReason='';
+apz.app.NewLoanApplication.onClickOfRejectionCheckBox = function (pthis) {
+    var id = parseInt($(pthis).attr('rowno'));
+    leadRajectReason=''
+    if (apz.data.scrdata.NEWLOA__MahiRejectReason_Res.Reject[id].reason === 'Others' && $("#" + pthis.id).prop("checked")) {
+        $(`#${'NEWLOA__NewLoanApplication__rejectReasonList_row_'+id} #${'NEWLOA__NewLoanApplication__sc_row_138_row'}`).removeClass('sno');
+    } else if (apz.data.scrdata.NEWLOA__MahiRejectReason_Res.Reject[id].reason === 'Others' && (!$("#" + pthis.id).prop("checked"))) {
+       $(`#${'NEWLOA__NewLoanApplication__rejectReasonList_row_'+id} #${'NEWLOA__NewLoanApplication__sc_row_138_row'}`).removeClass('sno');
+    }
+    apz.data.scrdata.NEWLOA__MahiRejectReason_Res.Reject.forEach((data,index) => {
+        if (index !== parseInt(id)) {
+            //$("#" + newLoanscreenId + "el_cbx_1_" + index).prop("checked", false);
+            $(`#${'NEWLOA__NewLoanApplication__rejectReasonList_row_'+index} #${'NEWLOA__NewLoanApplication__el_cbx_1_'+index}`).prop("checked", false);
+            $(`#${'NEWLOA__NewLoanApplication__rejectReasonList_row_'+index} #${'NEWLOA__NewLoanApplication__sc_row_138_row'}`).addClass('sno');
+        }
+    })
+};
+apz.app.NewLoanApplication.submitReson = function() {
+    let reason;
+    apz.data.scrdata.NEWLOA__MahiRejectReason_Res.Reject.forEach((item, index) => {
+        var isChecked = $(`#${'NEWLOA__NewLoanApplication__rejectReasonList_row_'+index} #${'NEWLOA__NewLoanApplication__el_cbx_1_'+index}`).prop("checked");
+        if (isChecked && (item.reason !== 'Others')) {
+            reason = item.reason;
+        } else if (isChecked && item.reason === 'Others') {
+            reason = $(`#${'NEWLOA__NewLoanApplication__rejectReasonList_row_'+index} #${'NEWLOA__NewLoanApplication__el_txa_1_'+index}`).val();
+        }
+    })
+    return reason;
+}
+var mahiLeadRejectReason = '';
+apz.app.NewLoanApplication.onRejectedLead = function () {
+    mahiLeadRejectReason = apz.app.NewLoanApplication.submitReson();
+    if(apz.isNull(mahiLeadRejectReason)){
+        ApzCOB.toggleModal(newLoanscreenId + "rejectReasonModal");
+        ApzCOB.fnDisplayMsg("Reason is not selected!", "I", apz.app.NewLoanApplication.cancelCB);
+        return;
+    }
+    ApzCOB.toggleModal(newLoanscreenId + "rejectReasonModal");
+     var req = {
+        "apiRequest": {
+            "interfaceName": "UpdateMahiLeadsStatus",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "transactionId": $('#NEWLOA__NewLoanApplication__leadTransactionId').text(),
+                "reason": mahiLeadRejectReason,
+                "status": "Rejected"
+            }
+        }
+    }
+    apz.startLoader()
+    ApzCOB.serverBuildParam(gAppId, "UpdateMahiLeadsStatus", "N", "N", req, false, apz.app.NewLoanApplication.onRejectedLeadCB);
+}
+apz.app.NewLoanApplication.onRejectedLeadCB = function(params) {
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__UpdateMahiLeadsStatus_Res.apiResponse.ResponseBody.responseObj)) {
+                 apz.stopLoader();
+                let response = JSON.parse(params.res.APZCBO__UpdateMahiLeadsStatus_Res.apiResponse.ResponseBody.responseObj);
+                if(response.message === 'Status changed'){
+                    $("#NEWLOA__NewLoanApplication__leadDtlsDiv").addClass('sno');
+                    $("#NEWLOA__NewLoanApplication__viewMoreDiv").addClass('sno');
+                    $("#NEWLOA__NewLoanApplication__rejCustName").text(`${mahiLeadData?.customerName} ₹ (${mahiLeadData?.mahiLeads[0]?.eligibleLoanAmount} ${mahiLeadData?.mahiLeads[0]?.productName})`)
+                    $("#NEWLOA__NewLoanApplication__rejTxnId").text(`TXN ID: ${mahiLeadData?.mahiLeads[0]?.transactionId}`)
+                    $("#NEWLOA__NewLoanApplication__rejRejectReason").text(`${mahiLeadRejectReason}`)
+                    $("#NEWLOA__NewLoanApplication__rejectDiv").removeClass('sno');
+                    KendraApp.MahiLeadList.forEach(item => {
+                        if(item.customerId === mahiLeadData.customerId){
+                            item.mahiLeads[0].leadStatus = 'Rejected';
+                        }
+                    });
+
+                }else{
+                    apz.stopLoader();
+                    ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+                }
+                
+            } else {
+                apz.stopLoader();
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        } else{
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+};
+apz.app.NewLoanApplication.rejectViewMore = function() {
+    if ($("#" + newLoanscreenId + "sc_row_130").hasClass("sno")) {
+        $("#" + newLoanscreenId + "sc_row_130").removeClass("sno");
+    } else {
+        $("#" + newLoanscreenId + "sc_row_130").addClass("sno");
+    }
+}
+apz.app.NewLoanApplication.cancelCB = function(params){
+    if (params.choice === true) {
+        ApzCOB.toggleModal(newLoanscreenId + "rejectReasonModal");
+    }
+}
+apz.app.NewLoanApplication.selectCustomer = function(pthis) {
+    event.preventDefault();
+    event.stopPropagation();
+    let rowNo = $(pthis).attr('rowno');
+    var selectedLead = '';
+    var custId = apz.data.scrdata.NEWLOA__MahiLeadList_Res.Lead[rowNo].customerId
+    KendraApp.MahiLeadList.forEach(k=>{
+        if(custId === k.customerId){
+            selectedLead = k
+        }
+    })
+    isMahiLeadFromListToDtls = true;
+    window.MahiLeadFromList = true;
+    window.MahiLeadFromDashboard = false;
+    KendraApp.selectedCustomer = selectedLead;
+    if((selectedLead.mahiLeads[0].leadStatus).toLowerCase() == 'pending'){
+        isApplyingLoanFromMahiLeadDtls = true;
+        apz.app.KmLeads.getKendraDetail(KendraApp.selectedCustomer)
+        apz.app.KmLeads.selectLoan();
+        $("#" + newLoanscreenId + "gr_row_33").removeClass("sno");
+    }else {
+        ApzCOB.launchMicroApp("NEWLOA", "NewLoanApplication", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedCustomer);
+        isMahiFromDashboard = true;
+        $("#" + newLoanscreenId + "gr_row_33").addClass("sno");
+    }
+}
+apz.app.NewLoanApplication.proceedLead = function(customer) {
+    var req = {
+        "apiRequest": {
+            "interfaceName": "UpdateMahiLeadsStatus",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "transactionId": $('#NEWLOA__NewLoanApplication__leadTransactionId').text(),
+                "status": "Approved"
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "UpdateMahiLeadsStatus", "N", "N", req, false, apz.app.NewLoanApplication.proceedLeadCB);
+}
+apz.app.NewLoanApplication.proceedLeadCB = function(params) {
+     try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__UpdateMahiLeadsStatus_Res.apiResponse.ResponseBody.responseObj)) {
+                 apz.stopLoader();
+                let response = JSON.parse(params.res.APZCBO__UpdateMahiLeadsStatus_Res.apiResponse.ResponseBody.responseObj);
+                if(response.message === 'Status changed'){
+                   ApzCOB.fnDisplayMsg("Lead Updated Successfully", "S",apz.app.NewLoanApplication.proceedMahiLeadCB);
+                   KendraApp.MahiLeadList.forEach(item => {
+                        if(item.customerId === mahiLeadData.customerId){
+                            item.mahiLeads[0].leadStatus = 'Approved';
+                        }
+                   });
+                }else{
+                    apz.stopLoader();
+                    ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+                }
+                
+            } else {
+                apz.stopLoader();
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        } else{
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.NewLoanApplication.proceedMahiLeadCB = function (params) {
+    if (params.choice === true) {
+        $('#APZCBO__BaseScreens__BaseDIV').addClass('sno');
+        isMahiLeadFromDtlsToLoanInput = true;
+        ApzCOB.launchMicroApp("NEWLOA", "AddLoanDetails", "APZCBO__BaseScreens__STAGE1", KendraApp.selectedCustomer);
+    }
+}
+apz.app.NewLoanApplication.mahiLeadToCustomer = function(pthis) {
+    event.preventDefault();
+    event.stopPropagation();
+    let rowNo = $(pthis).attr('rowno');
+    viewCustomer = true;
+    var selData =  apz.data.scrdata.NEWLOA__MahiLeadList_Res.Lead[rowNo];
+    let selectedData = {};
+    selectedData.scr = 'KmMahiLeadList'
+    selectedData.childScrId = apz.currAppId;
+    window.isViewCustFromKMLead = true
+    isViewCustFromKMLeadList = true;
+    selectedDataFromLoanKMLead = selectedData;
+    ApzCOB.FetchCustomerDetails(selData.customerId);
+}
+apz.app.NewLoanApplication.ensurePopoverExists = function () {
+    if ($("#NEWLOA__NewLoanApplication__ppr_memUpdate").length === 0) {
+        $("#scr__NEWLOA__NewLoanApplication__main").append(`
+    <div id="NEWLOA__NewLoanApplication__ppr_memUpdate" class="sno scb-max65  info-popovr" aria-hidden="true">
+  <div id="NEWLOA__NewLoanApplication__gr_row_17" class="grb ">
+    <div id="NEWLOA__NewLoanApplication__gr_col_20" class=" gcb-col12    " style="">
+      <div id="NEWLOA__NewLoanApplication__pl_pnl_19_div" style="" class="plt-simp ma0">
+        <div id="NEWLOA__NewLoanApplication__ps_pls_24" class="pst-simp tsp pa0" style="">
+          <div id="NEWLOA__NewLoanApplication__ct_nav_1" class="crt-navb  head tsp">
+            <ul id="NEWLOA__NewLoanApplication__sc_row_78" class="srb  pri ">
+              <li id="NEWLOA__NewLoanApplication__sc_col_93" class=" rht pri scb-col100">
+                <button id="NEWLOA__NewLoanApplication__el_btn_44" type="button" onclick="apz.app.NewLoanApplication.onClickPopoverClose();" class="ett-bttn tsp med icl btn-icn" enabled="enabled">
+                  <svg id="btn_icon_icon-close-gk" aria-hidden="true" role="presentation" class="ett-icon icon-close-gk  px24 ">
+                    <use xlink:href="#icon-close-gk"></use>
+                  </svg>
+                  <span id="NEWLOA__NewLoanApplication__el_btn_44_txtcnt"></span>
+                </button>
+              </li>
+            </ul>
+          </div>
+          <div id="NEWLOA__NewLoanApplication__ct_nav_2" class="crt-navb  tsp">
+            <ul id="NEWLOA__NewLoanApplication__sc_row_79" class="srb  pri sno mb16 ">
+              <li id="NEWLOA__NewLoanApplication__mobNoErrDiv" class=" txt-inl align-cen pri scb-col100">
+                <svg aria-hidden="true" id="NEWLOA__NewLoanApplication__el_icn_13" class="ett-icon icon-close-gk pri px16">
+                  <use xlink:href="#icon-close-gk"></use>
+                </svg>
+                <p id="NEWLOA__NewLoanApplication__txt_mobileNumUpdate" class="ett-para pri fs14">
+                  <span id="NEWLOA__NewLoanApplication__txt_mobileNumUpdate_txtcnt"></span>
+                </p>
+              </li>
+            </ul>
+            <ul id="NEWLOA__NewLoanApplication__sc_row_80" class="srb  pri sno bordertop ">
+              <li id="NEWLOA__NewLoanApplication__kycErrDiv" class=" txt-inl align-cen pri scb-col100">
+                <svg aria-hidden="true" id="NEWLOA__NewLoanApplication__el_icn_14" class="ett-icon icon-close-gk pri px16">
+                  <use xlink:href="#icon-close-gk"></use>
+                </svg>
+                <p id="NEWLOA__NewLoanApplication__txt_kycUpdate" class="ett-para pri fs14">
+                  <span id="NEWLOA__NewLoanApplication__txt_kycUpdate_txtcnt">KYC not completed</span>
+                </p>
+              </li>
+            </ul>
+            <ul id="NEWLOA__NewLoanApplication__sc_row_81" class="srb  pri sno mb16 ">
+              <li id="NEWLOA__NewLoanApplication__sc_col_96" class=" txt-inl align-cen pri scb-col100">
+                <svg aria-hidden="true" id="NEWLOA__NewLoanApplication__el_icn_15" class="ett-icon icon-close-gk pri px16">
+                  <use xlink:href="#icon-close-gk"></use>
+                </svg>
+                <p id="NEWLOA__NewLoanApplication__txt_spousekyc_dts" class="ett-para pri fs14">
+                  <span id="NEWLOA__NewLoanApplication__txt_spousekyc_dts_txtcnt">Spouse KYC details are not available.</span>
+                </p>
+              </li>
+            </ul>
+            <ul id="NEWLOA__NewLoanApplication__sc_row_82" class="srb  pri sno mb16 ">
+              <li id="NEWLOA__NewLoanApplication__sc_col_97" class=" txt-inl align-cen pri scb-col100">
+                <svg aria-hidden="true" id="NEWLOA__NewLoanApplication__el_icn_16" class="ett-icon icon-close-gk pri px16">
+                  <use xlink:href="#icon-close-gk"></use>
+                </svg>
+                <p id="NEWLOA__NewLoanApplication__txt_acc_dts" class="ett-para pri fs14">
+                  <span id="NEWLOA__NewLoanApplication__txt_acc_dts_txtcnt">Account details are unavailable.</span>
+                </p>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`);
+    }
+};

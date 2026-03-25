@@ -1,0 +1,189 @@
+@use "../Abstract" as a;
+
+
+.tooltip {
+	font-size: 12px;
+	line-height: 1.4;
+	opacity: 0.5;
+	filter: alpha(opacity=0);
+	&.in {
+		opacity: 0.9;
+		filter: alpha(opacity=90);
+	}
+	&.top {
+		padding: 5px 0;
+		margin-top: -3px;
+		.tooltip-arrow {
+			margin-left: -5px;
+			border-top-color: #000000;
+			border-width: 5px 5px 0;
+		}
+	}
+	&.right {
+		padding: 0 5px;
+		margin-left: 3px;
+		.tooltip-arrow {
+			margin-top: -5px;
+			border-right-color: #000000;
+			border-width: 5px 5px 5px 0;
+		}
+	}
+	&.bottom {
+		padding: 5px 0;
+		margin-top: 3px;
+		.tooltip-arrow {
+			margin-left: -5px;
+			border-bottom-color: #000000;
+			border-width: 0 5px 5px;
+		}
+	}
+	&.left {
+		padding: 0 5px;
+		margin-left: -3px;
+		.tooltip-arrow {
+			margin-top: -5px;
+			border-left-color: #000000;
+			border-width: 5px 0 5px 5px;
+		}
+	}
+	&.top-left .tooltip-arrow {
+		border-top-color: #000000;
+		border-width: 5px 5px 0;
+	}
+	&.top-right .tooltip-arrow {
+		border-top-color: #000000;
+		border-width: 5px 5px 0;
+	}
+	&.bottom-left .tooltip-arrow {
+		border-bottom-color: #000000;
+		border-width: 0 5px 5px;
+	}
+	&.bottom-right .tooltip-arrow {
+		border-bottom-color: #000000;
+		border-width: 0 5px 5px;
+	}
+}
+.tooltip-inner {
+	max-width: 200px;
+	padding: 3px 8px;
+	color: #000;
+	text-align: center;
+	text-decoration: none;
+	background-color: #fff;
+	border-radius: 4px;
+}
+.tooltip-arrow {
+	width: 0;
+	height: 0;
+	border-color: transparent;
+	border-style: solid;
+}
+.popover {
+	padding: 1px;
+	text-align: left;
+	white-space: normal;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border: 1px solid rgba(0,0,0,0.2);
+	border-radius: 6px;
+	box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+	background-clip: padding-box;
+	&.top {
+		margin-top: -3px;
+		.arrow {
+			margin-left: -11px;
+			border-top-color: #999;
+			border-top-color: rgba(0,0,0,0.25);
+			border-bottom-width: 0;
+			&:after {
+				margin-top: -11px;
+				margin-left: -10px;
+				border-top-color: #fff;
+				border-bottom-width: 0;
+			}
+		}
+	}
+	&.right {
+		margin-left: 10px;
+		.arrow {
+			margin-top: -11px;
+			border-right-color: #999;
+			border-right-color: rgba(0,0,0,0.25);
+			border-left-width: 0;
+			&:after {
+				border-right-color: #fff;
+				border-left-width: 0;
+				content: " ";
+			}
+		}
+	}
+	&.bottom {
+		margin-top: 10px;
+		.arrow {
+			margin-left: -11px;
+			border-bottom-color: #999;
+			border-bottom-color: rgba(0,0,0,0.25);
+			border-top-width: 0;
+			&:after {
+				margin-left: -10px;
+				border-bottom-color: #fff;
+				border-top-width: 0;
+				content: " ";
+			}
+		}
+	}
+	&.left {
+		margin-left: -10px;
+		.arrow {
+			margin-top: -11px;
+			border-left-color: #999999;
+			border-left-color: rgba(0, 0, 0, 0.25);
+			border-right-width: 0;
+			&:after {
+				border-left-color: #ffffff;
+				border-right-width: 0;
+			}
+		}
+	}
+	.arrow {
+		position: absolute;
+		display: block;
+		width: 0;
+		height: 0;
+		border-color: transparent;
+		border-style: solid;
+		border-width: 11px;
+		&:after {
+			position: absolute;
+			display: block;
+			width: 0;
+			height: 0;
+			border-color: transparent;
+			border-style: solid;
+			border-width: 10px;
+		}
+	}
+}
+.popover-title {
+	padding: 8px 14px 2px;
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 16px;
+	background-color: #fff;
+	color: #333;
+}
+.popover-content {
+	padding: 2px 14px 8px;
+	overflow: auto;
+	max-height: 90vh;
+	> div > .grb {
+		display: inline-block;
+	}
+	> .lrow {
+		min-width: 350px;
+	}
+}
+
+
+

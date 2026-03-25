@@ -1,0 +1,556 @@
+window.BstDtlsScrId = "Widget__BstDetails__"
+let selectedBranch = '';
+selectedRegion = '';
+let branchArr = [],
+    regionarr = [],
+    branchArr1 = [],
+    regionarr1 = [],
+    branchUniqueArr = [],
+    regionUniqueArr = [];
+    kmIdArr=[];
+    kmUniqueArr = [];
+    meetingDayArr=[];
+let searchArr=[];
+apz.app.onLoad_BstDetails = function() {}
+apz.app.onShown_BstDetails = function() {
+    $("input").attr("autocomplete", "off");
+    $("#" + BaseScrId + "bstLoggedUserName").text(LoggedInUserDetails.loginResponse.userDet.name);
+    let lastlogin = new Date(LoggedInUserDetails.loginResponse.userDet.lastLogin).format('d-M-Y h:i:s A');
+    $("#" + BaseScrId + "bstLastLogin").text(lastlogin.split(' ')[0]);
+    $("#" + BaseScrId + "bstLastLoginTime").text(lastlogin.split(' ')[1] + ' ' + lastlogin.split(' ')[2]);
+     $("#APZCBO__BaseScreens__el_txt_179" ).text(LoggedInUserDetails.loginResponse.userDet.name);
+            $("#APZCBO__BaseScreens__el_txt_178" ).text((LoggedInUserDetails.loginResponse.userDet.name).slice(0, 1));
+            $("#APZCBO__BaseScreens__el_txt_180" ).text(LoggedInUserDetails.loginResponse.userDet.id);
+    let userBranchList = [...window.UnifiedApp.userBranchList]
+    userBranchList.forEach(k => {
+        let obj = {
+            'regionId': k.regionId,
+            'regionName': k.regionName,
+            'rcode': k.regionId + '(' + k.regionName + ')'
+        }
+        regionarr.push(obj);
+        let obj1 = {
+            'regionId': k.regionId,
+            'branchId': k.branchId,
+            'branchName': k.branchName,
+            'bcode': k.bcode
+        }
+        branchArr.push(obj1)
+    });
+    regionarr.forEach((item) => {
+        if (!regionarr1.some((r) => r.regionId === item.regionId)) {
+            regionarr1.push(item);
+        }
+    });
+    if(isBacknavigationFromBstDashboard){
+        isBacknavigationFromBstDashboard = false
+        apz.app.BstDetails.paintData();
+    }
+}
+apz.app.BstDetails.paintData = function() {
+    let branchID = window.UnifiedApp.selectedBranchDetails.branchId,
+    regionID = window.UnifiedApp.selectedBranchDetails.regionId;
+    apz.data.scrdata.Widget__IPaintWidgetRegionIdList_Res.forEach((k,i)=>{
+        if( (k.regionId.split('(')[0]).trim() === regionID){
+            $('#' + BstDtlsScrId + 'regionIdCheckBox_' + i).prop('checked', true);
+            selectedRegion = k.regionId;
+            $('#' + BstDtlsScrId + 'regionId').val(selectedRegion);
+            apz.app.BstDetails.loadBranchList(); 
+        }else{
+            $('#' + BstDtlsScrId + 'regionIdCheckBox_' + i).prop('checked', false);
+        }
+    })
+    apz.data.scrdata.Widget__IPaintWidgetBranchIdList_Res.forEach((k,i)=>{
+        if( (k.branchId.split('(')[0]).trim() === branchID){
+             $('#' + BstDtlsScrId + 'branchIdCheckBox_' + i).prop('checked', true);
+             selectedBranch = k.branchId;
+             $('#' + BstDtlsScrId + 'branchId').val(selectedBranch);
+        }else{
+            $('#' + BstDtlsScrId + 'branchIdCheckBox_' + i).prop('checked', false);
+        }
+    })
+    $('#' + BstDtlsScrId + 'selectedRegion').text(selectedRegion);
+    $('#' + BstDtlsScrId + 'selectedBranch').text(selectedBranch);
+    ApzCOB.launchMicroApp('Widget', 'InProgress', DashboardScrId + 'Widget4', '');
+    $("#" + DashboardScrId + "Widget4").removeClass('sno');
+    $('#' + BstDtlsScrId + 'sc_row_265').removeClass('sno');
+    $('#' + BstDtlsScrId + 'sc_row_283').removeClass('sno');
+    $('#' + BstDtlsScrId + 'sc_row_304').removeClass('sno');
+}
+apz.app.BstDetails.onChangeBranch = function() {
+    selectedBranch = $('#Widget__BstDetails__branchId').val()
+}
+apz.app.BstDetails.onClickRegionIdDd = function(params) {
+    apz.app.BstDetails.regionList()
+    ApzCOB.toggleModal(BstDtlsScrId + 'RegionIdModal');
+}
+apz.app.BstDetails.onClickBranchIdDd = function(params) {
+    if($('#' + BstDtlsScrId + 'regionId').val() !=''){
+        ApzCOB.toggleModal(BstDtlsScrId + 'BranchIdModal');
+    }else{
+        ApzCOB.fnDisplayMsg("Please Select Region.", "E");
+    }
+}
+apz.app.BstDetails.regionList = function(params) {
+    regionUniqueArr = [];
+    regionarr1.forEach(item => {
+        let obj = {
+            regionId: item.regionId + ' (' + item.regionName + ')',
+            val: item.regionId,
+            desc: item.regionId + ' (' + item.regionName + ')'
+        }
+        regionUniqueArr.push(obj)
+    })
+    if (regionUniqueArr.length > 0) {
+        apz.data.scrdata.Widget__IPaintWidgetRegionIdList_Res = {}
+        apz.data.scrdata.Widget__IPaintWidgetRegionIdList_Res = regionUniqueArr
+        apz.data.loadData("IPaintWidgetRegionIdList", 'Widget');
+    } else {
+        apz.data.scrdata.Widget__IPaintWidgetRegionId_Res = {}
+        $("#" + BstDtlsScrId + "noRecordForm").removeClass("sno");
+        $("#" + BstDtlsScrId + "regionListRow").addClass("sno");
+        apz.data.loadData("IPaintWidgetRegionIdList", 'Widget');
+    }
+    if (regionUniqueArr.length > 3) {
+        $("#" + BstDtlsScrId + "regionSearchDiv").removeClass("sno");
+    }else{
+        $("#" + BstDtlsScrId + "regionSearchDiv").addClass("sno");
+    }
+}
+apz.app.BstDetails.onSelectedRegionId = function(pthis) {
+    let rowNo = $(pthis).attr("rowno");
+    $.each(apz.data.scrdata.Widget__IPaintWidgetRegionIdList_Res, function(i) {
+        if (parseInt(rowNo) === i) {
+            $('#' + BstDtlsScrId + 'regionIdCheckBox_' + i).prop('checked', true);
+        } else {
+            $('#' + BstDtlsScrId + 'regionIdCheckBox_' + i).prop('checked', false);
+        }
+    });
+}
+apz.app.BstDetails.selectedRegionIdDetails = function() {
+    $.each(apz.data.scrdata.Widget__IPaintWidgetRegionIdList_Res, function(i) {
+        if ($('#' + BstDtlsScrId + 'regionIdCheckBox_' + i).prop('checked')) {
+            selectedRegion = apz.data.scrdata.Widget__IPaintWidgetRegionIdList_Res[i].regionId;
+            $('#' + BstDtlsScrId + 'regionId').val(selectedRegion);
+            apz.app.BstDetails.loadBranchList()
+            ApzCOB.toggleModal(BstDtlsScrId + 'RegionIdModal');
+        }
+    })
+}
+apz.app.BstDetails.loadBranchList = function(params) {
+    branchArr1 = [], branchUniqueArr = [];
+    branchArr.forEach(item => {
+        if ((selectedRegion.split('(')[0]).trim() == item.regionId) {
+            branchArr1.push(item)
+            if (!branchArr1.some((r) => r.regionId === item.regionId)) {
+                branchArr1.push(item);
+            }
+        }
+    })
+    branchArr1.forEach(item => {
+        let obj = {
+            branchId: item.branchId + ' (' + item.branchName + ')',
+            val: item.branchId,
+            desc: item.branchId + ' (' + item.branchName + ')'
+        }
+        branchUniqueArr.push(obj)
+    })
+    if (branchUniqueArr.length > 0) {
+        apz.data.scrdata.Widget__IPaintWidgetBranchIdList_Res = {}
+        apz.data.scrdata.Widget__IPaintWidgetBranchIdList_Res = branchUniqueArr
+
+        apz.data.loadData("IPaintWidgetBranchIdList", 'Widget');
+        $.each(apz.data.scrdata.Widget__IPaintWidgetBranchIdList_Res, function(i) {        
+            $('#' + BstDtlsScrId + 'branchIdCheckBox_' + i).prop('checked', false);
+        });
+    } else {
+        apz.data.scrdata.Widget__IPaintWidgetBranchIdList_Res = {}
+        $("#" + BstDtlsScrId + "branchUniqueArr2").removeClass("sno");
+        $("#" + BstDtlsScrId + "branchListRow").addClass("sno");
+        apz.data.loadData("IPaintWidgetBranchIdList", 'Widget');
+    }
+    if (branchUniqueArr.length > 3) {
+        $("#" + BstDtlsScrId + "branchSearchDiv").removeClass("sno");
+    }else{
+        $("#" + BstDtlsScrId + "branchSearchDiv").addClass("sno");
+    }
+    $('#' + BstDtlsScrId + 'branchId').val('')
+}
+apz.app.BstDetails.onSelectedBranchId = function(pthis) {
+    let rowNo = $(pthis).attr("rowno");
+    $.each(apz.data.scrdata.Widget__IPaintWidgetBranchIdList_Res, function(i) {
+        if (parseInt(rowNo) === i) {
+            $('#' + BstDtlsScrId + 'branchIdCheckBox_' + i).prop('checked', true);
+        } else {
+            $('#' + BstDtlsScrId + 'branchIdCheckBox_' + i).prop('checked', false);
+        }
+    });
+}
+apz.app.BstDetails.selectedBranchIdDetails = function() {
+    $.each(apz.data.scrdata.Widget__IPaintWidgetBranchIdList_Res, function(i) {
+        if ($('#' + BstDtlsScrId + 'branchIdCheckBox_' + i).prop('checked')) {
+            selectedBranch = apz.data.scrdata.Widget__IPaintWidgetBranchIdList_Res[i].branchId;
+            $('#' + BstDtlsScrId + 'branchId').val(selectedBranch)
+            ApzCOB.toggleModal(BstDtlsScrId + 'BranchIdModal');
+        }
+    })
+    if($("#Widget__BstDetails__el_inp_2").val()!=''){
+        $("#Widget__BstDetails__el_inp_2").val('');
+        if (branchUniqueArr.length > 0) {
+            apz.data.scrdata.Widget__IPaintWidgetBranchIdList_Res = {}
+            apz.data.scrdata.Widget__IPaintWidgetBranchIdList_Res = branchUniqueArr
+            $.each(apz.data.scrdata.Widget__IPaintWidgetBranchIdList_Res, function(i) {        
+                $('#' + BstDtlsScrId + 'branchIdCheckBox_' + i).prop('checked', false);
+            });
+            apz.data.loadData("IPaintWidgetBranchIdList", 'Widget');
+            apz.data.scrdata.Widget__IPaintWidgetBranchIdList_Res.forEach((k,i)=>{
+                if(k.branchId == selectedBranch){
+                    $('#' + BstDtlsScrId + 'branchIdCheckBox_' + i).prop('checked',true)
+                }
+            })
+        } 
+
+    }
+}
+apz.app.BstDetails.fiterDataBasedOnRegionAndBranch = function() {
+    if($('#' + BstDtlsScrId + 'regionId').val() !='' && $('#' + BstDtlsScrId + 'branchId').val() !=''){
+        // $('#' + BstDtlsScrId + 'sc_row_265').removeClass('sno');
+        $('#' + BstDtlsScrId + 'selectedRegion').text(selectedRegion);
+        $('#' + BstDtlsScrId + 'selectedBranch').text(selectedBranch);
+        window.UnifiedApp.userBranchList.forEach(k=>{
+            if((selectedBranch.split('(')[0]).trim() === k.branchId){
+                window.UnifiedApp.selectedBranchDetails = k
+            }
+        })
+        let role = 'BST';
+        apz.app.BstDetails.fetchBstKendraDetails(window.LoggedInUserDetails.userID , role);
+    }else{
+        if($('#' + BstDtlsScrId + 'regionId').val() =='' && $('#' + BstDtlsScrId + 'branchId').val() ==''){
+            ApzCOB.fnDisplayMsg("Please Select Region and Branch.", "E");
+        }else if($('#' + BstDtlsScrId + 'regionId').val() == ''){
+            ApzCOB.fnDisplayMsg("Please Select Region.", "E");
+        }else if($('#' + BstDtlsScrId + 'branchId').val() == ''){
+            ApzCOB.fnDisplayMsg("Please Select Branch.", "E");
+        }
+    }
+}
+apz.app.BstDetails.fetchBstKendraDetails = function(pkendraid,role) {
+    let reqObj = {
+        "KendraUserId": pkendraid,
+        "KendraRoleId": role,
+        "branchId":selectedBranch?.split('(')[0].trim()
+    }
+    let req = {
+        "apiRequest": {
+            "interfaceName": "FetchKendraDetails",
+            "requestObj": reqObj
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, 'FetchKendraDetails', 'N', 'N', req, 'Y', apz.app.BstDetails.fetchBstKendraDetailsCB);
+}
+window.BstDashboardAppListAPI = false;
+apz.app.BstDetails.fetchBstKendraDetailsCB = function(params) {
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            if (!apz.isNull(params.res.APZCBO__FetchKendraDetails_Res.apiResponse.ResponseBody.responseObj)) {
+                var kendraRes = params.res.APZCBO__FetchKendraDetails_Res.apiResponse.ResponseBody.responseObj;
+                ApzCOB.setPref('KendraResponse', kendraRes);
+                window.KendraApp.KendraResponse = kendraRes;
+                window.KendraApp.KendraResponsenew = JSON.parse(JSON.stringify(window.KendraApp.KendraResponse))
+                apz.app.Dashboard.captureAllKendraLocations();
+                ApzCOB.launchMicroApp('Widget', 'InProgress', DashboardScrId + 'Widget4', '');
+                $("#" + DashboardScrId + "Widget4").removeClass('sno');
+                $('#' + BstDtlsScrId + 'sc_row_265').removeClass('sno');
+                $('#' + BstDtlsScrId + 'sc_row_283').removeClass('sno');
+                $('#' + BstDtlsScrId + 'sc_row_304').removeClass('sno');
+                $('#' + BstDtlsScrId + 'kmId').val('');
+                $('#' + BstDtlsScrId + 'meetingDay').val('');
+                dashboardObj.KendraResponse = window.KendraApp.KendraResponse;
+                filterdKendraArr = [];
+                $.each(apz.data.scrdata.Widget__IPaintWidgetKmIdList_Res, function(i) {
+                    $('#' + BstDtlsScrId + 'kmIdCheckBox_' + i).prop('checked', false);
+                });
+                $.each(apz.data.scrdata.Widget__IPaintWidgetMeetingDay_Res, function(i) {
+                    $('#' + BstDtlsScrId + 'meetingDayCheckBox_' + i).prop('checked', false);
+                });
+                window.BstDashboardAppListAPI = true;
+                ApzCOB.dashboardAppListAPI();
+            } else {
+                apz.stopLoader();
+                ApzCOB.fnDisplayMsg('Unable to fetch CDH data. Please retry again.!', "E");
+            }
+        } else {
+            apz.stopLoader();
+            ApzCOB.fnDisplayMsg('Unable to fetch CDH data. Please retry again.!', "E");
+        }
+    } catch (e) {}
+
+}
+apz.app.BstDetails.searchRegionIdInModal = function(pthis) {
+    $.each(apz.data.scrdata.Widget__IPaintWidgetRegionIdList_Res, function(i) {
+        $('#' + BstDtlsScrId + 'regionIdCheckBox_' + i).prop('checked', false);
+    });
+    let searchText = $("#" + pthis.id).val();
+    let searchResult = [];
+    searchResult = ApzCOB.arraySearch(searchText, regionUniqueArr, ["regionId"],'Widget__IPaintWidgetRegionIdList_Res', "", '', '');
+    searchResult.forEach((item, index) => {
+        item.rowNo = index;
+    });
+    if (searchResult.length === 0) {
+        $("#" + BstDtlsScrId + "noRecordForm").removeClass("sno");
+        $("#" + BstDtlsScrId + "regionListRow").addClass("sno");
+    } else {
+        $("#" + BstDtlsScrId + "noRecordForm").addClass("sno");
+        $("#" + BstDtlsScrId + "regionListRow").removeClass("sno");
+    }
+    if (searchText.length === 0) {
+        apz.data.scrdata.Widget__IPaintWidgetRegionIdList_Res = regionUniqueArr;
+        apz.data.loadData("IPaintWidgetRegionIdList", 'Widget');
+        $("#" + BstDtlsScrId + "noRecordForm").addClass("sno");
+        $("#" + BstDtlsScrId + "regionListRow").removeClass("sno");
+    } else {
+        apz.data.scrdata.Widget__IPaintWidgetRegionIdList_Res = {};
+        apz.data.scrdata.Widget__IPaintWidgetRegionIdList_Res = searchResult;
+        apz.data.loadData("IPaintWidgetRegionIdList", 'Widget');
+    }
+}
+apz.app.BstDetails.searchBranchIdInModal = function(pthis) {
+    $.each(apz.data.scrdata.Widget__IPaintWidgetBranchIdList_Res, function(i) {
+        $('#' + BstDtlsScrId + 'branchIdCheckBox_' + i).prop('checked', false);
+    });
+    let searchText = $("#" + pthis.id).val();
+    let searchResult = [];
+    searchResult = ApzCOB.arraySearch(searchText, branchUniqueArr, ["branchId"],'Widget__IPaintWidgetBranchIdList_Res', "", '', '');
+    searchResult.forEach((item, index) => {
+        item.rowNo = index;
+    });
+    if (searchResult.length === 0) {
+        $("#" + BstDtlsScrId + "noRecordForm2").removeClass("sno");
+        $("#" + BstDtlsScrId + "branchListRow").addClass("sno");
+    } else {
+        $("#" + BstDtlsScrId + "noRecordForm2").addClass("sno");
+        $("#" + BstDtlsScrId + "branchListRow").removeClass("sno");
+    }
+    if (searchText.length === 0) {
+        apz.data.scrdata.Widget__IPaintWidgetBranchIdList_Res = branchUniqueArr;
+        apz.data.loadData("IPaintWidgetBranchIdList", 'Widget');
+        $("#" + BstDtlsScrId + "noRecordForm2").addClass("sno");
+        $("#" + BstDtlsScrId + "branchListRow").removeClass("sno");
+    } else {
+        apz.data.scrdata.Widget__IPaintWidgetBranchIdList_Res = {};
+        apz.data.scrdata.Widget__IPaintWidgetBranchIdList_Res = searchResult;
+        apz.data.loadData("IPaintWidgetBranchIdList", 'Widget');
+    }
+}
+let kendraList;
+apz.app.BstDetails.onClickKmIdDd = function() {
+    kmIdArr=[],kmUniqueArr=[]
+    kendraList = [...window.NewloanWidgetKendraArr];
+    if(kendraList?.length>0){
+        kendraList.forEach(k=>{
+            if (!kmIdArr.some((a) => a.kmId === k.kmId)) {
+                kmIdArr.push(k);
+            }
+        })
+        kmIdArr?.forEach(k => {
+            let obj = {
+                'val': k?.kmId,
+                'desc': k?.kmId + '(' + k?.kmName + ')',
+                'kmId': k?.kmId + ' (' + k?.kmName + ')'
+            }
+            kmUniqueArr.push(obj);
+        })
+        if(kmUniqueArr?.length > 0){
+            apz.data.scrdata.Widget__IPaintWidgetKmIdList_Res = {}
+            apz.data.scrdata.Widget__IPaintWidgetKmIdList_Res = kmUniqueArr
+            apz.data.loadData("IPaintWidgetKmIdList", 'Widget');
+        }else{
+            apz.data.scrdata.Widget__IPaintWidgetKmIdList_Res = {}
+            $("#" + BstDtlsScrId + "noRecordForm3").removeClass("sno");
+            $("#" + BstDtlsScrId + "kmListRow").addClass("sno");
+            apz.data.loadData("IPaintWidgetKmIdList", 'Widget');
+        }
+        if (kmUniqueArr.length > 3) {
+            $("#" + BstDtlsScrId + "kmIdSearchDiv").removeClass("sno");
+        } else {
+            $("#" + BstDtlsScrId + "kmIdSearchDiv").addClass("sno");
+        }
+        ApzCOB.toggleModal(BstDtlsScrId + 'KmIdModal');
+    }else{
+
+    }
+}
+apz.app.BstDetails.onSelectedKmId = function(pthis) {
+    let rowNo = $(pthis).attr("rowno");
+    $.each(apz.data.scrdata.Widget__IPaintWidgetKmIdList_Res, function(i) {
+        if (parseInt(rowNo) === i) {
+            $('#' + BstDtlsScrId + 'kmIdCheckBox_' + i).prop('checked', true);
+        } else {
+            $('#' + BstDtlsScrId + 'kmIdCheckBox_' + i).prop('checked', false);
+        }
+    });
+}
+let filterdKendraArr = [];
+let selectedKmId;
+apz.app.BstDetails.onSelectedKmIdDetails = function() {
+    filterdKendraArr = [];
+    $("#Widget__InProgress__el_inp_1").val('')
+    $.each(apz.data.scrdata.Widget__IPaintWidgetMeetingDay_Res, function(i) {
+        $('#' + BstDtlsScrId + 'meetingDayCheckBox_' + i).prop('checked', false);
+    });
+    $('#' + BstDtlsScrId + 'meetingDay').val('')
+    $.each(apz.data.scrdata.Widget__IPaintWidgetKmIdList_Res, function(i) {
+        if ($('#' + BstDtlsScrId + 'kmIdCheckBox_' + i).prop('checked')) {
+            selectedKmId = apz.data.scrdata.Widget__IPaintWidgetKmIdList_Res[i].kmId;
+            $('#' + BstDtlsScrId + 'kmId').val(selectedKmId)
+            kendraList.forEach(k=>{
+                if(k.kmId === selectedKmId.split('(')[0].trim()){
+                    filterdKendraArr.push(k)
+                }
+            })
+            if(filterdKendraArr.length > 0){
+                apz.data.scrdata.Widget__IPaintNewLoanApplication_Res = {};
+                apz.data.scrdata.Widget__IPaintNewLoanApplication_Res.WidgetNewLoan = filterdKendraArr;
+                apz.data.loadData('IPaintNewLoanApplication', 'Widget');
+                $('#Widget__InProgress__bstSearch').removeClass("sno");
+                $('#Widget__InProgress__noRecord').addClass('sno');
+                $('#Widget__InProgress__loanApp').removeClass('sno');
+            }else{
+                apz.data.scrdata.Widget__IPaintNewLoanApplication_Res = {};
+                apz.data.scrdata.Widget__IPaintNewLoanApplication_Res.WidgetNewLoan = {};
+                $('#Widget__InProgress__loanApp').addClass('sno');
+                $('#Widget__InProgress__noRecord').removeClass('sno')
+                $('#Widget__InProgress__bstSearch').addClass("sno");
+            }
+            ApzCOB.toggleModal(BstDtlsScrId + 'KmIdModal');
+        }
+    })
+}
+apz.app.BstDetails.onClickMeetingDayDd = function() {
+    meetingDayArr=[];
+    window.BstDayList?.forEach(k => {
+            let obj = {
+                'meetingDay': k?.day
+            }
+            meetingDayArr.push(obj);
+    })
+    if(meetingDayArr?.length > 0){
+        apz.data.scrdata.Widget__IPaintWidgetMeetingDay_Res = {}
+        apz.data.scrdata.Widget__IPaintWidgetMeetingDay_Res = meetingDayArr;
+        apz.data.loadData("IPaintWidgetMeetingDay", 'Widget');
+    }else{
+        apz.data.scrdata.Widget__IPaintWidgetMeetingDay_Res = {}
+        $("#" + BstDtlsScrId + "noRecordForm4").removeClass("sno");
+        $("#" + BstDtlsScrId + "meetingListRow").addClass("sno");
+        apz.data.loadData("IPaintWidgetMeetingDay", 'Widget');
+    }
+    ApzCOB.toggleModal(BstDtlsScrId + 'MeetingDayModal');
+}
+apz.app.BstDetails.onSelectedMeetingDay = function(pthis) {
+    let rowNo = $(pthis).attr("rowno");
+    $.each(apz.data.scrdata.Widget__IPaintWidgetMeetingDay_Res, function(i) {
+        if (parseInt(rowNo) === i) {
+            $('#' + BstDtlsScrId + 'meetingDayCheckBox_' + i).prop('checked', true);
+        } else {
+            $('#' + BstDtlsScrId + 'meetingDayCheckBox_' + i).prop('checked', false);
+        }
+    });
+}
+apz.app.BstDetails.onSelectedMeetingDayDtls = function() {
+    filterdKendraArr = [];
+    $("#Widget__InProgress__el_inp_1").val('')
+    if(apz.isNull(kendraList)){
+        kendraList = [...window.NewloanWidgetKendraArr];
+    }
+    $.each(apz.data.scrdata.Widget__IPaintWidgetMeetingDay_Res, function(i) {
+        if ($('#' + BstDtlsScrId + 'meetingDayCheckBox_' + i).prop('checked')) {
+            let selectedMeetingDay = apz.data.scrdata.Widget__IPaintWidgetMeetingDay_Res[i].meetingDay;
+            $('#' + BstDtlsScrId + 'meetingDay').val(selectedMeetingDay);
+            kendraList.forEach(k=>{
+                if($("#Widget__BstDetails__kmId").val() == ''){
+                    if(dayMap[k.meetingDay] === selectedMeetingDay){
+                        filterdKendraArr.push(k)
+                    }
+                }else {
+                    if(k.kmId === selectedKmId.split('(')[0].trim() && dayMap[k.meetingDay] === selectedMeetingDay){
+                        filterdKendraArr.push(k)
+                    }
+                }
+            })
+            if(filterdKendraArr?.length > 0){
+                apz.data.scrdata.Widget__IPaintNewLoanApplication_Res = {};
+                apz.data.scrdata.Widget__IPaintNewLoanApplication_Res.WidgetNewLoan = filterdKendraArr;
+                apz.data.loadData('IPaintNewLoanApplication', 'Widget');
+                $('#Widget__InProgress__bstSearch').removeClass("sno");
+                $('#Widget__InProgress__noRecord').addClass('sno');
+                $('#Widget__InProgress__loanApp').removeClass('sno');
+            }else{
+                apz.data.scrdata.Widget__IPaintNewLoanApplication_Res = {};
+                apz.data.scrdata.Widget__IPaintNewLoanApplication_Res.WidgetNewLoan = {};
+                $('#Widget__InProgress__loanApp').addClass('sno');
+                $('#Widget__InProgress__noRecord').removeClass('sno');
+                $('#Widget__InProgress__bstSearch').addClass("sno");
+            }
+            ApzCOB.toggleModal(BstDtlsScrId + 'MeetingDayModal');
+        }
+    })
+}
+apz.app.BstDetails.onSearch = function(pthis) {
+    let searchText = $("#" + pthis.id).val();
+    let searchResult = [];
+    searchArr = [...filterdKendraArr];
+    searchArr = searchArr.length>0?searchArr:window.NewloanWidgetKendraArr;
+    searchArr.forEach(k=>{
+        k.kendraId = k.kendraId.toString();
+    })
+    searchResult = ApzCOB.arraySearch(searchText, searchArr, ["kendraName","kendraId"],'Widget__IPaintNewLoanApplication_Res', "", '', '');
+    searchResult.forEach((item, index) => {
+        item.rowNo = index;
+    });
+    if (searchResult.length === 0) {
+        $("#" + InProgressWidgetId + "noRecord").removeClass("sno");
+        $("#" + InProgressWidgetId + "loanApp").addClass("sno");
+    } else {
+        $("#" + InProgressWidgetId + "noRecord").addClass("sno");
+        $("#" + InProgressWidgetId + "loanApp").removeClass("sno");
+    }
+    if (searchText.length === 0) {
+        apz.data.scrdata.Widget__IPaintNewLoanApplication_Res.WidgetNewLoan = searchArr;
+        apz.data.loadData('IPaintNewLoanApplication', 'Widget');
+        $("#" + InProgressWidgetId + "noRecord").addClass("sno");
+        $("#" + InProgressWidgetId + "loanApp").removeClass("sno");
+    } else {
+        apz.data.scrdata.Widget__IPaintNewLoanApplication_Res = {};
+        apz.data.scrdata.Widget__IPaintNewLoanApplication_Res.WidgetNewLoan = searchResult;
+        apz.data.loadData('IPaintNewLoanApplication', 'Widget');
+    }
+}
+apz.app.BstDetails.searchKendraIdInModal = function(pthis) {
+    $.each(apz.data.scrdata.Widget__IPaintWidgetKmIdList_Res, function(i) {
+        $('#' + BstDtlsScrId + 'kmIdCheckBox_' + i).prop('checked', false);
+    });
+    let searchText = $("#" + pthis.id).val();
+    let searchResult = [];
+    searchResult = ApzCOB.arraySearch(searchText, kmUniqueArr, ["kmId"],'Widget__IPaintWidgetKmIdList_Res', "", '', '');
+    searchResult.forEach((item, index) => {
+        item.rowNo = index;
+    });
+    if (searchResult.length === 0) {
+        $("#" + BstDtlsScrId + "noRecordForm3").removeClass("sno");
+        $("#" + BstDtlsScrId + "kmListRow").addClass("sno");
+    } else {
+        $("#" + BstDtlsScrId + "noRecordForm3").addClass("sno");
+        $("#" + BstDtlsScrId + "kmListRow").removeClass("sno");
+    }
+    if (searchText.length === 0) {
+        apz.data.scrdata.Widget__IPaintWidgetKmIdList_Res = kmUniqueArr;
+        apz.data.loadData("IPaintWidgetKmIdList", 'Widget');
+        $("#" + BstDtlsScrId + "noRecordForm3").addClass("sno");
+        $("#" + BstDtlsScrId + "kmListRow").removeClass("sno");
+    } else {
+        apz.data.scrdata.Widget__IPaintWidgetKmIdList_Res = {};
+        apz.data.scrdata.Widget__IPaintWidgetKmIdList_Res = searchResult;
+        apz.data.loadData("IPaintWidgetKmIdList", 'Widget');
+    }
+}

@@ -1,0 +1,365 @@
+var ScrId = 'Widget__DashboardSearch__';
+var baseScrId = 'Widget__BaseScreens__';
+var searchList = ['All', 'Kendra', 'Member', 'Kendra Managers', 'LoanApplication'];
+var freqList = ['All', 'Loan Sanctions', 'New Kendra Allocation', 'Day/Time'];
+var searchFilterData = [];
+window.fromGlobalSearch = false;
+var searchFilter = false;
+apz.data.scrdata.Widget__IPaintSearchWidget_Res = {};
+apz.app.onLoad_DashboardSearch = function() {
+    $("#" + baseScrId + 'sidebarController').addClass('sno');
+}
+apz.app.onShown_DashboardSearch = function() {
+    $("#APZCBO__BaseScreens__gr_row_28").addClass('sno');
+    $("#APZCBO__BaseScreens__sidebarController").addClass('sno');
+    apz.app.DashboardSearch.paintFilterData("freqSeaFilter");
+    apz.app.DashboardSearch.paintFrequentlySearchData();
+    apz.app.DashboardSearch.paintRecentlySearchData();
+}
+apz.app.DashboardSearch.paintFilterData = function(element) {
+    let paintData = freqList.map((data) => ({
+        filter: data
+    }));
+    apz.data.scrdata.Widget__IPaintSearchWidget_Res[element] = paintData;
+    apz.data.loadData("IPaintSearchWidget", apz.currAppId);
+}
+apz.app.DashboardSearch.paintSearchFilterData = function() {
+    let paintData = searchList.map((data) => ({
+        filter: data
+    }));
+    apz.data.scrdata.Widget__IPaintSearchWidget_Res.searchFilter = paintData;
+    apz.data.loadData("IPaintSearchWidget", apz.currAppId);
+    apz.data.scrdata.Widget__IPaintSearchWidget_Res.searchFilter.forEach((d, idx) => {
+        $('#Widget__IPaintSearchWidget__o__searchFilter__filter_' + idx).removeClass('active');
+    });
+    $('#Widget__IPaintSearchWidget__o__searchFilter__filter_0').addClass('active');
+    //$("#Widget__IPaintSearchWidget__o__searchFilter__filter_0").addClass('active');
+}
+apz.app.DashboardSearch.onKeyUpOfSearchBtn = function(pthis) {
+    var searchText = $("#" + pthis.id).val();
+    if (searchText.length >= 3) {
+        $("#" + ScrId + "searchDiv").removeClass('sno');
+        $("#" + ScrId + "frequentDiv").addClass('sno');
+        apz.app.DashboardSearch.paintSearchFilterData();
+        let searchResult = KendraApp.KendraResponse.reduce((results, e) => {
+            const searchUpper = searchText.toUpperCase();
+            let kendraMatch = e.kendraDtls.kendraName.toUpperCase().includes(searchUpper);
+            let kendraIdMatch = e.kendraDtls.kendraId.toString().includes(searchUpper);
+            let kendraNameMatch = e.kendraDtls.kmName.toUpperCase().includes(searchUpper);
+            // Filter matching customers
+            // let matchingCustomers = (e.kendraDtls?.customerDtls || []).filter(customer => customer.customerName?.toUpperCase().includes(
+            //     searchUpper) || customer.customerId?.toString().includes(searchUpper));
+            let matchingCustomers = (e.kendraDtls?.customerDtls || []).filter(customer => {
+                const matchesCustomerName = customer.customerName?.toUpperCase().includes(searchUpper);
+                const matchesCustomerId = customer.customerId?.toString().includes(searchUpper);
+                const matchesPrimaryId = customer.primaryId?.toString().includes(searchUpper);
+                const matchesLoanId = (customer.loanDtls || []).some(loan => loan.loanId?.toString().includes(searchUpper));
+                return matchesCustomerName || matchesCustomerId || matchesPrimaryId || matchesLoanId;
+            });
+            // Push results if kendraName matches
+            if (kendraMatch) {
+                results.push({
+                    name: e.kendraDtls.kendraName,
+                    id: e.kendraDtls.kendraId,
+                    kmName: e.kendraDtls.customerDtls.length + " Members",
+                    kmId: e.kendraDtls.kendraId,
+                    search: e.kendraDtls.kendraName, // Indicate the matched value
+                    role: 'KENDRA'
+                });
+            }
+            // Push results if kendraId matches
+            if (kendraIdMatch) {
+                results.push({
+                    name: e.kendraDtls.kendraName,
+                    id: e.kendraDtls.kendraId,
+                    kmName: e.kendraDtls.customerDtls.length + " Members",
+                    kmId: e.kendraDtls.kendraId,
+                    search: e.kendraDtls.kendraId, // Indicate the matched value
+                    role: 'KENDRA'
+                });
+            }
+            // Push each matching customer individually
+            // matchingCustomers.forEach(customer => {
+            //     // Determine which part of the customer details matched
+            //     let matchedField = customer.customerName.toUpperCase().includes(searchUpper) ? customer.customerName : customer
+            //         .customerId;
+            //     results.push({
+            //         name: customer.customerName,
+            //         kmName: customer.bankAccName,
+            //         customerId: customer.customerId,
+            //         kendraId: e.kendraDtls.kendraId,
+            //         kendraName: e.kendraDtls.kendraName,
+            //         kmId: e.kendraDtls.kendraId,
+            //         id: e.kendraDtls.kendraId,
+            //         search: matchedField,
+            //         role: 'MEMBER'
+            //     });
+            // });
+            matchingCustomers.forEach(customer => {
+                let matchedField = "";
+                if (customer.customerName?.toUpperCase().includes(searchUpper)) {
+                    matchedField = customer.customerName;
+                } else if (customer.customerId?.toString().includes(searchUpper)) {
+                    matchedField = customer.customerId;
+                } else if (customer.primaryId?.toString().includes(searchUpper)) {
+                    matchedField = customer.primaryId;
+                } else {
+                    const matchingLoan = (customer.loanDtls || []).find(loan => loan.loanId?.toString().includes(searchUpper));
+                    if (matchingLoan) {
+                        matchedField = matchingLoan.loanId;
+                    }
+                }
+                results.push({
+                    name: customer.customerName,
+                    kmName: customer.bankAccName,
+                    customerId: customer.customerId,
+                    kendraId: e.kendraDtls.kendraId,
+                    kendraName: e.kendraDtls.kendraName,
+                    kmId: e.kendraDtls.kendraId,
+                    id: e.kendraDtls.kendraId,
+                    search: matchedField,
+                    role: 'MEMBER'
+                });
+            });
+            // Push results if kmName matches
+            if (kendraNameMatch) {
+                let dataPresent = false;
+                results.forEach(d => {
+                    if (d.name.includes(e.kendraDtls.kmName)) {
+                        dataPresent = true;
+                    }
+                });
+                if (!dataPresent) {
+                    results.push({
+                        name: e.kendraDtls.kmName,
+                        id: e.kendraDtls.kendraId,
+                        role: 'KM',
+                        search: e.kendraDtls.kmName
+                    });
+                }
+            }
+            return results;
+        }, []);
+        // Update the search widget with the results
+        if (searchResult.length === 0) {
+            $("#" + ScrId + "seaNoRecDiv").removeClass("sno");
+            $("#" + ScrId + "searchDivInfPaint").addClass("sno");
+        } else {
+            $("#" + ScrId + "seaNoRecDiv").addClass("sno");
+            $("#" + ScrId + "searchDivInfPaint").removeClass("sno");
+            apz.data.scrdata.Widget__IPaintSearchWidget_Res.paintSearchData = searchResult;
+            apz.data.loadData("IPaintSearchWidget", apz.currAppId);
+            searchFilterData = searchResult;
+            apz.app.DashboardSearch.addColorForRoleAndHideRow();
+            //apz.app.DashboardSearch.removeInfoRowforKMrole();
+        }
+    } else {
+        $("#" + ScrId + "searchDiv").addClass('sno');
+        $("#" + ScrId + "frequentDiv").removeClass('sno');
+        apz.app.DashboardSearch.paintRecentlySearchData();
+        apz.app.DashboardSearch.paintFrequentlySearchData();
+    }
+}
+apz.app.DashboardSearch.addColorForRoleAndHideRow = function() {
+    apz.data.scrdata.Widget__IPaintSearchWidget_Res.paintSearchData.forEach((d, idx) => {
+        if (d.role === "KENDRA") {
+            $("#Widget__IPaintSearchWidget__o__paintSearchData__role_" + idx).addClass('var1');
+            $("#Widget__IPaintSearchWidget__o__paintSearchData__role_" + idx).removeClass('var2');
+            $("#Widget__IPaintSearchWidget__o__paintSearchData__role_" + idx).removeClass('var3');
+        } else if (d.role === 'KM') {
+            $("#Widget__IPaintSearchWidget__o__paintSearchData__role_" + idx).addClass('var2');
+            $("#Widget__IPaintSearchWidget__o__paintSearchData__role_" + idx).removeClass('var1');
+            $("#Widget__IPaintSearchWidget__o__paintSearchData__role_" + idx).removeClass('var3');
+            let listItemId = document.getElementById(ScrId + 'ct_lst_32_row_' + idx);
+            let infoRow = listItemId.querySelector('#' + ScrId + 'infoRow_row');
+            if (infoRow) {
+                infoRow.classList.add('sno');
+            }
+        } else {
+            $("#Widget__IPaintSearchWidget__o__paintSearchData__role_" + idx).addClass('var3');
+            $("#Widget__IPaintSearchWidget__o__paintSearchData__role_" + idx).removeClass('var1');
+            $("#Widget__IPaintSearchWidget__o__paintSearchData__role_" + idx).removeClass('var2');
+        }
+    });
+}
+apz.app.DashboardSearch.onClickOfSearchData = function(pthis) {
+    let id = pthis.id.split("_").at("-1");
+    let selData = apz.data.scrdata.Widget__IPaintSearchWidget_Res.paintSearchData[id];
+    selData.dateTime = new Date().toISOString();
+    selData.count = 1;
+    if (!apz.isNull(localStorage.getItem('dashbordSearch'))) {
+        searches = JSON.parse(localStorage.getItem('dashbordSearch')) || [];
+        let existingSearch = searches.find(search => search.id === selData.id);
+        if (existingSearch) {
+            existingSearch.count++;
+            existingSearch.dateTime = new Date().toISOString();
+        } else {
+            searches.push(selData);
+        }
+        localStorage.setItem('dashbordSearch', JSON.stringify(searches));
+    } else {
+        let dataArr = [];
+        dataArr.push(selData)
+        localStorage.setItem('dashbordSearch', JSON.stringify(dataArr));
+    }
+    window.fromGlobalSearch = true;
+    let selSeaData = kendraResponse.find(d => d.kendraDtls.kendraId === selData.id);
+    if (selData.role === 'MEMBER') {
+        let selKendraDt = kendraResponse.find(d => d.kendraDtls.kendraId == selData.kendraId);
+        let data = selKendraDt.kendraDtls.customerDtls.find(d => d.customerId == selData.customerId);
+        KendraApp.selectedCustomer = data;
+        let selectedData = {};
+        selectedData.scr = 'DashboardSearch'
+        selectedData.childScrId = apz.currAppId;
+        /* if(backNavigationData.scr === 'KMDashboard'){
+              selectedData.scr = 'KMDashboard'
+               selectedData.childScrId = 'KenMet';
+         }*/
+        isexsitingApp = false;
+        viewCustomer = true;
+        selectedDataFromDashboardSearch = selectedData;
+        ApzCOB.fetchCustomerIdDetails(KendraApp.selectedCustomer.customerId);
+        //ApzCOB.launchMicroApp('Custom', 'CustomerDetails', 'APZCBO__BaseScreens__BaseDIV', selectedData);
+    } else if (selData.role === 'KENDRA') {
+        kendraBackNavigationObj.stage = 'DashboardSearch';
+        ApzCOB.launchMicroApp('Kendra', 'KendraDetails', 'APZCBO__BaseScreens__BaseDIV', selSeaData);
+    } else {
+        ApzCOB.fnDisplayMsg("Feature coming soon", "I");
+    }
+}
+apz.app.DashboardSearch.paintFrequentlySearchData = function() {
+    if (!apz.isNull(localStorage.getItem('dashbordSearch'))) {
+        document.getElementById(ScrId + 'noRecDivFreq').classList.add('sno');
+        document.getElementById(ScrId + 'ps_pls_186').classList.remove('sno');
+        document.getElementById(ScrId + 'el_txt_896').classList.remove('sno');
+        let data = JSON.parse(localStorage.getItem('dashbordSearch'));
+        let updayedData = data.sort((a, b) => b.count - a.count);
+        updayedData = updayedData.slice(0, 5);
+        apz.data.scrdata.Widget__IPaintSearchWidget_Res.paintFreqData = updayedData;
+        apz.data.loadData("IPaintSearchWidget", apz.currAppId);
+        updayedData.forEach((d, idx) => {
+            if (d.role === "KENDRA") {
+                $("#Widget__IPaintSearchWidget__o__paintFreqData__role_" + idx).addClass('var1');
+                $("#Widget__IPaintSearchWidget__o__paintFreqData__role_" + idx).removeClass('var2');
+                $("#Widget__IPaintSearchWidget__o__paintFreqData__role_" + idx).removeClass('var3');
+            } else if (d.role === 'KM') {
+                $("#Widget__IPaintSearchWidget__o__paintFreqData__role_" + idx).addClass('var2');
+                $("#Widget__IPaintSearchWidget__o__paintFreqData__role_" + idx).removeClass('var1');
+                $("#Widget__IPaintSearchWidget__o__paintFreqData__role_" + idx).removeClass('var3');
+            } else {
+                $("#Widget__IPaintSearchWidget__o__paintFreqData__role_" + idx).addClass('var3');
+                $("#Widget__IPaintSearchWidget__o__paintFreqData__role_" + idx).removeClass('var2');
+                $("#Widget__IPaintSearchWidget__o__paintFreqData__role_" + idx).removeClass('var1');
+            }
+        });
+        apz.app.DashboardSearch.hideInfoDivForKM();
+    } else {
+        document.getElementById(ScrId + 'noRecDivFreq').classList.remove('sno');
+        document.getElementById(ScrId + 'ps_pls_186').classList.add('sno');
+        document.getElementById(ScrId + 'el_txt_896').classList.add('sno');
+    }
+}
+apz.app.DashboardSearch.hideInfoDivForKM = function() {
+    apz.data.scrdata.Widget__IPaintSearchWidget_Res.paintFreqData.forEach((data, index) => {
+        if (data.role === 'KM') {
+            let listItemId = document.getElementById(ScrId + 'ct_lst_29_row_' + index);
+            let infoRow = listItemId.querySelector('#' + ScrId + 'infoDiv_row');
+            if (infoRow) {
+                infoRow.classList.add('sno');
+            }
+        }
+    })
+}
+apz.app.DashboardSearch.paintRecentlySearchData = function() {
+    if (!apz.isNull(localStorage.getItem('dashbordSearch'))) {
+        $("#" + ScrId + "recentSearchDiv").removeClass('sno');
+        let data = JSON.parse(localStorage.getItem('dashbordSearch'));
+        let updayedData = data.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
+        updayedData = updayedData.slice(0, 5);
+        apz.data.scrdata.Widget__IPaintSearchWidget_Res.paintRecentSearch = updayedData;
+        apz.data.loadData("IPaintSearchWidget", apz.currAppId);
+    }
+}
+apz.app.DashboardSearch.onClickOfFreqRecSea = function(pthis) {
+    let rowNo = pthis.id.split("_").at(-1);
+    let from = pthis.id.split("_").at(-2);
+    let selDataForAssign;
+    if (from === 'recentSeaIcon') {
+        selDataForAssign = apz.data.scrdata.Widget__IPaintSearchWidget_Res.paintRecentSearch[rowNo];
+    } else if (from === 'frequentlySea') {
+        selDataForAssign = apz.data.scrdata.Widget__IPaintSearchWidget_Res.paintFreqData[rowNo];
+    } else {
+        selDataForAssign = apz.data.scrdata.Widget__IPaintSearchWidget_Res.paintSearchData[rowNo];
+    }
+    window.fromGlobalSearch = true;
+    let selData = kendraResponse.filter(d => d.kendraDtls.kendraId === data.id);
+    if (selDataForAssign.role === 'MEMBER') {
+        let selKendraDt = kendraResponse.find(d => d.kendraDtls.kendraId == selDataForAssign.kendraId);
+        let data = selKendraDt.kendraDtls.customerDtls.find(d => d.customerId == selDataForAssign.customerId);
+        KendraApp.selectedCustomer = data;
+        let selectedData = {};
+        selectedData.scr = 'DashboardSearch'
+        selectedData.childScrId = apz.currAppId;
+        viewCustomer=true;
+        selectedDataFromDashboardSearch = selectedData;
+        ApzCOB.fetchCustomerIdDetails(KendraApp.selectedCustomer.customerId);
+        //ApzCOB.launchMicroApp('Custom', 'CustomerDetails', 'APZCBO__BaseScreens__BaseDIV', selectedData);
+    } else if (selDataForAssign.role === 'KENDRA') {
+        ApzCOB.launchMicroApp('Kendra', 'KendraDetails', 'APZCBO__BaseScreens__BaseDIV', selData);
+    } else {
+        ApzCOB.fnDisplayMsg("Feature coming soon", "I");
+    }
+}
+apz.app.DashboardSearch.onClickOfSearchFunctionality = function(pthis) {
+    apz.data.scrdata.Widget__IPaintSearchWidget_Res.searchFilter.forEach((d, idx) => {
+        $('#Widget__IPaintSearchWidget__o__searchFilter__filter_' + idx).removeClass('active');
+    });
+    $("#" + pthis.id).addClass('active');
+    let selectedData = searchList[pthis.id.split("_").at(-1)];
+    if (selectedData === "Kendra Managers") {
+        selectedData = 'KM';
+    }
+    searchFilter = true;
+    let updatedData;
+    if (selectedData === 'All') {
+        updatedData = searchFilterData;
+    } else {
+        updatedData = searchFilterData.filter(data => data.role === selectedData.toUpperCase());
+    }
+    if (updatedData.length >= 1) {
+        $("#" + ScrId + "seaNoRecDiv").addClass("sno");
+        $("#" + ScrId + "searchDivInfPaint").removeClass("sno");
+        apz.data.scrdata.Widget__IPaintSearchWidget_Res.paintSearchData = updatedData;
+        apz.data.loadData("IPaintSearchWidget", apz.currAppId);
+    } else {
+        $("#" + ScrId + "seaNoRecDiv").removeClass("sno");
+        $("#" + ScrId + "searchDivInfPaint").addClass("sno");
+    }
+}
+apz.app.DashboardSearch.onClickOfFrequencyFunctionality = function(pthis) {}
+apz.app.DashboardSearch.backNavigationFunction = function() {
+    userclickback = true;
+    //  if (backNavigationData.scr === 'KMDashboard') {
+    if (backSearchFunc) {
+        apz.childScr = "KMDashboard";
+        apz.currAppId = 'KenMet';
+        startTimerFunc = true;
+        ApzCOB.launchMicroApp('KenMet', 'KMDashboard', 'APZCBO__BaseScreens__BaseDIV', selectedKendra);
+    } else {
+        $("#APZCBO__BaseScreens__gr_row_28").removeClass('sno');
+        ApzCOB.launchMicroApp('Dashbo', 'dashboard', 'APZCBO__BaseScreens__BaseDIV', );
+    }
+}
+apz.app.DashboardSearch.onClickOfCancel = function() {
+    document.getElementById(ScrId + "searchInp").value = '';
+    document.getElementById(ScrId + 'searchInp').onkeyup();
+}
+//added by Sathish
+//to clear data in input field when click on close button
+$('.ett-icon.icon-close-gk').on('click', function() {
+    document.getElementById(ScrId + 'el_inp_2').value = "";
+    $("#" + ScrId + "searchDiv").addClass('sno');
+    $("#" + ScrId + "frequentDiv").removeClass('sno');
+    apz.app.DashboardSearch.paintRecentlySearchData();
+    apz.app.DashboardSearch.paintFrequentlySearchData();
+});

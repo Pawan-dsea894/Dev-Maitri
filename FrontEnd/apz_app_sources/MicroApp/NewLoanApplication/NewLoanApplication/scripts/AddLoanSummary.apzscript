@@ -1,0 +1,64 @@
+let loansumscreenId = "NEWLOA__AddLoanSummary__";
+apz.app.onLoad_AddLoanSummary = function() {
+    //yet to do
+}
+apz.app.onShown_AddLoanSummary = function() {
+    apz.app.AddLoanSummary.paintDetails();
+}
+apz.app.AddLoanSummary.paintDetails = function() {
+   apz.setElmValue(loansumscreenId + "sucCustName", KendraApp.selectedCustomer.customerName);
+   apz.setElmValue(loansumscreenId + "sucGroup", KendraApp.selectedCustomer.groupId);
+   apz.setElmValue(loansumscreenId + "sucCustId", KendraApp.selectedCustomer.customerId);
+   apz.setElmValue(loansumscreenId + "sucVintage", KendraApp.selectedCustomer.vintageYear);
+   apz.setElmValue(loansumscreenId + "sucLoanlimt", ApzCOB.fn_FormatAmount(KendraApp.selectedCustomer.maxAmountLimit));
+   apz.setElmValue(loansumscreenId + "sucProductName", KendraApp.selectedCustomer.addLoanDetailsObj.selEligibleLoanDtls.shortDesc);
+   apz.setElmValue(loansumscreenId + "sucAppliedAmt", ApzCOB.fn_FormatAmount(KendraApp.selectedCustomer.addLoanDetailsObj.scrDataStep1.chargeAndBreakupDtls.loanAmt));
+   apz.setElmValue(loansumscreenId + "sucElAmt", ApzCOB.fn_FormatAmount(KendraApp.selectedCustomer.addLoanDetailsObj.scrDataStep1.chargeAndBreakupDtls.loanAmt));
+   apz.setElmValue(loansumscreenId + "sucRefId",KendraApp.selectedCustomer.groupId);
+  // apz.setElmValue(loansumscreenId + "CustName", KendraApp.selectedCustomer.customerName);
+}
+apz.app.AddLoanSummary.loadPuposeDetails = function() {
+
+}
+apz.app.AddLoanSummary.activeloanlist = function() {
+    if ($('#' + loansumscreenId + 'activeLoanList').is(':visible')) {
+        $('#' + loansumscreenId + 'activeLoanList').addClass('sno');
+    } else {
+        let tempArray = [];
+        if (KendraApp.selectedCustomer.loanDtls.length > 0) {
+            KendraApp.selectedCustomer.loanDtls.forEach(loan => {
+                let tempObj = {
+                    "loanType": loan.product,
+                    "maturityDate": ApzCOB.confDateFormatter(ApzCOB.dateStringToDate(loan.lnMatDate), "dd/mm/yy"),
+                    "dueAmount": "₹ " + (parseInt(ApzCOB.fn_unFormatAmount(loan.overdueInterest)) + parseInt(ApzCOB.fn_unFormatAmount(
+                        loan.overduePrincipal)))
+                }
+                tempArray.push(tempObj)
+            });
+            apz.data.scrdata.NEWLOA__ViewActiveLoanDetails_Res={};
+            apz.data.scrdata.NEWLOA__ViewActiveLoanDetails_Res.ActiveLoanConfirmDetails = {};
+            apz.data.scrdata.NEWLOA__ViewActiveLoanDetails_Res.ActiveLoanConfirmDetails = tempArray;
+            apz.data.loadData("ViewActiveLoanDetails", 'NEWLOA');
+            $('#' + loansumscreenId + 'activeLoanList').removeClass('sno');
+        } else {
+            $('#' + loansumscreenId + 'activeLoanList').addClass('sno');
+            ApzCOB.fnDisplayMsg("No Existing Loans Available", "I");
+        }
+    }
+}
+apz.app.AddLoanSummary.continue = function() {
+ //ApzCOB.launchMicroApp("NEWLOA", "AddLoanSummary", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedCustomer);
+ ApzCOB.launchMicroApp('Dashbo', 'dashboard', gAppId + '__BaseScreens__BaseDIV', '');
+}
+
+apz.app.AddLoanSummary.edit = function(ev) { //Delete scheduled transfer flow
+    ApzRMB.fnDisplayMsg('Do you want to go to Dashboard?', 'C', apz.app.AddLoanSummary.editCallBack);
+};
+apz.app.AddLoanSummary.editCallBack = function(param) { //Call delete scheduled transfer
+    if (param.choice === true) {
+         ApzCOB.launchMicroApp('Dashbo', 'dashboard', gAppId + '__BaseScreens__BaseDIV', '');
+        //ApzCOB.launchMicroApp("NEWLOA", "LoanConfrimDetails", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedCustomer);
+    } else {
+        return;
+    }
+};

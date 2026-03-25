@@ -1,0 +1,163 @@
+ var applicationId=""; 
+ var repDownloadScrId = "Report__Reports__";
+ 
+
+
+apz.app.onLoad_Reports = function(params)
+{
+    
+}
+
+apz.app.onShown_Reports = function(params)
+{
+    
+};
+
+
+apz.app.Reports.ValidateAppId = function()
+{
+    applicationId = $('#' + repDownloadScrId + 'applicationId').val();
+    if (applicationId.length >= 9) {
+        $('#' + repDownloadScrId + 'gr_row_7').removeClass('sno');
+    } else {
+        
+        $('#' + repDownloadScrId + 'gr_row_7').addClass('sno');
+        
+    }
+}
+    
+apz.app.Reports.downloadLoanDBKitReport = function() 
+{
+applicationId = $('#' + repDownloadScrId + 'applicationId').val();
+   
+    var request = {
+        "apiRequest": {
+            "appId": gAppId,
+            "interfaceName": "FetchDBKitReportHO",
+            "requestObj": {
+                "applicationId": applicationId
+            }
+        }
+    }
+    ApzCOB.serverBuildParam(gAppId, 'FetchDBKitReportHO', 'N', 'N', request, 'Y', apz.app.Reports.downloadLoanDBKitReportCB);
+}
+
+
+apz.app.Reports.downloadLoanDBKitReportCB = function(params) {
+    apz.stopLoader();
+    if (apz.deviceType !== 'WEB') {
+        apz.app.Reports.BaseScreens.UEstopTimer("Disbursement Kit Report", params.req);
+    }
+    try {
+        if (!apz.isNull(params.res.APZCBO__FetchDBKitReportHO_Res.apiResponse.ResponseBody.responseObj)) {
+            var base64Resp = params.res.APZCBO__FetchDBKitReportHO_Res.apiResponse.ResponseBody.responseObj;
+            if (base64Resp !== '') {
+                $('#' + repDownloadScrId + 'sc_row_5').removeClass('sno');
+                if (apz.deviceType === 'WEB') {
+                    var byteCharacters = atob(base64Resp);
+                    var byteNumbers = new Array(byteCharacters.length);
+                    for (var i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    var byteArray = new Uint8Array(byteNumbers);
+                    var blob = new Blob([byteArray], {
+                        type: 'text/html'
+                    });
+                    var link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = "Disbursement_Kit_" + params.req.apiRequest.requestObj.applicationId + ".html";
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                    return;
+                }
+                ApzCOB.base64toSavefile(base64Resp, "Disbursement_Kit_" + params.req.apiRequest.requestObj.applicationId,
+                "Loan Disbursement Kit");
+            } else {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+            }
+        } else {
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+    }
+}
+	    
+apz.app.Reports.downloadAllReports = function(reportType) 
+{
+   applicationId = $('#' + repDownloadScrId + 'applicationId').val();
+  
+    var request = {
+        "apiRequest": {
+            "appId": gAppId,
+            "interfaceName": "DownloadAllReports",
+            "requestObj": {
+                "applicationId": applicationId,
+                "reportType": reportType
+            }
+        }
+    }
+    if (apz.deviceType !== 'WEB') 
+    {
+        apz.app.BaseScreens.UEstartTimer(" Reports", request);
+        apz.app.BaseScreens.UElogevent(" Reports", request);
+    }
+    apz.startLoader();
+
+    ApzCOB.serverBuildParam(gAppId, 'DownloadAllReports', 'N', 'N', request, 'Y', apz.app.Reports.downloadAllReportsCB);
+}
+
+
+
+apz.app.Reports.downloadAllReportsCB = function(params) 
+{
+    if (apz.deviceType !== 'WEB') {
+        apz.app.BaseScreens.UEstopTimer("Reports", params.req);
+    }
+    apz.stopLoader();
+    try {
+       console.log("Initiated")
+        
+        if (!apz.isNull(params.res.APZCBO__DownloadAllReports_Res.apiResponse.ResponseBody.responseObj)) 
+        {
+            var base64Resp = params.res.APZCBO__DownloadAllReports_Res.apiResponse.ResponseBody.responseObj;
+            if (base64Resp !== '') {
+                
+                    var byteCharacters = atob(base64Resp);
+                    var byteNumbers = new Array(byteCharacters.length);
+                    for (var i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    var byteArray = new Uint8Array(byteNumbers);
+                    var blob = new Blob([byteArray], {
+                        type: 'text/html'
+                    });
+                    var link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                 
+                    link.download = params.req.apiRequest.requestObj.reportType + "_" + params.req.apiRequest.requestObj.applicationId + ".html";
+                   
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                    return;
+               
+                ApzCOB.base64toSavefile(base64Resp, params.req.apiRequest.requestObj.reportType + "_" +  params.req.apiRequest.requestObj.applicationId,
+                    "Report");
+            } else {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+            }
+        } else {
+            ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+        }
+        }
+    
+    catch (e)
+    {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+    }
+    
+}
+
+

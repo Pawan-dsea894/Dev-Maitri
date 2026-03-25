@@ -1,0 +1,102 @@
+@use "../Abstract" as a;
+
+.crt-chrt{
+    	&.pri,&.sec,&.ter {
+        	>.ttl {
+                    display: table;
+                    list-style: none outside none;
+                    margin: 0 0 12px 0;
+                    padding: 0;
+                    width: 100%;
+                    border-bottom: 1px solid #ddd;
+                >span {
+        			display: table-cell;
+        			margin: 0;
+        			white-space: normal;
+        			padding: 5px 3px;
+        			vertical-align: middle;
+        		}
+                >li {
+        			display: table-cell;
+        			margin: 0;
+        			white-space: normal;
+        			padding: 5px 3px;
+        			vertical-align: middle;
+        		}
+                
+        		>li.icn {
+        			@include a.list-ttl-icn;
+        		        }
+                .ttv {
+        			     display: table;
+        			     width: 100%;
+                    >li {
+                            display: table-cell;
+                            vertical-align: middle;
+                        }
+                    >li.icn {
+                            width: 1em;
+                            padding: 0 3px; 
+					} 
+					>li.lbl {
+                            h4 {
+                                        font-size: 1.2em;
+                                        font-weight: 400;
+                               }
+							}
+        		} 
+        	}
+        }
+        
+         &.pri {
+        	>.ttl {  
+                .ttv { 
+                    >li.icn { 
+                            svg {
+                                    fill: #0693ea; 
+                                }
+					}
+                    >li.lbl {
+                            h4 {
+                                color: #0693ea; 
+                               }
+							}
+        		} 	
+        	}
+        }
+        
+        
+        &.sec {
+        	>.ttl {  
+                .ttv { 
+                    >li.icn { 
+                            svg {
+                                    fill: inherit; 
+                                }
+					}
+                    >li.lbl {
+                            h4 {
+                                color: inherit; 
+                               }
+							}
+        		} 	
+        	}
+        }
+        &.ter {
+        	>.ttl {  
+                .ttv { 
+                    >li.icn { 
+                            svg {
+                                    fill: #f2145e; 
+                                }
+					}
+                    >li.lbl {
+                            h4 {
+                                color: #f2145e; 
+                               }
+							}
+        		} 	
+        	}
+        }
+        
+}    

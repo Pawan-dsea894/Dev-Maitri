@@ -1,0 +1,200 @@
+IncomeApp.currentDocId='';
+apz.app.CommonScript.saveIncomeAssesment = function(memberProfile) {
+    if (!apz.isNull(IncomeApp.applicationId)) {
+        apz.app.CommonScript.updateIncomeAssesment();
+    } else {
+        KendraApp.selectedKendra.officeData.kmName = LoggedInUserDetails.loginResponse.userDet.name;
+        KendraApp.selectedKendra.officeData.groupId = KendraApp.selectedCustomer.groupId;
+        KendraApp.selectedKendra.officeData.updatedBy = LoggedInUserDetails.userID;
+        KendraApp.selectedKendra.officeData.isRework = false;
+        KendraApp.selectedKendra.officeData.isReworkByMakerChecker = false;
+        KendraApp.selectedKendra.officeData.isOnholdRpc = false;
+        let appDate = ApzCOB.dateMMDDYYYYformat()
+        var req = {
+            "apiRequest": {
+                "interfaceName": "SaveIncomeAssessment",
+                "appId": gAppId,
+                "userId": LoggedInUserDetails.userID,
+                "requestObj": {
+                    "customerId": KendraApp.selectedCustomer.customerId,
+                    "kendraId": KendraApp.selectedCustomer.kendraId,
+                    "kmId": LoggedInUserDetails.userID,
+                    "kendraName": KendraApp.selectedKendra.kendraName,
+                    "leader": KendraApp.selectedKendra.leader,
+                    "customerName": KendraApp.selectedCustomer.customerName,
+                    "loanMode": '',
+                    "versionNum": 0,
+                    "applicationDate": appDate,
+                    "createdBy": LoggedInUserDetails.userID,
+                    "kycType": KendraApp.selectedCustomer.primaryType,
+                    "applicationStatus": "INITIATE",
+                    "productGrpCode": "",
+                    "status":'ADDMEMBER',
+                    "productCode": "",
+                    "addInfo": KendraApp.selectedKendra.officeData,
+                    "updatedBy": LoggedInUserDetails.userID,
+                    "currentStage": window.IncomeApp.currentStage,
+                    "currentScrId": window.IncomeApp.screen,
+                    "branchCode": KendraApp.selectedKendra.branchId,
+                    "cbCheck": "",
+                    "incAssessmentPayload": IncomeApp.payLoad,
+                    "applicationRefNo": KendraApp.selectedCustomer.customerId + ApzCOB.generateRandomNumber()
+                }
+            }
+        }
+        apz.startLoader();
+        ApzCOB.serverBuildParam(gAppId, "SaveIncomeAssessment", "N", "N", req, 'Y', apz.app.CommonScript.saveIncomeAssesmentCB);
+    }
+}
+apz.app.CommonScript.saveIncomeAssesmentCB = function(params) {
+    apz.stopLoader();
+    console.log('create', params);
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            var ifaceName = ApzCOB.GetInterfaceResMap(params);
+            var response = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+            if (!apz.isNull(response.applicationId)) {
+                IncomeApp.applicationId = response.applicationId;
+                IncomeApp.versionNum = response.versionNum;
+                //ApzCOB.launchMicroApp('Income', 'AddHouseHoldDetails', 'APZCBO__BaseScreens__BaseDIV', '');
+                ApzCOB.launchMicroApp('Income', 'AddEarningFamilyMem', 'APZCBO__BaseScreens__BaseDIV', '');
+            } else {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.CommonScript.updateIncomeAssesment = function() {
+    // let appDate = ApzCOB.dateMMDDYYYYformat()
+    //let formattedDate = appDate.slice(0, 4) + '-' + appDate.slice(4, 6) + '-' + appDate.slice(6, 8);
+    var req = {
+        "apiRequest": {
+            "interfaceName": "UpdateIncomeAssessment",
+            "appId": gAppId,
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "appId": gAppId,
+                "applicationId": IncomeApp.applicationId,
+                "versionNum": apz.isNull(IncomeApp.versionNum) ? IncomeApp.latestVersionNo : IncomeApp.versionNum,
+                "status": IncomeApp.status,
+                "updatedBy": LoggedInUserDetails.userID,
+                "userId": LoggedInUserDetails.userID,
+                "remarks": "",
+                "incAssessmentPayload": IncomeApp.payLoad,
+                "updatedBy": LoggedInUserDetails.userID,
+                "workflow": IncomeApp.workflow
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "UpdateIncomeAssessment", "N", "N", req, 'Y', apz.app.CommonScript.updateIncomeAssesmentCB);
+}
+apz.app.CommonScript.updateIncomeAssesmentCB = function(params) {
+    console.log('update', params);
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            var ifaceName = ApzCOB.GetInterfaceResMap(params);
+            var response = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+            if (response.status === "success") {
+                IncomeApp.versionNum = response.versionNum;
+                IncomeApp.applicationId = response.applicationId;
+                switch (window.IncomeApp.screen) {
+                    case "IncomeAssessment":
+                        ApzCOB.launchMicroApp('Income', 'AddEarningFamilyMem', 'APZCBO__BaseScreens__BaseDIV', '');
+                        break;
+                    case "AddHouseHoldDetails":
+                        ApzCOB.launchMicroApp('Income', 'AddEarningFamilyMem', 'APZCBO__BaseScreens__BaseDIV', '');
+                        break;
+                    case "AddEarningFamilyMem":
+                        ApzCOB.launchMicroApp('Income', 'MonthlyHouseHoldExp', 'APZCBO__BaseScreens__BaseDIV', '');
+                        break;
+                    case "MonthlyHouseHoldExp":
+                        apz.setElmValue("Income__MonthlyHouseHoldExp__sucRefId", "#" + IncomeApp.applicationId);
+                        $('#Income__MonthlyHouseHoldExp__inComeSuc').removeClass('sno');
+                        $('#Income__MonthlyHouseHoldExp__monthlyExpRow').addClass('sno');
+                        setTimeout(function() {
+                            $('#Income__MonthlyHouseHoldExp__successDtlsForm').removeClass('sno');
+                        }, 3000);
+                        //ApzCOB.launchMicroApp('Income', 'MonthlyHouseHoldExp', 'APZCBO__BaseScreens__BaseDIV', data);
+                        break;
+                    case 'UploadKyc':
+                        //$("#Income__UploadKyc__kycFieldsData").addClass('sno');
+                        // $("#Income__UploadKyc__editFetchedDataRow").addClass('sno');
+                        var pendingData = response;
+                        ApzCOB.launchMicroApp("Income", "RpcPending", "APZCBO__BaseScreens__BaseDIV", pendingData);
+                        /* setTimeout(function() {
+                             $('#Income__MonthlyHouseHoldExp__successDtlsForm').removeClass('sno');
+                         }, 3000);*/
+                }
+            } else {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.MonthlyHouseHoldExp.finalCallApprove = function() {
+    let appDate = KendraApp.activationDate;
+    let formattedDate = appDate.slice(0, 4) + '-' + appDate.slice(4, 6) + '-' + appDate.slice(6, 8);
+    var req = {
+        "apiRequest": {
+            "interfaceName": "ApproveIncomeAssessment",
+            "appId": "APZCBO",
+            "userId": "3213213",
+            "requestObj": {
+                "applicationId": "17183410292098063",
+                "versionNo": "1",
+                "incomeAssessmentPayload": "{\"custName\":\"test\",\"dob\":\"10-7-1996\",\"assessmentDt\":\"15-5-2024\",\"expense\":\"10000\"}",
+                "updatedBy": "GK675",
+                "isApproved": "YES",
+                "remarks": "test",
+                "status": "APPROVED",
+                "workflow": {
+                    "nextStageId": "BMQUEUE",
+                    "currentRole": "KM",
+                    "remarks": "test",
+                    "nextWorkflowStatus": "SANCTIONINPROGRESS"
+                }
+            }
+        }
+    }
+    apz.startLoader();
+    ApzCOB.serverBuildParam(gAppId, "ApproveIncomeAssessment", "N", "N", req, 'Y', apz.app.MonthlyHouseHoldExp.finalCallApproveCB);
+}
+apz.app.MonthlyHouseHoldExp.finalCallApproveCB = function(params) {
+    apz.stopLoader();
+    try {
+        if (ApzCOB.handleServiceCallBacks(params)) {
+            var ifaceName = ApzCOB.GetInterfaceResMap(params);
+            var response = JSON.parse(params.res[ifaceName].apiResponse.ResponseBody.responseObj);
+            if (response.status === 'success') {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_RECORD_SAVE_SUC"), "S", apz.app.Dashboard.LaunchDashboardCB);
+            } else {
+                ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("Already records available!"), "E");
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_TECHNICALDIFF"), "E");
+    }
+}
+apz.app.CommonScript.closeApp = function() {
+    /*if (IncomeApp.status == 'APPROVED') {*/
+    if (IncomeApp.flow === 'fromApp') {
+        $('#APZCBO__BaseScreens__STAGE1').removeClass('sno');
+        $('#APZCBO__BaseScreens__BaseDIV').addClass('sno');
+        $('#NEWLOA__AddLoanDetails__gr_col_68').removeClass('sno');
+        apz.app.AddLoanDetails.updateIncomeDetails();
+    } else {
+        ApzCOB.dashboardAppListAPI();
+    }
+    /* } else {
+         ApzCOB.dashboardAppListAPI();
+     }*/
+}

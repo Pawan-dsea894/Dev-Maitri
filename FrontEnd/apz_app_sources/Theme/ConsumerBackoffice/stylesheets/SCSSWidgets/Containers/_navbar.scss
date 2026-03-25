@@ -1,0 +1,19 @@
+@use "../Abstract" as a;
+
+
+.crt-navb{
+        &.pri {
+            background-color:#F2F2F2;
+            }
+        &.sec {
+            background-color:#fff; 
+            border-bottom:1px solid #0693ea 
+            }
+        &.ter {
+            background-color:#0693EA;
+            color:#fff;
+            }
+        &.tsp {
+        background-color:transparent;
+        }
+    }

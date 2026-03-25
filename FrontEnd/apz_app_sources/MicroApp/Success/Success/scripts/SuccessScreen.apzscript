@@ -1,0 +1,119 @@
+var sucScrId = 'SUCCES__SuccessScreen__',
+    fromScrId = "";
+apz.app.onLoad_SuccessScreen = function(params) {};
+apz.app.onShown_SuccessScreen = function(params) {
+    $("#header").addClass("sno");
+    $("#footer").addClass("sno");
+    window.selCustDtlForSucc = params;
+    //window.allCustomer = dashboardAppList.response;
+    //window.isRejected = params.onceRejected;
+    /*if (isRejected) {
+        $('#' + sucScrId + "el_icn_32").addClass('sno');
+        $('#' + sucScrId + "el_txt_204").addClass('sno');
+        $('#' + sucScrId + "ct_frm_33").addClass('sno');
+        $('.approved-memb .pst-simp.pa0 > .crt-navb').css('background', '#FF0000');
+    } else if (!onceApproved && !isRejected) {
+        $('#' + sucScrId + "el_icn_30").addClass('sno');
+        $('#' + sucScrId + "rejectedApp").addClass('sno');
+        $('#' + sucScrId + "el_icn_32").removeClass('sno');
+        $('#' + sucScrId + "el_txt_204").removeClass('sno');
+    }*/
+    var customerName = selCustDtlForSucc.customerName || "Unknown";
+    if (KendraApp.hasOwnProperty("WorkflowRequest")) {
+        fromScrId = KendraApp.WorkflowRequest.fromScreenId;
+        if ("ELApplication" === fromScrId) {
+            $('#SUCCES__SuccessScreen__successText').removeClass('sno');
+            apz.setElmValue(sucScrId + "successText", selCustDtlForSucc.instantLoanDetailsObj.selEligibleLoanDtls.description +
+                " Disbursed Successfully");
+            var approvedAmt = selCustDtlForSucc.approvedAmt || "₹0";
+            $("#" + sucScrId + "custName").text(customerName + " (₹" + "1,000" + selCustDtlForSucc.instantLoanDetailsObj.selEligibleLoanDtls
+                .shortDesc + ")");
+            $("#" + sucScrId + "refText").text("Loan ID: #" + selCustDtlForSucc.applicationId);
+            apz.app.SuccessScreen.paintInstLoanData();
+        } else {
+            $("#" + sucScrId + "refText").text(selCustDtlForSucc.refId)
+        }
+    }
+    $('#SUCCES__SuccessScreen__successDtlsForm').removeClass('sno');
+    $('#SUCCES__SuccessScreen__successDtlsForm').removeClass('sno');
+    //$('#SUCCES__SuccessScreen__pendingApproval').removeClass('sno');
+    apz.app.SuccessScreen.paintData();
+}
+apz.app.SuccessScreen.paintInstLoanData = function() {
+    var disbMode = selCustDtlForSucc.instantLoanDetailsObj.disburseMode.idDesc;
+    apz.setElmValue(sucScrId + "intRate", selCustDtlForSucc.instantLoanDetailsObj.selEligibleLoanDtls.intRate);
+    apz.setElmValue(sucScrId + "loanCharges", selCustDtlForSucc.instantLoanDetailsObj.chargeAndBreakupDtls.aprxLoanCharges);
+    apz.setElmValue(sucScrId + "frequency", selCustDtlForSucc.instantLoanDetailsObj.repayFrequency.idDesc);
+    apz.setElmValue(sucScrId + "disbMode", (disbMode === "CASH") ? "Cash" : disbMode);
+    //apz.app.SuccessScreen.loadData(allCustomer);
+}
+apz.app.SuccessScreen.paintData = function() {
+    //apz.app.SuccessScreen.loadData(allCustomer);
+}
+apz.app.SuccessScreen.clickViewMore = function() {
+    var x = [];
+    ApzCOB.launchMicroApp('SUCCES', 'SUCCESnction', 'APZCBO__BaseScreens__BaseDIV', x);
+}
+apz.app.SuccessScreen.loadData = function(data) {
+    let pendingStatusData = data.filter(function(item) {
+        return item.status === "Pending";
+    });
+    if (pendingStatusData.length === 0) {
+        alert("No records found with status 'Pending by BM'");
+        return;
+    }
+    if (pendingStatusData.length > 3) {
+        $('#SUCCES__SuccessScreen__sc_col_374').removeClass('sno');
+    } else {
+        $('#SUCCES__SuccessScreen__sc_col_374').addClass('sno');
+    }
+    let paintedData = [];
+    pendingStatusData.forEach(function(record) {
+        let paintedRecord = {
+            customerName: record.customerName,
+            address: '',
+            amount: '₹' + record.amount || "",
+            status: record.status
+        };
+        paintedData.push(paintedRecord);
+    });
+    if (paintedData.length > 0) {
+        if (paintedData.length <= 4) {
+            apz.data.scrdata.SUCCES__IPaintSuccessCustomer_Res = {}
+            apz.data.scrdata.SUCCES__IPaintSuccessCustomer_Res = paintedData;
+            apz.data.loadData("IPaintSuccessCustomer", "SUCCES");
+        } else {
+            const slicedSUCCESnctionArray = paintedData.slice(0, 4);
+            apz.data.scrdata.SUCCES__IPaintSuccessCustomer_Res = {}
+            apz.data.scrdata.SUCCES__IPaintSuccessCustomer_Res = slicedSUCCESnctionArray;
+            apz.data.loadData("IPaintSuccessCustomer", "SUCCES");
+        }
+    }
+}
+apz.app.SuccessScreen.fetchClickedRowDetails = function(pthis) {
+    window.clickRow = $(pthis).attr("rowno");
+    window.selectedSUCCESnctionAccnt = apz.data.scrdata.SUCCES__IPaintSuccessCustomer_Res[pthis.getAttribute("rowno")];
+    apz.app.SuccessScreen.paintSelectedData(selectedSUCCESnctionAccnt);
+}
+apz.app.SuccessScreen.paintSelectedData = function(selecedPendingData) {
+    let data = {
+        selectedCust: selCustDtlForSucc,
+        matchingCustomer: allCustomer,
+        onceApproved: true
+    }
+    ApzCOB.launchMicroApp('SUCCES', 'DetailedScreen', 'APZCBO__BaseScreens__BaseDIV', data);
+}
+apz.app.SuccessScreen.closeApp = function() {
+    if (fromScrId === "ELApplication") {
+        ApzCOB.launchMicroApp("EMERGE", "EmergencyLoanApplications", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedKendra);
+    } else {
+        ApzCOB.dashboardAppListAPI();
+    }
+}
+apz.app.SuccessScreen.clickMoreOptionsBtn = function() {
+    if ($("#" + sucScrId + "moreDetailsRow").hasClass("sno")) {
+        $("#" + sucScrId + "moreDetailsRow").removeClass("sno");
+    } else {
+        $("#" + sucScrId + "moreDetailsRow").addClass("sno");
+    }
+}

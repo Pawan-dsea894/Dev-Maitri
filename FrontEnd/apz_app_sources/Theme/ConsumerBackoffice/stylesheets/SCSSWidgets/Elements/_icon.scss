@@ -1,0 +1,29 @@
+@use "../Abstract" as a;
+
+.ett-icon {
+	vertical-align: middle;
+	background-repeat: no-repeat;
+	display: inline-block;
+	position: a.$position-relative;
+	border: none;
+	min-width: .5em;
+	min-height: .5em;
+	&.pri {
+    	fill: a.$icn-svg-pri-fill;
+    }
+    &.sec {
+    	fill: #fff;
+    }
+    &.ter {
+    	fill: rgba(50, 50, 50, 0.2);
+    }
+    &.inf {
+    	fill: #0693ea;
+    }
+    &.suc {
+    	fill: #0cc27e;
+    }
+    &.war {
+    	fill: #FF9D00;
+    }
+}

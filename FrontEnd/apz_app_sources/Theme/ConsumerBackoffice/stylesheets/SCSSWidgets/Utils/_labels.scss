@@ -1,0 +1,42 @@
+
+.ett-labl {
+	display: inline;
+	vertical-align: middle;
+
+	&.pri {
+		font-weight: 400;
+		line-height: 1.286em;
+		color: inherit;
+		margin: 0;
+	}
+
+	&.sec {
+		font-weight: 600;
+		line-height: 1.286em;
+		color: #444;
+		margin: 0;
+	}
+
+	&.ter {
+		font-weight: 800;
+		line-height: 1.286em;
+		color: #444;
+		margin: 0;
+	}
+
+	&.inf {
+		color: #0693ea;
+	}
+
+	&.suc {
+		color: #0cc27e;
+	}
+
+	&.war {
+		color: #ff9d00;
+	}
+
+	&.err {
+		color: #e82c0c;
+	}
+}

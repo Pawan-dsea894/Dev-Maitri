@@ -1,0 +1,93 @@
+@use "../Abstract" as a;
+
+.crt-bcrm {
+	list-style: outside none none;
+	> li {
+		display: inline-block;
+	}
+	&.pri {
+		background-color: #fff;
+		border-radius: 4px;
+		list-style: outside none none;
+		padding: 8px 15px;
+		> li {
+			+ li::before {
+				color: #ccc;
+				content: "/ ";
+				padding: 0 5px;
+			}
+			a {
+				color: #337ab7;
+				text-decoration: none;
+			}
+			&.active a {
+				color: #111;
+				pointer-events: none;
+			}
+		}
+	}
+	&.sec {
+		background-color: #fff;
+		border-radius: 4px;
+		list-style: outside none none;
+		padding: 8px 15px;
+		> li {
+			+ li::before {
+				color: #999;
+				content: " >";
+				padding: 0 5px;
+			}
+			a {
+				color: #337ab7;
+				text-decoration: none;
+			}
+			&.active a {
+				color: #111;
+				pointer-events: none;
+			}
+		}
+	}
+	&.ter {
+		background-color: #fff;
+		border-radius: 4px;
+		list-style: outside none none;
+		padding: 8px 15px;
+		> li {
+			+ li::before {
+				color: #999;
+				content: "| ";
+				padding: 0 5px;
+			}
+			a {
+				color: #337ab7;
+				text-decoration: none;
+			}
+			&.active a {
+				color: #111;
+				pointer-events: none;
+			}
+		}
+	}
+	&.tsp {
+		background-color: transparent;
+		border-radius: 0;
+		list-style: outside none none;
+		padding: 8px 15px;
+		> li {
+			+ li::before {
+				color: #ccc;
+				content: "/ ";
+				padding: 0 5px;
+			}
+			a {
+				color: #337ab7;
+				text-decoration: none;
+			}
+			&.active a {
+				color: #111;
+				pointer-events: none;
+			}
+		}
+	}
+}
+/* breadcrumbs end */

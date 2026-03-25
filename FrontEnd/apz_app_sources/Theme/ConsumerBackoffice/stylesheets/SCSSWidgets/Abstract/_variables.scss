@@ -1,0 +1,368 @@
+
+$body-bg-color: red;
+$text-pri:yellow;
+// $texst-sec:green;
+
+$position-relative: relative;
+
+/* Header */
+
+/* header primary */
+
+$header-bg-pri: #fff;
+
+$header-svg-fill-pri: #000;
+
+/* header secondary */
+
+$header-img-color-sec: linear-gradient(to right, #00a5a8 0px, #4dcbcd 100%);
+
+$header-svg-fill-sec: #fff;
+
+/* header tertiary */
+
+$header-bg-ter: #fff;
+
+$header-svg-fill-ter: #000;
+
+/* Sidebar */
+
+/* sideabar primary  */
+
+$sidbr-lft-bg-pri: #fff;
+
+$sidbr-lft-color-pri: #000;
+
+$sidbr-rht-bg-pri: #fff;
+
+$sidbr-rht-color-pri: #000;
+
+/* sidebar secondary*/
+
+$sidbr-lft-bg-sec: #404e67;
+
+$sidbr-lft-color-sec: #c3c3c3;
+
+$sidbr-rht-bg-sec: #404e67;
+
+$sidbr-rht-color-sec: #c3c3c3;
+
+/* sidebar tertiary */
+
+$sidbr-lft-bg-ter: #f0f4f5;
+
+$sidbr-lft-color-ter: #000;
+
+$sidbr-rht-bg-ter: #f0f4f5;
+
+$sidbr-rht-color-ter: #000;
+
+/* Footer */
+
+/* Footer primary*/
+
+$foot-bg-pri: #fff;
+
+$foot-color-pri: #000;
+
+$foot-bg-img-sec: linear-gradient(to right, #00a5a8 0px, #4dcbcd 100%);
+
+$foot-color-sec: #fff;
+
+$foot-bg-ter: #fff;
+
+$foot-color-ter: #000;
+
+/* modal  */
+
+$modal-cnt-pri: #fefefe;
+
+$modal-header-pri: #f4f4f4;
+
+$modal-window-bg: #ffffff; /* for both dialog and modal*/
+
+/* bullets */
+
+/* unordered list */
+
+$unordered-list-color-pri: #00395d;
+
+$unordered-list-color-sec: #00395d;
+
+$unordered-list-color-ter: #00395d;
+
+/* Ordered list */
+
+$ordered-list-color-pri: #00395d;
+
+$ordered-list-color-sec: #00395d;
+
+$ordered-list-color-ter: #00395d;
+
+/* Range slider */
+
+/*range slider primary */
+
+$rnge-thumb-color-pri: #0693ea;
+
+$rnge-track-bg-pri: #eaeaea;
+
+/*range slider secondary */
+
+$rnge-thumb-color-sec: #0693ea;
+
+$rnge-track-bg-sec: #fff;
+
+/*range slider tertiary */
+
+$rnge-thumb-color-ter: #0693ea;
+
+$rnge-thumb-bg-ter: #fff;
+
+$rnge-track-bg-ter: #eaeaea;
+
+/* Progress step */
+
+/* progress step horizontal  */
+
+$pgst-hor-step-color-pri: #333;
+
+$pgst-hor-step-bg-pri: #fff;
+
+$pgst-hor-step-round-color-pri: #29abe2;
+
+$pgst-hor-step-lbl-color-pri: #404140;
+
+$pgst-hor-active-step-color-pri: #333;
+
+$pgst-hor-active-lbl-color-pri: #29abe2;
+
+$pgst-hor-step-non-fill-bg-pri: #eee;
+
+/* progress step vertical */
+
+$pgst-ver-step-color-pri: #333;
+
+$pgst-ver-step-bg-pri: #fff;
+
+$pgst-ver-step-round-color-pri: #29abe2;
+
+$pgst-ver-step-lbl-color-pri: #404140;
+
+$pgst-ver-active-step-color-pri: #333;
+
+$pgst-ver-active-lbl-color-pri: #29abe2;
+
+$pgst-ver-step-non-fill-bg-pri: #eee;
+
+/* Progress bar */
+
+$prgs-bg-def: #eee;
+
+$prgs-intd-pri: #0693ea;
+
+$prgs-intd-sec: #ff1493;
+
+$prgs-intd-ter: #26a69a;
+
+/* Dropdown */
+
+
+
+$sel-def-bg-color: #fff;
+
+$sel-def-bor-color: #999;
+
+$sel-def-bor-focus: #2196f3; /* for both focus and is-open */
+
+/* Multiselect sub opt */
+
+$sel-mlts-svg-color: #000;
+
+$sel-mlts-option-bg: #fff;
+
+/* Multiselect check box */
+
+$sel-mltc-svg-color: #000;
+
+$sel-mltc-option-bg: #fff;
+
+$sel-mltc-option-higlight-bg-pri: #dfdfdf;
+
+$sel-mltc-opt-check-svg: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTQiIGhlaWdodD0iMTEiIHZpZXdCb3g9Ii0zIDExNTggMTQgMTEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTS0xLjcyIDExNjQuMDJMLTMgMTE2NS4zbDIuOTc2IDIuOTc2Yy4xOTUuMTkyLjQ2My4zMTIuNzYuMzEyLjI5NSAwIC41NjMtLjEyLjc1Ny0uMzE0di4wMDJsOC45OTgtOC45OThMOS4yMTMgMTE1OGwtOC40NzcgOC40NzYtMi40NTUtMi40NTV6IiBmaWxsPSIjMDA3REI1IiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz48L3N2Zz4=");
+
+$sel-mltc-opt-chk-lbl-clr-pri: #0075a6;
+
+/* Multiselect tags primary start */
+
+$sel-mltt-bg-pri: #fff;
+
+$sel-mltt-arr: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2214%22%20height%3D%228%22%20viewBox%3D%220%200%2014%208%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M7.463%207.463l6.156-6.155c.298-.3.298-.785%200-1.084-.3-.3-.786-.3-1.084%200L6.92%205.838%201.308.224c-.3-.3-.784-.3-1.083%200-.3.3-.3.784%200%201.083L6.38%207.463c.3.3.784.3%201.083%200%22%20fill%3D%22%231075A4%22%20fill-rule%3D%22evenodd%22/%3E%3C/svg%3E");
+
+$sel-mltt-tag-arr: #0693ea;
+
+/* Autocomplete select primary start */
+
+$sel-auto-bg-pri: #fff;
+
+$sel-auto-bor-bottom-pri: #eee;
+
+$sel-auto-bor-pri: #999;
+
+$sel-auto-dropdown-bg-pri: #fff;
+
+$sel-auto-results-bg-pri: #fff;
+
+$sel-auto-option-color: #333;
+
+/* Icon svg */
+
+$icn-svg-pri-fill: #000;
+
+/* Toggle switch */
+
+/* Toggle switch primary */
+
+$togl-pri-slider-checked: #2196f3;
+
+$togl-pri-slider-btn: #fff;
+
+$togl-pri-slider-bg: #ccc;
+
+/* Toggle switch with label*/
+
+$togl-pri-switch-txt: #7f7f7f;
+
+$togl-pri-switch-select-txt: #fff;
+
+$togl-pri-switch-txt-bg: #0693ea;
+
+/* checkbox scss variables */
+
+/* checkbox horizontal*/
+
+$check-hor-pri-bg: #fff;
+
+$check-hor-pri-bgimg: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2214%22%20height%3D%2211%22%20viewBox%3D%22-3%201158%2014%2011%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M-1.72%201164.02L-3%201165.3l2.976%202.976c.195.192.463.312.76.312.295%200%20.563-.12.757-.314v.002l8.998-8.998L9.213%201158l-8.477%208.476-2.455-2.455z%22%20fill%3D%22%230074a6%22%20fill-rule%3D%22evenodd%22/%3E%3C/svg%3E");
+
+$check-hor-pri-grp: #111;
+
+$checkbox-hor-pri-hov-bor: #2196f3;
+
+/* checkbox vertical */
+
+$check-ver-pri-bg: #fff;
+
+$check-ver-pri-bgimg: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2214%22%20height%3D%2211%22%20viewBox%3D%22-3%201158%2014%2011%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M-1.72%201164.02L-3%201165.3l2.976%202.976c.195.192.463.312.76.312.295%200%20.563-.12.757-.314v.002l8.998-8.998L9.213%201158l-8.477%208.476-2.455-2.455z%22%20fill%3D%22%230074a6%22%20fill-rule%3D%22evenodd%22/%3E%3C/svg%3E");
+
+$check-ver-pri-grp: #111;
+
+$checkbox-ver-pri-hov-bor: #2196f3;
+
+/* Radio scss variable start*/
+
+/* Radio horizontal*/
+
+$radio-pri-hor-bg: #fff;
+
+$radio-hor-pri-checked: #2196f3;
+
+$radio-hor-pri-bor: #2196f3;
+
+/* Radio vertical */
+
+$radio-pri-ver-bg: #fff;
+
+$radio-pri-ver-checked: #0693ea;
+
+$radio-ver-pri-bor: #2196f3;
+
+/* Radio button group*/
+
+$radio-grp-pri-checked: #0693ae;
+
+$radio-grp-pri-txt: #000;
+
+/*section row */
+
+$position-relative: relative;
+
+$padding-0: 0em;
+
+$padding-1: 1em;
+
+$padding-2: 2em;
+
+/* Container scss variables */
+
+/* container label h4 appearance */
+
+$cnt-pri-h4-color: #0693ea;
+
+$cnt-sec-h4-color: #333333;
+
+$cnt-ter-h4-color: #f2145e;
+
+$cnt-tsp-h4-color: #333;
+
+/* List */
+
+$list-pri-ttl-svg: #0693ea;
+
+/* Button */
+
+/* button background */
+
+$button-bg-pri: #0693ea;
+
+$button-bg-sec: #0693ea;
+
+$button-bg-ter: #0693ea;
+
+/* button appearance */
+
+$button-pri-svg: #fff;
+
+$button-pri-txt: #fff;
+
+$button-sec-svg: #fff;
+
+$button-sec-txt: #fff;
+
+$button-ter-svg: #fff;
+
+$button-ter-txt: #fff;
+
+/* button hover ,focus */
+
+$button-pri-hover-focus: #0582d0;
+
+$button-pri-hover-focus-txt: #fff;
+
+/* button primary */
+
+/* column space */
+
+/* column space value*/
+
+$column-space: 2.76243%;
+
+/* width calculation for the grid and section column*/
+
+// $width-size: (
+
+//     100: 100%,
+
+//     1 : 8.3333%
+
+//   );
+
+$grid12: 100%;
+
+// $grid11 : map-get($width-size, 1) * 11;
+
+// $grid10: map-get($width-size, 1)/2;
+
+/*91.43646408839778%*/
+
+/* Layout*/

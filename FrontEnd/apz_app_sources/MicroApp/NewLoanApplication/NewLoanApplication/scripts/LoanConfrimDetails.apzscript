@@ -1,0 +1,205 @@
+let confirmscreenId = "NEWLOA__LoanConfrimDetails__";
+apz.app.onLoad_LoanConfrimDetails = function() {
+    //yet to do
+}
+apz.app.onShown_LoanConfrimDetails = function() {
+    apz.app.LoanConfrimDetails.paintDetails();
+}
+apz.app.LoanConfrimDetails.paintDetails = function() {
+   KendraApp.selectedCustomer.addLoanDetailsObj= addLoanDetailsObj;
+   KendraApp.selectedCustomer.vintageYear='Vintage '+Math.round(KendraApp.selectedCustomer.vintage/365)+' Years';
+   apz.setElmValue(confirmscreenId + "refNo", KendraApp.selectedCustomer.groupId);
+   apz.setElmValue(confirmscreenId + "CustName", KendraApp.selectedCustomer.customerName);
+   apz.setElmValue(confirmscreenId + "groupID", KendraApp.selectedCustomer.groupId);
+   apz.setElmValue(confirmscreenId + "CustID", KendraApp.selectedCustomer.customerId);
+   apz.setElmValue(confirmscreenId + "loanLimit", ApzCOB.fn_FormatAmount(KendraApp.selectedCustomer.maxAmountLimit));
+   apz.setElmValue(confirmscreenId + "VintageYear", KendraApp.selectedCustomer.vintageYear);
+   apz.setElmValue(confirmscreenId + "dob", ApzCOB.dateStringToDate(KendraApp.selectedCustomer.dob));
+   apz.setElmValue(confirmscreenId + "maritialStatus", KendraApp.selectedCustomer.maritalStatus);
+   apz.setElmValue(confirmscreenId + "SpouseDOB", KendraApp.selectedCustomer.earnings[0].name+','+ApzCOB.dateStringToDate(KendraApp.selectedCustomer.earnings[0].dob));
+   apz.setElmValue(confirmscreenId + "mobNo", KendraApp.selectedCustomer.mobileNum);
+   apz.setElmValue(confirmscreenId + "memberKyc", KendraApp.selectedCustomer.primaryType+" ("+KendraApp.selectedCustomer.primaryId+") ");
+   apz.setElmValue(confirmscreenId + "spouseKyc", KendraApp.selectedCustomer.earnings[0].legaldocName+" ("+KendraApp.selectedCustomer.earnings[0].legaldocId+") ");
+   apz.setElmValue(confirmscreenId + "accNo", KendraApp.selectedCustomer.bankAccNo);
+   apz.setElmValue(confirmscreenId + "bankifsc", KendraApp.selectedCustomer.bankName+", "+KendraApp.selectedCustomer.bankIfscCode);
+   apz.setElmValue(confirmscreenId + "branch", KendraApp.selectedCustomer.branchName); 
+   apz.setElmValue(confirmscreenId + "income", ApzCOB.fn_FormatAmount(KendraApp.selectedCustomer.income[0].totIncome));
+   apz.setElmValue(confirmscreenId + "expense", ApzCOB.fn_FormatAmount(KendraApp.selectedCustomer.income[0].totExpense));
+   apz.setElmValue(confirmscreenId + "totalIncome", ApzCOB.fn_FormatAmount(KendraApp.selectedCustomer.income[0].totIncome-KendraApp.selectedCustomer.income[0].totExpense));
+   var memberstext='Earning members in the family (' +KendraApp.selectedCustomer.earnings.length+')';
+   apz.setElmValue(confirmscreenId + "memberscount", memberstext);
+   var memberstext='Earning members in the family (' +KendraApp.selectedCustomer.earnings.length+')';
+   apz.setElmValue(confirmscreenId + "memberscount", membersname);
+   var membersname='';
+   if (KendraApp.selectedCustomer.earnings.length == 0) {
+       membersname = KendraApp.selectedCustomer.earnings[0].name + ' (' + KendraApp.selectedCustomer.earnings[0].memRelation + ')'
+   } else {
+       KendraApp.selectedCustomer.earnings.forEach(function(el, i) {
+           if (i == KendraApp.selectedCustomer.earnings.length - 1) {
+               membersname += KendraApp.selectedCustomer.earnings[i].name + ' (' + KendraApp.selectedCustomer.earnings[i].memRelation + ')';
+           } else if(i==0){
+               membersname = KendraApp.selectedCustomer.earnings[i].name + ' (' + KendraApp.selectedCustomer.earnings[i].memRelation + '),';
+           }else {
+               membersname += KendraApp.selectedCustomer.earnings[i].name + ' (' + KendraApp.selectedCustomer.earnings[i].memRelation + '),';
+           }
+       });
+   }
+   apz.setElmValue(confirmscreenId + "membersname", membersname);
+   apz.setElmValue(confirmscreenId + "loanAmt",  ApzCOB.fn_FormatAmount(KendraApp.selectedCustomer.addLoanDetailsObj.scrDataStep1.chargeAndBreakupDtls.loanAmt));
+   apz.setElmValue(confirmscreenId + "loanIns", ApzCOB.fn_FormatAmount(KendraApp.selectedCustomer.addLoanDetailsObj.scrDataStep1.insurDtls.insurCharges));
+   apz.setElmValue(confirmscreenId + "loanFee",ApzCOB.fn_FormatAmount(KendraApp.selectedCustomer.addLoanDetailsObj.scrDataStep1.chargeAndBreakupDtls.aprxLoanCharges));
+   apz.setElmValue(confirmscreenId + "loanFinalAmt", ApzCOB.fn_FormatAmount(KendraApp.selectedCustomer.addLoanDetailsObj.scrDataStep1.chargeAndBreakupDtls.aprxLoanAmt));
+}
+apz.app.LoanConfrimDetails.loadPuposeDetails = function() {
+
+}
+
+apz.app.LoanConfrimDetails.updateMobile = function() {
+
+}
+apz.app.LoanConfrimDetails.activeloanlist = function() {
+    if ($('#' + confirmscreenId + 'activeLoanList').is(':visible')) {
+        $('#' + confirmscreenId + 'activeLoanList').addClass('sno');
+    } else {
+        let tempArray = [];
+        if (KendraApp.selectedCustomer.loanDtls.length > 0) {
+            KendraApp.selectedCustomer.loanDtls.forEach(loan => {
+                let tempObj = {
+                    "loanType": loan.product,
+                    "maturityDate": ApzCOB.confDateFormatter(ApzCOB.dateStringToDate(loan.lnMatDate), "dd/mm/yy"),
+                    "dueAmount": "₹ " + (parseInt(ApzCOB.fn_unFormatAmount(loan.overdueInterest)) + parseInt(ApzCOB.fn_unFormatAmount(
+                        loan.overduePrincipal)))
+                }
+                tempArray.push(tempObj)
+            });
+            apz.data.scrdata.NEWLOA__ViewActiveLoanDetails_Res={};
+            apz.data.scrdata.NEWLOA__ViewActiveLoanDetails_Res.ActiveLoanConfirmDetails = {};
+            apz.data.scrdata.NEWLOA__ViewActiveLoanDetails_Res.ActiveLoanConfirmDetails = tempArray;
+            apz.data.loadData("ViewActiveLoanDetails", 'NEWLOA');
+            $('#' + confirmscreenId + 'activeLoanList').removeClass('sno');
+        } else {
+            $('#' + confirmscreenId + 'activeLoanList').addClass('sno');
+            ApzCOB.fnDisplayMsg("No Existing Loans Available", "I");
+        }
+    }
+}
+
+apz.app.LoanConfrimDetails.edit = function(ev) { //Delete scheduled transfer flow
+    ApzRMB.fnDisplayMsg('Do you want to cancel the application?', 'C', apz.app.LoanConfrimDetails.editCallBack);
+};
+apz.app.LoanConfrimDetails.editCallBack = function(param) { //Call delete scheduled transfer
+    if (param.choice === true) {
+        ApzCOB.launchMicroApp("NEWLOA", "AddLoanDetails", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedCustomer);
+    } else {
+        return;
+    }
+};
+
+apz.app.LoanConfrimDetails.continue = function() {
+ ApzCOB.launchMicroApp("NEWLOA", "AddLoanSummary", "APZCBO__BaseScreens__BaseDIV", KendraApp.selectedCustomer);
+}
+var addLoanDetailsObj= {
+    "selEligibleLoanDtls": {
+      "cbAmt": 81000,
+      "caglAmt": 50000,
+      "productType": "GIPP2",
+      "product": "GL.IGL.PRAGATI.PLUS.2",
+      "custVintageInterestRate": 22,
+      "productId": "GL.IGL.PRAGATI.PLUS.2",
+      "shortDesc": "IGL Pragati Plus 2",
+      "amountLimit": "1 9999999",
+      "amountMin": "51000",
+      "amountMax": null,
+      "spouseInsurance": "YES",
+      "freq": "WEEKLY~BIWEEKLY~FOUR.WEEKLY",
+      "insuranceProvider": "CREDITACCESSLIFEINSURANCE~HDFCLIFEINSURANCE~ICICIPRIDENTIALLIFEINSURANCE~KOTAKMAHINDRALIFEINSURANCE~SHRIRAMLIFEINSURANCE\\n",
+      "insurancePercentage": 2,
+      "prodPurpose": [
+        {
+          "productId": "GL.IGL.PRAGATI.PLUS.2",
+          "purpose": "53",
+          "purposeDesc": "Agricullture",
+          "productSubPurpose": [
+            "FIRE WOOD",
+            "FLOUR MILL",
+            "FLOWER BUSINESS",
+            "FOOD GRAIN TRADING"
+          ]
+        },
+        {
+          "productId": "GL.IGL.PRAGATI.PLUS.2",
+          "purpose": "53",
+          "purposeDesc": "Animal Husbandry",
+          "productSubPurpose": [
+            "EGG SHOP",
+            "FIRE WOOD",
+            "FLOUR MILL",
+            "FLOWER BUSINESS"
+          ]
+        },
+        {
+          "productId": "GL.IGL.PRAGATI.PLUS.2",
+          "purpose": "53",
+          "purposeDesc": "Construction",
+          "productSubPurpose": [
+            "LAND LEASING",
+            "LAND RELEASING",
+            "LIME POWDER BUSINESS",
+            "MEAT SHOP"
+          ]
+        },
+        {
+          "productId": "GL.IGL.PRAGATI.PLUS.2",
+          "purpose": "53",
+          "purposeDesc": "Medical Issue",
+          "productSubPurpose": [
+            "ALUMINIUM BUSINESS",
+            "BAG BUSINESS",
+            "BAKERY BUSINESS",
+            "BANANA LEAF BUSINESS",
+            "BAND BAHA"
+          ]
+        }
+      ]
+    },
+    "scrDataStep1": {
+      "loanProd": "IGL Pragati Plus 2",
+      "loanAmt": "50000",
+      "refId": "204161714",
+      "purpose": {
+        "purposeId": "53",
+        "purposeIdDesc": "Agricullture"
+      },
+      "subPurpose": {
+        "subPurposeId": "FOOD GRAIN TRADING",
+        "subPurposeIdDesc": "FOOD GRAIN TRADING"
+      },
+      "repayFrequency": {
+        "id": "WEEKLY",
+        "idDesc": "WEEKLY"
+      },
+      "disbMode": {
+        "id": "Cash",
+        "idDesc": "Cash"
+      },
+      "tenure": "52",
+      "interestRate": "19",
+      "loanProcessingFee": "2000",
+      "c": "1500",
+      "insurDtls": {
+        "member": "Y",
+        "Spouse": "Y",
+        "insurCompany": "CREDITACCESSLIFEINSURANCE",
+        "insurCharges": "4000"
+      },
+      "nomineeDtls": {
+        "nomineeName": "Jack",
+        "relationWithMember": "Son"
+      },
+      "chargeAndBreakupDtls": {
+        "loanAmt": "51000",
+        "aprxLoanCharges": "4000",
+        "aprxLoanAmt": "47000"
+      }
+    }
+  }

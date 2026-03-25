@@ -1,0 +1,41 @@
+@use "../Abstract" as a;
+
+.flbl {
+	margin: 2em 0 0em 0;
+	height: 2.6em;
+	input {
+		z-index: 2;
+	}
+	label {
+		padding-left: 0;
+		font-size: 16px;
+		-moz-transform-origin: 0 0em;
+		-ms-transform-origin: 0 0em;
+		-webkit-transform-origin: 0 0em;
+		transform-origin: 0 0em;
+		-moz-transition: -moz-transform 160ms, color 200ms;
+		-o-transition: -o-transform 160ms, color 200ms;
+		-webkit-transition: -webkit-transform 160ms, color 200ms;
+		transition: transform 160ms, color 200ms;
+		-moz-transform: scale(1, 1) rotateY(0);
+		-ms-transform: scale(1, 1) rotateY(0);
+		-webkit-transform: scale(1, 1) rotateY(0);
+		transform: scale(1, 1) rotateY(0);
+		color: #999;
+		visibility: hidden;
+	}
+	>li {
+		clear: both;
+	}
+}
+.flbl-float {
+	label {
+		-moz-transform: scale(0.55, 0.55) rotateY(0);
+		-ms-transform: scale(0.55, 0.55) rotateY(0);
+		-webkit-transform: scale(0.55, 0.55) rotateY(0);
+		transform: scale(0.55, 0.55) rotateY(0);
+		font-size: 1.9em;
+		margin-top: -20px;
+		visibility: visible;
+	}
+}

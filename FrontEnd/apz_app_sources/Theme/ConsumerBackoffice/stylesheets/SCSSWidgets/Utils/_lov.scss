@@ -1,0 +1,137 @@
+
+
+.lovbox {
+	background: #f9f9f9 none repeat scroll 0 0;
+	border: 1px solid #ccc;
+	padding: 15px;
+	overflow: hidden;
+}
+.ecn > .ett-lofv {
+	&.pri.txar > span {
+		vertical-align: top;
+	}
+	&.sec.txar > span {
+		vertical-align: middle;
+	}
+	&.ter.txar > span {
+		vertical-align: bottom;
+	}
+	> span > .ett-bttn {
+		&.ter {
+			&.inf {
+				> svg {
+					fill: inherit;
+				}
+				&:hover > svg {
+					fill: inherit;
+				}
+			}
+			&.war {
+				border: 1px solid #ffa840;
+			}
+			&.suc {
+				border: 1px solid #0cc27e;
+			}
+			&.err {
+				border: 1px solid #ff5252;
+			}
+		}
+		&.pri.inf {
+			> svg {
+				fill: inherit;
+			}
+			&:hover > svg {
+				fill: inherit;
+			}
+		}
+		&.sec.inf {
+			> svg {
+				fill: inherit;
+			}
+			&:hover > svg {
+				fill: inherit;
+			}
+		}
+		&.war > .ett-icon {
+			fill: #ffa840;
+		}
+		&.suc > .ett-icon {
+			fill: #0cc27e;
+		}
+		&.err > .ett-icon {
+			fill: #ff5252;
+		}
+	}
+	&.btl > span > .ett-bttn {
+		background: transparent;
+		border-right: 0;
+		padding:1.3em 1.4em;
+		&.pri {
+			&.inf {
+				border: 1px solid #999;
+				border-right: 0;
+			}
+			&:active {
+				fill: black;
+			}
+		}
+		&.sec {
+			border: 1px solid #999;
+			border-right: 0;
+			&.inf {
+			}
+			&:active {
+				fill: black;
+			}
+		}
+		&.ter.inf {
+			border: 1px solid #999;
+			&:active {
+				fill: black;
+			}
+		}
+	}
+	&.btr > span > .ett-bttn {
+		border-left: 0;
+		background: transparent;
+		&.pri {
+			&.inf {
+				border: 1px solid #999;
+				border-left: 0;
+			}
+			inf {
+				fill: black;
+			}
+			&:active {
+				fill: black;
+			}
+		}
+		&.sec {
+			border: 1px solid #999;
+			border-left: 0;
+			&.inf {
+			}
+			inf {
+				fill: black;
+			}
+			&:active {
+				fill: black;
+			}
+		}
+		&.ter {
+			&.inf {
+				border: 1px solid #999;
+			}
+			inf {
+				fill: black;
+			}
+			&:active {
+				fill: black;
+			}
+		}
+	}
+	&.txar > span > .ett-bttn.sec {
+		border: 0;
+		border-radius: 0;
+	}
+}

@@ -1,0 +1,29 @@
+@use "../Abstract" as a;
+
+.ett-extl {
+	color: #f2145e;
+	outline: 0;
+	text-decoration: none;
+	&:hover {
+		text-decoration: underline;
+	}
+	&:focus {
+		text-decoration: underline;
+		outline: #71b9d2 solid 1px;
+	}
+	&.pri {
+		font-size: 0.95rem;
+	}
+	&.sec {
+		font-size: 0.795rem;
+	}
+	&.ter {
+		font-weight: 400;
+		font-size: 0.725rem;
+	}
+	&.disabled {
+		pointer-events: none;
+		color: #aaa;
+	}
+}
+/* external links end */

@@ -1,0 +1,365 @@
+@use "../Abstract" as a;
+
+.htx {
+	padding-top: 0.875em;
+	&.err {
+		color: #c33;
+	}
+}
+.ett-hed1 {
+	&.pri {
+		font-weight: 100;
+		line-height: 1.286em;
+		color: inherit;
+		margin: 0;
+	}
+	&.sec {
+		font-weight: 400;
+		line-height: 1.286em;
+		color: #111;
+		margin: 0;
+	}
+	&.ter {
+		font-weight: 600;
+		line-height: 1.286em;
+		color: #111;
+		margin: 0;
+	}
+	&.inf {
+		color: #0693ea;
+		svg {
+			fill: #0693ea;
+		}
+	}
+	&.suc {
+		color: #0cc27e;
+		svg {
+			fill: #0cc27e;
+		}
+	}
+	&.war {
+		color: #ff9d00;
+		svg {
+			fill: #ff9d00;
+		}
+	}
+	&.err {
+		color: #e82c0c;
+		svg {
+			fill: #e82c0c;
+		}
+	}
+	&.icl > svg {
+		margin-right: 3px;
+		vertical-align: top;
+	}
+	&.icr > svg {
+		margin-left: 3px;
+		vertical-align: top;
+	}
+	&.syl > span {
+		margin-right: 3px;
+		vertical-align: top;
+	}
+	&.syr > span {
+		margin-left: 3px;
+		vertical-align: top;
+	}
+}
+.ett-hed2 {
+	&.pri {
+		font-weight: 100;
+		line-height: 1.286em;
+		color: inherit;
+		margin: 0;
+	}
+	&.sec {
+		font-weight: 400;
+		line-height: 1.286em;
+		color: #111;
+		margin: 0;
+	}
+	&.ter {
+		font-weight: 600;
+		line-height: 1.286em;
+		color: #111;
+		margin: 0;
+	}
+	&.inf {
+		color: #0693ea;
+	}
+	&.suc {
+		color: #0cc27e;
+	}
+	&.war {
+		color: #ff530d;
+	}
+	&.err {
+		color: #e82c0c;
+	}
+	&.icl > svg {
+		margin-right: 3px;
+		vertical-align: top;
+	}
+	&.icr > svg {
+		margin-left: 3px;
+		vertical-align: top;
+	}
+	&.syl > span {
+		margin-right: 3px;
+		vertical-align: top;
+	}
+	&.syr > span {
+		margin-left: 3px;
+		vertical-align: top;
+	}
+}
+.ett-hed3 {
+	&.pri {
+		font-weight: 100;
+		line-height: 1.286em;
+		color: inherit;
+		margin: 0;
+	}
+	&.sec {
+		font-weight: 400;
+		line-height: 1.286em;
+		color: #444;
+		margin: 0;
+	}
+	&.ter {
+		font-weight: 600;
+		line-height: 1.286em;
+		color: #444;
+		margin: 0;
+	}
+	&.inf {
+		color: #0693ea;
+	}
+	&.suc {
+		color: #0cc27e;
+	}
+	&.war {
+		color: #ff9d00;
+	}
+	&.err {
+		color: #e82c0c;
+	}
+	&.icl > svg {
+		margin-right: 3px;
+		vertical-align: top;
+	}
+	&.icr > svg {
+		margin-left: 3px;
+		vertical-align: top;
+	}
+	&.syl > span {
+		margin-right: 3px;
+		vertical-align: top;
+	}
+	&.syr > span {
+		margin-left: 3px;
+		vertical-align: top;
+	}
+}
+.ett-hed4 {
+	&.pri {
+		font-weight: 100;
+		line-height: 1.286em;
+		color: inherit;
+		margin: 0;
+	}
+	&.sec {
+		font-weight: 400;
+		line-height: 1.286em;
+		color: inherit;
+		margin: 0;
+	}
+	&.ter {
+		font-weight: 600;
+		line-height: 1.286em;
+		color: inherit;
+		margin: 0;
+	}
+	&.inf {
+		color: #0693ea;
+	}
+	&.suc {
+		color: #0cc27e;
+	}
+	&.war {
+		color: #ff9d00;
+	}
+	&.err {
+		color: #e82c0c;
+	}
+	&.icl > svg {
+		margin-right: 3px;
+		vertical-align: top;
+	}
+	&.icr > svg {
+		margin-left: 3px;
+		vertical-align: top;
+	}
+	&.syl > span {
+		margin-right: 3px;
+		vertical-align: top;
+	}
+	&.syr > span {
+		margin-left: 3px;
+		vertical-align: top;
+	}
+}
+.ett-hed5 {
+	&.pri {
+		font-weight: 400;
+		line-height: 1.286em;
+		color: inherit;
+		margin: 0;
+	}
+	&.sec {
+		font-weight: 600;
+		line-height: 1.286em;
+		color: #444;
+		margin: 0;
+	}
+	&.ter {
+		font-weight: 800;
+		line-height: 1.286em;
+		color: #444;
+		margin: 0;
+	}
+	&.inf {
+		color: #0693ea;
+	}
+	&.suc {
+		color: #0cc27e;
+	}
+	&.war {
+		color: #ff9d00;
+	}
+	&.err {
+		color: #e82c0c;
+	}
+	&.icl > svg {
+		margin-right: 3px;
+		vertical-align: top;
+	}
+	&.icr > svg {
+		margin-left: 3px;
+		vertical-align: top;
+	}
+	&.syl > span {
+		margin-right: 3px;
+		vertical-align: top;
+	}
+	&.syr > span {
+		margin-left: 3px;
+		vertical-align: top;
+	}
+}
+.ett-hed6 {
+	&.pri {
+		font-weight: 400;
+		line-height: 1.286em;
+		color: inherit;
+		margin: 0;
+	}
+	&.sec {
+		font-weight: 600;
+		line-height: 1.286em;
+		color: #444;
+		margin: 0;
+	}
+	&.ter {
+		font-weight: 800;
+		line-height: 1.286em;
+		color: #444;
+		margin: 0;
+	}
+	&.inf {
+		color: #0693ea;
+	}
+	&.suc {
+		color: #0cc27e;
+	}
+	&.war {
+		color: #ff9d00;
+	}
+	&.err {
+		color: #e82c0c;
+	}
+	&.icl > svg {
+		margin-right: 3px;
+		vertical-align: top;
+	}
+	&.icr > svg {
+		margin-left: 3px;
+		vertical-align: top;
+	}
+	&.syl > span {
+		margin-right: 3px;
+		vertical-align: top;
+	}
+	&.syr > span {
+		margin-left: 3px;
+		vertical-align: top;
+	}
+}
+.ett-para {
+	display: inline;
+	vertical-align: middle;
+	padding: 0 3px;
+	&.pri {
+		@include a.para-default;
+		color: inherit;
+	}
+	&.sec {
+		@include a.para-default;
+		color: #fff;
+	}
+	&.ter {
+		@include a.para-default;
+		color: #999;
+	}
+	&.inf {
+		color: #0693ea;
+		svg {
+			fill: #0693ea;
+		}
+	}
+	&.suc {
+		color: #0cc27e;
+		svg {
+			fill: #0cc27e;
+		}
+	}
+	&.war {
+		color: #ff9d00;
+		svg {
+			fill: #ff9d00;
+		}
+	}
+	&.err {
+		color: #e82c0c;
+		svg {
+			fill: #e82c0c;
+		}
+	}
+	&.icl > svg {
+		margin-right: 3px;
+		vertical-align: top;
+	}
+	&.icr > svg {
+		margin-left: 3px;
+		vertical-align: top;
+	}
+	&.syl > span {
+		margin-right: 3px;
+		vertical-align: top;
+	}
+	&.syr > span {
+		margin-left: 3px;
+		vertical-align: top;
+	}
+}

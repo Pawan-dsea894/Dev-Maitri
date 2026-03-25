@@ -1,0 +1,53 @@
+let screenId = apz.currAppId + "__" + apz.childScr + "__";
+apz.app.onLoad_ConfirmMemberDetails = function() {
+    //fdsfdsf
+}
+apz.app.onShown_ConfirmMemberDetails = function() {
+    apz.app.ConfirmMemberDetails.paintDetails();
+}
+apz.app.ConfirmMemberDetails.paintDetails = function() {
+    apz.app.ConfirmMemberDetails.paintPersonalDetails();
+    apz.app.ConfirmMemberDetails.paintKycDetails();
+    apz.app.ConfirmMemberDetails.paintBankDetails();
+    apz.app.ConfirmMemberDetails.paintIncomeAssessmentDetails();
+}
+apz.app.ConfirmMemberDetails.paintPersonalDetails = function() {
+    apz.setElmValue(screenId + "loanProduct", kendraDtls.kendraName);
+    apz.setElmValue(screenId + "loanAmount", kendraDtls.kendraName);
+    apz.setElmValue(screenId + "purpose", kendraDtls.kendraName);
+    apz.setElmValue(screenId + "subPurpose", kendraDtls.kendraName);
+    apz.setElmValue(screenId + "repaymntFrequency", kendraDtls.freq);
+    apz.setElmValue(screenId + "disbMode", kendraDtls.freq);
+    apz.setElmValue(screenId + "tenure", kendraDtls.freq);
+    apz.setElmValue(screenId + "interestRate", kendraDtls.freq);
+    apz.setElmValue(screenId + "loanProcessingFees", kendraDtls.freq);
+    apz.setElmValue(screenId + "approxWeeklyInstallment", kendraDtls.freq);
+}
+apz.app.ConfirmMemberDetails.paintKycDetails = function() {
+    apz.setElmValue(screenId + "insuranceCompany", kendraDtls.kendraName);
+    apz.setElmValue(screenId + "insuranceCharges", kendraDtls.kendraName);
+    apz.setElmValue(screenId + "insuranceReq", kendraDtls.kendraName);
+}
+apz.app.ConfirmMemberDetails.paintBankDetails = function() {
+    apz.setElmValue(screenId + "nomineeName", kendraDtls.kendraName);
+    apz.setElmValue(screenId + "relWithNominee", kendraDtls.kendraName);
+}
+apz.app.ConfirmMemberDetails.paintIncomeAssessmentDetails = function() {
+    apz.setElmValue(screenId + "loanAmount", kendraDtls.kendraName);
+    apz.setElmValue(screenId + "approxLoanCharges", kendraDtls.kendraName);
+    apz.setElmValue(screenId + "approxLoanAmount", kendraDtls.kendraName);
+}
+apz.app.ConfirmMemberDetails.paintActiveLoanDetails = function() {
+    let tempArray = [];
+    kendraDtls.customerDtls.loanDtls.forEach(loan => {
+        let tempObj = {
+            "loanType": loan.product,
+            "maturityDate": loan.product,
+            "dueAmount": loan.product
+        }
+        tempArray.push(tempObj)
+    });
+    apz.data.scrdata.NEWLOA__ViewActiveLoanDetails_Res = {};
+    apz.data.scrdata.NEWLOA__ViewActiveLoanDetails_Res.ViewActiveLoanDetailsNode = tempArray;
+    apz.data.loadData("ViewActiveLoanDetails", 'NEWLOA');
+}

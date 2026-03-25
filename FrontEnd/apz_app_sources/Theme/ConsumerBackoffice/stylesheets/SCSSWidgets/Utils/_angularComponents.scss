@@ -1,0 +1,87 @@
+
+/* Angular components to be load for Angular generation */
+/* Ang-panel section css */ 
+.pst-simp > formcomponent > div {padding: 1em;}
+.pst-simp > tablecomponent > div {padding: 1em;}
+.pst-simp > navbarcomponent > div {padding: 1em;}
+.pst-simp > menucomponent > div {padding: 1em;}
+.pst-simp > listcomponent > div {padding: 1em;}
+
+.pst-simp.pa0 > formcomponent > div {padding: 0em;}
+.pst-simp.pa0 > tablecomponent > div {padding: 0em;}
+.pst-simp.pa0 > navbarcomponent > div {padding: 0em;}
+.pst-simp.pa0 > menucomponent > div {padding: 0em;}
+.pst-simp.pa0 > listcomponent > div {padding: 0em;}
+
+
+/* Ang-table elements */
+.crt-tabl .tabl-ctr table tr > dropdowncomponent, 
+.crt-tabl .tabl-ctr table tr > checkboxcomponent,
+.crt-tabl .tabl-ctr table tr > filebrowsercomponent,
+.crt-tabl .tabl-ctr table tr > iconcomponent,
+.crt-tabl .tabl-ctr table tr > radiobuttoncomponent,
+.crt-tabl .tabl-ctr table tr > progressbarcomponent,
+.crt-tabl .tabl-ctr table tr > steppercomponent,
+.crt-tabl .tabl-ctr table tr > inputwithbuttoncomponent,
+.crt-tabl .tabl-ctr table tr > hyperlinkcomponent,
+.crt-tabl .tabl-ctr table tr > badgecomponent,
+.crt-tabl .tabl-ctr table tr > buttoncomponent,
+.crt-tabl .tabl-ctr table tr > slidercomponent,
+.crt-tabl .tabl-ctr table tr > togglecomponent,
+.crt-tabl .tabl-ctr table tr > text-area,
+.crt-tabl .tabl-ctr table tr > textcomponent,
+.crt-tabl .tabl-ctr table tr > steppercomponent,
+.crt-tabl .tabl-ctr table tr > textareacomponent,
+.crt-tabl .tabl-ctr table tr > inputcomponent,
+.crt-tabl .tabl-ctr table tr > steppercomponent,
+.crt-tabl .tabl-ctr table tr > tagsinputcomponent,
+.crt-tabl .tabl-ctr table tr > imagecomponent,
+.crt-tabl .tabl-ctr table tr > iconcomponent,
+.crt-tabl .tabl-ctr table tr > textcomponent{ display:table-cell;vertical-align: top} 
+
+/* Ang-select */
+.select2-container{ min-width:120px;}
+.ett-slct.mltt span span:first-child span ul li.select2-selection__choice{margin:.2em} 
+// .select2-container .select2-selection--multiple .select2-selection__rendered{  height: 2.5em}
+.ett-slct.mltt span span:first-child span ul li{ line-height:1.7em;}
+
+/* Ang-pagination */
+.pri > .ttl > li.pgn-ctr > .pgn{vertical-align: middle}
+
+
+
+
+
+/* Ang-tabs */
+.tabs-ctr > panelseccomponent >div > .tabcontent {display:none;}
+.tabs-ctr > panelseccomponent > div > .active.tabcontent{display:block;}
+.tabs-ctr > panelseccomponent > div > ul.ttl{display:none;}
+.pst-tabs.hor > .tabs-ctr > panelseccomponent > div > .tabcontent{background:#fff;}
+.pst-tabs > .tabs-ctr > panelseccomponent > div > .tabcontent div {padding: 1em;}
+
+
+/* Ang-collapsible */
+.pst-coll .ctr formcomponent > div {padding: 1em;}
+.pst-coll .ctr tablecomponent > div {padding: 1em;}
+.pst-coll .ctr navbarcomponent > div {padding: 1em;}
+
+/* Ang-accordion*/
+.pst-acco .ctr formcomponent > div{ padding:1em;}
+.pst-acco .ctr tablecomponent > div {padding: 1em;}
+.pst-acco .ctr navbarcomponent > div {padding: 1em;}
+
+
+/* Ang-breadcrumb */
+.crt-bcrm breadcrumbelementcomponent > li {display: inline-block}
+.crt-bcrm breadcrumbelementcomponent + breadcrumbelementcomponent::before{  color:#ccc; content:"/ "; padding:0 5px}
+.crt-bcrm breadcrumbelementcomponent >li a { color:#337ab7; text-decoration:none}
+.crt-bcrm breadcrumbelementcomponent >li.active a { color:#111; pointer-events:none} 
+
+/* 10 May dropdown*/
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove{
+    width:unset;
+}
+
+dropdowncomponent ul.srb li {
+    display: table-cell;
+}

@@ -1,0 +1,220 @@
+var scrId = "NEWLOA__DeoCustDetails__";
+var mahiLeads = {};
+var deoCustParams = {};
+var rejectionReasons = ['Collection Issue', 'Kendra Issue', 'Low Attendance in Kendra Meeting','Member Issue', 'Others'];
+apz.app.onLoad_DeoCustDetails = function () {
+    // nothing for now
+};
+apz.app.onShown_DeoCustDetails = function (params) { 
+    deoCustParams = params || {};
+    mahiLeads = params.mahiLeads?.[0] || {};
+    var status = (mahiLeads.leadStatus || '').toLowerCase();
+    if (!['pending'].includes(status)) {
+        $('#NEWLOA__DeoCustDetails__gr_row_108').addClass('sno');
+        $('#NEWLOA__DeoCustDetails__rejectedRow').addClass('sno');
+        if (status) {
+            $('#NEWLOA__DeoCustDetails__rejectReason_txtcnt').text(mahiLeads.leadStatus);
+        }
+    } else {
+        $('#NEWLOA__DeoCustDetails__gr_row_108').removeClass('sno');
+        $('#NEWLOA__DeoCustDetails__rejectedRow').addClass('sno');
+    }
+    apz.app.DeoCustDetails.paintDeoMahiLeads();
+};
+apz.app.DeoCustDetails.paintDeoMahiLeads = function () {
+    let dateStr = mahiLeads.leadUpdateDate;
+    let parts = dateStr.split("-");
+    let leadsDate = parts[2] + "-" + parts[1] + "-" + parts[0];
+    $("#NEWLOA__DeoCustDetails__custname").text(deoCustParams.customerName || "");
+    $("#NEWLOA__DeoCustDetails__grpId").text(deoCustParams.groupId || "");
+    $("#NEWLOA__DeoCustDetails__kID").text(deoCustParams.kendraId || "");
+    $("#NEWLOA__DeoCustDetails__custId").text(mahiLeads.customerId || "");
+    $("#NEWLOA__DeoCustDetails__productName").text(mahiLeads.productName || "");
+    $("#NEWLOA__DeoCustDetails__loanPurpose").text(mahiLeads.loanPurpose || "");
+    $("#NEWLOA__DeoCustDetails__eligibleLoanAmt").text(mahiLeads.eligibleLoanAmount || "0");
+    $("#NEWLOA__DeoCustDetails__transactionId").text(mahiLeads.transactionId || "");
+    $("#NEWLOA__DeoCustDetails__dateSubmit").text(leadsDate || "");
+    $("#NEWLOA__DeoCustDetails__status").text(mahiLeads.leadStatus || "");
+};
+apz.app.DeoCustDetails.proceedDeoMLeadsApp = function () {
+     var req = {
+        "apiRequest": {
+            "interfaceName": "UpdateMahiLeadsStatus",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "transactionId": mahiLeads.transactionId,
+                "status": "Approved"
+            }
+        }
+    }
+    apz.startLoader()
+    ApzCOB.serverBuildParam(gAppId, "UpdateMahiLeadsStatus", "N", "N", req, false, apz.app.DeoCustDetails.proceedDeoMLeadsAppCB);
+}
+apz.app.DeoCustDetails.proceedDeoMLeadsAppCB = function (params) {
+  try {
+    apz.stopLoader();
+    if (params.status && apz.isNull(params.errors)) {
+      if (params.res.APZCBO__UpdateMahiLeadsStatus_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+        if (params.res.APZCBO__UpdateMahiLeadsStatus_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+          if (KendraApp.selectedCustomer?.mahiLeads?.length > 0) {
+            KendraApp.selectedCustomer.mahiLeads[0].leadStatus = "Approved";
+          }
+          KendraApp.selectedCustomer.leadStatus = "Approved";
+          let custId = KendraApp.selectedCustomer?.customerId;
+          let list = apz.data.scrdata.NEWLOA__DeoWiseCustList_Res?.DeoWiseCustList || [];
+          for (let i = 0; i < list.length; i++) {
+            if (list[i].customerId == custId) {
+              list[i].leadStatus = "Approved";
+              if (list[i]?.mahiLeads?.length > 0) {
+                list[i].mahiLeads[0].leadStatus = "Approved";
+              }
+              break;
+            }
+          }
+                    // ===== Update dashboard count for that kendra =====
+          let dashList = dashboardObj.KendraResponse || [];
+          let selectedKendraId = KendraApp.selectedCustomer?.kendraId;
+          for (let d = 0; d < dashList.length; d++) {
+            let kendra = dashList[d]?.kendraDtls;
+            if (!kendra) continue;
+            if (kendra.kendraId == selectedKendraId) {
+              kendra.pendingLeads = Math.max(0, Number(kendra.pendingLeads || 0) - 1);
+              break;
+            }
+          }
+          ApzCOB.fnDisplayMsg("Lead Updated Successfully", "S", apz.app.DeoCustDetails.deoAppNewLoan);
+        }
+      }
+    }
+  } catch (e) {
+    apz.stopLoader();
+    ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+  }
+};
+apz.app.DeoCustDetails.deoAppNewLoan = function (params) {
+    if (params.choice === true) {
+        $('#scr__NEWLOA__DeoCustDetails__main').addClass('sno');
+        var params = {
+            ...KendraApp.selectedKendra,
+            sourceScreen: 'DeoLeads'
+        };
+        ApzCOB.launchMicroApp("NEWLOA", "AddLoanDetails", "APZCBO__BaseScreens__STAGE1", params);
+    }
+}
+apz.app.DeoCustDetails.backNav = function() {
+    $('#scr__NEWLOA__DeoCustDetails__main').addClass('sno');
+    var params = {
+        ...KendraApp.selectedKendra,
+        sourceScreen: 'DeoLeads'
+    };
+    ApzCOB.launchMicroApp("NEWLOA", "NewLoanApplication", "APZCBO__BaseScreens__BaseDIV", params)
+}
+
+apz.app.DeoCustDetails.rejectDeoMLeadsApp = function() {
+    ApzCOB.toggleModal(scrId + "rejectReasonModal");
+    let paintData = rejectionReasons.map((data) => ({
+        reason: data
+    }));
+    apz.data.scrdata.NEWLOA__IPaintRejectFlow_Res = {};
+    apz.data.scrdata.NEWLOA__IPaintRejectFlow_Res.PaintReason = paintData;
+    apz.data.loadData("IPaintRejectFlow", "NEWLOA");
+}
+apz.app.DeoCustDetails.storeSelectedReason = function (pthis) {
+    var $currentCheckbox = $(pthis);
+    var isChecked = $currentCheckbox.prop("checked");
+    $("input[id^='NEWLOA__DeoCustDetails__el_cbx_1_']").prop("checked", false);
+    $("textarea[id^='NEWLOA__DeoCustDetails__el_txa_1_']").closest(".srb").addClass("sno");
+    apz.app.DeoCustDetails.selectedRejectReason = null;
+    apz.app.DeoCustDetails.selectedRejectReasonOtherText = null;
+    if (isChecked) {
+        $currentCheckbox.prop("checked", true);
+        var rowNo = $currentCheckbox.attr("rowno");
+        var reasonText = $("#NEWLOA__IPaintRejectFlow__o__PaintReason__reason_" + rowNo + "_txtcnt").text().trim();
+        apz.app.DeoCustDetails.selectedRejectReason = reasonText;
+        if (reasonText.toLowerCase() === "others") {
+            $("#NEWLOA__DeoCustDetails__el_txa_1_" + rowNo).closest(".srb").removeClass("sno");
+            $("#NEWLOA__DeoCustDetails__el_txa_1_" + rowNo).focus();
+            apz.app.DeoCustDetails.selectedRejectReasonOtherText =
+                $("#NEWLOA__DeoCustDetails__el_txa_1_" + rowNo).val().trim();
+        }
+    }
+};
+apz.app.DeoCustDetails.onlyCharacterslAllow = function () {
+    var textarea = document.activeElement;
+    if (textarea && textarea.tagName === "TEXTAREA") {
+        textarea.value = textarea.value.replace(/[^a-zA-Z\s]/g, '');
+        apz.app.DeoCustDetails.selectedRejectReasonOtherText = textarea.value.trim();
+    }
+};
+apz.app.DeoCustDetails.submitRejectedLead = function () {
+    let rejectReason = apz.app.DeoCustDetails.selectedRejectReason;
+    if (!rejectReason || rejectReason.trim() === "") {
+        ApzCOB.fnDisplayMsg("Please select rejection reason", "E");
+        return;
+    }
+    if (rejectReason.toLowerCase() === "others") {
+        var otherReason = apz.app.DeoCustDetails.selectedRejectReasonOtherText;
+        if (!otherReason || otherReason.trim() === "") {
+            ApzCOB.fnDisplayMsg("Please enter reason for Others", "E");
+            return;
+        }
+        rejectReason = otherReason.trim();
+    }
+    ApzCOB.toggleModal(scrId + "rejectReasonModal");
+     var req = {
+        "apiRequest": {
+            "interfaceName": "UpdateMahiLeadsStatus",
+            "appId": "APZCBO",
+            "userId": LoggedInUserDetails.userID,
+            "requestObj": {
+                "transactionId": mahiLeads.transactionId,
+                "status": "Rejected",
+                "reason": rejectReason
+            }
+        }
+    }
+    apz.startLoader()
+    ApzCOB.serverBuildParam(gAppId, "UpdateMahiLeadsStatus", "N", "N", req, false, apz.app.DeoCustDetails.submitRejectedLeadCB);
+}
+apz.app.DeoCustDetails.submitRejectedLeadCB = function (params){
+    try {
+        apz.stopLoader();
+        if (params.status && apz.isNull(params.errors)) {
+            if (params.res.APZCBO__UpdateMahiLeadsStatus_Res.apiResponse.ResponseHeader.hasOwnProperty("ResponseCode")) {
+                if (params.res.APZCBO__UpdateMahiLeadsStatus_Res.apiResponse.ResponseHeader.ResponseCode === "0") {
+                    let response = (params.res.APZCBO__UpdateMahiLeadsStatus_Res.apiResponse.ResponseBody.responseObj);
+                    apz.app.DeoCustDetails.rejectScreen();
+                }
+            }
+        }
+    } catch (e) {
+        apz.stopLoader();
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_COMM_ERR_TXT_TECHNICAL"), "E");
+    }
+}
+apz.app.DeoCustDetails.rejectScreen = function(){
+    $("#NEWLOA__DeoCustDetails__mahiDeoLeadsDetails").addClass('sno');
+    $('#NEWLOA__DeoCustDetails__gr_row_108').addClass('sno')
+    $("#NEWLOA__DeoCustDetails__deoMahiLeadRejectScreen").removeClass('sno');
+    var formattedAmt = ApzCOB.fn_FormatAmount(parseInt(mahiLeads.eligibleLoanAmount || 0));
+    $("#NEWLOA__DeoCustDetails__rejectCustName").text(`${deoCustParams.customerName} (₹${formattedAmt} ${deoCustParams.mahiLeads[0].productName})`);
+    var finalReason = apz.app.DeoCustDetails.selectedRejectReason;
+    if (finalReason && finalReason.toLowerCase() === "others") {
+        finalReason = apz.app.DeoCustDetails.selectedRejectReasonOtherText || "Others";
+    }
+    $("#NEWLOA__DeoCustDetails__rejectedReasonFinal").text(finalReason);
+    $("#NEWLOA__DeoCustDetails__deoCustId").text(mahiLeads.customerId)
+    $("#NEWLOA__DeoCustDetails__deoTransRejectId").text(`TXN ID:${mahiLeads.transactionId}`)
+}
+apz.app.DeoCustDetails.closeApp = function (){
+   ApzCOB.fetchKendraDetailsDeoRole(window.LoggedInUserDetails.userID, window.ChangeRole);
+}
+apz.app.DeoCustDetails.clickMoreOptionsBtn = function () {
+    var rowId = "NEWLOA__DeoCustDetails__sc_row_800";
+    if ($("#" + rowId).hasClass("sno")) {
+        $("#" + rowId).removeClass("sno");
+    } else {
+        $("#" + rowId).addClass("sno");
+    }
+};

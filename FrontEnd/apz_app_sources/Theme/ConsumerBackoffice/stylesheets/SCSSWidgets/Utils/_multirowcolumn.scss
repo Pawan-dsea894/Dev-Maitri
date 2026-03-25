@@ -1,0 +1,252 @@
+
+
+.gutter .row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.gutter .grb .srb.row span.scb {
+      margin-left: 0;
+      padding: 2px 5px;
+  
+}
+.gutter .grb .srb.row span.scb .eoc{
+    border:1px solid red;
+    padding:4px;
+}
+.gutter .srb.row.row-cols-auto > .scb {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+.gutter .srb.row.row-cols-1 > .scb {
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+.gutter .srb.row.row-cols-2 > .scb {
+  flex: 0 0 auto;
+  width: 50%;
+}
+
+.gutter .srb.row.row-cols-3 > .scb {
+    flex: 0 0 auto;
+    width: 33.3333333333%;
+  }
+
+  .gutter .srb.row.row-cols-4 > .scb {
+    flex: 0 0 auto;
+    width: 25%;
+  }
+
+  .gutter .srb.row.row-cols-5 > .scb {
+    flex: 0 0 auto;
+    width: 20%;
+  }
+
+  .gutter .srb.row.row-cols-6 > .scb {
+    flex: 0 0 auto;
+    width: 16.6666666667%;
+  }
+
+
+@media (max-width: 700px) {
+  .col-sm {
+    flex: 1 0 0%;
+  }
+
+  .gutter .srb.row.row-cols-sm-auto > .scb {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .gutter .srb.row.row-cols-sm-1 > .scb {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .gutter .srb.row.row-cols-sm-2 > .scb {
+    flex: 0 0 auto;
+    width: 50%;
+  }
+
+  .gutter .srb.row.row-cols-sm-3 > .scb {
+    flex: 0 0 auto;
+    width: 33.3333333333%;
+  }
+
+  .gutter .srb.row.row-cols-sm-4 > .scb {
+    flex: 0 0 auto;
+    width: 25%;
+  }
+
+  .gutter .srb.row.row-cols-sm-5 > .scb {
+    flex: 0 0 auto;
+    width: 20%;
+  }
+
+  .gutter .srb.row.row-cols-sm-6 > .scb {
+    flex: 0 0 auto;
+    width: 16.6666666667%;
+  }
+}
+@media (min-width:700px) and (max-width:992px){
+  .col-md {
+    flex: 1 0 0%;
+  }
+
+  .gutter .srb.row.row-cols-md-auto > .scb {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .gutter .srb.row.row-cols-md-1 > .scb {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .gutter .srb.row.row-cols-md-2 > .scb {
+    flex: 0 0 auto;
+    width: 50%;
+  }
+
+  .gutter .srb.row.row-cols-md-3 > .scb {
+    flex: 0 0 auto;
+    width: 33.3333333333%;
+  }
+
+  .gutter .srb.row.row-cols-md-4 > .scb {
+    flex: 0 0 auto;
+    width: 25%;
+  }
+
+  .gutter .srb.row.row-cols-md-5 > .scb {
+    flex: 0 0 auto;
+    width: 20%;
+  }
+
+  .gutter .srb.row.row-cols-md-6 > .scb {
+    flex: 0 0 auto;
+    width: 16.6666666667%;
+  }
+}
+@media (min-width: 992px) {
+  .col-lg {
+    flex: 1 0 0%;
+  }
+
+  .gutter .srb.row.row-cols-lg-auto > .scb {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .gutter .srb.row.row-cols-lg-1 > .scb {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .gutter .srb.row.row-cols-lg-2 > .scb {
+    flex: 0 0 auto;
+    width: 50%;
+  }
+
+  .gutter .srb.row.row-cols-lg-3 > .scb {
+    flex: 0 0 auto;
+    width: 33.3333333333%;
+  }
+
+  .gutter .srb.row.row-cols-lg-4 > .scb {
+    flex: 0 0 auto;
+    width: 25%;
+  }
+
+  .gutter .srb.row.row-cols-lg-5 > .scb {
+    flex: 0 0 auto;
+    width: 20%;
+  }
+
+  .gutter .srb.row.row-cols-lg-6 > .scb {
+    flex: 0 0 auto;
+    width: 16.6666666667%;
+  }
+}
+@media (min-width: 1200px) {
+  .col-xl {
+    flex: 1 0 0%;
+  }
+
+  .gutter .srb.row.row-cols-xl-auto > .scb {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .gutter .srb.row.row-cols-xl-1 > .scb {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .gutter .srb.row.row-cols-xl-2 > .scb {
+    flex: 0 0 auto;
+    width: 50%;
+  }
+
+  .gutter .srb.row.row-cols-xl-3 > .scb {
+    flex: 0 0 auto;
+    width: 33.3333333333%;
+  }
+
+  .gutter .srb.row.row-cols-xl-4 > .scb {
+    flex: 0 0 auto;
+    width: 25%;
+  }
+
+  .gutter .srb.row.row-cols-xl-5 > .scb {
+    flex: 0 0 auto;
+    width: 20%;
+  }
+
+  .gutter .srb.row.row-cols-xl-6 > .scb {
+    flex: 0 0 auto;
+    width: 16.6666666667%;
+  }
+}
+@media (min-width: 1400px) {
+  .col-xxl {
+    flex: 1 0 0%;
+  }
+
+  .gutter .srb.row.row-cols-xxl-auto > .scb {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .gutter .srb.row.row-cols-xxl-1 > .scb {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .gutter .srb.row.row-cols-xxl-2 > .scb {
+    flex: 0 0 auto;
+    width: 50%;
+  }
+
+  .gutter .srb.row.row-cols-xxl-3 > .scb {
+    flex: 0 0 auto;
+    width: 33.3333333333%;
+  }
+
+  .gutter .srb.row.row-cols-xxl-4 > .scb {
+    flex: 0 0 auto;
+    width: 25%;
+  }
+
+  .gutter .srb.row.row-cols-xxl-5 > .scb {
+    flex: 0 0 auto;
+    width: 20%;
+  }
+
+  .gutter .srb.row.row-cols-xxl-6 > .scb {
+    flex: 0 0 auto;
+    width: 16.6666666667%;
+  }
+}

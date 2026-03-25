@@ -1,0 +1,47 @@
+@use "../Abstract" as a;
+
+.ett-badg {
+	display: inline-block;
+	vertical-align: top;
+	white-space: nowrap;
+	cursor: text;
+	padding: 2px 4px;
+	line-height: 14px;
+	font-weight: 500;
+	font-size: 12px;
+	&.cir {
+		background-color: #fff;
+		border-radius: 9px;
+		border: 1px solid #ccc;
+	}
+	&.sqr {
+		background-color: #fff;
+		border-radius: 2px;
+		border: 1px solid #ccc;
+	}
+	&.inf {
+		color: #ffffff;
+		background-color: #333333;
+		border: 1px solid #333333;
+		text-decoration: none;
+	}
+	&.suc {
+		color: #ffffff;
+		background-color: #0cc27e;
+		border: 1px solid #0cc27e;
+		text-decoration: none;
+	}
+	&.war {
+		color: #ffffff;
+		background-color: #ff9d00;
+		border: 1px solid #ff9d00;
+		text-decoration: none;
+	}
+	&.err {
+		color: #ffffff;
+		background-color: #ff5252;
+		border: 1px solid #ff5252;
+		text-decoration: none;
+	}
+}
+/* badges end */

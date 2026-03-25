@@ -1,0 +1,404 @@
+@use "./_variables" as v;
+
+@mixin sel-mlts-pri{
+
+            background-color: #fff; background-image: none; border: 1px solid #999; border-radius: 0.2em;   box-shadow: none; -webkit-transition: border 0.3s cubic-bezier(0.4, 0, 0.2, 1); transition: border 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+}
+
+
+
+
+
+
+
+@mixin sel-mlts-inpt-pri{
+
+    background: transparent;font-size: 1.15em;   padding:0.44em 0.8em;color: transparent;text-shadow: 0 0 #000;outline: 0;
+
+}
+
+
+
+
+
+
+@mixin sel-mltc-inpt-pri{
+
+    background: transparent;font-size: 1.15em;   padding:0.44em 0.8em;color: transparent;text-shadow: 0 0 #000;outline: 0;
+
+}
+
+@mixin sel-mltc-pri{
+
+    background-color: #fff;background-image: none;border: 1px solid #999;
+
+border-radius: 0.2em; box-shadow: none;-webkit-transition: border 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+transition: border 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+
+    }
+    
+@mixin mltt-tag-pri{
+
+        color: #333;background-color: #fff;border: 1px solid #ccc;margin-left: 0.2rem;border-radius: 0.214em;margin-right: 0.357em;margin-top: 0.5em; padding: 0 0.286em;
+
+}
+
+
+
+
+
+
+
+
+@mixin sel-auto-option-hover{
+
+    background-color: #f0f0f0;
+
+    color:#333
+
+}
+
+@mixin sel-auto-option-selected{
+
+    background-color: #0693EA; color: #fff;
+
+}
+
+
+
+@mixin sel-auto-search-box-pri{
+
+    border: 1px solid blue;
+
+  height: 2.429em;
+
+  outline: 0;
+
+  border-radius: 0.214em;
+
+  padding-right: 0.857em;
+
+  padding-left: 2em;
+
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' version='1.1' viewBox='0 -143 1000 1000'%3E%3Cg transform='matrix%281 0 0 -1 0 857%29'%3E%3Cpath fill='currentColor'%0Ad='M933 135l-233 234q75 90 75 208q0 135 -95 230t-230 95t-230 -95t-95.5 -230t95.5 -231q95 -95 230 -95q118 0 208 75l234 -233zM159 577q0 121 85 206t206 85t206 -85t85 -206t-85.5 -206.5t-206 -85.5t-205.5 85t-85 207v0z' /%3E%3C/g%3E%3C/svg%3E");
+
+  background-repeat: no-repeat;
+
+  background-size: 1.5em;
+
+  background-position: 0.3%;
+
+}
+
+/*Autocomplete select primary end */
+
+
+
+/* native select*/
+
+@mixin sel-nav{
+
+    background-color: v.$sel-def-bg-color;
+
+    border:  1px solid v.$sel-def-bor-color;
+
+    font-size: 1.15em;
+
+    background-image:url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHZlcnNpb249IjEuMSIgaWQ9InN2ZzIiIHhtbG5zOmNjPSJodHRwOi8vY3JlYXRpdmVjb21tb25zLm9yZy9ucyMiIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIiB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIgdmlld0JveD0iMCAwIDEwMDAgMTAwMCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMTAwMCAxMDAwO2ZpbGw6IzAwNzRhZCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHBhdGggZD0iTTk4Ny43LDI4NC43YzE1LjktMTcuOCwxNS00NS4yLTIuMy02MS45bDAsMGMtMTcuOC0xNy4yLTQ2LjEtMTYuNy02My4zLDEuMWwtMjMuOCwyNC42bC0zOTMsNDI2LjlMODUsMjM5LjhsLTcuNy03LjdjLTE3LjUtMTcuNS00NS44LTE3LjUtNjMuMywwbDAsMGMtMTcuNSwxNy41LTE3LjUsNDUuOCwwLDYzLjNsNC44LDQuOGMwLjQsMC40LDAuOCwwLjksMS4yLDEuM2wxLjksMS44bDI0LjQsMjQuNGMxLjgsMS44LDMuOCwzLjQsNS44LDQuOWw0MTAuMiw0MjZjMS4xLDEuNCwyLjIsMi42LDMuMywzLjhsMC4xLDAuMWwxNy44LDE3LjJjMS40LDEuNCwyLjksMi43LDQuNSwzLjhjNC44LDQuMSwxMSw2LjMsMTcuNiw2LjNjMC4zLDAsMC42LDAsMC45LDBjMC4zLDAsMC41LDAsMC44LDBjNy40LDAsMTQuMi0yLjcsMTkuMi03LjdjMS4xLTAuOSwyLjEtMS44LDMuMi0yLjlsMTcuNy0xOC4zbDAuMy0wLjNjMC43LTAuOCwxLjctMiwyLjgtMy40TDk1Mi42LDMyMWMwLjctMC43LDEuNC0xLjMsMi4xLTJsMzEuOC0zMi45YzAsMCwwLjEtMC4xLDAuMS0wLjFsMCwwQzk4NywyODUuNSw5ODcuNCwyODUuMSw5ODcuNywyODQuN3oiLz48L3N2Zz4=);
+
+}
+
+/* simple select */
+
+@mixin simple-sel-pri{
+
+    background-color: v.$sel-def-bg-color;
+
+    border: 1px solid v.$sel-def-bor-color;
+
+    border-radius: 0.2em;
+
+    box-shadow: none;
+
+}
+
+@mixin simple-sel-input-pri{
+
+    background: transparent;
+
+    font-size: 1.15em;
+
+    outline: 0;
+
+    color: transparent;
+
+}
+
+@mixin simple-sel-is-open-selected{
+
+    background-color:#0693EA ;
+
+    color:#fff;
+
+}
+
+@mixin simple-sel-li-hover{
+
+    background-color: #426D87; 
+
+    color:#FFF;
+
+}
+
+ 
+
+
+
+
+
+
+
+
+
+
+/* List */
+
+
+
+@mixin list-def{
+
+    margin:0;
+
+    display: table; 
+
+    vertical-align: middle;
+
+}
+
+ 
+
+ @mixin list-ttl-def{
+
+     list-style: none outside none; 
+
+     padding: 0;
+
+ }
+
+ @mixin list-ttl-imd-child{
+
+    margin: 0;
+
+    white-space: normal;
+
+    padding:5px 3px;
+
+    vertical-align: middle;
+
+}
+
+/*Form start_scss*/
+
+@mixin form-ttl-def{
+    list-style: none ; 
+
+    margin:  0 0 12px 0; 
+
+    padding: 0;  
+
+    border-bottom:1px solid #ddd;
+
+}
+
+@mixin form-ttl-imd-child{
+
+    margin: 0;
+
+    white-space: normal;
+
+    padding:5px 3px;
+
+    vertical-align: middle;
+
+}
+
+
+
+@mixin form-ver-hor {
+
+    content:"*"; 
+
+    font-size:1em;
+
+    color:#ec1c23;
+
+    padding:0 3px
+
+}
+
+
+
+/* list start_scss */
+
+
+
+/*for all svg icon in title*/
+
+@mixin list-pri-ttl-icn-svg{
+
+    height:24px;
+
+    width:24px
+
+}
+
+ @mixin list-ttl-icn{
+
+     width: 2em;
+
+     padding:0 3px
+
+ }
+
+ 
+
+ @mixin list-ttl-icn-svg{
+
+     height:24px;
+
+     width:24px
+
+ } 
+
+ 
+
+/*for all lbl h4 in title*/
+
+@mixin list_lbl_h4{
+
+    font-size: 1.2em;
+
+    font-weight:400;
+
+    padding:0 3px
+
+}
+
+
+
+/* Elements start_scss */
+
+/* Inputs */
+
+
+
+@mixin inpt-def{
+
+    padding:0.44em 0.8em; 
+
+    font-size: 1.15em; 
+
+    border: 1px solid #999; 
+
+    }
+
+@mixin inpt-disable-def{
+
+    background-color:#fff; 
+
+    cursor: not-allowed;
+
+    opacity: 0.7;
+
+}
+/* button primary */
+
+@mixin button-def{
+
+    margin:.25em;
+
+	font-weight: 400;
+
+	text-decoration: none;
+
+    color: #fff;
+
+	 
+
+    
+
+}
+
+/*Button primary */
+
+@mixin button-pri-def{
+
+    border: 1px solid v.$button-bg-pri;
+
+	border-radius: 3px;
+
+    
+
+}
+
+/* button secondary */
+
+@mixin button-sec-def{
+
+	box-shadow: 2px 3px 5px #ababab;
+
+	border-radius:2.5em;
+
+}
+
+/* button teritary */
+
+@mixin button-ter-def{
+
+    border-radius: 3px;	
+
+	box-shadow: 2px 3px 5px #ababab;
+
+    
+
+}
+
+
+
+
+
+/* button transparent  */
+
+@mixin button-tsp-def{
+
+    background-color: transparent;
+
+    color: inherit;
+
+	border: 1px solid transparent;
+
+	border-radius: 0;
+
+    
+
+}
+
+
+
+
+
+/* paragraph */
+
+@mixin para-default{
+
+    font-weight: 400;
+
+  	margin:0
+
+}
+
+
+
+

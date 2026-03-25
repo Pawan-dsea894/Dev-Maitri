@@ -1,0 +1,220 @@
+
+.editable-block {
+	min-height: 38.1667px;
+	display: block;
+	.ett-lofv {
+		&.btl.pri > span:first-child {
+			vertical-align: top;
+		}
+		&.btr.pri > span:last-child {
+			vertical-align: top;
+		}
+	}
+	.ecn > {
+		.icl {
+			width: 100%;
+			> svg {
+				z-index: 1;
+			}
+			.ett-inpt {
+				padding-left: 2.5rem;
+				display: inline;
+			}
+			a {
+				padding-left: 2.5rem;
+				display: inline;
+			}
+		}
+		.icr {
+			width: 100%;
+			> svg {
+				z-index: 1;
+			}
+			.ett-inpt {
+				padding-right: 2.5rem;
+				display: inline;
+			}
+			a {
+				padding-right: 2.5rem;
+				display: inline;
+			}
+		}
+		.syl {
+			a {
+				padding-left: 2.5rem;
+				line-height: 38.1667px;
+			}
+			> span {
+				height: 100%;
+				margin-right: -1.5rem;
+				position: absolute;
+				top: 0.3rem;
+				vertical-align: middle;
+				left: 0.8em;
+				font-size: 1.15rem;
+				z-index: 1;
+			}
+			.editable-container.editable-inline {
+				font: unset;
+				position: relative;
+				top: initial;
+				left: initial;
+				margin-right: initial;
+				z-index: initial;
+				.ett-inpt {
+					padding-left: 2.5rem;
+					display: inline;
+					text-overflow: ellipsis;
+					overflow: hidden;
+				}
+			}
+		}
+		.syr {
+			a {
+				padding-right: 2.5rem;
+				line-height: 38.1667px;
+			}
+			.editable-container.editable-inline {
+				font: unset;
+				position: relative;
+				top: initial;
+				left: initial;
+				margin-left: initial;
+				z-index: initial;
+				.ett-inpt {
+					padding-right: 2.5rem;
+					display: inline;
+					text-overflow: ellipsis;
+					overflow: hidden;
+				}
+			}
+		}
+		.cil {
+			> a {
+				padding-left: 3rem;
+				width: auto;
+				min-width: 100%;
+				line-height: 38.1667px;
+			}
+			.ett-bttn {
+				z-index: 1;
+				height: initial;
+				border: 0;
+			}
+			.ett-inpt {
+				padding-left: 3rem;
+				width: auto;
+				min-width: 100%;
+			}
+		}
+		.cir {
+			.ett-bttn {
+				z-index: 1;
+				height: initial;
+				border: 0;
+			}
+			> a {
+				padding-right: 3rem;
+				width: auto;
+				min-width: 100%;
+				line-height: 38.1667px;
+			}
+			.ett-inpt {
+				padding-right: 3rem !important;
+				width: auto;
+				min-width: 100%;
+			}
+		}
+	}
+}
+.editable-input {
+	width: 100%;
+}
+.ett-date {
+	&.icl .editable-container.editable-inline input {
+		padding: 0.44em 0.8em;
+		padding-left: 3rem;
+		display: inline;
+		font-size: 1.15em;
+		border: 1px solid #999;
+		border-radius: 3px;
+		width: inherit;
+	}
+	&.icr .editable-container.editable-inline input {
+		padding: 0.44em 0.8em;
+		padding-right: 3rem;
+		display: inline;
+		font-size: 1.15em;
+		border: 1px solid #999;
+		border-radius: 3px;
+		width: inherit;
+	}
+	&.cil .editable-container.editable-inline input {
+		padding: 0.44em 0.8em;
+		padding-left: 3rem;
+		display: inline;
+		font-size: 1.15em;
+		border: 1px solid #999;
+		border-radius: 3px;
+		width: inherit;
+	}
+	&.cir .editable-container.editable-inline input {
+		padding: 0.44em 0.8em;
+		padding-right: 3rem;
+		display: inline;
+		font-size: 1.15em;
+		border: 1px solid #999;
+		border-radius: 3px;
+		width: inherit;
+	}
+}
+.ett-slct {
+	.sub-ctr ul li {
+		p {
+			display: inline;
+			margin-left: 8px;
+		}
+		&.hover {
+			background-color: #426d87;
+			color: #fff;
+		}
+	}
+	&.editable.editable-click {
+		.sub-elt1 {
+			display: none;
+		}
+		&.is-open {
+			border: 1px solid #999;
+			background-image: none;
+			.sub-elt1 {
+				display: table-cell;
+			}
+		}
+	}
+}
+.editable.editable-click {
+	background-position: right;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' version='1.1' x='0px' y='0px' viewBox='0 0 100 125'%3E%3Cg transform='translate(0,-952.36218)'%3E%3Cpath d='m 59.719879,965.64016 a 1.0001,1.0001 0 0 0 -0.1127,0.0625 1.0001,1.0001 0 0 0 -0.4102,0.40108 l -33.9772,58.89446 a 1.0001,1.0001 0 0 0 -0.1482,0.6544 l 1.9336,12.6493 a 1.0001,1.0001 0 0 0 1.3697,0.7653 l 11.9214,-4.6501 a 1.0001,1.0001 0 0 0 0.5007,-0.4254 l 34.0074,-58.90254 a 1.0001,1.0001 0 0 0 -0.3639,-1.35833 l -13.855,-7.99914 a 1.0001,1.0001 0 0 0 -0.8657,-0.0916 z m 0.7216,2.33012 12.1326,7.00479 -3.0133,5.17498 -12.0943,-6.98268 2.975,-5.19709 z m -3.9996,6.92747 12.1327,7.00477 -28.4751,49.36438 -12.1709,-7.0268 28.5133,-49.34235 z m -29.27,51.22745 11.6734,6.7395 -10.0461,3.9213 -1.6273,-10.6608 z' style='text-indent:0;	text-transform: none; direction: ltr; block-progression: tb; baseline-shift: baseline; color: %23000000; enable-background: accumulate; ' fill='%230693ea' fill-opacity='1' stroke='none' marker='none' visibility='visible' display='inline' overflow='visible'/%3E%3C/g%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-size: 18px;
+	padding-right: 1.5em !important;
+	border: none;
+	width: auto;
+}
+.editable-container.editable-inline {
+	width: 100%;
+}
+.ecn > {
+	.btl .editable-container.editable-inline .ett-inpt.pri {
+		margin: 0;
+		border-top-left-radius: 0;
+		border-bottom-left-radius: 0;
+		line-height: 23px;
+	}
+	.btr .editable-container.editable-inline .ett-inpt.pri {
+		margin: 0;
+		border-top-right-radius: 0;
+		border-bottom-right-radius: 0;
+		line-height: 23px;
+	}
+}

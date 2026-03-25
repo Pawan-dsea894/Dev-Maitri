@@ -1,0 +1,85 @@
+ var userId="";
+ var gAppId="";
+  var repDownloadScrId = "Report__Reports__";
+  apz.app.ValidateAppId = function()
+  {
+       $('#' + repDownloadScrId + 'userId').val;
+       let userId = $('#' + repDownloadScrId + 'userId').val();
+       if (userId.length >= 9) 
+       {
+         $('#' +repDownloadScrId + 'sc_row_755').removeClass('sno');
+        }
+        else
+        {
+            // alert("NO")
+            console.log("Error")
+        }
+    }
+    
+apz.app.downloadLoanDBKitReport= function(userId)
+{
+    console.log("Initiated")
+    var request = {
+        "apiRequest": {
+            "appId": gAppId,
+            "interfaceName": "FetchDBKitReportHO",
+            "requestObj": {
+                "appId": gAppId,
+                "applicationId": userId,
+                "versionNum": "1"
+            }
+        }
+    }
+	 ApzCOB.serverBuildParam(gAppId, 'FetchDBKitReportHO', 'N', 'N', request, 'Y',apz.app.downloadLoanDBKitReportCB);
+
+}
+    
+	   //  apz.app.downloadLoanDBKitReportCB =function(params) {
+	   //         apz.stopLoader();
+	   //         if (apz.deviceType !== 'WEB') {
+	   //             apz.app.BaseScreens.UEstopTimer("Disbursement Kit Report", params.req);
+	   //         }
+	   //         try {
+	   //             //if (ApzCOB.handleServiceCallBacks(params)) {
+	   //             if (!apz.isNull(params.res.APZCBO__FetchDBKitReportHOHO_Res.apiResponse.ResponseBody.responseObj)) {
+	   //                 var base64Resp = params.res.APZCBO__FetchDBKitReportHO_Res.apiResponse.ResponseBody.responseObj;
+	   //                 if (base64Resp !== '') {
+	   //                     if ((userRoleIfDeoAvailable.includes("DEO") && userRoleIfDeoAvailable.includes("KM") || userRole === 'BM') && apz
+	   //                         .deviceType === 'WEB') {
+	   //                         var byteCharacters = atob(base64Resp);
+	   //                         var byteNumbers = new Array(byteCharacters.length);
+	   //                         for (var i = 0; i < byteCharacters.length; i++) {
+	   //                             byteNumbers[i] = byteCharacters.charCodeAt(i);
+	   //                         }
+	   //                         var byteArray = new Uint8Array(byteNumbers);
+	   //                         var blob = new Blob([byteArray], {
+	   //                             type: 'application/pdf'
+	   //                         });
+	   //                         var link = document.createElement('a');
+	   //                         link.href = URL.createObjectURL(blob);
+	                          
+	   //                         link.download = "Disbursement_Kit_" + KendraLoans.custFetchLoanAppRes.applicationdtls[0].applicationId + ".html";
+	                            
+	   //                         link.click();
+	   //                         URL.revokeObjectURL(link.href);
+	   //                         return;
+	   //                     }
+	   //                     //ApzCOB.convertBase64ToFile(base64Resp, "Loan Disbursement Kit");
+	   //                     ApzCOB.base64toSavefile(base64Resp, "Disbursement_Kit_" + KendraLoans.custFetchLoanAppRes.applicationdtls[0]
+	   //                         .applicationId, "Loan Disbursement Kit");
+	   //                 } else {
+	   //                     ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+	   //                 }
+	   //             } else {
+	   //                 ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+	   //             }
+	   //         } catch (e) {
+	   //             apz.stopLoader();
+	   //             ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+	   //         }
+	   //         /*} else {
+	   //             ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_INVALID_REPORT_MSG"), "E");
+	   //         }*/
+	
+        
+ 

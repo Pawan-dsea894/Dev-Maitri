@@ -1,0 +1,33 @@
+var createLeadId = 'Widget__CreateLead__';
+apz.app.CreateLead = {};
+apz.app.CreateLead.openAppTypeModal = function(params) {
+    if (gApzCOB.FetchRole.accessPermission !== "V") {
+        /* apz.app.BaseScreens.initializeVariables();
+         ApzCOB.CommonCodeParams();
+         ApzCOB.FetchStates();
+         ApzCOB.FetchLov();
+         ApzCOB.MBbackPressedEvent();
+         ApzCOB.changeLanguage()
+         gApzCOB['requestNodes']['nomineeDetailsWrapperList'] = [];*/
+        window.dashRevConf = false;
+        //ApzCOB.FetchStates();
+        window.ResetLOVNAMES = false;
+        ApzCOB.FetchLovmsater();
+        ApzCOB.LaunchConfiguredScreens();
+        $("#" + BaseScrId + "SettingIconCol").addClass('sno');
+        $("#" + BaseScrId + "searchByNumCol").addClass('sno');
+        $("#" + BaseScrId + "dashBoardList").addClass("sno");
+        $("#" + BaseScrId + "menulist").removeClass("sno");
+        //$("#" + BaseScrId + "sidebaricon").removeClass("sno");
+        //$('#' + BaseScrId + 'HomeIcon').addClass('rht');
+        $("#" + BaseScrId + "applnStatus").addClass('sno');
+    } else {
+        ApzCOB.fnDisplayMsg(ApzCOB.getDescfromLitCode("LIT_PERMISSION_DENIED"), "E");
+    }
+    // ApzCOB.toggleModal(createLeadId + 'appTypeModal');
+}
+apz.app.CreateLead.continueAppTypeModal = function() {
+    $("#APZCBO__BaseScreens__sidebaricon").removeClass("sno");
+    apz.app.BaseScreens.sideBarMenu();
+    ApzCOB.LaunchConfiguredScreens();
+};

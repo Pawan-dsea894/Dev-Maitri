@@ -1,0 +1,117 @@
+
+
+::-webkit-scrollbar {
+    width: 6px;
+    height:6px;
+    background-color: transparent;
+}
+ 
+::-webkit-scrollbar-track {
+    
+    background-color:transparent
+}
+ 
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    
+    background-color: #a6a6a6;
+}
+
+/*scrollbar css end*/
+
+/* Tablet */
+
+@media (min-width:700px) and (max-width:992px){
+    /*scrollbar css start*/ 
+    ::-webkit-scrollbar {
+        width: 6px;
+        height:6px;
+        background-color: transparent;
+    }
+
+    ::-webkit-scrollbar-track {
+        
+        background-color:transparent
+    }
+
+    ::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        
+        background-color: #a6a6a6;
+    } 
+     /*scrollbar css end*/
+    /* for IOS specific */
+    .curp{cursor:pointer}
+}
+/* iphone 6,7,8*/
+@media only screen and (min-device-width:375px) and (max-device-width:667px) {
+    ::-webkit-scrollbar {
+        width: 6px;
+        height:6px;
+        background-color: transparent;
+    }
+    ::-webkit-scrollbar-track {
+        background-color:transparent
+    }
+    ::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        background-color: #a6a6a6;
+    }
+    /* for IOS specific */
+    .curp{cursor:pointer}
+}
+/* iphone 6 +,7 +,8 + */
+@media only screen and (min-device-width:414px) and (max-device-width:736px) {
+    ::-webkit-scrollbar {
+        width: 6px;
+        height:6px;
+        background-color: transparent;
+    }
+    ::-webkit-scrollbar-track {
+        background-color:transparent
+    }
+    ::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        background-color: #a6a6a6;
+    }
+    /* for IOS specific */
+    .curp{cursor:pointer}
+}
+/* Tablet ipad*/
+@media only screen and (min-device-width:768px) and (max-device-width:1024px) {
+    ::-webkit-scrollbar {
+        width: 6px;
+        height:6px;
+        background-color: transparent;
+    }
+    ::-webkit-scrollbar-track {
+        background-color:transparent
+    }
+    ::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        background-color: #a6a6a6;
+    }
+    /* for IOS specific */
+    .curp{cursor:pointer}
+     /* for hidding in medium devices */
+    .hide-m {display: none !important;}
+}
+/* Tablet ipad mini*/
+@media only screen and (min-device-width:768px) and (max-device-width:1024px) and (-webkit-min-device-pixel-ratio:1){
+    ::-webkit-scrollbar {
+        width: 6px;
+        height:6px;
+        background-color: transparent;
+    }
+    ::-webkit-scrollbar-track {
+        background-color:transparent
+    }
+    ::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        background-color: #a6a6a6;
+    }
+    /* for IOS specific */
+    .curp{cursor:pointer}
+    /* for hidding in medium devices */
+    .hide-m {display: none !important;}
+}

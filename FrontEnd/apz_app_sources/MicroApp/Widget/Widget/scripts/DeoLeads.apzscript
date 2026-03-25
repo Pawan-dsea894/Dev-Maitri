@@ -1,0 +1,222 @@
+var DeoWidgetId = 'Widget__DeoLeads__';
+var deoLeadsRow = '#Widget__DeoLeads__deoRow'
+var isRunning = false;
+var pendingLeadsCount = 0;
+var totalMahiLeadsCount = 0;
+var leadsWise = false;
+apz.app.onLoad_DeoLeads = function(params) {
+//  ApzCOB.filterBusinessDays('DeoLeads');
+apz.app.DeoLeads.fetchDataDeo();
+//  $('#Widget__DeoLeads__el_txt_61').text(`${pendingLeadsCount}/${totalMahiLeadsCount}`)
+}
+apz.app.DeoLeads.onClickHideAndShow  = function() {
+    if (isRunning) return;
+    isRunning = true;
+    if ($(deoLeadsRow).is(":visible")) {
+        $(deoLeadsRow).addClass("sno");
+        $('#Dashbo__dashboard__Widget12').removeClass("active");
+    } else {
+        $(deoLeadsRow).removeClass("sno");
+        $('#Dashbo__dashboard__Widget12').addClass("active");
+    }
+    setTimeout(() => isRunning = false, 300);
+}
+apz.app.DeoLeads.fetchDataDeo = function () {
+    var newApplications = dashboardObj.KendraResponse || [];
+    var newKendraApp = { KendraList: [] };
+    totalMahiLeadsCount = 0;
+    pendingLeadsCount = 0;
+    newApplications.forEach(function (el, index) {
+        var kendra = el.kendraDtls;
+        if (!kendra) return;
+        if (kendra.kendraStatus !== 'ACTIVE') return;
+        totalMahiLeadsCount += Number(kendra.mahiLeads || 0);
+        pendingLeadsCount += Number(kendra.pendingLeads || 0);
+        if (!kendra.mahiLeads || Number(kendra.mahiLeads) <= 0) return;
+        var meetTime = kendra.meetingStartTime;
+        var meridiem = " PM";
+        if (meetTime) {
+            meetTime = meetTime.split("");
+            if (meetTime.length <= 3) {
+                meetTime.unshift("0");
+            }
+            if (parseInt(meetTime[0] + meetTime[1]) < 12) {
+                meridiem = " AM";
+            }
+            meetTime =
+                meetTime[0] + meetTime[1] + ":" +
+                meetTime[2] + meetTime[3] + meridiem;
+            kendra.time = meetTime;
+        }
+        newKendraApp.KendraList.push(kendra);
+    });
+    $('#Widget__DeoLeads__el_txt_61').text(`${pendingLeadsCount}/${totalMahiLeadsCount}`);
+    newKendraApp.KendraList.sort(function (a, b) {
+        return a.time.localeCompare(b.time);
+    });
+    var deoList = newKendraApp.KendraList;
+    if (deoList.length > 0) {
+        window.isDeo = true;
+        apz.data.scrdata.Widget__IPaintDeoLeadApplication_Res = {};
+        if (deoList.length <= 4) {
+            apz.data.scrdata.Widget__IPaintDeoLeadApplication_Res.DeoApp = deoList;
+            apz.data.loadData('IPaintDeoLeadApplication', apz.currAppId);
+        } else {
+            apz.data.scrdata.Widget__IPaintDeoLeadApplication_Res.DeoApp = deoList.slice(0, 4);
+            apz.data.loadData('IPaintDeoLeadApplication', apz.currAppId);
+            $('#Widget__DeoLeads__ct_nav_More').removeClass('sno');
+            $('#Widget__DeoLeads__deoMahiViewMore').text(`VIEW ${deoList.length - 4} MORE`);
+        }
+        $('#Widget__DeoLeads__noRecord').addClass('sno');
+        $('#Widget__DeoLeads__loanApp').removeClass('sno');
+    } else {
+        window.isDeo = false;
+        apz.data.scrdata.Widget__IPaintDeoLeadApplication_Res = { DeoApp: {} };
+        $('#Widget__DeoLeads__loanApp').addClass('sno');
+        $('#Widget__DeoLeads__noRecord').removeClass('sno');
+    }
+};
+
+apz.app.DeoLeads.selectKendra = function(pthis) {
+    let rowNo = $(pthis).attr('rowno');
+    if(isViewMoreFiltered){
+        KendraApp.selectedKendra = apz.data.scrdata.NEWLOA__DeoKendraMahiList_Res.DeoMahiNode[rowNo]
+    }else{
+        KendraApp.selectedKendra = apz.data.scrdata.Widget__IPaintDeoLeadApplication_Res.DeoApp[rowNo];
+    }
+    apz.app.DeoLeads.applicationStatus(KendraApp.selectedKendra);
+    if (Array.isArray(KendraApp.selectedKendra?.customerDtls)) {
+        KendraApp.selectedKendra.customerDtls.forEach(function (el) {
+            if (!el.newCustStatus) {
+                el.newCustStatus = el.custStatus || '';
+            }
+            el.custStatus = el.newCustStatus.includes('NQA') ? 'NQA' : '';
+        });
+    }
+    ApzCOB.fetchCustDetailsDeo(KendraApp.selectedKendra.kendraId);
+}
+apz.app.DeoLeads.selectKendraDeo = function(customerDetailsDeo) {
+    leadsWise = true;
+    let custList = [];
+    customerDetailsDeo.forEach(function(el, index) {
+        custList.push(customerDetailsDeo[index]);
+    });
+    if (custList.length !== 0) {
+        custList.forEach(function(el, idx) {
+            let maxAmountLimit = 0;
+            if (custList[idx].eligibleLoan.length !== 0) {
+                var eligibleLoan = custList[idx].eligibleLoan;
+                eligibleLoan.forEach(function(el, id) {
+                    KendraApp.ProductList.forEach(function (lproduct) {
+                        if (lproduct &&lproduct.productDtls &&eligibleLoan[id] &&eligibleLoan[id].product &&lproduct.productDtls.productId == eligibleLoan[id].product
+                        ) {
+                            eligibleLoan[id].productId = lproduct.productDtls.productId;
+                            eligibleLoan[id].shortDesc = lproduct.productDtls.shortDesc;
+                            eligibleLoan[id].amountLimit = lproduct.productDtls.amountLimit;
+                            eligibleLoan[id].amountMin = lproduct.productDtls.amountMin;
+                            eligibleLoan[id].amountMax = lproduct.productDtls.amountMax;
+                            eligibleLoan[id].spouseInsurance = lproduct.productDtls.spouseInsurance;
+                            eligibleLoan[id].freq = lproduct.productDtls.freq;
+                            eligibleLoan[id].insuranceProvider = lproduct.productDtls.insuranceProvider;
+                            eligibleLoan[id].insurancePercentage = lproduct.productDtls.insurancePercentage;
+                            eligibleLoan[id].prodPurpose = lproduct.productDtls.prodPurpose;
+                            eligibleLoan[id].description = lproduct.productDtls.description;
+                            eligibleLoan[id].productType = lproduct.productDtls.productType;
+                        }
+                    });
+                    eligibleLoan[id].cbAmt = parseFloat(eligibleLoan[id].cbAmt);
+                });
+                maxAmountLimit = Math.max.apply(null, eligibleLoan.map(function(o) {
+                    return o.cbAmt;
+                }));
+            }
+            custList[idx].maxAmountLimit = maxAmountLimit;
+        });
+        KendraApp.selectedKendra.customerDtls = [];
+        KendraApp.selectedKendra.customerDtls = custList;
+        $('#footer').addClass('sno');
+        // $('#APZCBO__BaseScreens__BaseDIV').addClass('sno')
+         if (Array.isArray(KendraApp.selectedKendra?.customerDtls)) {
+             KendraApp.selectedKendra.customerDtls.forEach(function(el) {
+                 if (!el.newCustStatus) {
+                     el.newCustStatus = el.custStatus || '';
+                 }
+                 el.custStatus = el.newCustStatus.includes('NQA') ? 'NQA' : '';
+             });
+         }
+        apz.app.DeoLeads.applicationStatus(KendraApp.selectedKendra); 
+        if(isKendraDtlsLaunchedFromDashboard){
+            isKendraDtlsLaunchedFromDashboard = false;
+            kendraBackNavigationObj.data = JSON.stringify(KendraApp.selectedKendra);
+            kendraBackNavigationObj.stage = apz.currAppId;
+            var data={}
+            data.kendraDtls = KendraApp.selectedKendra;
+            ApzCOB.launchMicroApp('Kendra', 'KendraDetails', 'APZCBO__BaseScreens__BaseDIV', data);
+        }else{
+            var params = {
+                ...KendraApp.selectedKendra,
+                sourceScreen: 'DeoLeads'
+            };
+            ApzCOB.launchMicroApp("NEWLOA", "NewLoanApplication", "APZCBO__BaseScreens__BaseDIV", params)
+        }
+    } else {
+        if(isKendraDtlsLaunchedFromDashboard){
+            isKendraDtlsLaunchedFromDashboard = false;
+            kendraBackNavigationObj.data = JSON.stringify(KendraApp.selectedKendra);
+            var data={}
+            data.kendraDtls = KendraApp.selectedKendra;
+            ApzCOB.launchMicroApp('Kendra', 'KendraDetails', 'APZCBO__BaseScreens__BaseDIV', data);
+        }else{
+            ApzCOB.fnDisplayMsg('No customers for selected kendra', "E");
+        }
+    }
+}
+apz.app.DeoLeads.applicationStatus = function(params) {
+    matchedKendraFromdashboardAppList='';
+    var selectedKendraId = params.kendraId;
+    matchedKendraFromdashboardAppList = Array.isArray(dashboardAppList?.response)
+        ? dashboardAppList.response.filter(item => Number(item.kendraId) === selectedKendraId)
+        : [];
+};
+apz.app.DeoLeads.getDeoKendraListFromResponse = function () {
+    var deoKendraList = [];
+    var newApplications = dashboardObj.KendraResponse || [];
+    newApplications.forEach(function (el) {
+        if (
+            el.kendraDtls &&
+            el.kendraDtls.kendraStatus === 'ACTIVE' &&
+            Number(el.kendraDtls.mahiLeads || 0) > 0
+        ) {
+            var meetTime = el.kendraDtls.meetingStartTime;
+            var meridiem = " PM";
+            if (meetTime) {
+                meetTime = meetTime.split("");
+                if (meetTime.length <= 3) {
+                    meetTime.unshift("0");
+                }
+                if (parseInt(meetTime[0] + meetTime[1]) < 12) {
+                    meridiem = " AM";
+                }
+                meetTime =
+                    meetTime[0] + meetTime[1] + ":" +
+                    meetTime[2] + meetTime[3] + meridiem;
+                el.kendraDtls.time = meetTime;
+            }
+            deoKendraList.push(el.kendraDtls);
+        }
+    });
+    deoKendraList.sort(function (a, b) {
+        return (a.time || "").localeCompare(b.time || "");
+    });
+    return deoKendraList;
+};
+apz.app.DeoLeads.viewMahiLeads = function () {
+    isViewMoreFiltered = true;
+     var deoData = apz.app.DeoLeads.getDeoKendraListFromResponse();
+    var params = {
+        sourceScreen: 'DeoLeads',
+        isDeoViewMore: true,
+        deoKendraList: deoData
+    };
+    ApzCOB.launchMicroApp("NEWLOA","NewLoanApplication","APZCBO__BaseScreens__BaseDIV",params);
+};

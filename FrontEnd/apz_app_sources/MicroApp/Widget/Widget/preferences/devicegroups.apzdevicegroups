@@ -1,0 +1,1 @@
+{"typeclass":"DEVICEGROUPS","name":"devicegroups","type":"DEVICEGROUPS","devices":[{"name":"Web","description":"Web","width":"1300","height":"1200","os":"ALL","orientation":"ANY"},{"name":"Mobile","description":"Mobile","width":"640","height":"800","os":"ALL","orientation":"ANY"}]}

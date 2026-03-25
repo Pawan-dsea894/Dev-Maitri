@@ -1,0 +1,74 @@
+@use "../Abstract" as a;
+
+.ett-stpr {
+	&.pri {
+		display: table;
+		li {
+			display: table-cell;
+			vertical-align: top;
+		}
+		.ett-inpt {
+			display: block;
+			border-radius: 0;
+		}
+		.ett-bttn.pri {
+			background-color: transparent;
+			border: 0;
+			color: #111;
+			&:hover > .ett-icon {
+				fill: #111;
+			}
+			&:focus > .ett-icon {
+				fill: #111;
+			}
+		}
+	}
+	&.sec {
+		display: table;
+		li {
+			display: table-cell;
+			vertical-align: top;
+		}
+		.ett-inpt {
+			display: block;
+		}
+		.ett-bttn {
+			background-color: transparent;
+			border: 0;
+			> .ett-icon {
+				fill: #333;
+			}
+		}
+	}
+	&.ter {
+		display: table;
+		li {
+			display: table-cell;
+			vertical-align: top;
+		}
+		.ett-inpt {
+			display: block;
+			border-bottom: 1px solid #999;
+		}
+		.ett-bttn {
+			background-color: transparent;
+			border: 0;
+			> .ett-icon {
+				fill: #333;
+			}
+		}
+	}
+	li {
+		input.disabled {
+			cursor: not-allowed;
+			opacity: 0.4;
+		}
+		button.disabled {
+			cursor: not-allowed;
+			opacity: 0.4;
+		}
+	}
+}
+
+
+/* Stepper end */

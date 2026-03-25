@@ -1,0 +1,120 @@
+@use "../Abstract" as a;
+
+.ett-srtc {
+	&.pri {
+		ul {
+			display: table;
+			li {
+				display: table-cell;
+				text-align: center;
+				padding: 0 .125em;
+				&:first-child {
+					padding-left: 0;
+				}
+				&:last-child {
+					padding-right: 0;
+				}
+				input {
+					width: 4em;
+					padding: 0.44em 0.8em;
+					border-radius: 4px;
+				}
+			}
+		}
+		li input {
+			background-image: none;
+			border-radius: 0.1em;
+			box-shadow: none;
+			text-align: center;
+			transition: border 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+	}
+	&.sec ul {
+		display: table;
+		li {
+			display: table-cell;
+			text-align: center;
+			padding: 0 .125em;
+			&:first-child {
+				padding-left: 0;
+			}
+			&:last-child {
+				padding-right: 0;
+			}
+			input {
+				width: 4em;
+				padding: 0.44em 0.8em;
+				margin: auto 2px;
+			}
+		}
+	}
+	&.ter ul {
+		display: table;
+		li {
+			display: table-cell;
+			text-align: center;
+			padding: 0 .125em;
+			&:first-child {
+				padding-left: 0;
+			}
+			&:last-child {
+				padding-right: 0;
+			}
+			input {
+				width: 3em;
+				padding: 0.44em 0.8em;
+				margin: auto 2px;
+			}
+		}
+	}
+}
+.ett-srta {
+	&.pri {
+		ul {
+			display: table;
+			margin-left: 1em;
+			li {
+				display: table-cell;
+				text-align: center;
+				input {
+					width: 100%;
+					padding: 0.44em 0.8em;
+					border-radius: 4px;
+					text-align: left;
+				}
+			}
+		}
+		li input {
+			background-image: none;
+			border-radius: 0.1em;
+			box-shadow: none;
+			text-align: center;
+			transition: border 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+	}
+	&.sec ul {
+		display: table;
+		li {
+			display: table-cell;
+			text-align: center;
+			input {
+				width: 100%;
+				padding: 0.44em 0.8em;
+				text-align: left;
+			}
+		}
+	}
+	&.ter ul {
+		display: table;
+		li {
+			display: table-cell;
+			text-align: center;
+			input {
+				width: 100%;
+				padding: 0.44em 0.8em;
+				text-align: left;
+			}
+		}
+	}
+}
+ /* sortcode css end */

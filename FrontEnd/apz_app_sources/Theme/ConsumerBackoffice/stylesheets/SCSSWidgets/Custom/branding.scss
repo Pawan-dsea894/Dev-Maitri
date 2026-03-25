@@ -1,0 +1,398 @@
+:root {
+   // spacing - 4px, 8px, 16px, 24px, 32px, 40px, 48px
+ 
+// margin
+--ma-0: 0rem;
+--mt-0: 0rem;
+--ml-0: 0rem;
+--mb-0: 0rem;
+--mr-0: 0rem;
+
+--ma-4: 0.25rem;
+--mt-4: 0.25rem;
+--mb-4: 0.25rem;
+--ml-4: 0.25rem;
+--mr-4: 0.25rem;
+--ma-8: 0.5rem;
+--mt-8: 0.5rem;
+--mb-8: 0.5rem;
+--ml-8: 0.5rem;
+--mr-8: 0.5rem;
+--ma-16: 1rem;
+--mt-16: 1rem;
+--mb-16: 1rem;
+--ml-16: 1rem;
+--mr-16: 1rem;
+--ma-24: 1.5rem;
+--mt-24: 1.5rem;
+--mb-24: 1.5rem;
+--ml-24: 1.5rem;
+--mr-24: 1.5rem;
+
+--ma-32: 2rem;
+--mt-32: 2rem;
+--mb-32: 2rem;
+--ml-32: 2rem;
+--mr-32: 2rem;
+
+--ma-40: 2.5rem;
+--mt-40: 2.5rem;
+--mb-40: 2.5rem;
+--ml-40: 2.5rem;
+--mr-40: 2.5rem;
+--mt-m-40: -2.5rem;
+
+--ma-48: 3rem;
+--mt-48: 3rem;
+--mb-48: 3rem;
+--ml-48: 3rem;
+--mr-48: 3rem;
+//padding
+
+--pa-0: 0rem;
+--pt-0: 0rem;
+--pl-0: 0rem;
+--pb-0: 0rem;
+--pr-0: 0rem;
+
+
+--pa-4: 0.25rem;
+--pt-4: 0.25rem;
+--pb-4: 0.25rem;
+--pl-4: 0.25rem;
+--pr-4: 0.25rem;
+
+--pa-8: 0.5rem;
+--pt-8: 0.5rem;
+--pb-8: 0.5rem;
+--pl-8: 0.5rem;
+--pr-8: 0.5rem;
+
+--pa-16: 1rem;
+--pt-16: 1rem;
+--pb-16: 1rem;
+--pl-16: 1rem;
+--pr-16: 1rem;
+
+--pa-24: 1.5rem;
+--pt-24: 1.5rem;
+--pb-24: 1.5rem;
+--pl-24: 1.5rem;
+--pr-24: 1.5rem;
+
+--pa-32: 2rem;
+--pt-32: 2rem;
+--pb-32: 2rem;
+--pl-32: 2rem;
+--pr-32: 2rem;
+
+--pa-40: 2.5rem;
+--pt-40: 2.5rem;
+--pb-40: 2.5rem;
+--pl-40: 2.5rem;
+--pr-40: 2.5rem;
+
+--pa-48: 3rem;
+--pt-48: 3rem;
+--pb-48: 3rem;
+--pl-48: 3rem;
+--pr-48: 3rem;
+//font-size - 12px, 14px, 16px, 18px, 22px, 24px, 32px
+--font-12: 0.75rem;
+--font-13: 0.8125rem;
+--font-14: 0.875rem;
+--font-16: 1rem;
+--font-18: 1.125rem;
+--font-22: 1.375rem;
+--font-24: 1.5rem;
+--font-32: 2rem;
+// font-weight - 100, 300, 400, 500, 600, 700
+--font-thin: 100; 
+--font-light: 300;
+--font-regular: 400;
+--font-medium: 500;
+--font-semibold: 600;
+--font-bold: 700;
+//Color scheme plain - Brand colors
+--pri-clr: rgba(0, 0, 0, 1);                                    /*Primary color - Black - #000000*/
+--sec-clr: rgba(0, 199, 152, 1);                                    /*Secondary color - Green - #00C798*/
+--ter-clr: rgba(197, 232, 152, 1);                                  /*Tertiary color - Lime - #C5E898*/
+// Base colors
+--dark-theme: rgba(18, 25, 38, 1);                                  /*Base color - Black - #121926*/
+--light-theme: rgba(254, 254, 254, 1);                              /*Base color - White - #FEFEFE*/
+ 
+//Colors for labels, texts
+--txt-clr: rgba(255, 255, 255, 1);                                  /*Text color - Pure White - #FFFFFF*/
+--labl-clr: rgba(54, 65, 82, 1);                                    /*Label color - Grey shade 9 - #364152*/
+ 
+// Color shades
+/*Neutral color shades - Lighter to Darker*/
+--grey-clr-1: rgba(252, 252, 253, 1);                               /*Neutral grey shade-1 - #FCFCFD*/
+--grey-clr-2: rgba(248, 250, 252, 1);                               /*Neutral grey shade-2 - #F8FAFC*/
+--grey-clr-3: rgba(238, 242, 246, 1);                               /*Neutral grey shade-3 - #EEF2F6*/
+--grey-clr-4: rgba(227, 232, 239, 1);                               /*Neutral grey shade-4 - #E3E8EF*/
+--grey-clr-5: rgba(205, 213, 223, 1);                               /*Neutral grey shade-5 - #CDD5DF*/
+--grey-clr-6: rgba(154, 164, 178, 1);                               /*Neutral grey shade-6 - #9AA4B2*/
+--grey-clr-7: rgba(105, 117, 134, 1);                               /*Neutral grey shade-7 - #697586*/
+--grey-clr-8: rgba(75, 85, 101, 1);                                 /*Neutral grey shade-8 - #4B5565*/
+--grey-clr-9: rgba(54, 65, 82, 1);                                  /*Neutral grey shade-9 - #364152*/
+--grey-clr-10: rgba(32, 41, 57, 1);                                 /*Neutral grey shade-10 - #202939*/
+ 
+/*Primary color shades - Lighter to Darker*/
+--pri-clr-1: rgba(245, 249, 255, 1);                                /*Primary blue shade-1 - #F5F9FF*/
+--pri-clr-2: rgba(232, 241, 255, 1);                                /*Primary blue shade-2 - #E8F1FF*/
+--pri-clr-3: rgba(212, 230, 253, 1);                                /*Primary blue shade-3 - #D4E6FD*/
+--pri-clr-4: rgba(149, 190, 245, 1);                                /*Primary blue shade-4 - #95BEF5*/
+--pri-clr-5: rgba(85, 141, 215, 1);                                 /*Primary blue shade-5 - #558DD7*/
+--pri-clr-6: rgba(59, 111, 179, 1);                                 /*Primary blue shade-6 - #3B6FB3*/
+--pri-clr-7: rgba(41, 85, 143, 1);                                  /*Primary blue shade-7 - #29558F*/
+--pri-clr-8: rgba(32, 66, 111, 1);                                  /*Primary blue shade-8 - #20426F*/
+--pri-clr-9: rgba(23, 47, 79, 1);                                   /*Primary blue shade-9 - #172F4F*/
+--pri-clr-10: rgba(14, 28, 48, 1);                                  /*Primary blue shade-10 - #0E1C30*/
+ 
+/*Secondary color shades - Lighter to Darker*/
+--sec-clr-1: rgba(244, 255, 247, 1);                                /*Secondary green shade-1 - #F4FFF7*/
+--sec-clr-2: rgba(187, 255, 226, 1);                                /*Secondary green shade-2 - #BBFFE2*/
+--sec-clr-3: rgba(97, 252, 201, 1);                                 /*Secondary green shade-3 - #61FCC9*/
+--sec-clr-4: rgba(60, 223, 174, 1);                                 /*Secondary green shade-4 - #3CDFAE*/
+--sec-clr-5: rgba(0, 199, 152, 1);                                  /*Secondary green shade-5 - #00C798*/
+--sec-clr-6: rgba(0, 164, 125, 1);                                  /*Secondary green shade-6 - #00A47D*/
+--sec-clr-7: rgba(0, 135, 102, 1);                                  /*Secondary green shade-7 - #008766*/
+--sec-clr-8: rgba(0, 108, 81, 1);                                   /*Secondary green shade-8 - #006C51*/
+--sec-clr-9: rgba(0, 81, 60, 1);                                    /*Secondary green shade-9 - #00513C*/
+--sec-clr-10: rgba(0, 56, 41, 1);                                   /*Secondary green shade-10 - #003829*/
+ 
+/*Tertiary color shades - Lighter to Darker*/
+--ter-clr-1: rgba(249, 255, 232, 1);                                /*Tertiary lime shade-1 - #F9FFE8*/
+--ter-clr-2: rgba(210, 255, 154, 1);                                /*Tertiary lime shade-2 - #D2FF9A*/
+--ter-clr-3: rgba(196, 241, 140, 1);                                /*Tertiary lime shade-3 - #C4F18C*/
+--ter-clr-4: rgba(169, 212, 115, 1);                                /*Tertiary lime shade-4 - #A9D473*/
+--ter-clr-5: rgba(142, 184, 91, 1);                                 /*Tertiary lime shade-5 - #8EB85B*/
+--ter-clr-6: rgba(116, 157, 67, 1);                                 /*Tertiary lime shade-6 - #749D43*/
+--ter-clr-7: rgba(92, 130, 44, 1);                                  /*Tertiary lime shade-7 - #5C822C*/
+--ter-clr-8: rgba(68, 104, 19, 1);                                  /*Tertiary lime shade-8 - #446813*/
+--ter-clr-9: rgba(47, 79, 0, 1);                                    /*Tertiary lime shade-9 - #2F4F00*/
+--ter-clr-10: rgba(31, 55, 0, 1);                                   /*Tertiary lime shade-10 - #1F3700*/
+ 
+/*Semantics*/
+--info: rgba(6, 147, 234, 1);                                       /*Info - blue color - #0693EA*/
+--success: rgba(12, 194, 126, 1);                                   /*Success - green color - #0CC27E*/
+--warning: rgba(255, 168, 64, 1);                                   /*Warning - orange color - #FFA840*/
+--error: rgba(255, 52, 52, 1);                                      /*Error-danger - red color - #FF3434*/
+ 
+ 
+ 
+ /*Other color codes*/ 
+--grey-clr-11: rgba(50,50,50,1);                                    /*Grey color shade-11 - #323232*/
+--grey-clr-12: rgba(173,173,173,1);                                 /*Grey color shade-12 - #ADADAD*/
+--grey-clr-13: rgba(139,149,166,1);                                 /*Grey color shade-13 - #8B95A6*/
+--grey-clr-14:rgba(57,57,57,1);                                     /*Grey color shade-14 - #393939*/
+--pri-clr-11: rgba(25,54,88,1);                                     /*Primary blue shade-11 - #193658*/
+--pri-clr-12: rgba(31,52,84,1);                                     /*Primary blue shade-12 - #1F3454*/
+--pri-clr-13: rgba(27,115,242,1);                                   /*Primary blue shade-12 - #1B73F2*/
+--sec-clr-11: rgba(79,201,125,1);                                   /*Secondary green shade-11 - #4FC97D*/
+ 
+ 
+/* primary Button*/
+    --btn-pri-font: 0.875rem; 
+    --btn-pri-font-wgt: 600;
+    --btn-pri-radius: 2.1875rem;                                        /*Border radius - 35px*/
+    --btn-pri-bor: rgba(32, 66, 111, 1);                                /*Primary blue shade-8 - #20426F*/
+    --btn-pri: rgba(41, 85, 143, 1);                                    /*Primary color - Blue - #29558F*/
+    --btn-pri-hgt:48px;
+    --btn-pri-txt: rgba(255, 255, 255, 1);                              /*Text color - Pure White - #FFFFFF*/
+    --btn-pri-shadow:0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+    /* primary disabled*/
+    --btn-pri-dis: rgba(238, 242, 246, 1);                              /*Neutral grey shade-3 - #EEF2F6*/
+    --btn-pri-dis-txt: rgba(154, 164, 178, 1);                          /*Neutral grey shade-6 - #9AA4B2*/
+    --btn-pri-dis-bor: rgba(227, 232, 239, 1);                          /*Neutral grey shade-4 - #E3E8EF*/
+    --btn-pri-dis-shadow: none;
+     /* primary hover*/
+    --btn-pri-hov: rgba(23, 47, 79, 1);                                 /*Primary blue shade-9 - #172F4F*/
+    --btn-pri-hov-txt: rgba(255, 255, 255, 1);                          /*Text color - Pure White - #FFFFFF*/
+    --btn-pri-hov-bor: rgba(23, 47, 79, 1);                             /*Primary blue shade-9 - #172F4F*/
+    --btn-pri-hov-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+    /* primary active*/
+    --btn-pri-actv: rgba(23, 47, 79, 1);                                 /*Primary blue shade-9 - #172F4F*/
+    --btn-pri-actv-txt: rgba(255, 255, 255, 1);                          /*Text color - Pure White - #FFFFFF*/
+    --btn-pri-actv-bor: rgba(23, 47, 79, 1);                             /*Primary blue shade-9 - #172F4F*/
+    --btn-ter-hov-shadow: none;
+    /* primary focus*/
+    --btn-pri-foc: rgba(23, 47, 79, 1);                                 /*Primary blue shade-9 - #172F4F*/
+    --btn-pri-foc-txt: rgba(255, 255, 255, 1);                          /*Text color - Pure White - #FFFFFF*/
+    --btn-pri-foc-bor: rgba(23, 47, 79, 1);                             /*Primary blue shade-9 - #172F4F*/
+    --btn-pri-foc-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+     /* secondary Button*/
+    --btn-sec-font: 0.875rem; // sec Button clr
+    --btn-sec-font-wgt: 600;
+    --btn-sec-radius: 2.1875rem;                                        /*Border radius - 35px*/
+    --btn-sec-bor: rgba(227, 232, 239, 1);                              /*Neutral grey shade-4 - #E3E8EF*/
+    --btn-sec: rgba(255, 255, 255, 1);                                  /*Text color - Pure White - #FFFFFF*/
+    --btn-sec-hgt: 48px;
+    --btn-sec-txt: rgba(0, 199, 152, 1);                                /*Secondary green shade-5 - #00C798*/
+    --btn-sec-shadow:0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+    /* secondary disabled*/
+    --btn-sec-dis: rgba(238, 242, 246, 1);                              /*Neutral grey shade-3 - #EEF2F6*/
+    --btn-sec-dis-txt: rgba(154, 164, 178, 1);                          /*Neutral grey shade-6 - #9AA4B2*/
+    --btn-sec-dis-bor: rgba(227, 232, 239, 1);                          /*Neutral grey shade-4 - #E3E8EF*/
+    --btn-sec-dis-shadow: none;
+    /* secondary hover*/
+    --btn-sec-hov: rgba(255, 255, 255, 1);                              /*Text color - Pure White - #FFFFFF*/
+    --btn-sec-hov-txt: rgba(0, 164, 125, 1);                            /*Secondary green shade-6 - #00A47D*/
+    --btn-sec-hov-bor: rgba(205, 213, 223, 1);                          /*Neutral grey shade-5 - #CDD5DF*/
+    --btn-sec-hov-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+    /* secondary active*/
+    --btn-sec-actv: rgba(255, 255, 255, 1);                              /*Text color - Pure White - #FFFFFF*/
+    --btn-sec-actv-txt: rgba(0, 164, 125, 1);                            /*Secondary green shade-6 - #00A47D*/
+    --btn-sec-actv-bor: rgba(205, 213, 223, 1);                          /*Neutral grey shade-5 - #CDD5DF*/
+    --btn-ter-hov-shadow: none;
+    /* secondary focus*/
+    --btn-sec-foc: rgba(255, 255, 255, 1);                              /*Text color - Pure White - #FFFFFF*/
+    --btn-sec-foc-txt: rgba(0, 164, 125, 1);                            /*Secondary green shade-6 - #00A47D*/
+    --btn-sec-foc-bor: rgba(205, 213, 223, 1);                          /*Neutral grey shade-5 - #CDD5DF*/
+    --btn-sec-foc-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+    /*Teritiary Button*/
+    --btn-ter-radius: 2.1875rem;                                        /*Border radius - 35px*/
+    --btn-ter-bor: rgba(227, 232, 239, 1);                              /*Neutral grey shade-4 - #E3E8EF*/
+    --btn-ter: rgba(255, 255, 255, 1);                                  /*Text color - Pure White - #FFFFFF*/
+    --btn-ter-hgt: 48px;
+    --btn-ter-txt: rgba(0, 199, 152, 1);                                /*Secondary green shade-5 - #00C798*/
+    --btn-ter-shadow: none;
+    /*Teritiary disabled*/
+    --btn-ter-dis-txt: rgba(154, 164, 178, 1);                          /*Neutral grey shade-6 - #9AA4B2*/
+    --btn-ter-dis-shadow: none;
+    /*Teritiary hover*/
+    --btn-ter-hov: rgba(255, 255, 255, 1);                              /*Text color - Pure White - #FFFFFF*/
+    --btn-ter-hov-txt: rgba(0, 164, 125, 1);                            /*Secondary green shade-6 - #00A47D*/
+    --btn-ter-hov-bor: rgba(205, 213, 223, 1);                          /*Neutral grey shade-5 - #CDD5DF*/
+    --btn-ter-hov-shadow: none;
+    /*Teritiary active*/
+    --btn-ter-actv: rgba(255, 255, 255, 1);                              /*Text color - Pure White - #FFFFFF*/
+    --btn-ter-actv-txt: rgba(0, 164, 125, 1);                            /*Secondary green shade-6 - #00A47D*/
+    --btn-ter-actv-bor: rgba(205, 213, 223, 1);                          /*Neutral grey shade-5 - #CDD5DF*/
+    --btn-ter-actv-shadow: none;
+    /*Teritiary focus*/
+    --btn-ter-foc: rgba(255, 255, 255, 1);                              /*Text color - Pure White - #FFFFFF*/
+    --btn-ter-foc-txt: rgba(0, 164, 125, 1);                            /*Secondary green shade-6 - #00A47D*/
+    --btn-ter-foc-bor: rgba(205, 213, 223, 1);                          /*Neutral grey shade-5 - #CDD5DF*/
+    --btn-ter-foc-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+ 
+    /*HyperLink*/
+    --hypl: rgba(2, 104, 251, 1);                                        /*Secondary color - blue - #0268FB*/
+    --hypl-hov: rgba(2, 104, 251, 1);                                    /*Secondary green shade-6 - #0268FB*/
+    --hypl-font-14: 0.875rem;                                            /*Font size - 14px*/
+    /*input Box*/
+    --inpt-clr:rgba(105, 117, 134, 1);                                   /*Neutral grey shade-7 - #697586*/
+    --inpt-bor:rgba(227, 232, 239, 1);                                   /*Neutral grey shade-4 - #E3E8EF*/
+    --inpt-bor-radius:0.5rem;
+    --inpt-bg:rgba(255, 255, 255, 1);                                    /*Text color - Pure White - #FFFFFF*/
+    --inpt-font: 0.875rem;
+    --inpt-font-wgt: 500;
+    --inpt-shadow:0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+    /* input hover*/
+    --inpt-hov-clr: rgba(105, 117, 134, 1);                              /*Neutral grey shade-7 - #697586*/
+    --inpt-hov-bor: rgba(154, 164, 178, 1);                              /*Neutral grey shade-6 - #9AA4B2*/
+    --inpt-hov-bg: rgba(255, 255, 255, 1);                               /*Text color - Pure White - #FFFFFF*/
+    --inpt-hov-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+    /* input active*/
+    --inpt-actv-clr: rgba(105, 117, 134, 1);                              /*Neutral grey shade-7 - #697586*/
+    --inpt-actv-bor: rgba(154, 164, 178, 1);                              /*Neutral grey shade-6 - #9AA4B2*/
+    --inpt-actv-bg: rgba(255, 255, 255, 1);                               /*Text color - Pure White - #FFFFFF*/
+    --inpt-actv-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+    /* input Focused*/
+    --inpt-foc-clr: rgba(18, 25, 38, 1);                               /*Base color - Black - #121926*/
+    --inpt-foc-bor: rgba(85, 141, 215, 1);                             /*Primary blue shade-5 - #558DD7*/
+    --inpt-foc-bg: rgba(255, 255, 255, 1);                             /*Text color - Pure White - #FFFFFF*/
+    --inpt-foc-shadow: 0px 0px 0px 4px rgba(241, 239, 255, 1);
+    /*input disable*/
+    --inpt-dis-clr: rgba(18, 25, 38, 1);                                 /*Base color - Black - #121926*/
+    --inpt-dis-bor: rgba(227, 232, 239, 1);                              /*Neutral grey shade-4 - #E3E8EF*/
+    --inpt-dis-bg: rgba(238, 242, 246, 1);                               /*Neutral grey shade-3 - #EEF2F6*/
+    /*input placeholder*/
+    --inpt-placeholder-clr: rgba(105, 117, 134, 1);                      /*Neutral grey shade-7 #697586*/
+ 
+    /*Textarea default*/
+    --txtarea-bor-radius: 0.5rem;                                           /*Border radius - 8px*/
+    --txtarea-bg-clr: rgba(255, 255, 255, 1);                               /*Background color - White #FFFFFF*/
+    --txtarea-bor: 1px solid rgba(227, 232, 239, 1);
+    --txtarea-box-shadow: 0px 1px 2px 0px rgba(18, 25, 38, 0.05);
+ 
+    /*Textarea error*/
+    --txtarea-bor-radius: 0.5rem;
+    --txtarea-bg-clr: rgba(255, 255, 255, 1);                             /*Text color - Pure White - #FFFFFF*/
+    --txtarea-bor: 1px solid rgba(255, 180, 171, 1);
+    --txtarea-box-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+    /* textarea hover*/
+    --txtarea-hov-clr: rgba(105, 117, 134, 1);                              /*Neutral grey shade-7 - #697586*/
+    --txtarea-hov-bor: rgba(154, 164, 178, 1);                              /*Neutral grey shade-6 - #9AA4B2*/
+    --txtarea-hov-bg: rgba(255, 255, 255, 1);                               /*Text color - Pure White - #FFFFFF*/
+    --txtarea-hov-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+    /* textarea active*/
+    --txtarea-actv-clr: rgba(105, 117, 134, 1);                              /*Neutral grey shade-7 - #697586*/
+    --txtarea-actv-bor: rgba(154, 164, 178, 1);                              /*Neutral grey shade-6 - #9AA4B2*/
+    --txtarea-actv-bg: rgba(255, 255, 255, 1);                               /*Text color - Pure White - #FFFFFF*/
+    --txtarea-actv-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+    /* textarea focus*/
+    --txtarea-foc-clr: rgba(105, 117, 134, 1);                              /*Neutral grey shade-7 - #697586*/
+    --txtarea-foc-bor: rgba(154, 164, 178, 1);                              /*Neutral grey shade-6 - #9AA4B2*/
+    --txtarea-foc-bg: rgba(255, 255, 255, 1);                               /*Text color - Pure White - #FFFFFF*/
+    --txtarea-foc-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+/*Border radius - 3px, 5px, 10px, 20px, 35px*/
+--bor-3: 0.1875rem;                                                         /*Border radius - 3px*/
+--bor-5: 0.3125rem;                                                         /*Border radius - 5px*/
+--bor-10: 0.625rem;                                                         /*Border radius - 10px*/
+--bor-20: 1.25rem;                                                          /*Border radius - 20px*/
+--bor-30: 1.875rem;                                                         /*Border radius - 30px*/
+--bor-35: 2.1875rem;                                                        /*Border radius - 35px*/
+ 
+ /*borders*/
+--bor-1: 1px;
+--bor-2: 2px;
+--bor-solid: solid;
+ 
+/*positions and display*/
+--p-rel: relative;
+--p-abs: absolute;
+--p-fix: fixed;
+ 
+--d-flex: flex;
+--d-grid: grid;
+--d-block: block;
+--d-inline: inline;
+--d-inline-flex: inline-flex;
+--d-inline-block: inline-block;
+ 
+/*Modal Sizes*/
+--modal-small: 30rem;
+--modal-medium: 37.5rem;
+--modal-large: 43.75rem;
+
+/* width and height*/
+
+/*Widths and Heights*/
+--wdt-8: 0.5rem;
+--wdt-16: 1rem;
+--wdt-21: 1.3125rem; /*icon width*/
+--wdt-24: 1.5rem;
+--wdt-32: 2rem;
+--wdt-40: 2.5rem;
+ 
+--hgt-8: 0.5rem;
+--hgt-16: 1rem;
+--hgt-21: 1.3125rem;/*icon height*/
+--hgt-24: 1.5rem;
+--hgt-32: 2rem;
+--hgt-40: 2.5rem;
+
+/*flex gap*/
+
+--flex-gap-4: 0.25rem;
+--flex-gap-8: 0.5rem;
+--flex-gap-16: 1rem;
+--flex-gap-24: 1.5rem;
+--flex-gap-32: 2rem;
+}
+
+
+
+    

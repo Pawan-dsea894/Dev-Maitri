@@ -1,0 +1,266 @@
+
+
+.loading1-inv {
+	background-image: none;
+	background-repeat: no-repeat;
+	background-position: center center;
+	width: 3.571rem;
+	height: 3.571rem;
+	z-index: 100;
+	-webkit-transform: translateX(-50%) translateY(-50%);
+	-ms-transform: translateX(-50%) translateY(-50%);
+	transform: translateX(-50%) translateY(-50%);
+	&:before {
+		border: 0.286em solid rgba(250, 251, 252, 0.7);
+		width: 3.571rem;
+		height: 3.571rem;
+		top: 50%;
+		left: 50%;
+		border-radius: 500rem;
+		margin-left: -25px;
+		margin-top: -25px;
+	}
+	&:after {
+		border-color: rgba(255, 255, 255, 0.8) transparent transparent rgba(255, 255, 255, 0.8);
+		border-style: solid;
+		border-width: 0.286rem;
+		box-shadow: 0 0 0 1px transparent;
+		-webkit-animation: rotate360 0.6s linear;
+		animation: rotate360 0.6s linear;
+		-webkit-animation-iteration-count: infinite;
+		animation-iteration-count: infinite;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		-o-user-select: none;
+		user-select: none;
+		-webkit-touch-callout: default;
+		-webkit-touch-callout: none;
+		width: 3.571rem;
+		height: 3.571rem;
+		top: 50%;
+		left: 50%;
+		border-radius: 500rem;
+		margin-left: -25px;
+		margin-top: -25px;
+	}
+	&.with-dimmer {
+		background-color: rgba(255,255,255,.95);
+		background-position: center center;
+		border: none;
+		border-radius: 0;
+		width: 100% !important;
+		height: 100% !important;
+		top: 0;
+		left: 0;
+		margin: 0;
+		-webkit-transform: translateX(0) translateY(0);
+		-ms-transform: translateX(0) translateY(0);
+		transform: translateX(0) translateY(0);
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		-o-user-select: none;
+		user-select: none;
+	}
+	&.with-backtrans {
+		background-color: transparent;
+		background-position: center center;
+		border: none;
+		border-radius: 0;
+		width: 100% !important;
+		height: 100% !important;
+		top: 0;
+		left: 0;
+		margin: 0;
+		-webkit-transform: translateX(0) translateY(0);
+		-ms-transform: translateX(0) translateY(0);
+		transform: translateX(0) translateY(0);
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		-o-user-select: none;
+		user-select: none;
+	}
+	&.loading1-inv--sm {
+		&:after {
+			border-width: 0.143rem;
+			height: 1.428rem;
+			width: 1.428rem;
+			margin-left: -0.714rem;
+			margin-top: -0.714rem;
+		}
+		&:before {
+			border-width: 0.143rem;
+			height: 1.428rem;
+			width: 1.428rem;
+			margin-left: -0.714rem;
+			margin-top: -0.714rem;
+		}
+	}
+	&.loading1-inv--lg {
+		&:after {
+			border-width: 0.429rem;
+			height: 5.714rem;
+			width: 5.714rem;
+			margin-left: -2.857rem;
+			margin-top: -2.857rem;
+		}
+		&:before {
+			border-width: 0.429rem;
+			height: 5.714rem;
+			width: 5.714rem;
+			margin-left: -2.857rem;
+			margin-top: -2.857rem;
+		}
+	}
+}
+.loading1 {
+	background-image: none;
+	background-repeat: no-repeat;
+	background-position: center center;
+	width: 3.571rem;
+	height: 3.571rem;
+	z-index: 100;
+	-webkit-transform: translateX(-50%) translateY(-50%);
+	-ms-transform: translateX(-50%) translateY(-50%);
+	transform: translateX(-50%) translateY(-50%);
+	&:before {
+		border: 0.286em solid rgba(0, 57, 93, 0.15);
+		width: 3.571rem;
+		height: 3.571rem;
+		top: 50%;
+		left: 50%;
+		border-radius: 500rem;
+		margin-left: -25px;
+		margin-top: -25px;
+	}
+	&:after {
+		border-color: rgba(0, 57, 93, 0.8) transparent transparent rgba(0, 57, 93, 0.8);
+		border-style: solid;
+		border-width: 0.286rem;
+		box-shadow: 0 0 0 1px transparent;
+		-webkit-animation: rotate360 0.6s linear;
+		animation: rotate360 0.6s linear;
+		-webkit-animation-iteration-count: infinite;
+		animation-iteration-count: infinite;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		-o-user-select: none;
+		user-select: none;
+		-webkit-touch-callout: default;
+		-webkit-touch-callout: none;
+		width: 3.571rem;
+		height: 3.571rem;
+		top: 50%;
+		left: 50%;
+		border-radius: 500rem;
+		margin-left: -25px;
+		margin-top: -25px;
+	}
+	&.with-dimmer {
+		background-color: rgba(255,255,255,.95);
+		background-position: center center;
+		border: none;
+		border-radius: 0;
+		width: 100% !important;
+		height: 100% !important;
+		top: 0;
+		left: 0;
+		margin: 0;
+		-webkit-transform: translateX(0) translateY(0);
+		-ms-transform: translateX(0) translateY(0);
+		transform: translateX(0) translateY(0);
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		-o-user-select: none;
+		user-select: none;
+	}
+	&.with-backtrans {
+		background-color: transparent;
+		background-position: center center;
+		border: none;
+		border-radius: 0;
+		width: 100% !important;
+		height: 100% !important;
+		top: 0;
+		left: 0;
+		margin: 0;
+		-webkit-transform: translateX(0) translateY(0);
+		-ms-transform: translateX(0) translateY(0);
+		transform: translateX(0) translateY(0);
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		-o-user-select: none;
+		user-select: none;
+	}
+	&.loading1--vsm {
+		&:after {
+			border-width: 0.2em;
+			height: 1em;
+			width: 1em;
+			margin-left: -0.714rem;
+			margin-top: -0.714rem;
+		}
+		&:before {
+			border-width: 0.2em;
+			height: 1em;
+			width: 1em;
+			margin-left: -0.714rem;
+			margin-top: -0.714rem;
+		}
+		> span {
+			padding-top: 1em;
+		}
+	}
+	&.loading1--sm {
+		&:after {
+			border-width: 0.143rem;
+			height: 1.428rem;
+			width: 1.428rem;
+			margin-left: -0.714rem;
+			margin-top: -0.714rem;
+		}
+		&:before {
+			border-width: 0.143rem;
+			height: 1.428rem;
+			width: 1.428rem;
+			margin-left: -0.714rem;
+			margin-top: -0.714rem;
+		}
+		> span {
+			padding-top: 3em;
+		}
+	}
+	&.loading1--lg {
+		&:after {
+			border-width: 0.429rem;
+			height: 5.714rem;
+			width: 5.714rem;
+			margin-left: -2.857rem;
+			margin-top: -2.857rem;
+		}
+		&:before {
+			border-width: 0.429rem;
+			height: 5.714rem;
+			width: 5.714rem;
+			margin-left: -2.857rem;
+			margin-top: -2.857rem;
+		}
+		> span {
+			padding-top: 8em;
+		}
+	}
+	> span {
+		padding-top: 6em;
+	}
+}

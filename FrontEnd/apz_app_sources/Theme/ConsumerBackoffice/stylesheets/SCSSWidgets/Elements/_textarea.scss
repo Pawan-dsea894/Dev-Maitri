@@ -1,0 +1,42 @@
+@use "../Abstract" as a;
+
+.ett-texa {
+	&.err {
+		border: 1px solid #ffa9a9;
+		resize:none;
+		padding:0.5625em 0.625em
+	}
+	&.pri {
+		border: 1px solid #666666;
+		resize: none;
+		padding: 0.5625em 0.625em;
+		&:focus {
+			border-color: #89bfdd;
+		}
+	}
+	&.sec {
+		border: 1px solid #666666;
+		border-radius: 1.2em;
+		padding: 0.5625em 0.625em;
+		resize: none;
+		&:focus {
+			border-color: #89bfdd;
+		}
+	}
+	&.ter {
+		border-bottom: 1px solid #666666;
+		background-color: transparent;
+		resize: none;
+		border-top: 0;
+		border-left: 0;
+		border-right: 0;
+		padding: 0.5625em 0.625em;
+		&:focus {
+			border-color: #89bfdd;
+		}
+	}
+}
+
+input:not([type="file"], [type="image"]):focus-visible, select:focus-visible, button:focus-visible, textarea:focus-visible {outline: none;} /*Firefox Outline issue on Focus*/
+
+

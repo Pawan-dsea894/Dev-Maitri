@@ -1,0 +1,120 @@
+apz.app.updateChartBeforeRender = function(gcharttype, gchartdata, gfgp, lchart) { //Paint graph
+    var ScrIdArr = ['StatusReport', 'ProductStatusReport'];
+    for (var i = 0; i < ScrIdArr.length; i++) {
+        var chartId = ScrIdArr[i] === 'ProductStatusReport' ? "Widget__ProductStatusReport__productStatusReport" :
+            "Widget__StatusReport__statusReport";
+        var chartAssestData = ScrIdArr[i] === 'ProductStatusReport' ? productassetsdata : assetsdata;
+        if (gcharttype === "Doughnut2D") {
+            gchartdata.chart.showPercentValues = "0";
+            gchartdata.chart.formatNumberScale = "0";
+            gchartdata.chart.showValues = "0";
+            gchartdata.chart.showLabels = "0";
+            gchartdata.chart.theme = 'fusion'; //'fint';
+            gchartdata.chart.use3DLighting = "0";
+            gchartdata.chart.showToolTip = "0";
+            gchartdata.chart.showLegend = "1";
+            gchartdata.chart.showplotBorder = "0";
+            gchartdata.chart.enableMultiSlicing = "0";
+            gchartdata.chart.bgAlpha = "100";
+            if (apz.deviceType === "WEB") {
+                gchartdata.chart.baseFont = "poppins";
+                gchartdata.chart.centerLabelBold = "0";
+                gchartdata.chart.centerLabelFont = "poppins";
+                gchartdata.chart.doughnutRadius = "65";
+                gchartdata.chart.pieRadius = "70";
+                gchartdata.chart.bgColor = "#153D8A";
+                gchartdata.chart.centerLabelColor = "#FFFFFF";
+                gchartdata.chart.centerLabelFontSize = "13";
+                gchartdata.chart.labelFontColor = "#FFFFFF";
+                // gchartdata.chart.borderColor = "#FFFFFF";
+            } else {
+                gchartdata.chart.baseFont = "poppins";
+                gchartdata.chart.centerLabelBold = "0";
+                gchartdata.chart.centerLabelFont = "poppins";
+                gchartdata.chart.doughnutRadius = "80";
+                gchartdata.chart.pieRadius = "82";
+                gchartdata.chart.bgColor = "#153D8A";
+                gchartdata.chart.centerLabelColor = "#FFFFFF";
+                gchartdata.chart.centerLabelFontSize = "13";
+                gchartdata.chart.labelFontColor = "#FFFFFF";
+                // gchartdata.chart.borderColor = "#FFFFFF";
+            }
+            gchartdata.chart.showBorder = "0";
+            gchartdata.chart.borderAlpha = "0";
+            gchartdata.chart.legendBorderThickness = "0";
+            gchartdata.chart.legendBgColor = "#153D8A";
+            gchartdata.chart.legendShadow = "0";
+            gchartdata.chart.legendBorderAlpha = "0";
+            gchartdata.chart.legendItemFontColor = "#FFFFFF";
+            gchartdata.chart.legendItemFontBold = "1";
+            gchartdata.chart.legendNumRows = "2";
+            gchartdata.chart.legendNumColumns = "2";
+            gchartdata.chart.legendBgColor = "#153D8A";
+            var totalbal;
+            if (lchart.id === chartId) {
+                gchartdata.chart.captionOnTop = 0;
+                if (ScrIdArr[i] === 'ProductStatusReport') {
+                    totalbal = 0;
+                    gchartdata.chart.paletteColors = "#F6EF03" + "," + "#F89A1A" + "," + "#EE1608" + "," + "#06AF20" + "," + "#33FFE0" + "," +
+                        "#900C3F";
+                    for (var p = 0; p < chartAssestData.length; p++) {
+                        if (chartAssestData[p]['productGroupCode'] === 'CASA') {
+                            totalbal += (!apz.isNull(chartAssestData[p].CasaCount) ? chartAssestData[p].CasaCount : 0)
+                        } else if (chartAssestData[p]['productGroupCode'] === 'DEPOSIT') {
+                            totalbal += (!apz.isNull(chartAssestData[p].DepositCount) ? chartAssestData[p].DepositCount : 0)
+                        } else if (chartAssestData[p]['productGroupCode'] === 'LOAN') {
+                            totalbal += (!apz.isNull(chartAssestData[p].LoanCount) ? chartAssestData[p].LoanCount : 0)
+                        } else if (chartAssestData[p]['productGroupCode'] === 'CARDS') {
+                            totalbal += (!apz.isNull(chartAssestData[p].CardsCount) ? chartAssestData[p].CardsCount : 0)
+                        } else if (chartAssestData[p]['productGroupCode'] === 'INSURANCE') {
+                            totalbal += (!apz.isNull(chartAssestData[p].InsuranceCount) ? chartAssestData[p].InsuranceCount : 0)
+                        } else if (chartAssestData[p]['productGroupCode'] === 'INVESTMENT') {
+                            totalbal += (!apz.isNull(chartAssestData[p].InvestmentCount) ? chartAssestData[p].InvestmentCount : 0)
+                        }
+                    }
+                    gchartdata.chart.defaultCenterLabel = "Total" + "<br>  " + "Applications" + "<br>  " + "<br>  " + parseInt(totalbal);
+                    gchartdata.data = apz.app.ProductStatusReport.fn_SetGraphData();
+                    if (totalbal === 0) {
+                        $('#' + ProductStatusReportScrId + 'chartDiv_div').addClass('sno');
+                        $('#' + ProductStatusReportScrId + 'NoRecordsFound').removeClass('sno');
+                    } else {
+                        $('#' + ProductStatusReportScrId + 'chartDiv_div').removeClass('sno');
+                        $('#' + ProductStatusReportScrId + 'NoRecordsFound').addClass('sno');
+                    }
+                } else {
+                    gchartdata.chart.paletteColors = "#F6EF03" + "," + "#F89A1A" + "," + "#EE1608" + "," + "#06AF20";
+                    totalbal = (!apz.isNull(chartAssestData[0].InProgressCount) ? chartAssestData[0].InProgressCount : 0) + (!apz.isNull(
+                        chartAssestData[1].ApprovalCount) ? chartAssestData[1].ApprovalCount : 0) + (!apz.isNull(chartAssestData[2].RejectedCount) ?
+                        chartAssestData[2].RejectedCount : 0) + (!apz.isNull(chartAssestData[3].CompletedCount) ? chartAssestData[3].CompletedCount :
+                        0);
+                    gchartdata.chart.defaultCenterLabel = "Total" + "<br>  " + "Applications" + "<br>  " + "<br>  " + parseInt(totalbal);
+                    gchartdata.data = apz.app.StatusReport.fn_SetGraphData();
+                    if (totalbal === 0) {
+                        $('#' + StatusReportScrId + 'chartDiv_div').addClass('sno');
+                        $('#' + StatusReportScrId + 'NoRecordsFound').removeClass('sno');
+                    } else {
+                        $('#' + StatusReportScrId + 'chartDiv_div').removeClass('sno');
+                        $('#' + StatusReportScrId + 'NoRecordsFound').addClass('sno');
+                    }
+                }
+                /* if (totalbal === 0) {
+                     if (ScrIdArr[i] === 'ProductStatusReport') {
+                         $('#' + productStatusdateID + 'chartDiv').addClass('sno');
+                         $('#' + productStatusdateID + 'NoRecordsFound').removeClass('sno');
+                     } else {
+                         $('#' + StatusReportScrId + 'chartDiv').addClass('sno');
+                         $('#' + StatusReportScrId + 'NoRecordsFound').removeClass('sno');
+                     }
+                 } else {
+                     if (ScrIdArr[i] === 'ProductStatusReport') {
+                         $('#' + productStatusdateID + 'chartDiv').removeClass('sno');
+                         $('#' + productStatusdateID + 'NoRecordsFound').addClass('sno');
+                     } else {
+                         $('#' + StatusReportScrId + 'chartDiv').removeClass('sno');
+                         $('#' + StatusReportScrId + 'NoRecordsFound').addClass('sno');
+                     }
+                 }*/
+            }
+        }
+    }
+};

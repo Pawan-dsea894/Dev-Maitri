@@ -1,0 +1,31 @@
+@use "../Abstract" as a;
+
+.filebox {
+	position: relative;
+	box-sizing: border-box;
+	input[type="file"] {
+		opacity: 0 !important;
+		position: absolute;
+		overflow: hidden !important;
+		box-sizing: border-box;
+		width: 100%;
+		height: 100%;
+		top: 0;
+		left: 0;
+		cursor: pointer;
+	}
+}
+.ett-file {
+	&.pri .ett-bttn {
+	}
+	&.sec .ett-bttn {
+	}
+	&.ter .ett-bttn {
+	}
+}
+.filevalue p {
+	display: inline;
+	padding-left: 3px;
+	padding-right: 3px;
+}
+/* File End */

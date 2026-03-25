@@ -1,0 +1,135 @@
+
+.ett-ctmu {
+	&.pri > .cmnu-ctr {
+		background-color: #ffffff;
+		border: 1px solid #f0f0f0;
+		border-radius: 5px;
+		outline: none;
+		min-width: 220px;
+		overflow: auto;
+		box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
+		padding: 0;
+		margin: 0;
+		> ul > li {
+			width: 100%;
+			padding: 8px 15px;
+			max-width: 250px;
+			display: block;
+			span {
+				display: table-cell;
+				width: 34px;
+				vertical-align: middle;
+			}
+			&:last-child {
+				border-bottom: none !important;
+			}
+			a {
+				text-decoration: none;
+				padding: 0;
+				display: table-cell;
+				vertical-align: middle;
+				color: #333;
+			}
+			&:hover {
+				background-color: #0693ea;
+				a {
+					color: #fff;
+					text-decoration: none;
+				}
+				svg {
+					fill: #fff;
+				}
+			}
+		}
+	}
+	&.sec > .cmnu-ctr {
+		background-color: #ffffff;
+		border: 1px solid #f0f0f0;
+		border-radius: 5px;
+		outline: none;
+		min-width: 220px;
+		overflow: auto;
+		box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
+		padding: 0;
+		margin: 0;
+		> ul > li {
+			width: 100%;
+			padding: 8px 15px;
+			max-width: 250px;
+			display: block;
+			span {
+				display: table-cell;
+				width: 34px;
+				vertical-align: middle;
+			}
+			&:last-child {
+				border-bottom: none !important;
+			}
+			a {
+				text-decoration: none;
+				padding: 0;
+				display: table-cell;
+				vertical-align: middle;
+				color: #333;
+			}
+			&:hover {
+				background-color: rgba(0, 0, 0, 0.5);
+				a {
+					color: #fff;
+					text-decoration: none;
+				}
+				svg {
+					fill: #fff;
+				}
+			}
+		}
+	}
+	&.ter > .cmnu-ctr {
+		background-color: #ffffff;
+		border: 1px solid #f0f0f0;
+		border-radius: 5px;
+		outline: none;
+		min-width: 220px;
+		overflow: auto;
+		box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
+		> ul {
+			padding: 0;
+			margin: 0;
+			> li {
+				width: 100%;
+				padding: 8px 15px;
+				max-width: 250px;
+				display: block;
+				span {
+					display: table-cell;
+					width: 34px;
+					vertical-align: middle;
+					text-align: center;
+				}
+				&:last-child {
+					border-bottom: none !important;
+				}
+				a {
+					text-decoration: none;
+					padding: 0;
+					display: table-cell;
+					vertical-align: middle;
+					color: #333;
+				}
+				&:hover {
+					background-color: #f2145e;
+					a {
+						color: #fff;
+						text-decoration: none;
+					}
+					svg {
+						fill: #fff;
+					}
+				}
+			}
+		}
+	}
+}
+
+
+/* contextmenu end */

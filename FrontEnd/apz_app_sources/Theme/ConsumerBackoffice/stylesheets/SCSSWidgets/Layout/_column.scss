@@ -1,0 +1,798 @@
+@use "../Abstract" as a;
+
+
+/* Ang-srb section row column  css */
+.srb wrapped > seccolcomponent > li {display: table-cell;float: left;}
+.srb > seccolcomponent > span {display: table-cell;float: left;} 
+.srb.wrapped > seccolcomponent {display: initial;float:unset;} 
+.srb > seccolcomponent {display: table-cell;vertical-align:middle;float:left;min-height:1px;}
+
+/* Ang-section column component */
+.srb > seccolcomponent > li.scb-col5{width:100%}
+.srb > seccolcomponent > li.scb-col10{width:100%}
+.srb > seccolcomponent > li.scb-col15{width:100%}
+.srb > seccolcomponent > li.scb-col20{width:100%}
+.srb > seccolcomponent > li.scb-col25{width:100%}
+.srb > seccolcomponent > li.scb-col30{width:100%}
+.srb > seccolcomponent > li.scb-col35{width:100%}
+.srb > seccolcomponent > li.scb-col40{width:100%}
+.srb > seccolcomponent > li.scb-col45{width:100%}
+.srb > seccolcomponent > li.scb-col50{width:100%}
+.srb > seccolcomponent > li.scb-col55{width:100%}
+.srb > seccolcomponent > li.scb-col60{width:100%}
+.srb > seccolcomponent > li.scb-col65{width:100%}
+.srb > seccolcomponent > li.scb-col70{width:100%}
+.srb > seccolcomponent > li.scb-col75{width:100%}
+.srb > seccolcomponent > li.scb-col80{width:100%}
+.srb > seccolcomponent > li.scb-col85{width:100%}
+.srb > seccolcomponent > li.scb-col90{width:100%} 
+.srb > seccolcomponent > li.scb-col95{width:100%}
+.srb > seccolcomponent > li.scb-col100{width:100%}
+
+
+
+.srb.pri > li.pri.war, .srb.pri > seccolcomponent > span.pri.war{background-color:#3f51b5; color: #fff; }
+.srb.pri > li, .srb.pri > seccolcomponent > span {padding: 0} 
+.srb.sec > li, .srb.sec > seccolcomponent > span {padding:1em} 
+.srb.ter > li, .srb.ter > seccolcomponent > span {padding:2em} 
+
+.srb.pri > li.pri, .srb.pri > span.pri {}
+.srb.pri > li.pri.inf, .srb.pri > seccolcomponent > span.pri.inf {background-color:#3f51b5; color: #fff;}
+.srb.pri > li.pri.war, .srb.pri > seccolcomponent > span.pri.war {background-color:#e91e63; color: #fff;}
+.srb.pri > li.pri.err, .srb.pri > seccolcomponent > span.pri.err {background-color:#444444; color: #fff;}
+.srb.pri > li.pri.suc, .srb.pri > seccolcomponent > span.pri.suc {background-color:#6f9a37; color: #fff;}
+.srb.pri > li.sec, .srb.pri > seccolcomponent > span.sec {background-color:#f0f0f0}
+.srb.pri > li.sec.inf, .srb.pri > seccolcomponent > span.sec.inf {background-color:#03a9f4; color: #fff}
+.srb.pri > li.sec.war, .srb.pri > seccolcomponent > span.sec.war {background-color:#ffc107; color: #111}
+.srb.pri > li.sec.err, .srb.pri > seccolcomponent > span.sec.err {background-color:#f44336; color: #fff}
+.srb.pri > li.sec.suc, .srb.pri > seccolcomponent > span.sec.suc {background-color:#4caf50; color: #fff}
+.srb.pri > li.ter, .srb.pri > seccolcomponent > span.ter {background-color:#f9f9f9}
+.srb.pri > li.ter.inf, .srb.pri > seccolcomponent > span.ter.inf {background-color:#3498db; color:#fff;}
+.srb.pri > li.ter.war, .srb.pri > seccolcomponent > span.ter.war {background-color:#9b59b6; color:#fff} 
+.srb.pri > li.ter.err, .srb.pri > seccolcomponent > span.ter.err {background-color:#e74c3c; color:#fff}
+.srb.pri > li.ter.suc, .srb.pri > seccolcomponent > span.ter.suc {background-color:#50c1cf; color:#fff;}
+
+.srb.sec > li.pri, .srb.sec > span.pri {}
+.srb.sec > li.pri.inf, .srb.sec > seccolcomponent > span.pri.inf {background-color:#3f51b5; color: #fff;}
+.srb.sec > li.pri.war, .srb.sec > seccolcomponent > span.pri.war {background-color:#e91e63; color: #fff;}
+.srb.sec > li.pri.err, .srb.sec > seccolcomponent > span.pri.err {background-color:#444444; color: #fff;}
+.srb.sec > li.pri.suc, .srb.sec > seccolcomponent > span.pri.suc {background-color:#6f9a37; color: #fff;}
+.srb.sec > li.sec, .srb.sec > seccolcomponent > span.sec {background-color:#ffffff}
+.srb.sec > li.sec.inf, .srb.sec > seccolcomponent > span.sec.inf {background-color:#03a9f4; color: #fff}
+.srb.sec > li.sec.war, .srb.sec > seccolcomponent > span.sec.war {background-color:#ffc107; color: #111}
+.srb.sec > li.sec.err, .srb.sec > seccolcomponent > span.sec.err {background-color:#f44336; color: #fff}
+.srb.sec > li.sec.suc, .srb.sec > seccolcomponent > span.sec.suc {background-color:#4caf50; color: #fff}
+.srb.sec > li.ter, .srb.sec > seccolcomponent > span.ter {background-color:#f0f0f0}
+.srb.sec > li.ter.inf, .srb.sec > seccolcomponent > span.ter.inf {background-color:#3498db; color:#fff;}
+.srb.sec > li.ter.war, .srb.sec > seccolcomponent > span.ter.war {background-color:#9b59b6; color:#fff} 
+.srb.sec > li.ter.err, .srb.sec > seccolcomponent > span.ter.err {background-color:#e74c3c; color:#fff}
+.srb.sec > li.ter.suc, .srb.sec > seccolcomponent > span.ter.suc {background-color:#50c1cf; color:#fff;}
+
+.srb.ter > li.pri, .srb.ter > seccolcomponent > span.pri {}
+.srb.ter > li.pri.inf, .srb.ter > seccolcomponent > span.pri.inf {background-color:#3f51b5; color: #fff;}
+.srb.ter > li.pri.war, .srb.ter > seccolcomponent > span.pri.war {background-color:#e91e63; color: #fff;}
+.srb.ter > li.pri.err, .srb.ter > seccolcomponent > span.pri.err {background-color:#444444; color: #fff;}
+.srb.ter > li.pri.suc, .srb.ter > seccolcomponent > span.pri.suc {background-color:#6f9a37; color: #fff;}
+.srb.ter > li.sec, .srb.ter > seccolcomponent > span.sec {background-color:#ffffff}
+.srb.ter > li.sec.inf, .srb.ter > seccolcomponent > span.sec.inf {border-left:4px solid #03a9f4; background-color: #fff}
+.srb.ter > li.sec.war, .srb.ter > seccolcomponent > span.sec.war {border-left:4px solid #ffc107; background-color: #fff}
+.srb.ter > li.sec.err, .srb.ter > seccolcomponent > span.sec.err {border-left:4px solid #f44336; background-color: #fff}
+.srb.ter > li.sec.suc, .srb.ter > seccolcomponent > span.sec.suc {border-left:4px solid #4caf50; background-color: #fff}
+.srb.ter > li.ter, .srb.ter > seccolcomponent > span.ter {background-color:#f0f0f0}
+.srb.ter > li.ter.inf, .srb.ter > seccolcomponent > span.ter.inf {background-color:#3498db; color:#fff;}
+.srb.ter > li.ter.war, .srb.ter > seccolcomponent > span.ter.war {background-color:#9b59b6; color:#fff} 
+.srb.ter > li.ter.err, .srb.ter > seccolcomponent > span.ter.err {background-color:#e74c3c; color:#fff}
+.srb.ter > li.ter.suc, .srb.ter > seccolcomponent > span.ter.suc {background-color:#50c1cf; color:#fff;}
+
+
+/* Non Responsive grid */
+.sc2b-col1, .sc2b-col2, .sc2b-col3, .sc2b-col4, .sc2b-col5, .sc2b-col6, .sc2b-col7, .sc2b-col8, .sc2b-col9, .sc2b-col10, .sc2b-col11, .sc2b-col12 { 
+	float: left;  
+	min-height: 1px;
+}
+
+.sc2b-col1 {width: 8.33333333%;}
+.sc2b-col2 {width: 16.66666667%}
+.sc2b-col3 {width: 25%}
+.sc2b-col4 {width: 33.33333333%}
+.sc2b-col5 {width: 41.66666667%}
+.sc2b-col6 {width: 50%}
+.sc2b-col7 {width: 58.33333333%}
+.sc2b-col8 {width: 66.66666667%}
+.sc2b-col9 {width: 75%}
+.sc2b-col10 {width: 83.33333333%}
+.sc2b-col11 {width: 91.66666667%}
+.sc2b-col12 {width: 100%}
+
+
+/*column space related css */
+
+/* default gutter for grid */
+
+/*Margin setting */
+.gutter .gcb-col1,.gutter .gcb-col2,.gutter .gcb-col3,.gutter .gcb-col4,.gutter .gcb-col5g,.gutter .gcb-col6,.gutter .gcb-col7,.gutter .gcb-col8,.gutter .gcb-col9,.gutter .gcb-col10g,.gutter .gcb-col11,.gutter .gcb-col12{float:left;min-height:1px;  }
+
+
+.gutter .grb div[class*="gcb"]{
+    margin-left:a.$column-space ;
+}
+.gutter .grb div[class*="gcb"]:first-child{
+    margin-left:0;
+}
+
+
+.gutter .grb .gcb-col12 {
+    width: a.$grid12;
+    *width: 99.94680851063829%;
+    margin-left:0;
+  }
+ .gutter .grb .gcb-col11 {
+    width: 91.43646408839778%; 
+    *width: 91.38327259903608%;
+  }
+ .gutter .grb .gcb-col10g {
+    width: 82.87292817679558%;
+    *width: 82.81973668743387%;
+  }
+  .gutter .grb .gcb-col9 {
+    width: 74.30939226519337%;
+    *width: 74.25620077583166%;
+  }
+  .gutter .grb .gcb-col8{
+    width: 65.74585635359117%;
+    *width: 65.69266486422946%;
+  }
+.gutter .grb .gcb-col7 {
+    width: 57.18232044198895%;
+    *width: 57.12912895262725%;
+  }
+ .gutter .grb .gcb-col6 {
+    width: 48.61878453038674%;
+    *width: 48.56559304102504%;
+  }
+ .gutter .grb .gcb-col5g  {
+    width: 40.05524861878453%;
+    *width: 40.00205712942283%;
+  }
+ .gutter .grb .gcb-col4 {
+    width: 31.491712707182323%;
+    *width: 31.43852121782062%;
+  }
+  .gutter .grb .gcb-col3 {
+    width: 22.92817679558011%;
+    *width: 22.87498530621841%;
+  }
+  .gutter .grb .gcb-col2{
+    width: 14.3646408839779%;
+    *width: 14.311449394616199%;
+  }
+  .gutter .grb .gcb-col1{
+    width: 5.801104972375691%;
+    *width: 5.747913483013988%;
+  }
+
+
+
+@media (max-width: 700px) {
+    .gutter .grb div.gcb-sml12 {
+    width: 100%;
+    *width: 99.94680851063829%;
+    margin-left:0 !important;
+  }
+ .gutter .grb .gcb-sml11 {
+    width: 91.43646408839778%;
+    *width: 91.38327259903608%;
+  }
+ .gutter .grb .gcb-sml10g {
+    width: 82.87292817679558%;
+    *width: 82.81973668743387%;
+  }
+  .gutter .grb .gcb-sml9 {
+    width: 74.30939226519337%;
+    *width: 74.25620077583166%;
+  }
+  .gutter .grb .gcb-sml8{
+    width: 65.74585635359117%;
+    *width: 65.69266486422946%;
+  }
+.gutter .grb .gcb-sml7 {
+    width: 57.18232044198895%;
+    *width: 57.12912895262725%;
+  }
+ .gutter .grb .gcb-sml6 {
+    width: 48.61878453038674%;
+    *width: 48.56559304102504%;
+  }
+ .gutter .grb .gcb-sml5g  {
+    width: 40.05524861878453%;
+    *width: 40.00205712942283%;
+  }
+ .gutter .grb .gcb-sml4 {
+    width: 31.491712707182323%;
+    *width: 31.43852121782062%;
+  }
+  .gutter .grb .gcb-sml3 {
+    width: 22.92817679558011%;
+    *width: 22.87498530621841%;
+  }
+  .gutter .grb .gcb-sml2{
+    width: 14.3646408839779%;
+    *width: 14.311449394616199%;
+  }
+  .gutter .grb .gcb-sml1{
+    width: 5.801104972375691%;
+    *width: 5.747913483013988%;
+  }
+} 
+
+@media (min-width:700px) and (max-width:992px) {
+.gutter .grb .gcb-med12{
+    width: 100%;
+    *width: 99.94680851063829%;
+    margin-left:0 !important;
+  }
+ .gutter .grb .gcb-med11 {
+    width: 91.43646408839778%;
+    *width: 91.38327259903608%;
+  }
+ .gutter .grb .gcb-med10g {
+    width: 82.87292817679558%;
+    *width: 82.81973668743387%;
+  }
+  .gutter .grb .gcb-med9 {
+    width: 74.30939226519337%;
+    *width: 74.25620077583166%;
+  }
+  .gutter .grb .gcb-med8{
+    width: 65.74585635359117%;
+    *width: 65.69266486422946%;
+  }
+.gutter .grb .gcb-med7 {
+    width: 57.18232044198895%;
+    *width: 57.12912895262725%;
+  }
+ .gutter .grb .gcb-med6 {
+    width: 48.61878453038674%;
+    *width: 48.56559304102504%;
+  }
+ .gutter .grb .gcb-med5g  {
+    width: 40.05524861878453%;
+    *width: 40.00205712942283%;
+  }
+ .gutter .grb .gcb-med4 {
+    width: 31.491712707182323%;
+    *width: 31.43852121782062%;
+  }
+  .gutter .grb .gcb-med3 {
+    width: 22.92817679558011%;
+    *width: 22.87498530621841%;
+  }
+  .gutter .grb .gcb-med2{
+    width: 14.3646408839779%;
+    *width: 14.311449394616199%;
+  }
+  .gutter .grb .gcb-med1{
+    width: 5.801104972375691%;
+    *width: 5.747913483013988%;
+  }
+    
+}
+
+
+@media (min-width: 992px) {
+.gutter .grb div.gcb-lar12 {
+    width: 100%;
+    *width: 99.94680851063829%;
+    margin-left:0 !important;
+  }
+ .gutter .grb .gcb-lar11 {
+    width: 91.43646408839778%;
+    *width: 91.38327259903608%;
+  }
+ .gutter .grb .gcb-lar10g {
+    width: 82.87292817679558%;
+    *width: 82.81973668743387%;
+  }
+  .gutter .grb .gcb-lar9 {
+    width: 74.30939226519337%;
+    *width: 74.25620077583166%;
+  }
+  .gutter .grb .gcb-lar8{
+    width: 65.74585635359117%;
+    *width: 65.69266486422946%;
+  }
+.gutter .grb .gcb-lar7 {
+    width: 57.18232044198895%;
+    *width: 57.12912895262725%;
+  }
+ .gutter .grb .gcb-lar6 {
+    width: 48.61878453038674%;
+    *width: 48.56559304102504%;
+  }
+ .gutter .grb .gcb-lar5g  {
+    width: 40.05524861878453%;
+    *width: 40.00205712942283%;
+  }
+ .gutter .grb .gcb-lar4 {
+    width: 31.491712707182323%;
+    *width: 31.43852121782062%;
+  }
+  .gutter .grb .gcb-lar3 {
+    width: 22.92817679558011%;
+    *width: 22.87498530621841%;
+  }
+  .gutter .grb .gcb-lar2{
+    width: 14.3646408839779%;
+    *width: 14.311449394616199%;
+  }
+  .gutter .grb .gcb-lar1{
+    width: 5.801104972375691%;
+    *width: 5.747913483013988%;
+  }
+    
+}
+@media (min-width: 1200px) {
+.gutter .grb div.gcb-xxl12 {
+    width: 100%;
+    *width: 99.94680851063829%;
+    margin-left:0 !important;
+    
+  }
+ .gutter .grb .gcb-xxl11 {
+    width: 91.43646408839778%;
+    *width: 91.38327259903608%;
+  }
+ .gutter .grb .gcb-xxl10g {
+    width: 82.87292817679558%;
+    *width: 82.81973668743387%;
+  }
+  .gutter .grb .gcb-xxl9 {
+    width: 74.30939226519337%;
+    *width: 74.25620077583166%;
+  }
+  .gutter .grb .gcb-xxl8{
+    width: 65.74585635359117%;
+    *width: 65.69266486422946%;
+  }
+.gutter .grb .gcb-xxl7 {
+    width: 57.18232044198895%;
+    *width: 57.12912895262725%;
+  }
+ .gutter .grb .gcb-xxl6 {
+    width: 48.61878453038674%;
+    *width: 48.56559304102504%;
+  }
+ .gutter .grb .gcb-xxl5g  {
+    width: 40.05524861878453%;
+    *width: 40.00205712942283%;
+  }
+ .gutter .grb .gcb-xxl4 {
+    width: 31.491712707182323%;
+    *width: 31.43852121782062%;
+  }
+  .gutter .grb .gcb-xxl3 {
+    width: 22.92817679558011%;
+    *width: 22.87498530621841%;
+  }
+  .gutter .grb .gcb-xxl2{
+    width: 14.3646408839779%;
+    *width: 14.311449394616199%;
+  }
+  .gutter .grb .gcb-xxl1{
+    width: 5.801104972375691%;
+    *width: 5.747913483013988%;
+  }
+}
+
+
+body .gutter{
+    background-color:#fff;
+}
+/* Navbar gutter specific like default */
+.gutter nav .grb{
+    padding:0px;
+    margin:0px;
+}
+
+.gutter nav [class*="gcb-"]{
+padding:0px;
+    margin:0px;
+
+}
+.gutter .ett-para{
+    padding:0px;
+}
+.gutter .pst-simp.pri{ box-shadow:none;}
+
+/* gutter size*/
+.gutter .g0 .srb > span {
+    padding: 0px;
+}
+
+.gutter .g1 .srb > span {
+    padding: 6px;
+}
+.gutter .g2 .srb > span {
+    padding: 12px;
+}
+.gutter .g3 .srb > span {
+    padding: 16px;
+}
+
+// .gutter .srb > span {
+//     padding: 0 15px;
+// }
+.gutter .srb .srb {
+    margin-left: 0px;
+    margin-right:0px;
+}
+
+.gutter .plt-simp{
+    margin:0em;
+}
+
+.gutter .grb {
+    margin: 8px 0 ;
+} 
+.gutter nav .srb {
+    margin: 0px;
+}
+
+/* SECTION GRID 1 START */
+.srb {display:table; table-layout:fixed}
+.srb > li,.srb > span,.srb > dd,.srb > dt {display:table-cell;}
+
+.gutter .srb {display:table; table-layout:fixed;margin:8px 0px;}
+.gutter .srb > li,.gutter .srb > span,.gutter .srb > dd,.gutter .srb > dt {display:table-cell;float:left;}
+
+
+.gutter .grb .srb.wrapped div[class*="scb"]:first-child,
+.gutter .grb .srb.wrapped span[class*="scb"]:first-child{margin-left:0;}
+.gutter .grb .srb.wrapped div[class*="scb"]{ margin-left: a.$column-space;}
+
+
+
+/* designer related gutter css*/
+.gutter .grb .srb.wrapped span[class*="scb"]{border: 1px solid red;margin-left:a.$column-space ;} 
+.gutter .grb div[class*="gcb"]{margin-left:a.$column-space;margin-bottom:4px;}
+.gutter .grb.wrapped  div[class*="gcb"]:first-child{margin-left:0;}
+.gutter .grb .srb.wrapped div[class*="scb"]:first-child{margin-left:0;}
+.gutter .grb .srb span[class*="scb"]{margin-left:a.$column-space;}
+ /* Non Responsive grid */
+/* Max widths */
+.scb-max5{max-width:5%}
+.scb-max10{max-width:10%}
+.scb-max15{max-width:15%}
+.scb-max20{max-width:20%}
+.scb-max25{max-width:25%}
+.scb-max30{max-width:30%}
+.scb-max35{max-width:35%}
+.scb-max40{max-width:40%}
+.scb-max45{max-width:45%}
+.scb-max50{max-width:50%}
+.scb-max55{max-width:55%}
+.scb-max60{max-width:60%}
+.scb-max65{max-width:65%}
+.scb-max70{max-width:70%}
+.scb-max75{max-width:75%}
+.scb-max80{max-width:80%}
+.scb-max85{max-width:85%}
+.scb-max90{max-width:90%}
+.scb-max95{max-width:95%}
+.scb-max100{max-width:100%}
+/*gutter margin setting for section colum*/
+/*.gutter .grb > div */
+
+.gutter .grb .srb span[class*="scb"]{margin-left:a.$column-space ;margin-bottom:10px;}
+.gutter .grb .srb div[class*="scb"]:first-child,
+.gutter .grb .srb span[class*="scb"]:first-child{margin-left:0;}
+
+
+.gutter .grb .srb .scb-col12 {
+    width: 100%;
+    *width: 99.94680851063829%;
+  }
+ .gutter .grb .srb .scb-col11 {
+    width: 91.43646408839778%;
+    *width: 91.38327259903608%;
+  }
+ .gutter .grb .srb .scb-col10g {
+    width: 82.87292817679558%;
+    *width: 82.81973668743387%;
+  }
+  .gutter .grb .srb .scb-col9 {
+    width: 74.30939226519337%;
+    *width: 74.25620077583166%;
+  }
+  .gutter .grb .srb .scb-col8{
+    width: 65.74585635359117%;
+    *width: 65.69266486422946%;
+  }
+.gutter .grb .srb .scb-col7 {
+    width: 57.18232044198895%;
+    *width: 57.12912895262725%;
+  }
+ .gutter .grb .srb .scb-col6 {
+    width: 48.61878453038674%;
+    *width: 48.56559304102504%;
+  }
+ .gutter .grb .srb .scb-col5g  {
+    width: 40.05524861878453%;
+    *width: 40.00205712942283%;
+  }
+ .gutter .grb .srb .scb-col4 {
+    width: 31.491712707182323%;
+    *width: 31.43852121782062%;
+  }
+  .gutter .grb .srb .scb-col3 {
+    width: 22.92817679558011%;
+  }
+  .gutter .grb .srb .scb-col2{
+    width: 14.3646408839779%;
+    *width: 14.311449394616199%;
+  }
+  .gutter .grb .srb .scb-col1{
+    width: 5.801104972375691%;
+    *width: 5.747913483013988%;
+  }
+ 
+
+@media (max-width: 700px) {
+    
+    .sml-sno{display:none !important;}
+ .gutter .grb .srb div.sml-sno[class*="scb"]:first-child + div,.gutter .grb .srb span.sml-sno[class*="scb"]:first-child + span, .gutter .grb .srb span.sml-sno[class*="scb"]:first-child + span{ margin-left:0px;}
+ 
+    .gutter .grb div.sml-sno[class*="gcb"]:first-child + div{ margin-left:0px;}
+   
+     .gutter .grb .srb div.scb-sml12,.gutter .grb .srb span.scb-sml12 {
+    width: 100%;
+    *width: 99.94680851063829%;
+    margin-left:0 !important;
+  }
+ .gutter .grb .srb .scb-sml11 {
+    width: 91.43646408839778%;
+    *width: 91.38327259903608%;
+  }
+ .gutter .grb .srb .scb-sml10g {
+    width: 82.87292817679558%;
+    *width: 82.81973668743387%;
+  }
+  .gutter .grb .srb .scb-sml9 {
+    width: 74.30939226519337%;
+    *width: 74.25620077583166%;
+  }
+  .gutter .grb .srb .scb-sml8{
+    width: 65.74585635359117%;
+    *width: 65.69266486422946%;
+  }
+.gutter .grb .srb .scb-sml7 {
+    width: 57.18232044198895%;
+    *width: 57.12912895262725%;
+  }
+ .gutter .grb .srb .scb-sml6 {
+    width: 48.61878453038674%;
+    *width: 48.56559304102504%;
+  }
+ .gutter .grb .srb .scb-sml5g  {
+    width: 40.05524861878453%;
+    *width: 40.00205712942283%;
+  }
+ .gutter .grb .srb .scb-sml4 {
+    width: 31.491712707182323%;
+    *width: 31.43852121782062%;
+  }
+  .gutter .grb .srb .scb-sml3 {
+    width: 22.92817679558011%;
+    *width: 22.87498530621841%;
+  }
+  .gutter .grb .srb .scb-sml2{
+    width: 14.3646408839779%;
+    *width: 14.311449394616199%;
+  }
+  .gutter .grb .srb .scb-sml1{
+    width: 5.801104972375691%;
+    *width: 5.747913483013988%;
+  }
+} 
+@media (min-width: 640px) and (max-width:700px){
+    .gutter .grb .srb div.scb-sml12,.gutter .grb .srb span.scb-sml12 {
+    width: 100%;
+    *width: 99.94680851063829%;
+    margin-left:0 !important;
+  }
+  .gutter .grb .srb span.scb-sml12 ~ span{ 
+      margin-left:0 !important;
+  }
+}
+@media (min-width:700px) and (max-width:992px){
+ 
+.med-sno{display:none !important;}
+ .gutter .grb .srb div.med-sno[class*="scb"]:first-child + div, .gutter .grb .srb span.med-sno[class*="scb"]:first-child + span{ margin-left:0px;}
+.gutter .grb div.med-sno[class*="gcb"]:first-child + div{ margin-left:0px;}
+
+.gutter .grb .srb div.scb-med12,.gutter .grb .srb span.scb-med12{
+    width: 100%;
+    *width: 99.94680851063829%;
+    margin-left:0 !important;
+  }
+ .gutter .grb .srb .scb-med11 {
+    width: 91.43646408839778%;
+    *width: 91.38327259903608%;
+  }
+ .gutter .grb .srb .scb-med10g {
+    width: 82.87292817679558%;
+    *width: 82.81973668743387%;
+  }
+  .gutter .grb .srb .scb-med9 {
+    width: 74.30939226519337%;
+    *width: 74.25620077583166%;
+  }
+  .gutter .grb .srb .scb-med8{
+    width: 65.74585635359117%;
+    *width: 65.69266486422946%;
+  }
+.gutter .grb .srb .scb-med7 {
+    width: 57.18232044198895%;
+    *width: 57.12912895262725%;
+  }
+ .gutter .grb .srb .scb-med6 {
+    width: 48.61878453038674%;
+    *width: 48.56559304102504%;
+  }
+ .gutter .grb .srb .scb-med5g  {
+    width: 40.05524861878453%;
+    *width: 40.00205712942283%;
+  }
+ .gutter .grb .srb .scb-med4 {
+    width: 31.491712707182323%;
+    *width: 31.43852121782062%;
+  }
+  .gutter .grb .srb .scb-med3 {
+    width: 22.92817679558011%;
+    *width: 22.87498530621841%;
+  }
+  .gutter .grb .srb .scb-med2{
+    width: 14.3646408839779%;
+    *width: 14.311449394616199%;
+  }
+  .gutter .grb .srb .scb-med1{
+    width: 5.801104972375691%;
+    *width: 5.747913483013988%;
+  }
+}
+@media (min-width: 992px) {
+   .lar-sno{display:none !important;}
+   .gutter .grb .srb div.lar-sno[class*="scb"]:first-child + div, .gutter .grb .srb span.lar-sno[class*="scb"]:first-child + span{ margin-left:0px;}
+   .gutter .grb div.lar-sno[class*="gcb"]:first-child + div{ margin-left:0px;}
+
+.gutter .grb .srb div.scb-lar12,.gutter .grb .srb span.scb-lar12 {
+    width: 100%;
+    *width: 99.94680851063829%;
+    margin-left:0 !important;
+  }
+ .gutter .grb .srb .scb-lar11 {
+    width: 91.43646408839778%;
+    *width: 91.38327259903608%;
+  }
+ .gutter .grb .srb .scb-lar10g {
+    width: 82.87292817679558%;
+    *width: 82.81973668743387%;
+  }
+  .gutter .grb .srb .scb-lar9 {
+    width: 74.30939226519337%;
+    *width: 74.25620077583166%;
+  }
+  .gutter .grb .srb .scb-lar8{
+    width: 65.74585635359117%;
+    *width: 65.69266486422946%;
+  }
+.gutter .grb .srb .scb-lar7 {
+    width: 57.18232044198895%;
+    *width: 57.12912895262725%;
+  }
+ .gutter .grb .srb .scb-lar6 {
+    width: 48.61878453038674%;
+    *width: 48.56559304102504%;
+  }
+ .gutter .grb .srb .scb-lar5g  {
+    width: 40.05524861878453%;
+    *width: 40.00205712942283%;
+  }
+ .gutter .grb .srb .scb-lar4 {
+    width: 31.491712707182323%;
+    *width: 31.43852121782062%;
+  }
+  .gutter .grb .srb .scb-lar3 {
+    width: 22.92817679558011%;
+    *width: 22.87498530621841%;
+  }
+  .gutter .grb .srb .scb-lar2{
+    width: 14.3646408839779%;
+    *width: 14.311449394616199%;
+  }
+  .gutter .grb .srb .scb-lar1{
+    width: 5.801104972375691%;
+    *width: 5.747913483013988%;
+  }
+}
+@media (min-width: 1200px) {
+   .xxl-sno{display:none !important;}
+   .gutter .grb .srb div.xxl-sno[class*="scb"]:first-child + div, .gutter .grb .srb span.xxl-sno[class*="scb"]:first-child + span{ margin-left:0px;}
+   .gutter .grb div.xxl-sno[class*="gcb"]:first-child + div{ margin-left:0px;}
+.gutter .grb .srb div.scb-xxl12,.gutter .grb .srb span.scb-xxl12 {
+    width: 100%;
+    *width: 99.94680851063829%;
+    margin-left:0 !important;
+     }
+ .gutter .grb .srb .scb-xxl11 {
+    width: 91.43646408839778%;
+    *width: 91.38327259903608%;
+  }
+ .gutter .grb .srb .scb-xxl10g {
+    width: 82.87292817679558%;
+    *width: 82.81973668743387%;
+  }
+  .gutter .grb .srb .scb-xxl9 {
+    width: 74.30939226519337%;
+    *width: 74.25620077583166%;
+  }
+  .gutter .grb .srb .scb-xxl8{
+    width: 65.74585635359117%;
+    *width: 65.69266486422946%;
+  }
+.gutter .grb .srb .scb-xxl7 {
+    width: 57.18232044198895%;
+    *width: 57.12912895262725%;
+  }
+ .gutter .grb .srb .scb-xxl6 {
+    width: 48.61878453038674%;
+    *width: 48.56559304102504%;
+  }
+ .gutter .grb .srb .scb-xxl5g  {
+    width: 40.05524861878453%;
+    *width: 40.00205712942283%;
+  }
+ .gutter .grb .srb .scb-xxl4 {
+    width: 31.491712707182323%;
+    *width: 31.43852121782062%;
+  }
+  .gutter .grb .srb .scb-xxl3 {
+    width: 22.92817679558011%;
+    *width: 22.87498530621841%;
+  }
+  .gutter .grb .srb .scb-xxl2{
+    width: 14.3646408839779%;
+    *width: 14.311449394616199%;
+  }
+  .gutter .grb .srb .scb-xxl1{
+    width: 5.801104972375691%;
+    *width: 5.747913483013988%;
+  }
+} 
+.gutter section > .grb {
+    margin: 0px;
+}
+.gutter .grb .srb div.sno[class*="scb"]:first-child + div, .gutter .grb .srb span.sno[class*="scb"]:first-child + span,.gutter .grb .srb div.sno[class*="scb"] + div, .gutter .grb .srb span.sno[class*="scb"] + span{ margin-left:0px;}
+ .gutter .grb div.sno[class*="gcb"]:first-child + div,.gutter .grb div.sno[class*="gcb"] + div, .gutter .grb span.sno[class*="gcb"]:first-child + span,.gutter .grb span.sno[class*="gcb"] + span{ margin-left:0px;}
+.gutter .grb div[class*="gcb"]:not(.sno) ~ .sno + div:not(.sno) {margin-left: a.$column-space;}
+
+.gutter .srb>li.etw-0,.gutter .srb>span.etw-0,.gutter .srb>dd.etw-0,.gutter .srb>dt.etw-0{display:none;width:0;}
+
+.gutter .srb > li,.gutter .srb > span,.gutter .srb > dd,.gutter .srb > dt {display:table-cell;float:left;}
+
+/*gutter testing for individual */
+
+
+/*list */
+.gutter .crt-list > ul.pri > li.srb span[class*="scb"] {
+        margin: 0px;
+}
+.gutter .crt-list > ul.pri > li.srb .srb {
+        margin: 0px;
+}
+.gutter .crt-form .srb {
+    margin: 0px;
+}
+.gutter .crt-form .srb span[class*="scb"] {
+    margin-bottom: 0px;
+}

@@ -1,0 +1,26 @@
+@use "../Abstract" as a;
+
+.pnt-foot {
+    bottom: -150px;
+    &.pri {
+    	background-color: a.$foot-bg-pri;
+    	box-shadow: 0 1px 3px 1px #dcdcdc;
+    	color: a.$foot-color-pri
+    }
+    &.sec {
+    	background-image: a.$foot-bg-img-sec;
+    	box-shadow: 0 0 5px rgba(57, 70, 78, 0.2);
+    	color: a.$foot-color-sec;
+    	svg {
+    		fill: #FFF;
+    	}
+    }
+    &.ter {
+    	background-color: a.$foot-bg-ter;
+    	box-shadow: 0 0 5px rgba(57, 70, 78, 0.2);
+    	color: a.$foot-color-ter;
+    }
+    svg {
+    	fill: #000;
+    }
+}

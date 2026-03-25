@@ -1,0 +1,145 @@
+@use "../Abstract" as a;
+
+.pnt-sdbr{
+        &.lft {
+            left: -200px
+              }
+        &.rht {
+            right: -200px 
+              } 
+        &.lft.pri{
+            background-color: a.$sidbr-lft-bg-pri; 
+            box-shadow:0 0 5px rgba(57, 70, 78, 0.2);
+            color:a.$sidbr-lft-color-pri;
+              }
+        &.lft.pri {
+                    svg{
+                        fill:currentcolor; 
+                       }
+                  } 
+        &.rht.pri{
+            background-color: a.$sidbr-rht-bg-pri; 
+            box-shadow:0 0 5px rgba(57, 70, 78, 0.2);
+            color:a.$sidbr-rht-color-pri; 
+            text-align:left;  
+                 }
+        &.rht.pri{
+                  svg{
+                      fill:currentcolor; 
+                    }
+                 } 
+        &.lft.sec{
+            background-color: a.$sidbr-lft-bg-sec; 
+            box-shadow:0 0 5px rgba(57, 70, 78, 0.2);
+            color: a.$sidbr-lft-color-sec;  
+                 }
+        &.lft.sec {
+                    svg{
+                        fill:#000;
+                    }
+                    }    
+        &.rht.sec{
+            background-color: a.$sidbr-rht-bg-sec;
+            box-shadow:0 0 5px rgba(57, 70, 78, 0.2);
+            color: a.$sidbr-rht-color-sec; 
+            text-align:left;
+                }
+        &.rht.sec {
+                    svg{
+                        fill:#000;
+                        } 
+                    } 
+        &.lft.ter{
+            background-color: a.$sidbr-lft-bg-ter;
+            color:a.$sidbr-lft-color-ter
+                 }
+        &.lft.ter{
+                 svg{
+                     fill:#000;
+                    }     
+                 }  
+        &.rht.ter{
+            background-color: a.$sidbr-rht-bg-ter ;
+            color: a.$sidbr-rht-color-ter; 
+            text-align:left;
+                   }
+        &.rht.ter {
+                    svg{
+                        fill:#000; 
+                       }
+                  }
+        &.apz-nav-vmnu.lft.apz-nav-open{ 
+            height: 100%  
+                  }
+}
+.mnp{
+    .pnt-sdbr.apz-nav-vmnu.lft.apz-nav-open{
+                                            .crt-vmnu{ 
+                                                      ul{
+                                                        li{
+                                                            a{
+                                                              p{
+                                                                display: none; 
+                                                               }
+                                                             } 
+                                                          } 
+                                                        }
+                                                &:hover{
+                                                    width:200px;
+                                                       }
+                                                    }
+                                           }    
+    .pnt-sdbr.apz-nav-vmnu{
+                        a.animateddrawer {
+                                        display:block !important;
+                                        bottom: 0;
+                                        position: fixed;
+                                         }
+                            }
+    .pnt-sdbr.apz-nav-vmnu .crt-vmnu ul li a{white-space: nowrap}
+    }  
+.apz-nav-vmnu{
+                top:0; 
+                width: 200px;
+                overflow: auto; 
+                z-index:1000; 
+                background: #f6f6f6;
+                overflow-x:hidden;
+                .crt-acmn.topnav.pri{
+                                     li{
+                                        a{
+                                          padding:10px 0px;
+                                          white-space: nowrap
+                                         }
+                                        }
+                                     }
+                .crt-acmn.topnav.pri{
+                                    li{
+                                        a{ 
+                                         span{
+                                                padding:0 18px;
+                                             }
+                                          }
+                                      }
+                                    }
+            }
+.pnt-sdbr.apz-nav-vmnu.lft.apz-nav-open:hover{
+    width:200px;
+}
+.apz-nav-sdbr-lmnu {
+    margin-left: 60px;
+}
+.apz-nav-vmnu.pnt-sdbr.lft{
+    left:0px;
+}
+.sd-coll.etw-100{
+    width:calc(100vw - 70px);
+}
+.mnu-btn{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+}
+
+
+
