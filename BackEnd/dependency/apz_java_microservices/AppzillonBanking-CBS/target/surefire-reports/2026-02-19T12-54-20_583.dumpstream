@@ -1,5 +1,0 @@
-# Created at 2026-02-19T12:54:20.757
-Boot Manifest-JAR contains absolute paths in classpath 'D:\CAGL_Unified_Collections_UAT\apz_java_microservices\AppzillonBanking-CBS\target\test-classes'
-Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
-'other' has different root
-
