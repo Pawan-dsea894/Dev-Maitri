@@ -1,0 +1,46 @@
+LIT_CODE~LIT_DESC
+LIT_CUSTVER_DLBL1~Aadhaar Number or VID
+LIT_CUSTVER_DLBL2~Enter Aadhaar Number or VID
+LIT_CUSTVER_DLBL3~Please enter valid Aadhaar Number or VID
+LIT_CUSTVER_DLBL4~Now you can open account online in few simple steps
+LIT_CUSTVER_DLBL5~Things that need to be handy to open account
+LIT_CUSTVER_DLBL6~Now you can open account online in few simple steps
+LIT_CUSTVER_DLBL7~Things that need to be handy to open account
+LIT_CUSTVER_DLBL8~Now you can apply for a credit card in few simple steps
+LIT_CUSTVER_DLBL9~Things that need to be handy to apply for credit card
+LIT_CUSTVER_DLBL10~Now you can apply for Loan in few simple steps
+LIT_CUSTVER_DLBL11~Things that need to be handy to apply for Loan
+LIT_UPDOC_DLBL2~Photo & Sign
+LIT_UPDOC_DLBL1~Photo & Signature
+LIT_UPDOC_DLBL4~Address Proof
+LIT_UPDOC_DLBL3~Proof of Address
+LIT_UPDOC_DLBL6~Identity Proof
+LIT_UPDOC_DLBL5~Proof of Identity
+LIT_UPDOC_DLBL8~Upload Last 3 months Statement
+LIT_UPDOC_DLBL7~Other Documents
+LIT_KYCVER_DLBL4~National ID front and back images
+LIT_KYCVALID_DLBL2~Your National ID details
+LIT_KYCVER_DLBL2~We will validate your National ID with external system and get the details
+LIT_KYCVER_DLBL3~National ID Uploaded Images
+LIT_KYCVER_DLBL5~National ID Front
+LIT_KYCVER_RDLBL1~This Page will be redirected to UIDAI for Aadhaar Verification
+LIT_KYCVER_PLBL1~Or - Enter the aadhaar number
+LIT_KYCVALID_DLBL1~KYC Document
+LIT_KYCVER_DLBL1~Please upload your National ID for the KYC documents
+LIT_KYCVER_DLBL6~National ID Back
+LIT_WIDGET_LABEL_DLBL1~In Progress
+LIT_WIDGET_LABEL_DLBL2~Pending
+LIT_WIDGET_LABEL_DLBL3~Completed
+LIT_WIDGET_LABEL_DLBL4~Rejected
+LIT_WIDGET_LABEL_DLBL5~Assigned Leads
+LIT_KYC_EMIRATES_VALID_DLBL2~Your Emirates ID details
+LIT_KYC_EMIRATES_VER_DLBL4~Emirates ID front and back images
+LIT_KYC_EMIRATES_VER_DLBL2~We will validate your Emirates ID with external system and get the details
+LIT_KYC_EMIRATES_VER_DLBL5~Emirates ID Front
+LIT_KYC_EMIRATES_VER_RDLBL1~This Page will be redirected to UIDAI for Emirates ID Verification
+LIT_KYC_EMIRATES_VER_PLBL1~Or - Enter the Emirates ID
+LIT_KYC_EMIRATES_VER_DLBL1~Please upload your Emirates ID for the KYC documents
+LIT_KYC_EMIRATES_VER_DLBL6~Emirates ID Back
+LIT_KYC_EMIRATES_VER_DLBL3~Emirates ID Uploaded Images
+LIT_NON_PERIOD~6
+LIT_NON_ELI_CONTCTNO~1800 624 5677
